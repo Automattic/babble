@@ -107,6 +107,8 @@ function sil_locale( $locale ) {
 	// END: Huge hunk of WP->parse_request
 
 	// @FIXME: Should probably check the available languages here
+	// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo
+
 	// error_log( "Locale (before): $locale for request ($request)" );
 	// @FIXME: Should I be using $GLOBALS['request] here? Feels odd.
 	if ( preg_match( SIL_LANG_REGEX, $request, $matches ) )
@@ -124,7 +126,7 @@ add_filter( 'locale', 'sil_locale' );
  **/
 function sil_languages( $langs ) {
 	$langs[] = 'de_DE';
-	// $langs[] = 'he_IL';
+	$langs[] = 'he_IL';
 	return $langs;
 }
 add_filter( 'sil_languages', 'sil_languages' );
@@ -140,7 +142,7 @@ add_filter( 'sil_languages', 'sil_languages' );
  **/
 function sil_registered_post_type( $post_type, $args ) {
 	// When we turn this into classes we can avoid a global here
-	global $sil_syncing; 
+	global $sil_syncing, $shadow_post_types; 
 
 	// Don't bother with non-public post_types for now
 	// @FIXME: This may need to change for menus?
@@ -182,20 +184,22 @@ function sil_registered_post_type( $post_type, $args ) {
 		'thumbnail',
 		'custom-fields'
 	);
-	
+
 	foreach ( $langs as $lang ) {
+		$new_args = $args;
+		
 		// @FIXME: Note currently we are in danger of a post_type name being longer than 20 chars
 		// Perhaps we need to create some kind of map like (post_type) + (lang) => (shadow translated post_type)
-		$post_type = $post_type . "_$lang";
+		$new_post_type = $post_type . "_$lang";
 	
-		foreach ( $args[ 'labels' ] as & $label )
+		foreach ( $new_args[ 'labels' ] as & $label )
 			$label = "$label ($lang)";
 
-		$result = register_post_type( $post_type, $args );
+		$result = register_post_type( $new_post_type, $new_args );
 		if ( is_wp_error( $result ) )
-			error_log( "Error creating shadow post_type for $post_type: " . print_r( $result, true ) );
+			error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
 	}
-
+	
 	$sil_syncing = false;
 }
 add_action( 'registered_post_type', 'sil_registered_post_type', null, 2 );
