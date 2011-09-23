@@ -27,6 +27,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+/**
+ * Hooks the WP pre_update_option_rewrite_rules filter to add
+ * the prefix to the rewrite rule regexes to deal with the
+ * virtual language dir.
+ * 
+ * @param array $langs The language codes
+ * @return array An array of language codes utilised for this site. 
+ **/
 function sil_rewrite_rules_filter( $rules ){
 	// Add a prefix to the URL to pick up the virtual sub-dir specifying
 	// the language. The redirect portion can and should remain perfectly
@@ -179,6 +187,7 @@ function sil_parse_request( $wp ) {
 		return;
 	
 	// Check the language
+ 	// @FIXME: If we want to cater for non-pretty permalinks we need to handle a GET param here to specify lang
 	// @FIXME: Would explode be more efficient here?
 	if ( preg_match( '|^[^/]+|i', $wp->request, $matches ) )
 		$lang = $matches[ 0 ];
@@ -246,11 +255,11 @@ function sil_the_posts( $posts ) {
 		// @FIXME: I'm assuming this get_post call is cached, which it seems to be
 		$default_post = get_post( $subs_index[ $post->ID ] );
 		if ( empty( $post->post_title ) )
-			$post->post_title = $default_post->post_title;
+			$post->post_title = 'Fallback: ' . $default_post->post_title;
 		if ( empty( $post->post_excerpt ) )
-			$post->post_excerpt = $default_post->post_excerpt;
+			$post->post_excerpt = "Fallback excerpt\n\n" . $default_post->post_excerpt;
 		if ( empty( $post->post_content ) )
-			$post->post_content = $default_post->post_content;
+			$post->post_content = "Fallback content\n\n" . $default_post->post_content;
 	}
 	return $posts;
 }
