@@ -27,6 +27,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+// @FIXME: Move into class property when creating the actual plugin
+define( 'SIL_LANG_REGEX', '|^[^/]+|i' );
+
 /**
  * Hooks the WP pre_update_option_rewrite_rules filter to add
  * the prefix to the rewrite rule regexes to deal with the
@@ -40,10 +43,78 @@ function sil_rewrite_rules_filter( $rules ){
 	// the language. The redirect portion can and should remain perfectly
 	// ignorant of it though, as we change it in parse_request.
     foreach( (array) $rules as $regex => $query )
-		$new_rules[ '[^/]+/' . $regex ] = $query;
+		$new_rules[ '[a-zA-Z_]+/' . $regex ] = $query;
+	error_log( "New rules: " . print_r( $new_rules, true ) );
     return $new_rules;
 }
 add_filter( 'pre_update_option_rewrite_rules', 'sil_rewrite_rules_filter' );
+
+/**
+ * Hooks the WP locale filter to switch locales whenever we gosh darned want.
+ *
+ * @param string $locale The locale 
+ * @return string The locale
+ **/
+function sil_locale( $locale ) {
+	// Don't bother doing this in admin
+	if ( is_admin() )
+		return;
+	
+	// @FIXME: Copying a huge hunk of code from WP->parse_request here, feels ugly.
+	// START: Huge hunk of WP->parse_request
+	if ( isset($_SERVER['PATH_INFO']) )
+		$pathinfo = $_SERVER['PATH_INFO'];
+	else
+		$pathinfo = '';
+	$pathinfo_array = explode('?', $pathinfo);
+	$pathinfo = str_replace("%", "%25", $pathinfo_array[0]);
+	$req_uri = $_SERVER['REQUEST_URI'];
+	$req_uri_array = explode('?', $req_uri);
+	$req_uri = $req_uri_array[0];
+	$self = $_SERVER['PHP_SELF'];
+	$home_path = parse_url(home_url());
+	if ( isset($home_path['path']) )
+		$home_path = $home_path['path'];
+	else
+		$home_path = '';
+	$home_path = trim($home_path, '/');
+
+	// Trim path info from the end and the leading home path from the
+	// front.  For path info requests, this leaves us with the requesting
+	// filename, if any.  For 404 requests, this leaves us with the
+	// requested permalink.
+	$req_uri = str_replace($pathinfo, '', $req_uri);
+	$req_uri = trim($req_uri, '/');
+	$req_uri = preg_replace("|^$home_path|", '', $req_uri);
+	$req_uri = trim($req_uri, '/');
+	$pathinfo = trim($pathinfo, '/');
+	$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
+	$pathinfo = trim($pathinfo, '/');
+	$self = trim($self, '/');
+	$self = preg_replace("|^$home_path|", '', $self);
+	$self = trim($self, '/');
+
+	// The requested permalink is in $pathinfo for path info requests and
+	//  $req_uri for other requests.
+	if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
+		$request = $pathinfo;
+	} else {
+		// If the request uri is the index, blank it out so that we don't try to match it against a rule.
+		if ( $req_uri == $wp_rewrite->index )
+			$req_uri = '';
+		$request = $req_uri;
+	}
+	// END: Huge hunk of WP->parse_request
+
+	// @FIXME: Should probably check the available languages here
+	// error_log( "Locale (before): $locale for request ($request)" );
+	// @FIXME: Should I be using $GLOBALS['request] here? Feels odd.
+	if ( preg_match( SIL_LANG_REGEX, $request, $matches ) )
+		$locale = $matches[ 0 ];
+	error_log( "Locale (after): $locale" );
+	return $locale;
+}
+add_filter( 'locale', 'sil_locale' );
 
 /**
  * Hooks the WP sil_languages filter. Temporary for POC.
@@ -52,7 +123,8 @@ add_filter( 'pre_update_option_rewrite_rules', 'sil_rewrite_rules_filter' );
  * @return array An array of language codes utilised for this site. 
  **/
 function sil_languages( $langs ) {
-	$langs[] = 'de';
+	$langs[] = 'de_DE';
+	// $langs[] = 'he_IL';
 	return $langs;
 }
 add_filter( 'sil_languages', 'sil_languages' );
@@ -189,7 +261,7 @@ function sil_parse_request( $wp ) {
 	// Check the language
  	// @FIXME: If we want to cater for non-pretty permalinks we need to handle a GET param here to specify lang
 	// @FIXME: Would explode be more efficient here?
-	if ( preg_match( '|^[^/]+|i', $wp->request, $matches ) )
+	if ( preg_match( SIL_LANG_REGEX, $wp->request, $matches ) )
 		$lang = $matches[ 0 ];
 	else
 		return; // Bail. Not sure what could trigger this though (site root URL?)
