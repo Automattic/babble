@@ -482,7 +482,6 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
 function sil_home_url( $url, $path ) {
 	if ( is_admin() )
 		return $url;
-	error_log( "URL: $url, Path: $path, Orig scheme: $orig_scheme, Blog ID: $blog_id" );
 	// @FIXME: This feels hacky… is it?
 	$base_url = str_replace( $path, $url, '' );
 	$url = trailingslashit( $base_url ) . get_query_var( 'lang' ) . $path;
