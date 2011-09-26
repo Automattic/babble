@@ -31,6 +31,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 define( 'SIL_LANG_REGEX', '|^[^/]+|i' );
 
 /**
+ * Hooks the WP init action early
+ *
+ * @return void
+ **/
+function sil_init_early() {
+	register_taxonomy( 'term_translations', 'term', array(
+		'rewrite' => false,
+		'public' => true,
+		'show_ui' => true,
+		'show_in_nav_menus' => false,
+	) );
+}
+add_action( 'init', 'sil_init_early', 0 );
+
+/**
  * Hooks the WP pre_update_option_rewrite_rules filter to add
  * the prefix to the rewrite rule regexes to deal with the
  * virtual language dir.
@@ -141,8 +156,8 @@ add_filter( 'sil_languages', 'sil_languages' );
  * @return void
  **/
 function sil_registered_post_type( $post_type, $args ) {
-	// When we turn this into classes we can avoid a global here
-	global $sil_syncing, $shadow_post_types; 
+	// @FIXME: When we turn this into classes we can avoid a global $sil_syncing here
+	global $sil_syncing	; 
 
 	// Don't bother with non-public post_types for now
 	// @FIXME: This may need to change for menus?
@@ -205,6 +220,64 @@ function sil_registered_post_type( $post_type, $args ) {
 add_action( 'registered_post_type', 'sil_registered_post_type', null, 2 );
 
 /**
+ * Hooks the WP registered_taxonomy action 
+ *
+ * @param string $taxonomy The name of the newly registered taxonomy 
+ * @param array $args The args passed to register the taxonomy
+ * @return void
+ **/
+function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
+	// @FIXME: When we turn this into classes we can avoid a global $sil_syncing here
+	global $sil_syncing;
+
+	// Don't bother with non-public taxonomies for now
+	if ( ! $args[ 'public' ] )
+		return;
+	
+	if ( $sil_syncing )
+		return;
+	$sil_syncing = true;
+	
+	// @FIXME: Not sure this is the best way to specify languages
+	$langs = apply_filters( 'sil_languages', array( 'en' ) );
+	
+	// Lose the default language as the existing taxonomies are English
+	// @FIXME: Need to specify the default language somewhere
+	$default_lang = array_search( 'en', $langs );
+	unset( $langs[ $default_lang ] );
+	
+	// @FIXME: Is it reckless to convert ALL object instances in $args to an array?
+	foreach ( $args as $key => & $arg ) {
+		if ( is_object( $arg ) )
+			$arg = get_object_vars( $arg );
+		// Don't set any args reserved for built-in post_types
+		if ( '_' == substr( $key, 0, 1 ) )
+			unset( $args[ $key ] );
+	}
+
+	$args[ 'rewrite' ] = false;
+	unset( $args[ 'name' ] );
+	unset( $args[ 'query_var' ] );
+
+	foreach ( $langs as $lang ) {
+		$new_args = $args;
+		
+		// @FIXME: Note currently we are in danger of a taxonomy name being longer than 32 chars
+		// Perhaps we need to create some kind of map like (taxonomy) + (lang) => (shadow translated taxonomy)
+		$new_taxonomy = $taxonomy . "_$lang";
+	
+		foreach ( $new_args[ 'labels' ] as & $label )
+			$label = "$label ($lang)";
+		
+		// error_log( "Register $new_taxonomy for " . implode( ', ', $object_type ) . " with args: " . print_r( $new_args, true ) );
+		register_taxonomy( $new_taxonomy, $object_type, $new_args );
+	}
+	
+	$sil_syncing = false;
+}
+add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
+
+/**
  * Hooks the WP admin_init action late.
  * 
  * Temporary for POC.
@@ -263,16 +336,21 @@ function sil_parse_request( $wp ) {
 		return;
 	
 	// Check the language
- 	// @FIXME: If we want to cater for non-pretty permalinks we need to handle a GET param here to specify lang
 	// @FIXME: Would explode be more efficient here?
-	if ( preg_match( SIL_LANG_REGEX, $wp->request, $matches ) )
+	if ( preg_match( SIL_LANG_REGEX, $wp->request, $matches ) ) {
+	 	// @FIXME: If we want to cater for non-pretty permalinks we could to handle a GET param or query var here
 		$lang = $matches[ 0 ];
-	else
+	} else {
+		error_log( "Bailing for unknown reasons" );
 		return; // Bail. Not sure what could trigger this though (site root URL?)
+	}
 
 	// If we're asking for the default content, it's fine
-	if ( 'en' == $lang )
+	error_log( "Original query: " . print_r( $wp->query_vars, true ) );
+	if ( 'en' == $lang ) {
+		error_log( "Default content" );
 		return;
+	}
 
 	// Sequester the original query, in case we need it to get the default content later
 	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
@@ -294,6 +372,7 @@ function sil_parse_request( $wp ) {
 	} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
 		$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . "_$lang";
 	}
+	error_log( "Amended query: " . print_r( $wp->query_vars, true ) );
 
 	// error_log( "Query vars: " . print_r( $wp, true ) );
 }
