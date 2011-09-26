@@ -42,4 +42,56 @@ function sil_get_current_lang_code() {
 	return @ $_GET[ 'lang' ] ? $_GET[ 'lang' ] : SIL_DEFAULT_LANGUAGE;
 }
 
+/**
+ * Get the posts which are the translations for the provided 
+ * post ID. N.B. The returned array of post objects (and false 
+ * values) will include the post for the post ID passed.
+ * 
+ * @FIXME: Should I filter out the post ID passed?
+ *
+ * @param int $post_id The post ID to get the translations for 
+ * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
+ * @author Simon Wheatley
+ **/
+function sil_get_post_translations( $post_id ) {
+	global $sil_post_types, $sil_lang_map;
+	$translation_ids = (array) wp_get_object_terms( $post_id, 'post_translation', array( 'fields' => 'ids' ) );
+	// "There can be only one" (so we'll just drop the others)
+	$translation_id = $translation_ids[ 0 ];
+	$post_ids = get_objects_in_term( $translation_id, 'post_translation' );
+	// Get all the translations in one cached DB query
+	$posts = get_posts( array( 'include' => $post_ids, 'post_type' => 'any' ) );
+	$translations = array();
+	foreach ( $posts as & $post ) {
+		if ( isset( $sil_lang_map[ $post->post_type ] ) )
+			$translations[ $sil_lang_map[ $post->post_type ] ] = $post;
+		else
+			$translations[ SIL_DEFAULT_LANGUAGE ] = $post;
+	}
+	return $translations;
+}
+
+/**
+ * Get the language specific permalink for a particular post.
+ *
+ * DEPRECATED.
+ *
+ * @param int|object $post Either the WP Post object or a post ID 
+ * @param string $lang The language code to get the translation for
+ * @return object|string The permalink for the translated post, or a WP_Error if it doesn't exist
+ * @author Simon Wheatley
+ **/
+function sil_get_translation_permalink( $post, $lang ) {
+	_doing_it_wrong( __FUNCTION__, 'We should be working this out transparently for the theme author, so they can just call get_permalink and have it work.', 1 );
+	$post = get_post( $post );
+	if ( ! $post )
+		return new WP_Error( 'invalid_post', __( 'Invalid Post' ) );
+	// @FIXME: Check the language is valid for this site
+	$sequestered_lang = get_query_var( 'lang' );
+	set_query_var( 'lang', $lang );
+	$permalink = get_permalink( $post->ID );
+	set_query_var( 'lang', $sequestered_lang );
+	return $permalink;
+}
+
 ?>

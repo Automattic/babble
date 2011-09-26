@@ -41,17 +41,22 @@ define( 'SIL_DEFAULT_LANGUAGE', 'en' );
  * @return void
  **/
 function sil_init_early() {
-	register_taxonomy( 'term_translations', 'term', array(
+	global $sil_post_types;
+	register_taxonomy( 'term_translation', 'term', array(
 		'rewrite' => false,
 		'public' => true,
 		'show_ui' => true,
 		'show_in_nav_menus' => false,
+		'label' => __( 'Term Translation ID', 'sil' ),
 	) );
-	register_taxonomy( 'post_translations', array( 'post', 'page' ), array(
+	// Ensure we catch any existing language shadow post_types already registered
+	$post_types = array_merge( array( 'post', 'page' ), array_keys( $sil_post_types ) );
+	register_taxonomy( 'post_translation', $post_types, array(
 		'rewrite' => false,
 		'public' => true,
 		'show_ui' => true,
 		'show_in_nav_menus' => false,
+		'label' => __( 'Post Translation ID', 'sil' ),
 	) );
 }
 add_action( 'init', 'sil_init_early', 0 );
@@ -70,7 +75,6 @@ function sil_rewrite_rules_filter( $rules ){
 	// ignorant of it though, as we change it in parse_request.
     foreach( (array) $rules as $regex => $query )
 		$new_rules[ '[a-zA-Z_]+/' . $regex ] = $query;
-	error_log( "New rules: " . print_r( $new_rules, true ) );
     return $new_rules;
 }
 add_filter( 'pre_update_option_rewrite_rules', 'sil_rewrite_rules_filter' );
@@ -238,7 +242,12 @@ function sil_registered_post_type( $post_type, $args ) {
 			error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
 		} else {
 			$sil_post_types[ $new_post_type ] = $post_type;
-			$sil_lang_map[ $lang ] = $new_post_type;
+			$sil_lang_map[ $new_post_type ] = $lang;
+			// This will not work until init has run at the early priority used
+			// to register the post_translation taxonomy. However we catch all the
+			// post_types registered before the hook runs, so we don't miss any 
+			// (take a look at where we register post_translation for more info).
+			register_taxonomy_for_object_type( 'post_translation', $new_post_type );
 		}
 	}
 	
@@ -258,7 +267,8 @@ function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
 	global $sil_syncing;
 
 	// Don't bother with non-public taxonomies for now
-	if ( ! $args[ 'public' ] )
+	// If we remove this, we need to avoid dealing with post_translation and term_translation
+	if ( ! $args[ 'public' ] || 'post_translation' == $taxonomy || 'term_translation' == $taxonomy )
 		return;
 	
 	if ( $sil_syncing )
@@ -303,52 +313,6 @@ function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
 	$sil_syncing = false;
 }
 add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
-
-/**
- * Hooks the WP admin_init action late.
- * 
- * Temporary for POC.
- *
- * @return void
- **/
-function sil_admin_init_late() {
-	if ( is_admin() ) {
-		$post_types = get_post_types();
-		foreach ( $post_types as $post_type )
-			add_meta_box( 'sil_translation_ref', 'Translation Reference', 'sil_translation_ref', $post_type );
-	}
-}
-add_action( 'admin_init', 'sil_admin_init_late', 20 );
-
-/**
- * Callback function to provide HTML for the translation reference ID.
- * 
- * Temporary for POC.
- *
- * @return void
- * @author Simon Wheatley
- **/
-function sil_translation_ref() {
-	$default_post = get_post_meta( get_the_ID(), '_sil_default_post', true );
-?>
-	<p><label for="sil_default_post">Default lang post:</label> <input type="text" name="sil_default_post" value="<?php echo esc_attr( $default_post ); ?>" />
-	</p>
-	<p class="description"><strong>Temporary for Proof of Concept:</strong> add the ID of the post/page/whatever in the default language that this post/page/whatever is a translation of. If you are looking at the default language, this box should be blank.</p>
-<?php
-}
-
-/**
- * Hooks the WP save_post action 
- *
- * @param int $post_id The ID of the post 
- * @param object $post The post
- * @return void
- **/
-function sil_save_post( $post_id ) {
-	$default_post = @ $_POST[ 'sil_default_post' ];
-	update_post_meta( $post_id, '_sil_default_post', $default_post );
-}
-add_action( 'save_post', 'sil_save_post' );
 
 /**
  * Hooks the WP parse_request action 
@@ -480,8 +444,14 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		if ( $lang == sil_get_current_lang_code() )
 			unset( $langs[ $i ] );
 	
+	$translations = sil_get_post_translations( get_the_ID() );
+	
 	foreach ( $langs as $i => & $lang ) {
-		$href = add_query_arg( array( 'lang' => $lang ) );
+		if ( is_admin() ) {
+			$href = add_query_arg( array( 'lang' => $lang ) );
+		} else {
+			$href = sil_get_translation_permalink( $translations[ $lang ]->ID, $lang );
+		}
 		$args = array(
 			'id' => "sil_languages_$lang",
 			'href' => $href,
@@ -504,11 +474,10 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
  * @return string The URL
  **/
 function sil_home_url( $url, $path ) {
-	error_log( "-------------------" );
 	$orig_url = $url;
 	// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
 	$base_url = str_replace( $path, '', $url );
-	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . '/' . $path;
+	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . $path;
 	return $url;
 }
 add_action( 'home_url', 'sil_home_url', null, 2 );
@@ -554,7 +523,7 @@ function sil_post_type_link( $post_link, $post, $leavename, $sample ) {
 	if ( ! $base_post_type = $sil_post_types[ $post->post_type ] )
 		return $post_link;
 
-	error_log( "Dealing with a $base_post_type shadow" );
+	// error_log( "Dealing with a $base_post_type shadow" );
 
 	// Deal with post_types shadowing the post post_type
 	if ( 'post' == $base_post_type ) {
