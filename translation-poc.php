@@ -169,7 +169,7 @@ add_filter( 'sil_languages', 'sil_languages' );
  **/
 function sil_registered_post_type( $post_type, $args ) {
 	// @FIXME: When we turn this into classes we can avoid a global $sil_syncing here
-	global $sil_syncing	; 
+	global $sil_syncing, $sil_lang_map, $sil_post_types; 
 
 	// Don't bother with non-public post_types for now
 	// @FIXME: This may need to change for menus?
@@ -182,6 +182,13 @@ function sil_registered_post_type( $post_type, $args ) {
 	
 	// @FIXME: Not sure this is the best way to specify languages
 	$langs = apply_filters( 'sil_languages', array( 'en' ) );
+	
+	// This languages map will provide a mechanism to work out which 
+	// post types associate with which
+	if ( ! $sil_lang_map ) 
+		$sil_lang_map = array();
+	if ( ! $sil_post_types )
+		$sil_post_types = array();
 	
 	// Lose the default language as the existing post_types are English
 	// @FIXME: Need to specify the default language somewhere
@@ -211,20 +218,28 @@ function sil_registered_post_type( $post_type, $args ) {
 		'thumbnail',
 		'custom-fields'
 	);
+	
+	$args[ 'show_ui' ] = false;
 
 	foreach ( $langs as $lang ) {
 		$new_args = $args;
 		
-		// @FIXME: Note currently we are in danger of a post_type name being longer than 20 chars
+		// @FIXME: We are in danger of a post_type name being longer than 20 chars
+		// I would prefer to keep the post_type human readable, as human devs and sysadmins always 
+		// end up needing to read this kind of thing.
 		// Perhaps we need to create some kind of map like (post_type) + (lang) => (shadow translated post_type)
-		$new_post_type = $post_type . "_$lang";
+		$new_post_type = strtolower( $post_type . "_$lang" );
 	
-		foreach ( $new_args[ 'labels' ] as & $label )
-			$label = "$label ($lang)";
+		// foreach ( $new_args[ 'labels' ] as & $label )
+		// 	$label = "$label ($lang)";
 
 		$result = register_post_type( $new_post_type, $new_args );
-		if ( is_wp_error( $result ) )
+		if ( is_wp_error( $result ) ) {
 			error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
+		} else {
+			$sil_post_types[ $new_post_type ] = $post_type;
+			$sil_lang_map[ $lang ] = $new_post_type;
+		}
 	}
 	
 	$sil_syncing = false;
@@ -489,11 +504,11 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
  * @return string The URL
  **/
 function sil_home_url( $url, $path ) {
-	if ( is_admin() )
-		return $url;
-	// @FIXME: This feels hacky… is it?
-	$base_url = str_replace( $path, $url, '' );
-	$url = trailingslashit( $base_url ) . get_query_var( 'lang' ) . $path;
+	error_log( "-------------------" );
+	$orig_url = $url;
+	// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
+	$base_url = str_replace( $path, '', $url );
+	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . '/' . $path;
 	return $url;
 }
 add_action( 'home_url', 'sil_home_url', null, 2 );
@@ -523,5 +538,104 @@ function sil_add_menu_classes( $menu ) {
 	return $menu;
 }
 add_filter( 'add_menu_classes', 'sil_add_menu_classes' );
+
+/**
+ * Hooks the WP post_type_link filter 
+ *
+ * @param string $post_link The permalink 
+ * @param object $post The WP Post object being linked to
+ * @return string The permalink
+ **/
+function sil_post_type_link( $post_link, $post, $leavename, $sample ) {
+	global $sil_post_types, $wp_rewrite;
+	// var_dump( "Post type link ($post->post_type): $post_link" );
+	// var_dump( $sil_post_types );
+	// exit;
+	if ( ! $base_post_type = $sil_post_types[ $post->post_type ] )
+		return $post_link;
+
+	error_log( "Dealing with a $base_post_type shadow" );
+
+	// Deal with post_types shadowing the post post_type
+	if ( 'post' == $base_post_type ) {
+		// @FIXME: Is there any way I can provide an appropriate permastruct so I can avoid having to copy all this code, with the associated maintenance headaches?
+		// START copying from get_permalink function
+		// N.B. The $permalink var is replaced with $post_link
+		$rewritecode = array(
+			'%year%',
+			'%monthnum%',
+			'%day%',
+			'%hour%',
+			'%minute%',
+			'%second%',
+			'%postname%',
+			'%post_id%',
+			'%category%',
+			'%author%',
+			'%pagename%',
+		);
+
+		$post_link = get_option('permalink_structure');
+
+		// @FIXME: Should I somehow fake this, so plugin authors who hook it still get some consequence?
+		// $post_link = apply_filters('pre_post_link', $post_link, $post, $leavename);
+
+		if ( '' != $post_link && ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) ) ) {
+			$unixtime = strtotime($post->post_date);
+
+			$category = '';
+			if ( strpos($post_link, '%category%') !== false ) {
+				$cats = get_the_category($post->ID);
+				if ( $cats ) {
+					usort($cats, '_usort_terms_by_ID'); // order by ID
+					$category = $cats[0]->slug;
+					if ( $parent = $cats[0]->parent )
+						$category = get_category_parents($parent, false, '/', true) . $category;
+				}
+				// show default category in permalinks, without
+				// having to assign it explicitly
+				if ( empty($category) ) {
+					$default_category = get_category( get_option( 'default_category' ) );
+					$category = is_wp_error( $default_category ) ? '' : $default_category->slug;
+				}
+			}
+
+			$author = '';
+			if ( strpos($post_link, '%author%') !== false ) {
+				$authordata = get_userdata($post->post_author);
+				$author = $authordata->user_nicename;
+			}
+
+			$date = explode(" ",date('Y m d H i s', $unixtime));
+			$rewritereplace =
+			array(
+				$date[0],
+				$date[1],
+				$date[2],
+				$date[3],
+				$date[4],
+				$date[5],
+				$post->post_name,
+				$post->ID,
+				$category,
+				$author,
+				$post->post_name,
+			);
+			$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
+			$post_link = user_trailingslashit($post_link, 'single');
+			// END copying from get_permalink function
+		} else { // if they're not using the fancy permalink option
+			error_log( "Non fancy!" );
+			return $post_link;
+		}
+		
+	} else if ( 'page' == $base_post_type ) {
+		error_log( "Get page link" );
+		return get_page_link( $post->ID, $leavename, $sample );
+	}
+
+	return $post_link;
+}
+add_filter( 'post_type_link', 'sil_post_type_link', null, 4 );
 
 ?>
