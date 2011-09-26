@@ -27,8 +27,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+require_once( 'api.php' );
+
 // @FIXME: Move into class property when creating the actual plugin
 define( 'SIL_LANG_REGEX', '|^[^/]+|i' );
+
+// @FIXME: Proper method for assigning default language: https://github.com/simonwheatley/translations/issues/3
+define( 'SIL_DEFAULT_LANGUAGE', 'en' );
 
 /**
  * Hooks the WP init action early
@@ -37,6 +42,12 @@ define( 'SIL_LANG_REGEX', '|^[^/]+|i' );
  **/
 function sil_init_early() {
 	register_taxonomy( 'term_translations', 'term', array(
+		'rewrite' => false,
+		'public' => true,
+		'show_ui' => true,
+		'show_in_nav_menus' => false,
+	) );
+	register_taxonomy( 'post_translations', array( 'post', 'page' ), array(
 		'rewrite' => false,
 		'public' => true,
 		'show_ui' => true,
@@ -71,63 +82,64 @@ add_filter( 'pre_update_option_rewrite_rules', 'sil_rewrite_rules_filter' );
  * @return string The locale
  **/
 function sil_locale( $locale ) {
-	// Don't bother doing this in admin
-	if ( is_admin() )
-		return;
-	
 	// @FIXME: Copying a huge hunk of code from WP->parse_request here, feels ugly.
-	// START: Huge hunk of WP->parse_request
-	if ( isset($_SERVER['PATH_INFO']) )
-		$pathinfo = $_SERVER['PATH_INFO'];
-	else
-		$pathinfo = '';
-	$pathinfo_array = explode('?', $pathinfo);
-	$pathinfo = str_replace("%", "%25", $pathinfo_array[0]);
-	$req_uri = $_SERVER['REQUEST_URI'];
-	$req_uri_array = explode('?', $req_uri);
-	$req_uri = $req_uri_array[0];
-	$self = $_SERVER['PHP_SELF'];
-	$home_path = parse_url(home_url());
-	if ( isset($home_path['path']) )
-		$home_path = $home_path['path'];
-	else
-		$home_path = '';
-	$home_path = trim($home_path, '/');
+	if ( ! is_admin() ) {
+		// START: Huge hunk of WP->parse_request
+		if ( isset($_SERVER['PATH_INFO']) )
+			$pathinfo = $_SERVER['PATH_INFO'];
+		else
+			$pathinfo = '';
+		$pathinfo_array = explode('?', $pathinfo);
+		$pathinfo = str_replace("%", "%25", $pathinfo_array[0]);
+		$req_uri = $_SERVER['REQUEST_URI'];
+		$req_uri_array = explode('?', $req_uri);
+		$req_uri = $req_uri_array[0];
+		$self = $_SERVER['PHP_SELF'];
+		$home_path = parse_url(home_url());
+		if ( isset($home_path['path']) )
+			$home_path = $home_path['path'];
+		else
+			$home_path = '';
+		$home_path = trim($home_path, '/');
 
-	// Trim path info from the end and the leading home path from the
-	// front.  For path info requests, this leaves us with the requesting
-	// filename, if any.  For 404 requests, this leaves us with the
-	// requested permalink.
-	$req_uri = str_replace($pathinfo, '', $req_uri);
-	$req_uri = trim($req_uri, '/');
-	$req_uri = preg_replace("|^$home_path|", '', $req_uri);
-	$req_uri = trim($req_uri, '/');
-	$pathinfo = trim($pathinfo, '/');
-	$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
-	$pathinfo = trim($pathinfo, '/');
-	$self = trim($self, '/');
-	$self = preg_replace("|^$home_path|", '', $self);
-	$self = trim($self, '/');
+		// Trim path info from the end and the leading home path from the
+		// front.  For path info requests, this leaves us with the requesting
+		// filename, if any.  For 404 requests, this leaves us with the
+		// requested permalink.
+		$req_uri = str_replace($pathinfo, '', $req_uri);
+		$req_uri = trim($req_uri, '/');
+		$req_uri = preg_replace("|^$home_path|", '', $req_uri);
+		$req_uri = trim($req_uri, '/');
+		$pathinfo = trim($pathinfo, '/');
+		$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
+		$pathinfo = trim($pathinfo, '/');
+		$self = trim($self, '/');
+		$self = preg_replace("|^$home_path|", '', $self);
+		$self = trim($self, '/');
 
-	// The requested permalink is in $pathinfo for path info requests and
-	//  $req_uri for other requests.
-	if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
-		$request = $pathinfo;
-	} else {
-		// If the request uri is the index, blank it out so that we don't try to match it against a rule.
-		if ( $req_uri == $wp_rewrite->index )
-			$req_uri = '';
-		$request = $req_uri;
+		// The requested permalink is in $pathinfo for path info requests and
+		//  $req_uri for other requests.
+		if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
+			$request = $pathinfo;
+		} else {
+			// If the request uri is the index, blank it out so that we don't try to match it against a rule.
+			if ( $req_uri == $wp_rewrite->index )
+				$req_uri = '';
+			$request = $req_uri;
+		}
+		
+		// END: Huge hunk of WP->parse_request
+
+		// @FIXME: Should probably check the available languages here
+		// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo
+
+		// error_log( "Locale (before): $locale for request ($request)" );
+		// @FIXME: Should I be using $GLOBALS['request] here? Feels odd.
+		if ( preg_match( SIL_LANG_REGEX, $request, $matches ) )
+			$locale = $matches[ 0 ];
+	} elseif ( $lang = @ $_GET[ 'lang' ] ) {
+		$locale = $lang;
 	}
-	// END: Huge hunk of WP->parse_request
-
-	// @FIXME: Should probably check the available languages here
-	// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo
-
-	// error_log( "Locale (before): $locale for request ($request)" );
-	// @FIXME: Should I be using $GLOBALS['request] here? Feels odd.
-	if ( preg_match( SIL_LANG_REGEX, $request, $matches ) )
-		$locale = $matches[ 0 ];
 	// error_log( "Locale (after): $locale" );
 	return $locale;
 }
@@ -173,7 +185,7 @@ function sil_registered_post_type( $post_type, $args ) {
 	
 	// Lose the default language as the existing post_types are English
 	// @FIXME: Need to specify the default language somewhere
-	$default_lang = array_search( 'en', $langs );
+	$default_lang = array_search( SIL_DEFAULT_LANGUAGE, $langs );
 	unset( $langs[ $default_lang ] );
 	
 	// $args is an object at this point, but register_post_type needs an array
@@ -243,7 +255,7 @@ function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
 	
 	// Lose the default language as the existing taxonomies are English
 	// @FIXME: Need to specify the default language somewhere
-	$default_lang = array_search( 'en', $langs );
+	$default_lang = array_search( SIL_DEFAULT_LANGUAGE, $langs );
 	unset( $langs[ $default_lang ] );
 	
 	// @FIXME: Is it reckless to convert ALL object instances in $args to an array?
@@ -330,16 +342,13 @@ add_action( 'save_post', 'sil_save_post' );
  * @return void
  **/
 function sil_parse_request( $wp ) {
-	
-	// Do NOT mess around in the admin area (for the moment)
-	if ( is_admin() )
-		return;
-	
 	// Check the language
 	// @FIXME: Would explode be more efficient here?
-	if ( preg_match( SIL_LANG_REGEX, $wp->request, $matches ) ) {
+	if ( ! is_admin() && preg_match( SIL_LANG_REGEX, $wp->request, $matches ) ) {
 	 	// @FIXME: If we want to cater for non-pretty permalinks we could to handle a GET param or query var here
 		$wp->query_vars[ 'lang' ] = $matches[ 0 ];
+	} elseif ( $lang = @ $_GET[ 'lang' ] ) {
+		$wp->query_vars[ 'lang' ] = $lang;
 	} else {
 		error_log( "Bailing for unknown reasons" );
 		return; // Bail. Not sure what could trigger this though (site root URL?)
@@ -417,6 +426,7 @@ function sil_the_posts( $posts ) {
 			$subs_index[ $post->ID ] = sil_get_default_lang_post_id( $post->ID );
 	$subs_posts = get_posts( array( 'include' => array_values( $subs_index ), 'post_status' => 'publish' ) );
 	// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
+	// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered
 	foreach ( $posts as & $post ) {
 		// @FIXME: I'm assuming this get_post call is cached, which it seems to be
 		$default_post = get_post( $subs_index[ $post->ID ] );
@@ -434,36 +444,35 @@ add_action( 'the_posts', 'sil_the_posts' );
 /**
  * Hooks the WP admin_bar_menu action 
  *
+ * @param object $wp_admin_bar The WP Admin Bar, passed by reference
  * @return void
  **/
-function sil_admin_bar_menu(  ) {
-    global $wp_admin_bar;
+function sil_admin_bar_menu( $wp_admin_bar ) {
 	$args = array(
 		'id' => 'sil_languages',
-		'title' => get_query_var( 'lang' ),
+		'title' => sil_get_current_lang_code(),
 		'href' => '#',
 		'parent' => false,
 		'meta' => false
 	);
 	$wp_admin_bar->add_menu( $args );
-	
+
 	// @FIXME: Not sure this is the best way to specify languages
 	$langs = apply_filters( 'sil_languages', array( 'en' ) );
 	
 	// Remove the current language
-	foreach ( $langs as $i => & $lang ) {
-		if ( $lang == get_query_var( 'lang' ) ) {
+	foreach ( $langs as $i => & $lang )
+		if ( $lang == sil_get_current_lang_code() )
 			unset( $langs[ $i ] );
-		}
-	}
 	
 	foreach ( $langs as $i => & $lang ) {
+		$href = add_query_arg( array( 'lang' => $lang ) );
 		$args = array(
 			'id' => "sil_languages_$lang",
-			'title' => "Switch to $lang",
-			'href' => '#',
+			'href' => $href,
 			'parent' => 'sil_languages',
-			'meta' => false
+			'meta' => false,
+			'title' => sprintf( __( 'Switch to %s', 'sil' ), $lang ),
 		);
 		$wp_admin_bar->add_menu( $args );
 	}
@@ -488,5 +497,31 @@ function sil_home_url( $url, $path ) {
 	return $url;
 }
 add_action( 'home_url', 'sil_home_url', null, 2 );
+
+/**
+ * Hooks the WP admin_url filter to ensure we keep a consistent domain as we click around.
+ *
+ * @param string $admin_url The admin URL 
+ * @return string The URL with the appropriate language (lang) GET parameter
+ **/
+function sil_admin_url( $url ) {
+	return add_query_arg( array( 'lang' => sil_get_current_lang_code() ), $url );
+}
+add_filter( 'admin_url', 'sil_admin_url' );
+
+/**
+ * Hooks the WP add_menu_classes filter. We wouldn't need to do this 
+ *
+ * @param array $menu The WP Admin Menu 
+ * @return array The WP Admin Menu, with our query args
+ **/
+function sil_add_menu_classes( $menu ) {
+	// @FIXME: Adding the language string like this feels so so dirty.
+	foreach ( $menu as & $item )
+		if ( $item[ 0 ] )
+			$item[ 2 ] = add_query_arg( array( 'lang' => sil_get_current_lang_code() ), $item[ 2 ] );
+	return $menu;
+}
+add_filter( 'add_menu_classes', 'sil_add_menu_classes' );
 
 ?>
