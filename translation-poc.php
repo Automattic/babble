@@ -128,7 +128,7 @@ function sil_locale( $locale ) {
 	// @FIXME: Should I be using $GLOBALS['request] here? Feels odd.
 	if ( preg_match( SIL_LANG_REGEX, $request, $matches ) )
 		$locale = $matches[ 0 ];
-	error_log( "Locale (after): $locale" );
+	// error_log( "Locale (after): $locale" );
 	return $locale;
 }
 add_filter( 'locale', 'sil_locale' );
@@ -339,16 +339,16 @@ function sil_parse_request( $wp ) {
 	// @FIXME: Would explode be more efficient here?
 	if ( preg_match( SIL_LANG_REGEX, $wp->request, $matches ) ) {
 	 	// @FIXME: If we want to cater for non-pretty permalinks we could to handle a GET param or query var here
-		$lang = $matches[ 0 ];
+		$wp->query_vars[ 'lang' ] = $matches[ 0 ];
 	} else {
 		error_log( "Bailing for unknown reasons" );
 		return; // Bail. Not sure what could trigger this though (site root URL?)
 	}
 
 	// If we're asking for the default content, it's fine
-	error_log( "Original query: " . print_r( $wp->query_vars, true ) );
-	if ( 'en' == $lang ) {
-		error_log( "Default content" );
+	// error_log( "Original query: " . print_r( $wp->query_vars, true ) );
+	if ( 'en' == $wp->query_vars[ 'lang' ] ) {
+		// error_log( "Default content" );
 		return;
 	}
 
@@ -362,21 +362,32 @@ function sil_parse_request( $wp ) {
 	if ( isset( $wp->query_vars[ 'pagename' ] ) && $wp->query_vars[ 'pagename' ] ) {
 		// Substitute post_type for 
 		$wp->query_vars[ 'name' ] = $wp->query_vars[ 'pagename' ];
-		$wp->query_vars[ "page_$lang" ] = $wp->query_vars[ 'pagename' ];
-		$wp->query_vars[ 'post_type' ] = "page_$lang";
+		$wp->query_vars[ 'page_' . $wp->query_vars[ 'lang' ] ] = $wp->query_vars[ 'pagename' ];
+		$wp->query_vars[ 'post_type' ] = 'page_' . $wp->query_vars[ 'lang' ];
 		unset( $wp->query_vars[ 'page' ] );
 		unset( $wp->query_vars[ 'pagename' ] );
 	} elseif ( isset( $wp->query_vars[ 'year' ] ) ) { 
 		// @FIXME: This is not a reliable way to detect queries for the 'post' post_type.
-		$wp->query_vars[ 'post_type' ] = "post_$lang";
+		$wp->query_vars[ 'post_type' ] = 'post_' . $wp->query_vars[ 'lang' ];
 	} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
-		$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . "_$lang";
+		$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . '_' . $wp->query_vars[ 'lang' ];
 	}
-	error_log( "Amended query: " . print_r( $wp->query_vars, true ) );
-
-	// error_log( "Query vars: " . print_r( $wp, true ) );
+	// error_log( "Amended query: " . print_r( $wp->query_vars, true ) );
 }
 add_action( 'parse_request', 'sil_parse_request' );
+
+/**
+ * Hooks the WP query_vars filter to add various of our geo
+ * search specific query_vars.
+ *
+ * @param array $query_vars An array of the public query vars 
+ * @return array An array of the public query vars
+ * @author Simon Wheatley
+ **/
+function sil_query_vars( $query_vars ) {
+	return array_merge( $query_vars, array( 'lang' ) );
+}
+add_filter( 'query_vars', 'sil_query_vars' );
 
 /**
  * Returns the post ID for the post in the default language from which 
@@ -420,6 +431,63 @@ function sil_the_posts( $posts ) {
 }
 add_action( 'the_posts', 'sil_the_posts' );
 
+/**
+ * Hooks the WP admin_bar_menu action 
+ *
+ * @return void
+ **/
+function sil_admin_bar_menu(  ) {
+    global $wp_admin_bar;
+	$args = array(
+		'id' => 'sil_languages',
+		'title' => get_query_var( 'lang' ),
+		'href' => '#',
+		'parent' => false,
+		'meta' => false
+	);
+	$wp_admin_bar->add_menu( $args );
+	
+	// @FIXME: Not sure this is the best way to specify languages
+	$langs = apply_filters( 'sil_languages', array( 'en' ) );
+	
+	// Remove the current language
+	foreach ( $langs as $i => & $lang ) {
+		if ( $lang == get_query_var( 'lang' ) ) {
+			unset( $langs[ $i ] );
+		}
+	}
+	
+	foreach ( $langs as $i => & $lang ) {
+		$args = array(
+			'id' => "sil_languages_$lang",
+			'title' => "Switch to $lang",
+			'href' => '#',
+			'parent' => 'sil_languages',
+			'meta' => false
+		);
+		$wp_admin_bar->add_menu( $args );
+	}
+}
+add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
 
+/**
+ * Hooks the WP home_url action 
+ *
+ * @param string $url The URL 
+ * @param string $path The path 
+ * @param string $orig_scheme The original scheme 
+ * @param int $blog_id The ID of the blog 
+ * @return string The URL
+ **/
+function sil_home_url( $url, $path ) {
+	if ( is_admin() )
+		return $url;
+	error_log( "URL: $url, Path: $path, Orig scheme: $orig_scheme, Blog ID: $blog_id" );
+	// @FIXME: This feels hacky… is it?
+	$base_url = str_replace( $path, $url, '' );
+	$url = trailingslashit( $base_url ) . get_query_var( 'lang' ) . $path;
+	return $url;
+}
+add_action( 'home_url', 'sil_home_url', null, 2 );
 
 ?>
