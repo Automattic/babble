@@ -329,7 +329,6 @@ function sil_parse_request( $wp ) {
 	} elseif ( $lang = @ $_GET[ 'lang' ] ) {
 		$wp->query_vars[ 'lang' ] = $lang;
 	} else {
-		error_log( "Bailing for unknown reasons" );
 		return; // Bail. Not sure what could trigger this though (site root URL?)
 	}
 
@@ -360,7 +359,6 @@ function sil_parse_request( $wp ) {
 	} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
 		$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . '_' . $wp->query_vars[ 'lang' ];
 	}
-	// error_log( "Amended query: " . print_r( $wp->query_vars, true ) );
 }
 add_action( 'parse_request', 'sil_parse_request' );
 
@@ -373,6 +371,8 @@ add_action( 'parse_request', 'sil_parse_request' );
  * @author Simon Wheatley
  **/
 function sil_query_vars( $query_vars ) {
+	// @FIXME: We only add the home_url filter at this point because having it earlier screws with the request method of the WP class.
+	add_filter( 'home_url', 'sil_home_url', null, 2 );
 	return array_merge( $query_vars, array( 'lang' ) );
 }
 add_filter( 'query_vars', 'sil_query_vars' );
@@ -466,6 +466,9 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
 
 /**
  * Hooks the WP home_url action 
+ * 
+ * Hackity hack: this function is attached with add_filter within
+ * the query_vars filter.
  *
  * @param string $url The URL 
  * @param string $path The path 
@@ -480,7 +483,6 @@ function sil_home_url( $url, $path ) {
 	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . $path;
 	return $url;
 }
-add_action( 'home_url', 'sil_home_url', null, 2 );
 
 /**
  * Hooks the WP admin_url filter to ensure we keep a consistent domain as we click around.
