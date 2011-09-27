@@ -72,7 +72,20 @@ function sil_get_post_translations( $post_id ) {
 }
 
 /**
- * undocumented function
+ * Returns the post ID for the post in the default language from which 
+ * this post was translated.
+ *
+ * @param int $post_id The post ID to look up the default language equivalent of 
+ * @return int The ID of the default language equivalent post
+ * @author Simon Wheatley
+ **/
+function sil_get_default_lang_post( $post_id ) {
+	$translations = sil_get_post_translations( $post_id );
+	return $translations[ SIL_DEFAULT_LANGUAGE ];
+}
+
+/**
+ * Return the language code for the language a given post is written for/in.
  *
  * @param int|object $post Either a WP Post object, or a post ID 
  * @return string|object Either a language code, or a WP_Error object

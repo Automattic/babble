@@ -403,18 +403,6 @@ function sil_query_vars( $query_vars ) {
 add_filter( 'query_vars', 'sil_query_vars' );
 
 /**
- * Returns the post ID for the post in the default language from which 
- * this post was translated.
- *
- * @param int $post_id The post ID to look up the default language equivalent of 
- * @return int The ID of the default language equivalent post
- * @author Simon Wheatley
- **/
-function sil_get_default_lang_post_id( $post_id ) {
-	return get_post_meta( $post_id, '_sil_default_post', true );
-}
-
-/**
  * Hooks the WP the_posts filter. 
  * 
  * Check the post_title, post_excerpt, post_content and substitute from
@@ -426,8 +414,10 @@ function sil_get_default_lang_post_id( $post_id ) {
 function sil_the_posts( $posts ) {
 	$subs_index = array();
 	foreach ( $posts as & $post )
-		if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) )
-			$subs_index[ $post->ID ] = sil_get_default_lang_post_id( $post->ID );
+		if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
+			$default_post = sil_get_default_lang_post( $post->ID );
+			$subs_index[ $post->ID ] = $default_post->ID;
+		}
 	$subs_posts = get_posts( array( 'include' => array_values( $subs_index ), 'post_status' => 'publish' ) );
 	// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
 	// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered
