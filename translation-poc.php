@@ -445,6 +445,7 @@ add_action( 'the_posts', 'sil_the_posts' );
  * @return void
  **/
 function sil_admin_bar_menu( $wp_admin_bar ) {
+	global $wp;
 	$args = array(
 		'id' => 'sil_languages',
 		'title' => sil_get_current_lang_code(),
@@ -456,19 +457,29 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 
 	// @FIXME: Not sure this is the best way to specify languages
 	$langs = apply_filters( 'sil_languages', array( 'en' ) );
-	
 	// Remove the current language
 	foreach ( $langs as $i => & $lang )
 		if ( $lang == sil_get_current_lang_code() )
 			unset( $langs[ $i ] );
-	 
-	$translations = sil_get_post_translations( get_the_ID() );
 	
+	error_log( "Langs: " . print_r( $langs, true ) );
+	
+	if ( is_singular() || is_single() ) {
+		error_log( "Get translations" );
+		$translations = sil_get_post_translations( get_the_ID() );
+	}
+		
 	foreach ( $langs as $i => & $lang ) {
 		if ( is_admin() ) {
 			$href = add_query_arg( array( 'lang' => $lang ) );
-		} else {
+		} else if ( is_singular() || is_single() ) {
+			error_log( "Get permalink for (" . $translations[ $lang ]->post_title . ") in lang ($lang)" );
 			$href = get_permalink( $translations[ $lang ]->ID );
+			error_log( "Permalink in lang ($lang) ($href)" );
+		} else if ( $wp->request == sil_get_current_lang_code() ) { // Language homepages
+			remove_filter( 'home_url', 'sil_home_url', null, 2 );
+			$href = home_url( $lang );
+			add_filter( 'home_url', 'sil_home_url', null, 2 );
 		}
 		$args = array(
 			'id' => "sil_languages_$lang",
@@ -536,12 +547,15 @@ add_filter( 'add_menu_classes', 'sil_add_menu_classes' );
  * @param object $post The WP Post object being linked to
  * @return string The permalink
  **/
-function sil_post_type_link( $post_link, $post, $leavename, $sample ) {
+function sil_post_type_link( $post_link, $post, $leavename ) {
 	global $sil_post_types, $sil_lang_map, $wp_rewrite;
+	error_log( "Filtering: $post_link" );
 	// var_dump( "Post type link ($post->post_type): $post_link" );
 	// var_dump( $sil_post_types );
 	// exit;
-	if ( ! $base_post_type = $sil_post_types[ $post->post_type ] )
+	if ( 'post' == $post->post_type ) // Deal with regular ol' posts
+		$base_post_type = 'post';
+	else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) // Deal with shadow post types
 		return $post_link;
 
 	// error_log( "Dealing with a $base_post_type shadow" );
@@ -625,11 +639,12 @@ function sil_post_type_link( $post_link, $post, $leavename, $sample ) {
 		
 	} else if ( 'page' == $base_post_type ) {
 		error_log( "Get page link" );
-		return get_page_link( $post->ID, $leavename, $sample );
+		return get_page_link( $post->ID, $leavename );
 	}
 
 	return $post_link;
 }
-add_filter( 'post_type_link', 'sil_post_type_link', null, 4 );
+add_filter( 'post_link', 'sil_post_type_link', null, 3 );
+add_filter( 'post_type_link', 'sil_post_type_link', null, 3 );
 
 ?>
