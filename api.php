@@ -72,26 +72,20 @@ function sil_get_post_translations( $post_id ) {
 }
 
 /**
- * Get the language specific permalink for a particular post.
+ * undocumented function
  *
- * DEPRECATED.
- *
- * @param int|object $post Either the WP Post object or a post ID 
- * @param string $lang The language code to get the translation for
- * @return object|string The permalink for the translated post, or a WP_Error if it doesn't exist
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @return string|object Either a language code, or a WP_Error object
  * @author Simon Wheatley
  **/
-function sil_get_translation_permalink( $post, $lang ) {
-	_doing_it_wrong( __FUNCTION__, 'We should be working this out transparently for the theme author, so they can just call get_permalink and have it work.', 1 );
+function sil_get_post_lang( $post ) {
+	global $sil_lang_map;
 	$post = get_post( $post );
 	if ( ! $post )
 		return new WP_Error( 'invalid_post', __( 'Invalid Post' ) );
-	// @FIXME: Check the language is valid for this site
-	$sequestered_lang = get_query_var( 'lang' );
-	set_query_var( 'lang', $lang );
-	$permalink = get_permalink( $post->ID );
-	set_query_var( 'lang', $sequestered_lang );
-	return $permalink;
+	if ( isset( $sil_lang_map[ $post->post_type ] ) )
+		return $sil_lang_map[ $post->post_type ];
+	return SIL_DEFAULT_LANGUAGE;
 }
 
 ?>

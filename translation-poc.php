@@ -317,6 +317,8 @@ add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
 /**
  * Hooks the WP parse_request action 
  *
+ * FIXME: Should I be extending and replacing the WP class?
+ *
  * @param object $wp WP object, passed by reference (so no need to return)
  * @return void
  **/
@@ -329,18 +331,33 @@ function sil_parse_request( $wp ) {
 	} elseif ( $lang = @ $_GET[ 'lang' ] ) {
 		$wp->query_vars[ 'lang' ] = $lang;
 	} else {
-		return; // Bail. Not sure what could trigger this though (site root URL?)
+		$wp->query_vars[ 'lang' ] = SIL_DEFAULT_LANGUAGE;
+	}
+	error_log( "Request: " . print_r( $wp->request, true ) );
+	error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
+
+	// Sequester the original query, in case we need it to get the default content later
+	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
+
+	// Detect language specific homepages
+	if ( $wp->request == $wp->query_vars[ 'lang' ] ) {
+		unset( $wp->query_vars[ 'error' ] );
+		// @FIXME: Cater for front pages which don't list the posts
+		// Trigger the archive listing for the relevant shadow post type
+		// for this language.
+		if ( 'en' != $wp->query_vars[ 'lang' ] ) {
+			$wp->query_vars[ 'post_type' ] = 'post_' . $wp->query_vars[ 'lang' ];
+		}
+		return;
 	}
 
 	// If we're asking for the default content, it's fine
 	// error_log( "Original query: " . print_r( $wp->query_vars, true ) );
 	if ( 'en' == $wp->query_vars[ 'lang' ] ) {
 		// error_log( "Default content" );
+		error_log( "New Query 0: " . print_r( $wp->query_vars, true ) );
 		return;
 	}
-
-	// Sequester the original query, in case we need it to get the default content later
-	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
 
 	// Now swap the query vars so we get the content in the right language post_type
 	
@@ -359,6 +376,7 @@ function sil_parse_request( $wp ) {
 	} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
 		$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . '_' . $wp->query_vars[ 'lang' ];
 	}
+	error_log( "New Query 1: " . print_r( $wp->query_vars, true ) );
 }
 add_action( 'parse_request', 'sil_parse_request' );
 
@@ -443,14 +461,14 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 	foreach ( $langs as $i => & $lang )
 		if ( $lang == sil_get_current_lang_code() )
 			unset( $langs[ $i ] );
-	
+	 
 	$translations = sil_get_post_translations( get_the_ID() );
 	
 	foreach ( $langs as $i => & $lang ) {
 		if ( is_admin() ) {
 			$href = add_query_arg( array( 'lang' => $lang ) );
 		} else {
-			$href = sil_get_translation_permalink( $translations[ $lang ]->ID, $lang );
+			$href = get_permalink( $translations[ $lang ]->ID );
 		}
 		$args = array(
 			'id' => "sil_languages_$lang",
@@ -519,7 +537,7 @@ add_filter( 'add_menu_classes', 'sil_add_menu_classes' );
  * @return string The permalink
  **/
 function sil_post_type_link( $post_link, $post, $leavename, $sample ) {
-	global $sil_post_types, $wp_rewrite;
+	global $sil_post_types, $sil_lang_map, $wp_rewrite;
 	// var_dump( "Post type link ($post->post_type): $post_link" );
 	// var_dump( $sil_post_types );
 	// exit;
@@ -593,7 +611,11 @@ function sil_post_type_link( $post_link, $post, $leavename, $sample ) {
 				$author,
 				$post->post_name,
 			);
+			$sequestered_lang = get_query_var( 'lang' );
+			$lang = sil_get_post_lang( $post );
+			set_query_var( 'lang', $lang );
 			$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
+			set_query_var( 'lang', $sequestered_lang );
 			$post_link = user_trailingslashit($post_link, 'single');
 			// END copying from get_permalink function
 		} else { // if they're not using the fancy permalink option
