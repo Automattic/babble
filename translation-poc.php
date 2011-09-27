@@ -517,7 +517,8 @@ function sil_home_url( $url, $path ) {
 	// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
 	if ( '/' != $path && ':' != $path )
 		$base_url = str_replace( $path, '', $url );
-	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . $path;
+	$path = ltrim( $path, '/' );
+	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . '/' . $path;
 	return $url;
 }
 
@@ -560,14 +561,14 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 	// var_dump( "Post type link ($post->post_type): $post_link" );
 	// var_dump( $sil_post_types );
 	// exit;
-	if ( 'post' == $post->post_type ) { // Deal with regular ol' posts
-		error_log( "Is a post" );
-		$base_post_type = 'post';
+	if ( 'post' == $post->post_type || 'page' == $post->post_type ) { // Deal with regular ol' posts & pages
+		error_log( "Is a $post->post_type" );
+		$base_post_type = $post->post_type;
 	} else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) { // Deal with shadow post types
 		error_log( "No base type" );
 		return $post_link;
 	}
-	// error_log( "Base post type: $base_post_type" );
+	error_log( "Base post type: $base_post_type for $post_link" );
 
 	error_log( "Dealing with a $base_post_type shadow" );
 
@@ -654,7 +655,7 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 		}
 		
 	} else if ( 'page' == $base_post_type ) {
-		error_log( "Get page link" );
+		error_log( "Get page link for $post_link" );
 		return get_page_link( $post->ID, $leavename );
 	}
 
