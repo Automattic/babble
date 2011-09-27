@@ -37,9 +37,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 function sil_get_current_lang_code() {
 	// Outside the admin area, it's a WP Query Variable
 	if ( ! is_admin() )
-		return get_query_var( 'lang' ) ? get_query_var( 'lang' ) : SIL_DEFAULT_LANGUAGE;
+		return get_query_var( 'lang' ) ? get_query_var( 'lang' ) : SIL_DEFAULT_LANG;
 	// In the admin area, it's a GET param
-	return @ $_GET[ 'lang' ] ? $_GET[ 'lang' ] : SIL_DEFAULT_LANGUAGE;
+	return @ $_GET[ 'lang' ] ? $_GET[ 'lang' ] : SIL_DEFAULT_LANG;
 }
 
 /**
@@ -49,15 +49,14 @@ function sil_get_current_lang_code() {
  * 
  * @FIXME: Should I filter out the post ID passed?
  *
- * @param int $post_id The post ID to get the translations for 
+ * @param int|object $post Either a WP Post object, or a post ID 
  * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
  * @author Simon Wheatley
  **/
-function sil_get_post_translations( $post_id ) {
+function sil_get_post_translations( $post ) {
 	global $sil_post_types, $sil_lang_map;
-	$translation_ids = (array) wp_get_object_terms( $post_id, 'post_translation', array( 'fields' => 'ids' ) );
-	// "There can be only one" (so we'll just drop the others)
-	$translation_id = $translation_ids[ 0 ];
+	$post = get_post( $post );
+	$translation_id = sil_get_transid( $post );
 	$post_ids = get_objects_in_term( $translation_id, 'post_translation' );
 	// Get all the translations in one cached DB query
 	$posts = get_posts( array( 'include' => $post_ids, 'post_type' => 'any' ) );
@@ -66,7 +65,7 @@ function sil_get_post_translations( $post_id ) {
 		if ( isset( $sil_lang_map[ $post->post_type ] ) )
 			$translations[ $sil_lang_map[ $post->post_type ] ] = $post;
 		else
-			$translations[ SIL_DEFAULT_LANGUAGE ] = $post;
+			$translations[ SIL_DEFAULT_LANG ] = $post;
 	}
 	return $translations;
 }
@@ -75,13 +74,14 @@ function sil_get_post_translations( $post_id ) {
  * Returns the post ID for the post in the default language from which 
  * this post was translated.
  *
- * @param int $post_id The post ID to look up the default language equivalent of 
+ * @param int|object $post Either a WP Post object, or a post ID 
  * @return int The ID of the default language equivalent post
  * @author Simon Wheatley
  **/
-function sil_get_default_lang_post( $post_id ) {
-	$translations = sil_get_post_translations( $post_id );
-	return $translations[ SIL_DEFAULT_LANGUAGE ];
+function sil_get_default_lang_post( $post ) {
+	$post = get_post( $post );
+	$translations = sil_get_post_translations( $post->ID );
+	return $translations[ SIL_DEFAULT_LANG ];
 }
 
 /**
@@ -98,7 +98,7 @@ function sil_get_post_lang( $post ) {
 		return new WP_Error( 'invalid_post', __( 'Invalid Post' ) );
 	if ( isset( $sil_lang_map[ $post->post_type ] ) )
 		return $sil_lang_map[ $post->post_type ];
-	return SIL_DEFAULT_LANGUAGE;
+	return SIL_DEFAULT_LANG;
 }
 
 ?>

@@ -33,7 +33,7 @@ require_once( 'api.php' );
 define( 'SIL_LANG_REGEX', '|^[^/]+|i' );
 
 // @FIXME: Proper method for assigning default language: https://github.com/simonwheatley/translations/issues/3
-define( 'SIL_DEFAULT_LANGUAGE', 'en' );
+define( 'SIL_DEFAULT_LANG', 'en' );
 
 /**
  * Hooks the WP init action early
@@ -196,7 +196,7 @@ function sil_registered_post_type( $post_type, $args ) {
 	
 	// Lose the default language as the existing post_types are English
 	// @FIXME: Need to specify the default language somewhere
-	$default_lang = array_search( SIL_DEFAULT_LANGUAGE, $langs );
+	$default_lang = array_search( SIL_DEFAULT_LANG, $langs );
 	unset( $langs[ $default_lang ] );
 	
 	// $args is an object at this point, but register_post_type needs an array
@@ -280,7 +280,7 @@ function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
 	
 	// Lose the default language as the existing taxonomies are English
 	// @FIXME: Need to specify the default language somewhere
-	$default_lang = array_search( SIL_DEFAULT_LANGUAGE, $langs );
+	$default_lang = array_search( SIL_DEFAULT_LANG, $langs );
 	unset( $langs[ $default_lang ] );
 	
 	// @FIXME: Is it reckless to convert ALL object instances in $args to an array?
@@ -326,7 +326,7 @@ function sil_parse_request( $wp ) {
 	// If this is the site root, redirect to default language homepage 
 	if ( ! $wp->request ) {
 		remove_filter( 'home_url', 'sil_home_url', null, 2 );
-		wp_redirect( home_url( SIL_DEFAULT_LANGUAGE ) );
+		wp_redirect( home_url( SIL_DEFAULT_LANG ) );
 		exit;
 	}
 	
@@ -338,7 +338,7 @@ function sil_parse_request( $wp ) {
 	} elseif ( $lang = @ $_GET[ 'lang' ] ) {
 		$wp->query_vars[ 'lang' ] = $lang;
 	} else {
-		$wp->query_vars[ 'lang' ] = SIL_DEFAULT_LANGUAGE;
+		$wp->query_vars[ 'lang' ] = SIL_DEFAULT_LANG;
 	}
 	error_log( "Request: $wp->request" );
 	error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
@@ -442,7 +442,7 @@ add_action( 'the_posts', 'sil_the_posts' );
  * @return void
  **/
 function sil_admin_bar_menu( $wp_admin_bar ) {
-	global $wp;
+	global $wp, $sil_post_types, $sil_lang_map;
 	$args = array(
 		'id' => 'sil_languages',
 		'title' => sil_get_current_lang_code(),
@@ -459,20 +459,31 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		if ( $lang == sil_get_current_lang_code() )
 			unset( $langs[ $i ] );
 	
-	error_log( "Langs: " . print_r( $langs, true ) );
-	
 	if ( is_singular() || is_single() ) {
 		error_log( "Get translations" );
 		$translations = sil_get_post_translations( get_the_ID() );
 	}
-		
+
 	foreach ( $langs as $i => & $lang ) {
+		$title = sprintf( __( 'Switch to %s', 'sil' ), $lang );
 		if ( is_admin() ) {
 			$href = add_query_arg( array( 'lang' => $lang ) );
 		} else if ( is_singular() || is_single() ) {
-			error_log( "Get permalink for (" . $translations[ $lang ]->post_title . ") in lang ($lang)" );
-			$href = get_permalink( $translations[ $lang ]->ID );
-			error_log( "Permalink in lang ($lang) ($href)" );
+			if ( $translations[ $lang ]->ID ) {
+				$href = get_permalink( $translations[ $lang ]->ID );
+			} else {
+				$default_post = $translations[ SIL_DEFAULT_LANG ];
+				$sequestered_lang = get_query_var( 'lang' );
+				set_query_var( 'lang', $lang );
+				// error_log( "Post types: " . print_r( $sil_post_types, true ) );
+				// error_log( "Lang map: " . print_r( $sil_lang_map, true ) );
+				$transid = sil_get_transid( $default_post );
+				$href = admin_url( '/post-new.php' );
+				$href = add_query_arg( array( 'post_type' => $default_post->post_type, 'sil_transid' => $transid, 'lang' => $lang ), $href );
+				set_query_var( 'lang', $sequestered_lang );
+				$title = sprintf( __( 'Create for %s', 'sil' ), $lang );
+			}
+			// error_log( "Lang ($lang) HREF ($href)" );
 		} else if ( $wp->request == sil_get_current_lang_code() ) { // Language homepages
 			remove_filter( 'home_url', 'sil_home_url', null, 2 );
 			$href = home_url( $lang );
@@ -483,7 +494,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 			'href' => $href,
 			'parent' => 'sil_languages',
 			'meta' => false,
-			'title' => sprintf( __( 'Switch to %s', 'sil' ), $lang ),
+			'title' => $title,
 		);
 		$wp_admin_bar->add_menu( $args );
 	}
@@ -547,20 +558,12 @@ add_filter( 'add_menu_classes', 'sil_add_menu_classes' );
  **/
 function sil_post_type_link( $post_link, $post, $leavename ) {
 	global $sil_post_types, $sil_lang_map, $wp_rewrite;
-	error_log( "Filtering: $post_link" );
-	// var_dump( "Post type link ($post->post_type): $post_link" );
-	// var_dump( $sil_post_types );
-	// exit;
+
 	if ( 'post' == $post->post_type || 'page' == $post->post_type ) { // Deal with regular ol' posts & pages
-		error_log( "Is a $post->post_type" );
 		$base_post_type = $post->post_type;
 	} else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) { // Deal with shadow post types
-		error_log( "No base type" );
 		return $post_link;
 	}
-	error_log( "Base post type: $base_post_type for $post_link" );
-
-	error_log( "Dealing with a $base_post_type shadow" );
 
 	// Deal with post_types shadowing the post post_type
 	if ( 'post' == $base_post_type ) {
@@ -640,7 +643,6 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 			$post_link = user_trailingslashit($post_link, 'single');
 			// END copying from get_permalink function
 		} else { // if they're not using the fancy permalink option
-			error_log( "Non fancy!" );
 			return $post_link;
 		}
 		
@@ -653,5 +655,90 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 }
 add_filter( 'post_link', 'sil_post_type_link', null, 3 );
 add_filter( 'post_type_link', 'sil_post_type_link', null, 3 );
+
+/**
+ * Hooks the WP page_link filter to ensure correct virtual language directory prefix, etc.
+ *
+ * @param string $link The permalink for the page
+ * @param int $id The ID for the post represented by this permalink 
+ * @return string
+ **/
+function sil_page_link( $link, $id ) {
+	global $sil_syncing;
+	if ( $sil_syncing )
+		return $link;
+	$sil_syncing = true;
+	$sequestered_lang = get_query_var( 'lang' );
+	$lang = sil_get_post_lang( $id );
+	set_query_var( 'lang', $lang );
+	$link = get_page_link( $id, $leavename );
+	set_query_var( 'lang', $sequestered_lang );
+	$sil_syncing = false;
+	return $link;
+}
+add_filter( 'page_link', 'sil_page_link', null, 2 );
+
+/**
+ * Get the transID for this post, this is an identifier linking all the translations 
+ * for a single piece of content together.
+ *
+ * Marked private as we may change how translations are linked. Please use API, or 
+ * raise an issue.
+ *
+ * @param int|object $post The WP Post object, or the ID of a post
+ * @return string The transid
+ * @access private
+ * @author Simon Wheatley
+ **/
+function sil_get_transid( $post ) {
+	$post = get_post( $post );
+	$translation_ids = (array) wp_get_object_terms( $post->ID, 'post_translation', array( 'fields' => 'ids' ) );
+	// "There can be only one" (so we'll just drop the others)
+	if ( isset( $translation_ids[ 0 ] ) )
+		return $translation_ids[ 0 ];
+	return new WP_Error( 'no_transid', __( 'No TransID available' ) );
+}
+
+/**
+ * Hooks the WP wp_insert_post action to set a transid on 
+ *
+ * @param int $post_id The ID of the post which has just been inserted
+ * @param object $post The WP Post object which has just been inserted 
+ * @return void
+ **/
+function sil_wp_insert_post( $post_id, $post ) {
+	global $sil_syncing;
+	if ( $sil_syncing )
+		return;
+
+	if ( 'auto-draft' != $post->post_status )
+		return;
+
+	$sil_syncing = true;
+
+	// Get the approved transid for any new translation
+	if ( ! ( $transid = (int) @ $_GET[ 'sil_transid' ] ) && SIL_DEFAULT_LANG == sil_get_current_lang_code() ) {
+		$transid_name = 'post_transid_' . uniqid();
+		$result = wp_insert_term( $transid_name, 'post_translation', array() );
+		if ( is_wp_error( $result ) )
+			error_log( "Problem creating a new TransID: " . print_r( $result, true ) );
+		else
+			$transid = $result[ 'term_id' ];
+	}
+	$result = wp_set_object_terms( $post_id, $transid, 'post_translation' );
+	if ( is_wp_error( $result ) )
+		error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+	// Ensure the post is in the correct shadow post_type
+	if ( SIL_DEFAULT_LANG != sil_get_current_lang_code() ) {
+		$new_post_type = strtolower( $post->post_type . '_' . sil_get_current_lang_code() );
+		wp_update_post( array( 'ID' => $post_id, 'post_type' => $new_post_type ) );
+	}
+	$sil_syncing = false;
+	// Now we have to do a redirect, to ensure the WP Nonce gets generated correctly
+	wp_redirect( admin_url( "/post.php?post=$post_id&action=edit" ) );
+}
+add_action( 'wp_insert_post', 'sil_wp_insert_post', null, 2 );
+
+
 
 ?>
