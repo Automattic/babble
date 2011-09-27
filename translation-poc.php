@@ -560,12 +560,16 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 	// var_dump( "Post type link ($post->post_type): $post_link" );
 	// var_dump( $sil_post_types );
 	// exit;
-	if ( 'post' == $post->post_type ) // Deal with regular ol' posts
+	if ( 'post' == $post->post_type ) { // Deal with regular ol' posts
+		error_log( "Is a post" );
 		$base_post_type = 'post';
-	else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) // Deal with shadow post types
+	} else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) { // Deal with shadow post types
+		error_log( "No base type" );
 		return $post_link;
+	}
+	// error_log( "Base post type: $base_post_type" );
 
-	// error_log( "Dealing with a $base_post_type shadow" );
+	error_log( "Dealing with a $base_post_type shadow" );
 
 	// Deal with post_types shadowing the post post_type
 	if ( 'post' == $base_post_type ) {
@@ -634,8 +638,13 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 			);
 			$sequestered_lang = get_query_var( 'lang' );
 			$lang = sil_get_post_lang( $post );
-			set_query_var( 'lang', $lang );
-			$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
+			if ( is_admin() ) {
+				set_query_var( 'lang', false );
+				$post_link = home_url( "/$lang" . str_replace( $rewritecode, $rewritereplace, $post_link ) );
+			} else {
+				set_query_var( 'lang', $lang );
+				$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
+			}
 			set_query_var( 'lang', $sequestered_lang );
 			$post_link = user_trailingslashit($post_link, 'single');
 			// END copying from get_permalink function
