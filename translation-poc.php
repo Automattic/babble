@@ -479,7 +479,8 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
 function sil_home_url( $url, $path ) {
 	$orig_url = $url;
 	// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
-	$base_url = str_replace( $path, '', $url );
+	if ( '/' != $path && ':' != $path )
+		$base_url = str_replace( $path, '', $url );
 	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . $path;
 	return $url;
 }
