@@ -323,6 +323,13 @@ add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
  * @return void
  **/
 function sil_parse_request( $wp ) {
+	// If this is the site root, redirect to default language homepage 
+	if ( ! $wp->request ) {
+		remove_filter( 'home_url', 'sil_home_url', null, 2 );
+		wp_redirect( home_url( SIL_DEFAULT_LANGUAGE ) );
+		exit;
+	}
+	
 	// Check the language
 	// @FIXME: Would explode be more efficient here?
 	if ( ! is_admin() && preg_match( SIL_LANG_REGEX, $wp->request, $matches ) ) {
@@ -333,7 +340,7 @@ function sil_parse_request( $wp ) {
 	} else {
 		$wp->query_vars[ 'lang' ] = SIL_DEFAULT_LANGUAGE;
 	}
-	error_log( "Request: " . print_r( $wp->request, true ) );
+	error_log( "Request: $wp->request" );
 	error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
 
 	// Sequester the original query, in case we need it to get the default content later
