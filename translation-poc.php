@@ -459,7 +459,14 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		if ( $lang == sil_get_current_lang_code() )
 			unset( $langs[ $i ] );
 	
-	if ( is_singular() || is_single() ) {
+	// Create a handy flag for whether we're editing a post
+	$editing_post = false;
+	if ( is_admin() ) {
+		$screen = get_current_screen();
+		$editing_post = ( is_admin() && 'post' == $screen->base );
+	}
+	
+	if ( is_singular() || is_single() || $editing_post ) {
 		error_log( "Get translations" );
 		$translations = sil_get_post_translations( get_the_ID() );
 	}
@@ -467,20 +474,24 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 	foreach ( $langs as $i => & $lang ) {
 		$title = sprintf( __( 'Switch to %s', 'sil' ), $lang );
 		if ( is_admin() ) {
-			$href = add_query_arg( array( 'lang' => $lang ) );
-		} else if ( is_singular() || is_single() ) {
-			if ( $translations[ $lang ]->ID ) {
-				$href = get_permalink( $translations[ $lang ]->ID );
+			if ( $editing_post ) {
+				if ( $translations[ $lang ]->ID ) { // Translation exists
+					$href = add_query_arg( array( 'lang' => $lang, 'post' => $translations[ $lang ]->ID ) );
+				} else { // Translation does not exist
+					$default_post = $translations[ SIL_DEFAULT_LANG ];
+					$href = sil_get_new_translation_url( $default_post, $lang );
+					$title = sprintf( __( 'Create for %s', 'sil' ), $lang );
+				}
 			} else {
+				$href = add_query_arg( array( 'lang' => $lang ) );
+			}
+		} else if ( is_singular() || is_single() ) {
+			if ( $translations[ $lang ]->ID ) { // Translation exists
+				$href = get_permalink( $translations[ $lang ]->ID );
+			} else { // Translation does not exist
+				// Generate a URL to create the translation
 				$default_post = $translations[ SIL_DEFAULT_LANG ];
-				$sequestered_lang = get_query_var( 'lang' );
-				set_query_var( 'lang', $lang );
-				// error_log( "Post types: " . print_r( $sil_post_types, true ) );
-				// error_log( "Lang map: " . print_r( $sil_lang_map, true ) );
-				$transid = sil_get_transid( $default_post );
-				$href = admin_url( '/post-new.php' );
-				$href = add_query_arg( array( 'post_type' => $default_post->post_type, 'sil_transid' => $transid, 'lang' => $lang ), $href );
-				set_query_var( 'lang', $sequestered_lang );
+				$href = sil_get_new_translation_url( $default_post, $lang );
 				$title = sprintf( __( 'Create for %s', 'sil' ), $lang );
 			}
 			// error_log( "Lang ($lang) HREF ($href)" );
@@ -516,6 +527,7 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
 function sil_home_url( $url, $path ) {
 	$orig_url = $url;
 	// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
+	// @FIXME: Do I need to use something multibyte string safe, rather than str_replace?
 	if ( '/' != $path && ':' != $path )
 		$base_url = str_replace( $path, '', $url );
 	$path = ltrim( $path, '/' );

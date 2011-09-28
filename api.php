@@ -56,6 +56,7 @@ function sil_get_current_lang_code() {
 function sil_get_post_translations( $post ) {
 	global $sil_post_types, $sil_lang_map;
 	$post = get_post( $post );
+	// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 	$translation_id = sil_get_transid( $post );
 	$post_ids = get_objects_in_term( $translation_id, 'post_translation' );
 	// Get all the translations in one cached DB query
@@ -99,6 +100,28 @@ function sil_get_post_lang( $post ) {
 	if ( isset( $sil_lang_map[ $post->post_type ] ) )
 		return $sil_lang_map[ $post->post_type ];
 	return SIL_DEFAULT_LANG;
+}
+
+/**
+ * Return the admin URL to create a new translation in a
+ * particular language.
+ *
+ * @param int|object $default_post The post in the default language to create a new translation for, either WP Post object or post ID
+ * @param string $lang The language code 
+ * @return string The admin URL to create the new translation
+ * @author Simon Wheatley
+ **/
+function sil_get_new_translation_url( $default_post, $lang ) {
+	$default_post = get_post( $default_post );
+	$sequestered_lang = get_query_var( 'lang' );
+	set_query_var( 'lang', $lang );
+	// error_log( "Post types: " . print_r( $sil_post_types, true ) );
+	// error_log( "Lang map: " . print_r( $sil_lang_map, true ) );
+	$transid = sil_get_transid( $default_post );
+	$url = admin_url( '/post-new.php' );
+	$url = add_query_arg( array( 'post_type' => $default_post->post_type, 'sil_transid' => $transid, 'lang' => $lang ), $url );
+	set_query_var( 'lang', $sequestered_lang );
+	return $url;
 }
 
 ?>
