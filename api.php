@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * @FIXME: Currently does not check for language validity, though perhaps we should check that elsewhere and redirect?
  *
  * @return string A language code
- * @author Simon Wheatley
+ * @access public
  **/
 function sil_get_current_lang_code() {
 	// Outside the admin area, it's a WP Query Variable
@@ -51,7 +51,7 @@ function sil_get_current_lang_code() {
  *
  * @param int|object $post Either a WP Post object, or a post ID 
  * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
- * @author Simon Wheatley
+ * @access public
  **/
 function sil_get_post_translations( $post ) {
 	global $sil_post_types, $sil_lang_map;
@@ -77,7 +77,7 @@ function sil_get_post_translations( $post ) {
  *
  * @param int|object $post Either a WP Post object, or a post ID 
  * @return int The ID of the default language equivalent post
- * @author Simon Wheatley
+ * @access public
  **/
 function sil_get_default_lang_post( $post ) {
 	$post = get_post( $post );
@@ -90,7 +90,7 @@ function sil_get_default_lang_post( $post ) {
  *
  * @param int|object $post Either a WP Post object, or a post ID 
  * @return string|object Either a language code, or a WP_Error object
- * @author Simon Wheatley
+ * @access public
  **/
 function sil_get_post_lang( $post ) {
 	global $sil_lang_map;
@@ -109,7 +109,7 @@ function sil_get_post_lang( $post ) {
  * @param int|object $default_post The post in the default language to create a new translation for, either WP Post object or post ID
  * @param string $lang The language code 
  * @return string The admin URL to create the new translation
- * @author Simon Wheatley
+ * @access public
  **/
 function sil_get_new_translation_url( $default_post, $lang ) {
 	$default_post = get_post( $default_post );
