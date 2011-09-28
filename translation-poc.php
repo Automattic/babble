@@ -325,8 +325,11 @@ add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
 function sil_parse_request( $wp ) {
 	// If this is the site root, redirect to default language homepage 
 	if ( ! $wp->request ) {
+		// error_log( "Removing home_url filter" );
 		remove_filter( 'home_url', 'sil_home_url', null, 2 );
 		wp_redirect( home_url( SIL_DEFAULT_LANG ) );
+		// error_log( "Adding home_url filter" );
+		add_filter( 'home_url', 'sil_home_url', null, 2 );
 		exit;
 	}
 	
@@ -335,13 +338,16 @@ function sil_parse_request( $wp ) {
 	if ( ! is_admin() && preg_match( SIL_LANG_REGEX, $wp->request, $matches ) ) {
 	 	// @FIXME: If we want to cater for non-pretty permalinks we could to handle a GET param or query var here
 		$wp->query_vars[ 'lang' ] = $matches[ 0 ];
+		// error_log( "Got lang from regex: (" . $matches[ 0 ] . ")" );
 	} elseif ( $lang = @ $_GET[ 'lang' ] ) {
+		// error_log( "Got GET lang: ($lang)" );
 		$wp->query_vars[ 'lang' ] = $lang;
 	} else {
+		// error_log( "Default langL: (" . SIL_DEFAULT_LANG . ")" );
 		$wp->query_vars[ 'lang' ] = SIL_DEFAULT_LANG;
 	}
-	error_log( "Request: $wp->request" );
-	error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
+	// error_log( "Request: $wp->request" );
+	// error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
 
 	// Sequester the original query, in case we need it to get the default content later
 	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
@@ -362,7 +368,7 @@ function sil_parse_request( $wp ) {
 	// error_log( "Original query: " . print_r( $wp->query_vars, true ) );
 	if ( 'en' == $wp->query_vars[ 'lang' ] ) {
 		// error_log( "Default content" );
-		error_log( "New Query 0: " . print_r( $wp->query_vars, true ) );
+		// error_log( "New Query 0: " . print_r( $wp->query_vars, true ) );
 		return;
 	}
 
@@ -383,7 +389,7 @@ function sil_parse_request( $wp ) {
 	} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
 		$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . '_' . $wp->query_vars[ 'lang' ];
 	}
-	error_log( "New Query 1: " . print_r( $wp->query_vars, true ) );
+	// error_log( "New Query 1: " . print_r( $wp->query_vars, true ) );
 }
 add_action( 'parse_request', 'sil_parse_request' );
 
@@ -467,7 +473,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 	}
 	
 	if ( is_singular() || is_single() || $editing_post ) {
-		error_log( "Get translations" );
+		// error_log( "Get translations" );
 		$translations = sil_get_post_translations( get_the_ID() );
 	}
 
@@ -496,8 +502,10 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 			}
 			// error_log( "Lang ($lang) HREF ($href)" );
 		} else if ( $wp->request == sil_get_current_lang_code() ) { // Language homepages
+			// error_log( "Removing home_url filter" );
 			remove_filter( 'home_url', 'sil_home_url', null, 2 );
 			$href = home_url( $lang );
+			// error_log( "Adding home_url filter" );
 			add_filter( 'home_url', 'sil_home_url', null, 2 );
 		}
 		$args = array(
@@ -532,8 +540,19 @@ function sil_home_url( $url, $path ) {
 		$base_url = str_replace( $path, '', $url );
 	$path = ltrim( $path, '/' );
 	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . '/' . $path;
+	// error_log( "Home URL: $url" );
 	return $url;
 }
+
+/**
+ * Hooks the WP admin_init action 
+ *
+ * @return void
+ **/
+function sil_admin_init(  ) {
+	add_filter( 'home_url', 'sil_home_url', null, 2 );
+}
+add_action( 'admin_init', 'sil_admin_init' );
 
 /**
  * Hooks the WP admin_url filter to ensure we keep a consistent domain as we click around.
@@ -659,7 +678,7 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 		}
 		
 	} else if ( 'page' == $base_post_type ) {
-		error_log( "Get page link for $post_link" );
+		// error_log( "Get page link for $post_link" );
 		return get_page_link( $post->ID, $leavename );
 	}
 
@@ -680,7 +699,7 @@ function sil_page_link( $link, $id ) {
 	if ( $sil_syncing )
 		return $link;
 	$sil_syncing = true;
-	$sequestered_lang = get_query_var( 'lang' );
+	$sequestered_lang = sil_get_current_lang_code();
 	$lang = sil_get_post_lang( $id );
 	set_query_var( 'lang', $lang );
 	$link = get_page_link( $id, $leavename );
