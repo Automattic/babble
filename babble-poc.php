@@ -1,12 +1,12 @@
 <?php
 
 /*
-Plugin Name: Translations Proof of Concept
-Plugin URI: http://simonwheatley.co.uk/wordpress/tpoc
+Plugin Name: Babble – Proof of Concept
+Plugin URI: https://github.com/simonwheatley/babble
 Description: Translation proof of concept
-Version: 0.1
+Version: alpha 1
 Author: Simon Wheatley
-Author URI: http://simonwheatley.co.uk//wordpress/
+Author URI: http://simonwheatley.co.uk/wordpress/
 */
  
 /*  Copyright 2011 Simon Wheatley
@@ -39,6 +39,7 @@ define( 'SIL_DEFAULT_LANG', 'en' );
  * Hooks the WP init action early
  *
  * @return void
+ * @access private
  **/
 function sil_init_early() {
 	global $sil_post_types;
@@ -68,6 +69,7 @@ add_action( 'init', 'sil_init_early', 0 );
  * 
  * @param array $langs The language codes
  * @return array An array of language codes utilised for this site. 
+ * @access private
  **/
 function sil_rewrite_rules_filter( $rules ){
 	// Add a prefix to the URL to pick up the virtual sub-dir specifying
@@ -84,6 +86,7 @@ add_filter( 'pre_update_option_rewrite_rules', 'sil_rewrite_rules_filter' );
  *
  * @param string $locale The locale 
  * @return string The locale
+ * @access private
  **/
 function sil_locale( $locale ) {
 	// @FIXME: Copying a huge hunk of code from WP->parse_request here, feels ugly.
@@ -154,6 +157,7 @@ add_filter( 'locale', 'sil_locale' );
  *
  * @param array $langs The language codes
  * @return array An array of language codes utilised for this site. 
+ * @access private
  **/
 function sil_languages( $langs ) {
 	$langs[] = 'de_DE';
@@ -170,6 +174,7 @@ add_filter( 'sil_languages', 'sil_languages' );
  * @param string $post_type The post type which has just been registered. 
  * @param array $args The arguments with which the post type was registered
  * @return void
+ * @access private
  **/
 function sil_registered_post_type( $post_type, $args ) {
 	// @FIXME: When we turn this into classes we can avoid a global $sil_syncing here
@@ -261,6 +266,7 @@ add_action( 'registered_post_type', 'sil_registered_post_type', null, 2 );
  * @param string $taxonomy The name of the newly registered taxonomy 
  * @param array $args The args passed to register the taxonomy
  * @return void
+ * @access private
  **/
 function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
 	// @FIXME: When we turn this into classes we can avoid a global $sil_syncing here
@@ -321,6 +327,7 @@ add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
  *
  * @param object $wp WP object, passed by reference (so no need to return)
  * @return void
+ * @access private
  **/
 function sil_parse_request( $wp ) {
 	// If this is the site root, redirect to default language homepage 
@@ -399,7 +406,7 @@ add_action( 'parse_request', 'sil_parse_request' );
  *
  * @param array $query_vars An array of the public query vars 
  * @return array An array of the public query vars
- * @author Simon Wheatley
+ * @access private
  **/
 function sil_query_vars( $query_vars ) {
 	// @FIXME: We only add the home_url filter at this point because having it earlier screws with the request method of the WP class.
@@ -416,6 +423,7 @@ add_filter( 'query_vars', 'sil_query_vars' );
  *
  * @param array $posts The posts retrieved by WP_Query, passed by reference 
  * @return array The posts
+ * @access private
  **/
 function sil_the_posts( $posts ) {
 	$subs_index = array();
@@ -446,6 +454,7 @@ add_action( 'the_posts', 'sil_the_posts' );
  *
  * @param object $wp_admin_bar The WP Admin Bar, passed by reference
  * @return void
+ * @access private
  **/
 function sil_admin_bar_menu( $wp_admin_bar ) {
 	global $wp, $sil_post_types, $sil_lang_map;
@@ -531,6 +540,7 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
  * @param string $orig_scheme The original scheme 
  * @param int $blog_id The ID of the blog 
  * @return string The URL
+ * @access private
  **/
 function sil_home_url( $url, $path ) {
 	$orig_url = $url;
@@ -548,6 +558,7 @@ function sil_home_url( $url, $path ) {
  * Hooks the WP admin_init action 
  *
  * @return void
+ * @access private
  **/
 function sil_admin_init(  ) {
 	add_filter( 'home_url', 'sil_home_url', null, 2 );
@@ -559,6 +570,7 @@ add_action( 'admin_init', 'sil_admin_init' );
  *
  * @param string $admin_url The admin URL 
  * @return string The URL with the appropriate language (lang) GET parameter
+ * @access private
  **/
 function sil_admin_url( $url ) {
 	return add_query_arg( array( 'lang' => sil_get_current_lang_code() ), $url );
@@ -570,6 +582,7 @@ add_filter( 'admin_url', 'sil_admin_url' );
  *
  * @param array $menu The WP Admin Menu 
  * @return array The WP Admin Menu, with our query args
+ * @access private
  **/
 function sil_add_menu_classes( $menu ) {
 	// @FIXME: Adding the language string like this feels so so dirty.
@@ -586,6 +599,7 @@ add_filter( 'add_menu_classes', 'sil_add_menu_classes' );
  * @param string $post_link The permalink 
  * @param object $post The WP Post object being linked to
  * @return string The permalink
+ * @access private
  **/
 function sil_post_type_link( $post_link, $post, $leavename ) {
 	global $sil_post_types, $sil_lang_map, $wp_rewrite;
@@ -693,6 +707,7 @@ add_filter( 'post_type_link', 'sil_post_type_link', null, 3 );
  * @param string $link The permalink for the page
  * @param int $id The ID for the post represented by this permalink 
  * @return string
+ * @access private
  **/
 function sil_page_link( $link, $id ) {
 	global $sil_syncing;
@@ -719,7 +734,6 @@ add_filter( 'page_link', 'sil_page_link', null, 2 );
  * @param int|object $post The WP Post object, or the ID of a post
  * @return string The transid
  * @access private
- * @author Simon Wheatley
  **/
 function sil_get_transid( $post ) {
 	$post = get_post( $post );
@@ -736,6 +750,7 @@ function sil_get_transid( $post ) {
  * @param int $post_id The ID of the post which has just been inserted
  * @param object $post The WP Post object which has just been inserted 
  * @return void
+ * @access private
  **/
 function sil_wp_insert_post( $post_id, $post ) {
 	global $sil_syncing;
