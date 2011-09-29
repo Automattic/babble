@@ -39,7 +39,8 @@ function sil_get_current_lang_code() {
 	if ( ! is_admin() )
 		return get_query_var( 'lang' ) ? get_query_var( 'lang' ) : SIL_DEFAULT_LANG;
 	// In the admin area, it's a GET param
-	return @ $_GET[ 'lang' ] ? $_GET[ 'lang' ] : SIL_DEFAULT_LANG;
+	$current_user = wp_get_current_user();
+	return get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) ? get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) : SIL_DEFAULT_LANG;
 }
 
 /**
@@ -57,8 +58,10 @@ function sil_get_post_translations( $post ) {
 	global $sil_post_types, $sil_lang_map;
 	$post = get_post( $post );
 	// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
-	$translation_id = sil_get_transid( $post );
-	$post_ids = get_objects_in_term( $translation_id, 'post_translation' );
+	$transid = sil_get_transid( $post );
+	if ( is_wp_error( $transid ) )
+		error_log( "Error getting transid: " . print_r( $transid, true ) );
+	$post_ids = get_objects_in_term( $transid, 'post_translation' );
 	// Get all the translations in one cached DB query
 	$posts = get_posts( array( 'include' => $post_ids, 'post_type' => 'any' ) );
 	$translations = array();

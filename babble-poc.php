@@ -51,7 +51,10 @@ function sil_init_early() {
 		'label' => __( 'Term Translation ID', 'sil' ),
 	) );
 	// Ensure we catch any existing language shadow post_types already registered
-	$post_types = array_merge( array( 'post', 'page' ), array_keys( $sil_post_types ) );
+	if ( is_array( $sil_post_types ) )
+		$post_types = array_merge( array( 'post', 'page' ), array_keys( $sil_post_types ) );
+	else
+		$post_types = array( 'post', 'page' );
 	register_taxonomy( 'post_translation', $post_types, array(
 		'rewrite' => false,
 		'public' => true,
@@ -144,10 +147,15 @@ function sil_locale( $locale ) {
 		// @FIXME: Should I be using $GLOBALS['request] here? Feels odd.
 		if ( preg_match( SIL_LANG_REGEX, $request, $matches ) )
 			$locale = $matches[ 0 ];
-	} elseif ( $lang = @ $_GET[ 'lang' ] ) {
+	} else { // Admin area
+		if ( $lang = @ $_GET[ 'lang' ] ) {
+			$current_user = wp_get_current_user();
+			update_user_meta( $current_user->ID, 'bbl_admin_lang', $lang );
+		} else {
+			$lang = sil_get_current_lang_code();
+		}
 		$locale = $lang;
 	}
-	// error_log( "Locale (after): $locale" );
 	return $locale;
 }
 add_filter( 'locale', 'sil_locale' );
@@ -353,8 +361,8 @@ function sil_parse_request( $wp ) {
 		// error_log( "Default langL: (" . SIL_DEFAULT_LANG . ")" );
 		$wp->query_vars[ 'lang' ] = SIL_DEFAULT_LANG;
 	}
-	// error_log( "Request: $wp->request" );
-	// error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
+	error_log( "Request: $wp->request" );
+	error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
 
 	// Sequester the original query, in case we need it to get the default content later
 	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
@@ -396,7 +404,7 @@ function sil_parse_request( $wp ) {
 	} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
 		$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . '_' . $wp->query_vars[ 'lang' ];
 	}
-	// error_log( "New Query 1: " . print_r( $wp->query_vars, true ) );
+	error_log( "New Query: " . print_r( $wp->query_vars, true ) );
 }
 add_action( 'parse_request', 'sil_parse_request' );
 
@@ -490,7 +498,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		$title = sprintf( __( 'Switch to %s', 'sil' ), $lang );
 		if ( is_admin() ) {
 			if ( $editing_post ) {
-				if ( $translations[ $lang ]->ID ) { // Translation exists
+				if ( isset( $translations[ $lang ]->ID ) ) { // Translation exists
 					$href = add_query_arg( array( 'lang' => $lang, 'post' => $translations[ $lang ]->ID ) );
 				} else { // Translation does not exist
 					$default_post = $translations[ SIL_DEFAULT_LANG ];
@@ -501,7 +509,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 				$href = add_query_arg( array( 'lang' => $lang ) );
 			}
 		} else if ( is_singular() || is_single() ) {
-			if ( $translations[ $lang ]->ID ) { // Translation exists
+			if ( isset( $translations[ $lang ]->ID ) ) { // Translation exists
 				$href = get_permalink( $translations[ $lang ]->ID );
 			} else { // Translation does not exist
 				// Generate a URL to create the translation
@@ -576,22 +584,6 @@ function sil_admin_url( $url ) {
 	return add_query_arg( array( 'lang' => sil_get_current_lang_code() ), $url );
 }
 add_filter( 'admin_url', 'sil_admin_url' );
-
-/**
- * Hooks the WP add_menu_classes filter. We wouldn't need to do this 
- *
- * @param array $menu The WP Admin Menu 
- * @return array The WP Admin Menu, with our query args
- * @access private
- **/
-function sil_add_menu_classes( $menu ) {
-	// @FIXME: Adding the language string like this feels so so dirty.
-	foreach ( $menu as & $item )
-		if ( $item[ 0 ] )
-			$item[ 2 ] = add_query_arg( array( 'lang' => sil_get_current_lang_code() ), $item[ 2 ] );
-	return $menu;
-}
-add_filter( 'add_menu_classes', 'sil_add_menu_classes' );
 
 /**
  * Hooks the WP post_type_link filter 
@@ -737,11 +729,14 @@ add_filter( 'page_link', 'sil_page_link', null, 2 );
  **/
 function sil_get_transid( $post ) {
 	$post = get_post( $post );
-	$translation_ids = (array) wp_get_object_terms( $post->ID, 'post_translation', array( 'fields' => 'ids' ) );
+	$transids = (array) wp_get_object_terms( $post->ID, 'post_translation', array( 'fields' => 'ids' ) );
 	// "There can be only one" (so we'll just drop the others)
-	if ( isset( $translation_ids[ 0 ] ) )
-		return $translation_ids[ 0 ];
-	return new WP_Error( 'no_transid', __( 'No TransID available' ) );
+	if ( isset( $transids[ 0 ] ) )
+		return $transids[ 0 ];
+	if ( SIL_DEFAULT_LANG == sil_get_post_lang( $post ) )
+		return false;
+	
+	return new WP_Error( 'no_transid', __( "No TransID available for post ID ($post->ID)", 'bbl' ) );
 }
 
 /**
@@ -762,18 +757,10 @@ function sil_wp_insert_post( $post_id, $post ) {
 
 	$sil_syncing = true;
 
-	// Get the approved transid for any new translation
-	if ( ! ( $transid = (int) @ $_GET[ 'sil_transid' ] ) && SIL_DEFAULT_LANG == sil_get_current_lang_code() ) {
-		$transid_name = 'post_transid_' . uniqid();
-		$result = wp_insert_term( $transid_name, 'post_translation', array() );
-		if ( is_wp_error( $result ) )
-			error_log( "Problem creating a new TransID: " . print_r( $result, true ) );
-		else
-			$transid = $result[ 'term_id' ];
-	}
-	$result = wp_set_object_terms( $post_id, $transid, 'post_translation' );
-	if ( is_wp_error( $result ) )
-		error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+	// Get any approved term ID for the transid for any new translation
+	$transid = (int) @ $_GET[ 'sil_transid' ];
+	sil_set_transid( $post, $transid );
+
 	// Ensure the post is in the correct shadow post_type
 	if ( SIL_DEFAULT_LANG != sil_get_current_lang_code() ) {
 		$new_post_type = strtolower( $post->post_type . '_' . sil_get_current_lang_code() );
@@ -785,6 +772,28 @@ function sil_wp_insert_post( $post_id, $post ) {
 }
 add_action( 'wp_insert_post', 'sil_wp_insert_post', null, 2 );
 
-
+/**
+ * Create and assign a new TransID to a post.
+ *
+ * @param int|object $post Either a Post ID or a WP Post object 
+ * @param string $transid (optional) A transid to associate with the post
+ * @return void
+ * @author Simon Wheatley
+ **/
+function sil_set_transid( $post, $transid = false ) {
+	$post = get_post( $post );
+	// @FIXME: Abstract the code for generating and associating a new TransID
+	if ( ! $transid ) {
+		$transid_name = 'post_transid_' . uniqid();
+		$result = wp_insert_term( $transid_name, 'post_translation', array() );
+		if ( is_wp_error( $result ) )
+			error_log( "Problem creating a new TransID: " . print_r( $result, true ) );
+		else
+			$transid = $result[ 'term_id' ];
+	}
+	$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
+	if ( is_wp_error( $result ) )
+		error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+}
 
 ?>
