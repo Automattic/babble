@@ -439,9 +439,11 @@ function sil_the_posts( $posts ) {
 		if ( ! sil_get_transid( $post ) && SIL_DEFAULT_LANG == sil_get_post_lang( $post ) )
 			sil_set_transid( $post );
 		if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
-			$default_post = sil_get_default_lang_post( $post->ID );
-			$subs_index[ $post->ID ] = $default_post->ID;
+			if ( $default_post = sil_get_default_lang_post( $post->ID ) )
+				$subs_index[ $post->ID ] = $default_post->ID;
 		}
+	if ( ! $subs_index )
+		return;
 	$subs_posts = get_posts( array( 'include' => array_values( $subs_index ), 'post_status' => 'publish' ) );
 	// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
 	// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered

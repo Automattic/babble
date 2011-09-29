@@ -85,7 +85,9 @@ function sil_get_post_translations( $post ) {
 function sil_get_default_lang_post( $post ) {
 	$post = get_post( $post );
 	$translations = sil_get_post_translations( $post->ID );
-	return $translations[ SIL_DEFAULT_LANG ];
+	if ( isset( $translations[ SIL_DEFAULT_LANG ] ) )
+		return $translations[ SIL_DEFAULT_LANG ];
+	return false;
 }
 
 /**
