@@ -434,6 +434,8 @@ add_filter( 'query_vars', 'sil_query_vars' );
  * @access private
  **/
 function sil_the_posts( $posts ) {
+	if ( is_admin() )
+		return $posts;
 	$subs_index = array();
 	foreach ( $posts as & $post )
 		if ( ! sil_get_transid( $post ) && SIL_DEFAULT_LANG == sil_get_post_lang( $post ) )
@@ -600,6 +602,10 @@ add_filter( 'admin_url', 'sil_admin_url' );
 function sil_post_type_link( $post_link, $post, $leavename ) {
 	global $sil_post_types, $sil_lang_map, $wp_rewrite;
 
+	if ( ! isset( $sil_post_types[ $post->post_type ] ) )
+		return $post_link;
+
+	error_log( "Post link for type: ($post->post_type)" );
 	if ( 'post' == $post->post_type || 'page' == $post->post_type ) { // Deal with regular ol' posts & pages
 		$base_post_type = $post->post_type;
 	} else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) { // Deal with shadow post types
