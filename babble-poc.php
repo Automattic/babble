@@ -436,6 +436,8 @@ add_filter( 'query_vars', 'sil_query_vars' );
 function sil_the_posts( $posts ) {
 	$subs_index = array();
 	foreach ( $posts as & $post )
+		if ( ! sil_get_transid( $post ) && SIL_DEFAULT_LANG == sil_get_post_lang( $post ) )
+			sil_set_transid( $post );
 		if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
 			$default_post = sil_get_default_lang_post( $post->ID );
 			$subs_index[ $post->ID ] = $default_post->ID;
