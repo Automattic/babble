@@ -66,101 +66,6 @@ function sil_init_early() {
 add_action( 'init', 'sil_init_early', 0 );
 
 /**
- * Hooks the WP pre_update_option_rewrite_rules filter to add
- * the prefix to the rewrite rule regexes to deal with the
- * virtual language dir.
- * 
- * @param array $langs The language codes
- * @return array An array of language codes utilised for this site. 
- * @access private
- **/
-function sil_rewrite_rules_filter( $rules ){
-	// Add a prefix to the URL to pick up the virtual sub-dir specifying
-	// the language. The redirect portion can and should remain perfectly
-	// ignorant of it though, as we change it in parse_request.
-    foreach( (array) $rules as $regex => $query )
-		$new_rules[ '[a-zA-Z_]+/' . $regex ] = $query;
-    return $new_rules;
-}
-add_filter( 'pre_update_option_rewrite_rules', 'sil_rewrite_rules_filter' );
-
-/**
- * Hooks the WP locale filter to switch locales whenever we gosh darned want.
- *
- * @param string $locale The locale 
- * @return string The locale
- * @access private
- **/
-function sil_locale( $locale ) {
-	// @FIXME: Copying a huge hunk of code from WP->parse_request here, feels ugly.
-	if ( ! is_admin() ) {
-		// START: Huge hunk of WP->parse_request
-		if ( isset($_SERVER['PATH_INFO']) )
-			$pathinfo = $_SERVER['PATH_INFO'];
-		else
-			$pathinfo = '';
-		$pathinfo_array = explode('?', $pathinfo);
-		$pathinfo = str_replace("%", "%25", $pathinfo_array[0]);
-		$req_uri = $_SERVER['REQUEST_URI'];
-		$req_uri_array = explode('?', $req_uri);
-		$req_uri = $req_uri_array[0];
-		$self = $_SERVER['PHP_SELF'];
-		$home_path = parse_url(home_url());
-		if ( isset($home_path['path']) )
-			$home_path = $home_path['path'];
-		else
-			$home_path = '';
-		$home_path = trim($home_path, '/');
-
-		// Trim path info from the end and the leading home path from the
-		// front.  For path info requests, this leaves us with the requesting
-		// filename, if any.  For 404 requests, this leaves us with the
-		// requested permalink.
-		$req_uri = str_replace($pathinfo, '', $req_uri);
-		$req_uri = trim($req_uri, '/');
-		$req_uri = preg_replace("|^$home_path|", '', $req_uri);
-		$req_uri = trim($req_uri, '/');
-		$pathinfo = trim($pathinfo, '/');
-		$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
-		$pathinfo = trim($pathinfo, '/');
-		$self = trim($self, '/');
-		$self = preg_replace("|^$home_path|", '', $self);
-		$self = trim($self, '/');
-
-		// The requested permalink is in $pathinfo for path info requests and
-		//  $req_uri for other requests.
-		if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
-			$request = $pathinfo;
-		} else {
-			// If the request uri is the index, blank it out so that we don't try to match it against a rule.
-			if ( $req_uri == $wp_rewrite->index )
-				$req_uri = '';
-			$request = $req_uri;
-		}
-		
-		// END: Huge hunk of WP->parse_request
-
-		// @FIXME: Should probably check the available languages here
-		// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo
-
-		// error_log( "Locale (before): $locale for request ($request)" );
-		// @FIXME: Should I be using $GLOBALS['request] here? Feels odd.
-		if ( preg_match( SIL_LANG_REGEX, $request, $matches ) )
-			$locale = $matches[ 0 ];
-	} else { // Admin area
-		if ( $lang = @ $_GET[ 'lang' ] ) {
-			$current_user = wp_get_current_user();
-			update_user_meta( $current_user->ID, 'bbl_admin_lang', $lang );
-		} else {
-			$lang = sil_get_current_lang_code();
-		}
-		$locale = $lang;
-	}
-	return $locale;
-}
-add_filter( 'locale', 'sil_locale' );
-
-/**
  * Hooks the WP sil_languages filter. Temporary for POC.
  *
  * @param array $langs The language codes
@@ -338,31 +243,16 @@ add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
  * @access private
  **/
 function sil_parse_request( $wp ) {
+	global $babble_locale;
 	// If this is the site root, redirect to default language homepage 
 	if ( ! $wp->request ) {
 		// error_log( "Removing home_url filter" );
-		remove_filter( 'home_url', 'sil_home_url', null, 2 );
-		wp_redirect( home_url( SIL_DEFAULT_LANG ) );
+		remove_filter( 'home_url', array( $babble_locale, 'home_url' ), null, 2 );
+		wp_redirect( home_url( $babble_locale->default_lang ) );
 		// error_log( "Adding home_url filter" );
-		add_filter( 'home_url', 'sil_home_url', null, 2 );
+		add_filter( 'home_url', array( $babble_locale, 'home_url' ), null, 2 );
 		exit;
 	}
-	
-	// Check the language
-	// @FIXME: Would explode be more efficient here?
-	if ( ! is_admin() && preg_match( SIL_LANG_REGEX, $wp->request, $matches ) ) {
-	 	// @FIXME: If we want to cater for non-pretty permalinks we could to handle a GET param or query var here
-		$wp->query_vars[ 'lang' ] = $matches[ 0 ];
-		// error_log( "Got lang from regex: (" . $matches[ 0 ] . ")" );
-	} elseif ( $lang = @ $_GET[ 'lang' ] ) {
-		// error_log( "Got GET lang: ($lang)" );
-		$wp->query_vars[ 'lang' ] = $lang;
-	} else {
-		// error_log( "Default langL: (" . SIL_DEFAULT_LANG . ")" );
-		$wp->query_vars[ 'lang' ] = SIL_DEFAULT_LANG;
-	}
-	error_log( "Request: $wp->request" );
-	error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
 
 	// Sequester the original query, in case we need it to get the default content later
 	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
@@ -407,21 +297,6 @@ function sil_parse_request( $wp ) {
 	error_log( "New Query: " . print_r( $wp->query_vars, true ) );
 }
 add_action( 'parse_request', 'sil_parse_request' );
-
-/**
- * Hooks the WP query_vars filter to add various of our geo
- * search specific query_vars.
- *
- * @param array $query_vars An array of the public query vars 
- * @return array An array of the public query vars
- * @access private
- **/
-function sil_query_vars( $query_vars ) {
-	// @FIXME: We only add the home_url filter at this point because having it earlier screws with the request method of the WP class.
-	add_filter( 'home_url', 'sil_home_url', null, 2 );
-	return array_merge( $query_vars, array( 'lang' ) );
-}
-add_filter( 'query_vars', 'sil_query_vars' );
 
 /**
  * Hooks the WP the_posts filter. 
@@ -471,7 +346,7 @@ add_action( 'the_posts', 'sil_the_posts' );
  * @access private
  **/
 function sil_admin_bar_menu( $wp_admin_bar ) {
-	global $wp, $sil_post_types, $sil_lang_map;
+	global $wp, $sil_post_types, $sil_lang_map, $babble_locale;
 	$args = array(
 		'id' => 'sil_languages',
 		'title' => sil_get_current_lang_code(),
@@ -526,10 +401,10 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 			// error_log( "Lang ($lang) HREF ($href)" );
 		} else if ( $wp->request == sil_get_current_lang_code() ) { // Language homepages
 			// error_log( "Removing home_url filter" );
-			remove_filter( 'home_url', 'sil_home_url', null, 2 );
+			remove_filter( 'home_url', array( $babble_locale, 'home_url'), null, 2 );
 			$href = home_url( $lang );
 			// error_log( "Adding home_url filter" );
-			add_filter( 'home_url', 'sil_home_url', null, 2 );
+			add_filter( 'home_url', array( $babble_locale, 'home_url'), null, 2 );
 		}
 		$args = array(
 			'id' => "sil_languages_$lang",
@@ -542,42 +417,6 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 	}
 }
 add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
-
-/**
- * Hooks the WP home_url action 
- * 
- * Hackity hack: this function is attached with add_filter within
- * the query_vars filter.
- *
- * @param string $url The URL 
- * @param string $path The path 
- * @param string $orig_scheme The original scheme 
- * @param int $blog_id The ID of the blog 
- * @return string The URL
- * @access private
- **/
-function sil_home_url( $url, $path ) {
-	$orig_url = $url;
-	// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
-	// @FIXME: Do I need to use something multibyte string safe, rather than str_replace?
-	if ( '/' != $path && ':' != $path )
-		$base_url = str_replace( $path, '', $url );
-	$path = ltrim( $path, '/' );
-	$url = trailingslashit( $base_url ) . sil_get_current_lang_code() . '/' . $path;
-	// error_log( "Home URL: $url" );
-	return $url;
-}
-
-/**
- * Hooks the WP admin_init action 
- *
- * @return void
- * @access private
- **/
-function sil_admin_init(  ) {
-	add_filter( 'home_url', 'sil_home_url', null, 2 );
-}
-add_action( 'admin_init', 'sil_admin_init' );
 
 /**
  * Hooks the WP admin_url filter to ensure we keep a consistent domain as we click around.
@@ -719,7 +558,7 @@ function sil_page_link( $link, $id ) {
 	$sequestered_lang = sil_get_current_lang_code();
 	$lang = sil_get_post_lang( $id );
 	set_query_var( 'lang', $lang );
-	$link = get_page_link( $id, $leavename );
+	$link = get_page_link( $id );
 	set_query_var( 'lang', $sequestered_lang );
 	$sil_syncing = false;
 	return $link;
