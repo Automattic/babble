@@ -555,6 +555,7 @@ function sil_page_link( $link, $id ) {
 	global $sil_syncing;
 	if ( $sil_syncing )
 		return $link;
+	error_log( "Link IN: $link" );
 	$sil_syncing = true;
 	$sequestered_lang = sil_get_current_lang_code();
 	$lang = sil_get_post_lang( $id );
@@ -562,6 +563,7 @@ function sil_page_link( $link, $id ) {
 	$link = get_page_link( $id );
 	set_query_var( 'lang', $sequestered_lang );
 	$sil_syncing = false;
+	error_log( "Link OUT: $link" );
 	return $link;
 }
 add_filter( 'page_link', 'sil_page_link', null, 2 );

@@ -44,6 +44,20 @@ function sil_get_current_lang_code() {
 }
 
 /**
+ * Set the current lang for this class, and in Query Vars.
+ * 
+ * @uses Babble_Locale::switch_lang to do the actual work
+ * @see switch_to_blog for similarities
+ *
+ * @param string $lang The language code to switch to 
+ * @return void
+ **/
+function bbl_switch_lang( $lang ) {
+	global $babble_locale;
+	$babble_locale->switch_lang( $lang );
+}
+
+/**
  * Get the posts which are the translations for the provided 
  * post ID. N.B. The returned array of post objects (and false 
  * values) will include the post for the post ID passed.

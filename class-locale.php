@@ -38,6 +38,13 @@ class Babble_Locale {
 	 **/
 	protected $no_recursion;
 	
+	/**
+	 * The languages that we've switched to, in order.
+	 *
+	 * @var array
+	 **/
+	protected $lang_stack;
+	
 	function __construct() {
 		add_action( 'admin_init', array( & $this, 'admin_init' ) );
 		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
@@ -190,6 +197,47 @@ class Babble_Locale {
 		// error_log( "Home URL: $url" );
 		return $url;
 	}
+
+	// Public Methods
+	// --------------
+
+	/**
+	 * Get the current lang for this class, which is also the
+	 * current lang in the Query Vars.
+	 *
+	 * @param  
+	 * @return void
+	 **/
+	public function get_lang( $lang ) {
+		return $this->lang;
+	}
+
+	/**
+	 * Set the current lang for this class, and in Query Vars.
+	 *
+	 * @param string $lang The language code to switch to 
+	 * @return void
+	 **/
+	public function switch_to_lang( $lang ) {
+		if ( ! is_array( $this->lang_stack ) )
+			$this->lang_stack = array();
+		$this->lang_stack[] = $this->lang;
+		$this->lang = $lang;
+		set_query_var( 'lang', $this->lang );
+	}
+	
+	/**
+	 * Restore the previous lang from the switched stack.
+	 *
+	 * @return void
+	 **/
+	public function restore_lang() {
+		$this->lang = array_pop( $this->lang_stack );
+		set_query_var( 'lang', $this->lang );
+	}
+
+	// Private Methods
+	// ---------------
 
 	/**
 	 * Get the request string for the request, using code copied 
