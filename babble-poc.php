@@ -244,16 +244,6 @@ add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
  **/
 function sil_parse_request( $wp ) {
 	global $babble_locale;
-	// If this is the site root, redirect to default language homepage 
-	
-	if ( ! $wp->request ) {
-		// error_log( "Removing home_url filter" );
-		remove_filter( 'home_url', array( $babble_locale, 'home_url' ), null, 2 );
-		wp_redirect( home_url( $babble_locale->default_lang ) );
-		// error_log( "Adding home_url filter" );
-		add_filter( 'home_url', array( $babble_locale, 'home_url' ), null, 2 );
-		exit;
-	}
 
 	// Sequester the original query, in case we need it to get the default content later
 	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;

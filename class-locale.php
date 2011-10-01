@@ -52,6 +52,7 @@ class Babble_Locale {
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
+		$this->default_lang = 'en';
 	}
 
 	/**
@@ -138,6 +139,14 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	public function parse_request_early( $wp ) {
+		// If this is the site root, redirect to default language homepage 
+		if ( ! $wp->request ) {
+			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
+			wp_redirect( home_url( $this->default_lang ) );
+			add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
+			exit;
+		}
+		// Otherwise, simply set the lang for this request
 		$wp->query_vars[ 'lang' ] = $this->lang;
 	}
 
