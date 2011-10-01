@@ -418,19 +418,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 	}
 }
 add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
-
-/**
- * Hooks the WP admin_url filter to ensure we keep a consistent domain as we click around.
- *
- * @param string $admin_url The admin URL 
- * @return string The URL with the appropriate language (lang) GET parameter
- * @access private
- **/
-function sil_admin_url( $url ) {
-	return add_query_arg( array( 'lang' => sil_get_current_lang_code() ), $url );
-}
-add_filter( 'admin_url', 'sil_admin_url' );
-
+	
 /**
  * Hooks the WP post_type_link filter 
  *
@@ -517,16 +505,7 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 				$author,
 				$post->post_name,
 			);
-			$sequestered_lang = get_query_var( 'lang' );
-			$lang = sil_get_post_lang( $post );
-			if ( is_admin() ) {
-				set_query_var( 'lang', false );
-				$post_link = home_url( "/$lang" . str_replace( $rewritecode, $rewritereplace, $post_link ) );
-			} else {
-				set_query_var( 'lang', $lang );
-				$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
-			}
-			set_query_var( 'lang', $sequestered_lang );
+			$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
 			$post_link = user_trailingslashit($post_link, 'single');
 			// END copying from get_permalink function
 		} else { // if they're not using the fancy permalink option

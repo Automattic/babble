@@ -44,7 +44,7 @@ function sil_get_current_lang_code() {
 }
 
 /**
- * Set the current lang for this class, and in Query Vars.
+ * Set the current lang.
  * 
  * @uses Babble_Locale::switch_lang to do the actual work
  * @see switch_to_blog for similarities
@@ -52,9 +52,22 @@ function sil_get_current_lang_code() {
  * @param string $lang The language code to switch to 
  * @return void
  **/
-function bbl_switch_lang( $lang ) {
+function bbl_switch_to_lang( $lang ) {
 	global $babble_locale;
-	$babble_locale->switch_lang( $lang );
+	$babble_locale->switch_to_lang( $lang );
+}
+
+/**
+ * Restore the previous lang.
+ * 
+ * @uses Babble_Locale::restore_lang to do the actual work
+ * @see restore_current_blog for similarities
+ *
+ * @return void
+ **/
+function bbl_restore_lang() {
+	global $babble_locale;
+	$babble_locale->restore_lang();
 }
 
 /**
@@ -132,14 +145,11 @@ function sil_get_post_lang( $post ) {
  **/
 function sil_get_new_translation_url( $default_post, $lang ) {
 	$default_post = get_post( $default_post );
-	$sequestered_lang = get_query_var( 'lang' );
-	set_query_var( 'lang', $lang );
-	// error_log( "Post types: " . print_r( $sil_post_types, true ) );
-	// error_log( "Lang map: " . print_r( $sil_lang_map, true ) );
+	bbl_switch_to_lang( $lang );
 	$transid = sil_get_transid( $default_post );
 	$url = admin_url( '/post-new.php' );
 	$url = add_query_arg( array( 'post_type' => $default_post->post_type, 'sil_transid' => $transid, 'lang' => $lang ), $url );
-	set_query_var( 'lang', $sequestered_lang );
+	bbl_restore_lang();
 	return $url;
 }
 
