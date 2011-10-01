@@ -245,6 +245,7 @@ add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
 function sil_parse_request( $wp ) {
 	global $babble_locale;
 	// If this is the site root, redirect to default language homepage 
+	
 	if ( ! $wp->request ) {
 		// error_log( "Removing home_url filter" );
 		remove_filter( 'home_url', array( $babble_locale, 'home_url' ), null, 2 );
@@ -536,11 +537,10 @@ function sil_page_link( $link, $id ) {
 		return $link;
 	error_log( "Link IN: $link" );
 	$sil_syncing = true;
-	$sequestered_lang = sil_get_current_lang_code();
 	$lang = sil_get_post_lang( $id );
-	set_query_var( 'lang', $lang );
+	bbl_switch_to_lang( $lang );
 	$link = get_page_link( $id );
-	set_query_var( 'lang', $sequestered_lang );
+	bbl_restore_lang();
 	$sil_syncing = false;
 	error_log( "Link OUT: $link" );
 	return $link;

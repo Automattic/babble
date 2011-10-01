@@ -108,6 +108,8 @@ class Babble_Locale {
 	 **/
 	public function set_locale( $locale ) {
 		global $wp_rewrite;
+		if ( isset( $this->lang ) )
+			return $this->lang;
 		if ( is_admin() ) {
 			$current_user = wp_get_current_user();
 			if ( $this->lang = @ $_GET[ 'lang' ] )
@@ -118,7 +120,7 @@ class Babble_Locale {
 			// @FIXME: Should probably check the available languages here
 			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo, this may mean holding $locale (e.g. "de_DE") and $lang (e.g. "de") separately
 
-			// error_log( "Locale (before): $locale for request ($request)" );
+			// error_log( "Locale (before): $locale for request (" . $this->get_request_string() . ")" );
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
 				$this->lang = $matches[ 0 ];
 		}
@@ -136,24 +138,6 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	public function parse_request_early( $wp ) {
-		// // @FIXME: Would explode be more efficient here?
-		// if  ( is_admin() ) {
-		// 	$current_user = wp_get_current_user();
-		// 	$lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true );
-		// 	// error_log( "Got GET lang: ($lang)" );
-		// 	$wp->query_vars[ 'lang' ] = $lang;
-		// } elseif ( ! is_admin() && preg_match( $this->lang_regex, $wp->request, $matches ) ) {
-		//  	// @FIXME: If we want to cater for non-pretty permalinks we could to handle a GET param or query var here
-		// 	$wp->query_vars[ 'lang' ] = $matches[ 0 ];
-		// 	// error_log( "Got lang from regex: (" . $matches[ 0 ] . ")" );
-		// }
-		// // Finally, if all else fails, default to the default language
-		// if ( ! isset( $wp->query_vars[ 'lang' ] ) || ! $wp->query_vars[ 'lang' ] )
-		// 	$wp->query_vars[ 'lang' ] = SIL_DEFAULT_LANG;
-		// error_log( "Request: $wp->request" );
-		// error_log( "Original Query: " . print_r( $wp->query_vars, true ) );
-		// We don't need to work out the language here, as set_locale has 
-		// already done the hard work for us.
 		$wp->query_vars[ 'lang' ] = $this->lang;
 	}
 
@@ -182,26 +166,15 @@ class Babble_Locale {
 	 * @return string The URL
 	 **/
 	function home_url( $url, $path ) {
-		error_log( '----------------' );
-		$abort = false;
-		if ( $path == '/' )
-			$abort = true;
 		$orig_url = $url;
 		// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
 		// @FIXME: Do I need to use something multibyte string safe, rather than str_replace?
-		if ( '/' == $path ) {
-			error_log( "URL: $url, path: $path [000000000]" );
-			$base_url = trailingslashit( $url );
-			error_log( "Base URL: $base_url" );
-		} else if ( '/' != $path && ':' != $path ) {
+		if ( '/' != $path && ':' != $path )
 			$base_url = str_replace( $path, '', $url );
-		} else {
+		else
 			$base_url = '';
-		}
 		$path = ltrim( $path, '/' );
-		error_log( "Path: $path" );
 		$url = trailingslashit( $base_url ) . $this->lang . '/' . $path;
-		error_log( "Home URL: $url" );
 		return $url;
 	}
 
@@ -226,6 +199,7 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	public function switch_to_lang( $lang ) {
+		// @FIXME: Need to validate language here
 		if ( ! is_array( $this->lang_stack ) )
 			$this->lang_stack = array();
 		$this->lang_stack[] = $this->lang;
