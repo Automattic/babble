@@ -26,9 +26,12 @@ Installation is a little more involved than usual.
 
 1. Upload the `babble` directory to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Copy the contents of `languages` into `wp-content/languages/` (optional, but makes it easier to see when languages have been switched)
+
+If you're not running an up to date copy of WordPress Trunk, then:
+
 1. Apply the `new_hook.diff` to add the `registered_post_type` hook to before `return $args;` in the `register_post_type` function in the `wp-includes/post.php` file.
 1. Apply the `new_tax_hook.diff` to add the `registered_taxonomy` hook to the end of the `register_taxonomy` function in the `wp-includes/taxonomy.php` file.
-1. Copy the contents of `languages` into `wp-content/languages/` (optional, but makes it easier to see when languages have been switched)
 
 == Screenshots ==
 
