@@ -117,6 +117,10 @@ class Babble_Locale {
 				update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
 			else
 				$this->lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true );
+			if ( ! $this->lang ) {
+				$this->lang = $this->default_lang;
+				update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
+			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
 			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo, this may mean holding $locale (e.g. "de_DE") and $lang (e.g. "de") separately

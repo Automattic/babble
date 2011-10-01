@@ -27,6 +27,7 @@ Installation is a little more involved than usual.
 1. Upload the `babble` directory to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Copy the contents of `languages` into `wp-content/languages/` (optional, but makes it easier to see when languages have been switched)
+1. Activate pretty permalinks, not sure how it will cope without these!
 
 If you're not running an up to date copy of WordPress Trunk, then:
 
