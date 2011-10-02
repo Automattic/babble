@@ -501,7 +501,8 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 			bbl_restore_lang();
 			$post_link = user_trailingslashit($post_link, 'single');
 			// END copying from get_permalink function
-		} else { // if they're not using the fancy permalink option
+			return $post_link;
+		} else { // if they're not using the fancy permalink option the link won't work. Known bug. :)
 			return $post_link;
 		}
 		
