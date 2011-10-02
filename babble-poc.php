@@ -412,7 +412,7 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
 function sil_post_type_link( $post_link, $post, $leavename ) {
 	global $sil_post_types, $sil_lang_map, $wp_rewrite;
 
-	if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $sil_post_types[ $post->post_type ] ) )
+	if ( 'post' != $post->post_type && 'page' != $post->post_type && ! isset( $sil_post_types[ $post->post_type ] ) )
 		return $post_link;
 
 	if ( 'post' == $post->post_type || 'page' == $post->post_type ) { // Deal with regular ol' posts & pages
