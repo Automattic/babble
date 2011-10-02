@@ -45,9 +45,18 @@ class Babble_Locale {
 	 **/
 	protected $lang_stack;
 	
+	/**
+	 * The current version for purposes of rewrite rules, any 
+	 * DB updates, etc
+	 *
+	 * @var int
+	 **/
+	protected $version = 1;
+	
 	function __construct() {
 		add_action( 'admin_init', array( & $this, 'admin_init' ) );
 		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
+		add_action( 'admin_notices', array( & $this, 'admin_notices' ) );
 		add_filter( 'locale', array( & $this, 'set_locale' ) );
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
@@ -62,6 +71,19 @@ class Babble_Locale {
 	 **/
 	public function admin_init(  ) {
 		add_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
+		$this->maybe_update();
+	}
+
+	/**
+	 * Hooks the WP admin_notices action to warn the admin
+	 * if the permalinks aren't pretty enough.
+	 *
+	 * @return void
+	 **/
+	public function admin_notices() {
+		if ( ! get_option( 'permalink_structure' ) ) {
+			printf( '<div class="error"><p>%s</p></div>', __( '<strong>Babble problem:</strong> Fancy permalinks are disabled. Please enable them in order to have language prefixed URLs work correctly.', 'babble' ) );
+		}
 	}
 
 	/**
@@ -288,6 +310,29 @@ class Babble_Locale {
 		}
 		// END: Huge hunk of WP->parse_request
 		return $request;
+	}
+
+	/**
+	 * Checks the DB structure is up to date.
+	 *
+	 * @return void
+	 * @author Simon Wheatley
+	 **/
+	protected function maybe_update() {
+		global $wpdb;
+		$option_name = 'bbl-locale-version';
+		$version = get_option( $option_name, 0 );
+
+		if ( $this->version == $version )
+			return;
+
+		if ( $version < 1 ) {
+			error_log( "Babble Locale: Flushing rewrite rules" );
+			flush_rewrite_rules();
+		}
+
+		error_log( "Babble Locale: Done updates" );
+		update_option( $option_name, $this->version );
 	}
 
 }
