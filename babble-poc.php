@@ -421,10 +421,6 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
 function sil_post_type_link( $post_link, $post, $leavename ) {
 	global $sil_post_types, $sil_lang_map, $wp_rewrite;
 
-	if ( ! isset( $sil_post_types[ $post->post_type ] ) )
-		return $post_link;
-
-	error_log( "Post link for type: ($post->post_type)" );
 	if ( 'post' == $post->post_type || 'page' == $post->post_type ) { // Deal with regular ol' posts & pages
 		$base_post_type = $post->post_type;
 	} else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) { // Deal with shadow post types
@@ -496,7 +492,10 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 				$author,
 				$post->post_name,
 			);
+			$lang = sil_get_post_lang( $post );
+			bbl_switch_to_lang( $lang );
 			$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
+			bbl_restore_lang();
 			$post_link = user_trailingslashit($post_link, 'single');
 			// END copying from get_permalink function
 		} else { // if they're not using the fancy permalink option
