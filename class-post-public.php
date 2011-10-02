@@ -9,7 +9,11 @@
  */
 class Babble_Post_Public {
 	
+<<<<<<< Updated upstream
 	function __construct() {
+=======
+	function __construct(argument) {
+>>>>>>> Stashed changes
 		
 	}
 }

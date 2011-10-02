@@ -9,6 +9,7 @@
  */
 class Babble_Locale {
 	
+<<<<<<< Updated upstream
 	/**
 	 * A regex to get the language code prefix from
 	 * a URL.
@@ -82,6 +83,11 @@ class Babble_Locale {
 		$rules = $wp_rewrite->mod_rewrite_rules();
 		add_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
 		return $rules;
+=======
+	function __construct(argument) {
+		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'rewrite_rules_filter' ) );
+		
+>>>>>>> Stashed changes
 	}
 	
 	/**
@@ -92,7 +98,11 @@ class Babble_Locale {
 	 * @param array $langs The language codes
 	 * @return array An array of language codes utilised for this site. 
 	 **/
+<<<<<<< Updated upstream
 	public function internal_rewrite_rules_filter( $rules ){
+=======
+	public function rewrite_rules_filter( $rules ){
+>>>>>>> Stashed changes
 		// Add a prefix to the URL to pick up the virtual sub-dir specifying
 		// the language. The redirect portion can and should remain perfectly
 		// ignorant of it though, as we change it in parse_request.
@@ -106,6 +116,7 @@ class Babble_Locale {
 	 *
 	 * @param string $locale The locale 
 	 * @return string The locale
+<<<<<<< Updated upstream
 	 **/
 	public function set_locale( $locale ) {
 		global $wp_rewrite;
@@ -292,5 +303,83 @@ class Babble_Locale {
 }
 
 $babble_locale = new Babble_Locale();
+=======
+	 * @access private
+	 **/
+	function bbl_locale( $locale ) {
+		global $wp_rewrite;
+		// @FIXME: Copying a huge hunk of code from WP->parse_request here, feels ugly.
+		if ( ! is_admin() ) {
+			// START: Huge hunk of WP->parse_request
+			if ( isset($_SERVER['PATH_INFO']) )
+				$pathinfo = $_SERVER['PATH_INFO'];
+			else
+				$pathinfo = '';
+			$pathinfo_array = explode('?', $pathinfo);
+			$pathinfo = str_replace("%", "%25", $pathinfo_array[0]);
+			$req_uri = $_SERVER['REQUEST_URI'];
+			$req_uri_array = explode('?', $req_uri);
+			$req_uri = $req_uri_array[0];
+			$self = $_SERVER['PHP_SELF'];
+			$home_path = parse_url(home_url());
+			if ( isset($home_path['path']) )
+				$home_path = $home_path['path'];
+			else
+				$home_path = '';
+			$home_path = trim($home_path, '/');
+
+			// Trim path info from the end and the leading home path from the
+			// front.  For path info requests, this leaves us with the requesting
+			// filename, if any.  For 404 requests, this leaves us with the
+			// requested permalink.
+			$req_uri = str_replace($pathinfo, '', $req_uri);
+			$req_uri = trim($req_uri, '/');
+			$req_uri = preg_replace("|^$home_path|", '', $req_uri);
+			$req_uri = trim($req_uri, '/');
+			$pathinfo = trim($pathinfo, '/');
+			$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
+			$pathinfo = trim($pathinfo, '/');
+			$self = trim($self, '/');
+			$self = preg_replace("|^$home_path|", '', $self);
+			$self = trim($self, '/');
+
+			// The requested permalink is in $pathinfo for path info requests and
+			//  $req_uri for other requests.
+			if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
+				$request = $pathinfo;
+			} else {
+				// If the request uri is the index, blank it out so that we don't try to match it against a rule.
+				if ( $req_uri == $wp_rewrite->index )
+					$req_uri = '';
+				$request = $req_uri;
+			}
+
+			// END: Huge hunk of WP->parse_request
+
+			// @FIXME: Should probably check the available languages here
+			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo
+
+			// error_log( "Locale (before): $locale for request ($request)" );
+			// @FIXME: Should I be using $GLOBALS['request] here? Feels odd.
+			if ( preg_match( BBL_LANG_REGEX, $request, $matches ) )
+				$locale = $matches[ 0 ];
+		} else { // Admin area
+			if ( $lang = @ $_GET[ 'lang' ] ) {
+				$current_user = wp_get_current_user();
+				update_user_meta( $current_user->ID, 'bbl_admin_lang', $lang );
+			} else {
+				$lang = bbl_get_current_lang_code();
+			}
+			$locale = $lang;
+		}
+		return $locale;
+	}
+	add_filter( 'locale', 'bbl_locale' );
+
+
+}
+
+
+>>>>>>> Stashed changes
 
 ?>
