@@ -81,6 +81,7 @@ class Babble_Locale {
 		remove_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
 		$rules = $wp_rewrite->mod_rewrite_rules();
 		add_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
+		$this->no_recursion = false;
 		return $rules;
 	}
 	
