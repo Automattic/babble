@@ -2,7 +2,7 @@
 Contributors: simonwheatley
 Requires at least: 3.3-aortic-dissection
 Tested up to: 3.3-aortic-dissection
-Stable tag: Alpha 1
+Stable tag: Alpha 1.1
 Tags: translations
  
 A plugin to handle translating content into a variety of languages.

@@ -1,13 +1,4 @@
 <?php
-
-/*
-Plugin Name: Babble – Proof of Concept
-Plugin URI: https://github.com/simonwheatley/babble
-Description: Translation proof of concept
-Version: alpha 1
-Author: Simon Wheatley
-Author URI: http://simonwheatley.co.uk/wordpress/
-*/
  
 /*  Copyright 2011 Simon Wheatley
 
