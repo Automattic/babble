@@ -136,14 +136,8 @@ class Babble_Locale {
 			return $this->lang;
 		if ( is_admin() ) {
 			$current_user = wp_get_current_user();
-			if ( $this->lang = @ $_GET[ 'lang' ] )
-				update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
-			else
+			if ( ! ( $this->lang = @ $_GET[ 'lang' ] ) )
 				$this->lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true );
-			if ( ! $this->lang ) {
-				$this->lang = $this->default_lang;
-				update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
-			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
 			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo, this may mean holding $locale (e.g. "de_DE") and $lang (e.g. "de") separately
@@ -152,6 +146,13 @@ class Babble_Locale {
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
 				$this->lang = $matches[ 0 ];
 		}
+		// Shouldn't be necessary, but…
+		if ( ! $this->lang )
+			$this->lang = $this->default_lang;
+		// Save for logged in users
+		// @FIXME: Possible additional DB queries here?
+		if ( is_user_logged_in() && $current_user = wp_get_current_user() )
+			update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
 		if ( ! isset( $this->lang ) )
 			$this->lang = $this->default_lang;
 		return $this->lang;
