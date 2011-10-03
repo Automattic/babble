@@ -261,36 +261,36 @@ $babble_languages = new Babble_Languages();
  *
  * From: http://uk.php.net/manual/en/function.array-merge-recursive.php#104145
  *
+ * @FIXME: Not GPL, I guess. Do I have to rewrite?
+ *
  * @param array Initial array to merge.
  * … Variable list of arrays to recursively, but simply, merge.
  * @return array An array of values resulted from merging the arguments together.
  **/
 function bbl_array_merge_recursive_simple() {
-
-    if ( func_num_args() < 2 ) {
-        throw new exception( 'bbl_array_merge_recursive_simple needs two or more array arguments', E_USER_WARNING );
-        return;
-    }
-    $arrays = func_get_args();
-    $merged = array();
-    while ($arrays) {
-        $array = array_shift($arrays);
-        if (!is_array($array)) {
-            throw new exception( 'bbl_array_merge_recursive_simple encountered a non array argument', E_USER_WARNING );
-            return;
-        }
-        if (!$array)
-            continue;
-        foreach ($array as $key => $value)
-            if (is_string($key))
-                if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key]))
-                    $merged[$key] = bbl_array_merge_recursive_simple( $merged[$key], $value ) ;
-                else
-                    $merged[$key] = $value;
-            else
-                $merged[] = $value;
-    }
-    return $merged;
+	if ( func_num_args() < 2 )
+		throw new exception( 'bbl_array_merge_recursive_simple needs two or more array arguments', E_USER_WARNING );
+	$arrays = func_get_args();
+	$merged = array();
+	while ( $arrays ) {
+		$array = array_shift( $arrays );
+		if ( ! is_array( $array ) )
+			throw new exception( 'bbl_array_merge_recursive_simple encountered a non array argument', E_USER_WARNING );
+		if ( ! $array )
+			continue;
+		foreach ( $array as $key => $value ) {
+			if ( is_string( $key ) ) {
+				if ( is_array( $value ) && array_key_exists( $key, $merged ) && is_array( $merged[ $key ] ) ) {
+					$merged[ $key ] = bbl_array_merge_recursive_simple( $merged[ $key ], $value ) ;
+				} else {
+					$merged[ $key ] = $value;
+				}
+			} else {
+				$merged[] = $value;
+			}
+		}
+	}
+	return $merged;
 }
 
 
