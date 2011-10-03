@@ -45,7 +45,7 @@
 	<tbody id="the-list" class="list:babble_languages">
 		<?php foreach ( $langs as $lang ) : ?>
 		<tr id="language-<?php echo esc_attr( $lang[ 'code' ] ); ?>">
-			<th scope="row" class="manage-column column-cb check-column"><input type="checkbox" name="enable_langs[]" id="enable_<?php echo esc_attr( $lang[ 'code' ] ); ?>" <?php checked( false ); ?>></th>
+			<th scope="row" class="manage-column column-cb check-column"><input type="checkbox" name="active_langs[]" value="<?php echo esc_attr( $lang[ 'code' ] ); ?>" id="enable_<?php echo esc_attr( $lang[ 'code' ] ); ?>" <?php checked( $lang[ 'active' ] ); ?>></th>
 			<td scope="col" class="manage-column column-language-code">
 				<label for="enable_<?php echo esc_attr( $lang[ 'code' ] ); ?>" title="<?php echo esc_attr( sprintf( __( 'Enable "%s" on this site', 'babble' ), $lang[ 'names' ] ) ); ?>">
 					<?php echo esc_html( $lang[ 'code' ] ); ?>

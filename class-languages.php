@@ -29,7 +29,7 @@ class Babble_Languages extends Babble_Plugin {
 	 *
 	 * @var array
 	 **/
-	protected $langs;
+	protected $active_langs;
 	
 	/**
 	 * The current version for purposes of rewrite rules, any 
@@ -60,6 +60,7 @@ class Babble_Languages extends Babble_Plugin {
 			$this->parse_available_languages();
 		}
 		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
+		$this->active_langs = $this->get_option( 'active_langs', array() );
 	}
 	
 	// WP HOOKS
@@ -95,13 +96,11 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function options() {
+		// Refresh the current languages
 		$this->parse_available_languages();
-		// $this->lang_prefs = array(
-		// 	'ar' => array(
-		// 		'display_name' => 'العربية',
-		// 	)
-		// );
+		// Merge in our previously set language settings
 		$langs = bbl_array_merge_recursive_simple( $this->available_langs, $this->lang_prefs );
+		// Merge in any POSTed field values
 		foreach ( $langs as $code => & $lang ) {
 			$lang[ 'url_prefix' ] = ( @ isset( $_POST[ 'url_prefix_' . $code ] ) ) ? $_POST[ "url_prefix_$code" ] : @ $lang[ 'url_prefix' ];
 			if ( ! $lang[ 'url_prefix' ] )
@@ -114,6 +113,11 @@ class Babble_Languages extends Babble_Plugin {
 				$lang[ 'display_name' ] = $lang[ 'names' ];
 			// Note any url_prefix errors
 			$lang[ 'url_prefix_error' ] = ( @ $this->errors[ "url_prefix_$code" ] ) ? 'babble-error' : '0' ;
+			// Flag the active languages
+			$lang[ 'active' ] = false;
+			if ( in_array( $code, $this->active_langs ) )
+				$lang[ 'active' ] = true;
+			
 		}
 		$vars = array();
 		$vars[ 'langs' ] = $langs;
@@ -138,6 +142,9 @@ class Babble_Languages extends Babble_Plugin {
 		if ( ! @ $_POST[ '_babble_nonce' ] )
 			return;
 		check_admin_referer( 'babble_lang_prefs', '_babble_nonce' );
+
+		// Now save the language preferences
+
 		$lang_prefs = array();
 		$url_prefixes = array();
 		foreach ( $this->available_langs as $code => $lang ) {
@@ -160,6 +167,24 @@ class Babble_Languages extends Babble_Plugin {
 				$url_prefixes[ $lang_prefs[ $code ][ 'url_prefix' ] ] = $code;
 			}
 		}
+		
+		// Now save the active languages
+		
+		if ( ! $this->errors ) {
+			$langs = bbl_array_merge_recursive_simple( $this->available_langs, $this->lang_prefs );
+			$active_langs = array();
+			foreach ( (array) @ $_POST[ 'active_langs' ] as $code )
+				$active_langs[ $langs[ $code ][ 'url_prefix' ] ] = $code;
+			if ( count( $active_langs ) < 2 ) {
+				$this->set_admin_error( __( 'You must set at least two languages as active.', 'babble' ) );
+				$this->errors[ 'active_langs' ];
+			} else {
+				$this->active_langs = $active_langs;
+				$this->update_option( 'active_langs', $this->active_langs );
+			}
+		}
+		
+		// Finish up, redirecting if we're all OK
 		if ( ! $this->errors ) {
 			$this->update_option( 'lang_prefs', $lang_prefs );
 			// Now set a reassuring message and redirect back to the clean settings page
