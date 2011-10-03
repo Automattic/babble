@@ -17,6 +17,14 @@ class Babble_Languages extends Babble_Plugin {
 	protected $available_langs;
 	
 	/**
+	 * The language preferences set for this site, 
+	 * i.e. url prefixes and display names.
+	 *
+	 * @var array
+	 **/
+	protected $lang_prefs;
+	
+	/**
 	 * The languages selected for this site.
 	 *
 	 * @var array
@@ -47,10 +55,11 @@ class Babble_Languages extends Babble_Plugin {
 		$this->setup( 'babble-languages' );
 		$this->add_action( 'admin_menu', 'admin_menu' );
 		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );
-		if ( $this->available_langs = get_option( 'babble_available_languages', false ) ) {
+		if ( $this->available_langs = $this->get_option( 'available_langs', false ) ) {
 			error_log( "Refresh available langs" );
 			$this->parse_available_languages();
 		}
+		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
 	}
 	
 	// WP HOOKS
@@ -87,12 +96,12 @@ class Babble_Languages extends Babble_Plugin {
 	 **/
 	public function options() {
 		$this->parse_available_languages();
-		$this->lang_prefs = array(
-			'ar' => array(
-				'display_name' => 'العربية',
-			)
-		);
-		$langs = array_merge_recursive( $this->available_langs, $this->lang_prefs );
+		// $this->lang_prefs = array(
+		// 	'ar' => array(
+		// 		'display_name' => 'العربية',
+		// 	)
+		// );
+		$langs = bbl_array_merge_recursive_simple( $this->available_langs, $this->lang_prefs );
 		foreach ( $langs as $code => & $lang ) {
 			$lang[ 'url_prefix' ] = ( @ isset( $_POST[ 'url_prefix_' . $code ] ) ) ? $_POST[ "url_prefix_$code" ] : @ $lang[ 'url_prefix' ];
 			if ( ! $lang[ 'url_prefix' ] )
@@ -121,7 +130,7 @@ class Babble_Languages extends Babble_Plugin {
 	
 	/**
 	 * Checks if there is a POSTed request to process. Checks it's properly
-	 * nonced up. Processes it.
+	 * nonced up. Processes it. Redirects if there's no errors.
 	 *
 	 * @return void
 	 **/
@@ -140,7 +149,6 @@ class Babble_Languages extends Babble_Plugin {
 			// Ensure text_direction is only 'ltr' or 'rtl'
 			$lang_prefs[ $code ][ 'text_direction' ] = ( 'rtl' == $lang_prefs[ $code ][ 'text_direction' ] ) ? 'rtl' : 'ltr';
 			// Check we don't have more than one language using the same url prefix
-			error_log( "Check for " . $lang_prefs[ $code ][ 'url_prefix' ] );
 			if ( array_key_exists( $lang_prefs[ $code ][ 'url_prefix' ], $url_prefixes ) ) {
 				$lang_1 = $this->format_code_lang( $code );
 				$lang_2 = $this->format_code_lang( $url_prefixes[ $lang_prefs[ $code ][ 'url_prefix' ] ] );
@@ -151,6 +159,14 @@ class Babble_Languages extends Babble_Plugin {
 			} else {
 				$url_prefixes[ $lang_prefs[ $code ][ 'url_prefix' ] ] = $code;
 			}
+		}
+		if ( ! $this->errors ) {
+			$this->update_option( 'lang_prefs', $lang_prefs );
+			// Now set a reassuring message and redirect back to the clean settings page
+			$this->set_admin_notice( __( 'Your language settings have been saved.', 'babble' ) );
+			$url = admin_url( 'options-general.php?page=babble_languages' );
+			wp_redirect( $url );
+			exit;
 		}
 	}
 	
@@ -178,7 +194,7 @@ class Babble_Languages extends Babble_Plugin {
 				'text_direction' => $this->is_rtl( $matches[ 1 ] ),
 			);
 		}
-		update_option( 'babble_available_languages', $this->available_langs );
+		$this->update_option( 'available_langs', $this->available_langs );
 	}
 	
 	/**
@@ -233,5 +249,49 @@ class Babble_Languages extends Babble_Plugin {
 }
 
 $babble_languages = new Babble_Languages();
+
+/**
+ * array_merge_recursive() merges the elements of one or more arrays 
+ * together so that the values of one are appended to the end of the 
+ * previous one. It returns the resulting array.
+ *
+ * If the input arrays have the same string keys, then the value in 
+ * the array given earlier in the arguments is overwritten by the 
+ * value from the array given later in the arguments.
+ *
+ * From: http://uk.php.net/manual/en/function.array-merge-recursive.php#104145
+ *
+ * @param array Initial array to merge.
+ * … Variable list of arrays to recursively, but simply, merge.
+ * @return array An array of values resulted from merging the arguments together.
+ **/
+function bbl_array_merge_recursive_simple() {
+
+    if ( func_num_args() < 2 ) {
+        throw new exception( 'bbl_array_merge_recursive_simple needs two or more array arguments', E_USER_WARNING );
+        return;
+    }
+    $arrays = func_get_args();
+    $merged = array();
+    while ($arrays) {
+        $array = array_shift($arrays);
+        if (!is_array($array)) {
+            throw new exception( 'bbl_array_merge_recursive_simple encountered a non array argument', E_USER_WARNING );
+            return;
+        }
+        if (!$array)
+            continue;
+        foreach ($array as $key => $value)
+            if (is_string($key))
+                if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key]))
+                    $merged[$key] = bbl_array_merge_recursive_simple( $merged[$key], $value ) ;
+                else
+                    $merged[$key] = $value;
+            else
+                $merged[] = $value;
+    }
+    return $merged;
+}
+
 
 ?>
