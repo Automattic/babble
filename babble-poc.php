@@ -64,8 +64,8 @@ add_action( 'init', 'sil_init_early', 0 );
  * @access private
  **/
 function sil_languages( $langs ) {
-	$langs[] = 'de_DE';
-	$langs[] = 'he_IL';
+	$langs[] = 'fa_IR';
+	$langs[] = 'fr_FR';
 	return $langs;
 }
 add_filter( 'sil_languages', 'sil_languages' );
