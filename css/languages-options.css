@@ -28,3 +28,12 @@ table.babble_languages .column-text_direction {
 	width: 15%;
 }
 
+.lang-rtl {
+	direction: rtl !important; /* Forgive me this one !important, please */
+	text-align: right;
+}
+
+.lang-ltr {
+	direction: ltr !important; /* Forgive me this one !important, please */
+	text-align: left;
+}

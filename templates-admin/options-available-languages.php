@@ -40,7 +40,7 @@
 	</tfoot>
 
 	<tbody id="the-list" class="list:babble_languages">
-		<?php foreach ( $available_langs as $lang ) : ?>
+		<?php foreach ( $langs as $lang ) : ?>
 		<tr id="language-<?php echo esc_attr( $lang[ 'code' ] ); ?>">
 			<th scope="row" class="manage-column column-cb check-column"><input type="checkbox" name="enable_langs[]" id="enable_<?php echo esc_attr( $lang[ 'code' ] ); ?>" <?php checked( false ); ?>></th>
 			<td scope="col" class="manage-column column-language-code">
@@ -55,17 +55,17 @@
 			</td>
 			<td scope="col" class="manage-column column-display_name">
 				<label class="screen-reader-text" for="display_name_<?php echo esc_attr( $lang[ 'code' ] ); ?>"><?php echo esc_html( sprintf( __( 'Display name for "%s"', 'babble' ), $lang[ 'names' ] ) ); ?></label>
-				<input type="text" name="display_name_<?php echo esc_attr( $lang[ 'code' ] ); ?>" value="" id="display_name_<?php echo esc_attr( $lang[ 'code' ] ); ?>">
+				<input type="text" name="display_name_<?php echo esc_attr( $lang[ 'code' ] ); ?>" value="<?php echo esc_attr( $lang[ 'display_name' ] ); ?>" id="display_name_<?php echo esc_attr( $lang[ 'code' ] ); ?>" class="<?php echo esc_attr( $lang[ 'input_lang_class' ] ); ?>">
 			</td>
 			<td scope="col" class="manage-column column-url_prefix">
 				<label class="screen-reader-text" for="url_prefix_<?php echo esc_attr( $lang[ 'code' ] ); ?>"><?php echo esc_html( sprintf( __( 'URL prefix for "%s"', 'babble' ), $lang[ 'names' ] ) ); ?></label>
-				<input type="text" name="url_prefix_<?php echo esc_attr( $lang[ 'code' ] ); ?>" value="" id="url_prefix_<?php echo esc_attr( $lang[ 'code' ] ); ?>" class="small-text">
+				<input type="text" name="url_prefix_<?php echo esc_attr( $lang[ 'code' ] ); ?>" value="<?php echo esc_attr( $lang[ 'url_prefix' ] ); ?>" id="url_prefix_<?php echo esc_attr( $lang[ 'code' ] ); ?>" class="small-text">
 			</td>
 			<td scope="col" class="manage-column column-text_direction">
 				<label class="screen-reader-text" for="text_direction_<?php echo esc_attr( $lang[ 'code' ] ); ?>"><?php echo esc_html( sprintf( __( 'Text direction for %s', 'babble' ), $lang[ 'code' ] ) ); ?></label>
 				<select name="text_direction_<?php echo esc_attr( $lang[ 'code' ] ); ?>" id="text_direction_<?php echo esc_attr( $lang[ 'code' ] ); ?>">
-					<option value="0"><?php _e( 'Left to right', 'babble' ); ?></option>
-					<option value="1" <?php selected( $lang[ 'rtl' ] ); ?>><?php _e( 'Right to left', 'babble' ); ?></option>
+					<option value="ltr" <?php selected( $lang[ 'text_direction' ], 'ltr' ); ?>><?php _e( 'Left to right', 'babble' ); ?></option>
+					<option value="rtl" <?php selected( $lang[ 'text_direction' ], 'rtl' ); ?>><?php _e( 'Right to left', 'babble' ); ?></option>
 				</select>
 			</td>
 		</tr>

@@ -70,7 +70,26 @@ class Babble_Languages extends Babble_Plugin {
 	public function options() {
 		$this->parse_available_languages();
 		$available_langs = $this->available_langs;
-		require( 'templates-admin/options-available-languages.php' );
+		$this->lang_preferences = array(
+			'ar' => array(
+				'display_name' => 'العربية',
+			)
+		);
+		$langs = array_merge_recursive( $available_langs, $this->lang_preferences );
+		foreach ( $langs as & $lang ) {
+			$lang[ 'url_prefix' ] = ( @ isset( $_POST[ 'url_prefix_' . $lang[ 'code' ] ] ) ) ? $_POST[ 'url_prefix_' . $lang[ 'code' ] ] : @ $lang[ 'url_prefix' ];
+			if ( ! $lang[ 'url_prefix' ] )
+				$lang[ 'url_prefix' ] = $lang[ 'code_short' ];
+			$lang[ 'text_direction' ] = ( @ isset( $_POST[ 'text_direction_' . $lang[ 'code' ] ] ) ) ? $_POST[ 'text_direction_' . $lang[ 'code' ] ] : @ $lang[ 'text_direction' ];
+			// This line must come after the text direction value is set
+			$lang[ 'input_lang_class' ] = ( 'rtl' == $lang[ 'text_direction' ] ) ? 'lang-rtl' : 'lang-ltr' ;
+			$lang[ 'display_name' ] = ( @ isset( $_POST[ 'display_name_' . $lang[ 'code' ] ] ) ) ? $_POST[ 'display_name_' . $lang[ 'code' ] ] : @ $lang[ 'display_name' ];
+			if ( ! $lang[ 'display_name' ] )
+				$lang[ 'display_name' ] = $lang[ 'names' ];
+		}
+		$vars = array();
+		$vars[ 'langs' ] = $langs;
+		$this->render_admin( 'options-available-languages.php', $vars );
 	}
 	
 	/**
@@ -78,9 +97,9 @@ class Babble_Languages extends Babble_Plugin {
 	 * languages we've got available. Populates self::available_langs
 	 * with an array which looks like:
 	 * array(
-	 * 	'lang_code' 		=> 'en_GB',
-	 * 	'lang_code_short' 	=> 'en',
-	 * 	'rtl' 				=> false,
+	 * 	'code' 		=> 'en_GB',
+	 * 	'code_short' 	=> 'en',
+	 * 	'text_direction' 	=> 'ltr',
 	 * );
 	 *
 	 * @return array An array of languages
@@ -94,7 +113,7 @@ class Babble_Languages extends Babble_Plugin {
 				'names' => $this->format_code_lang( $matches[ 2 ] ),
 				'code' => $matches[ 1 ],
 				'code_short' => $matches[ 2 ],
-				'rtl' => $this->is_rtl( $matches[ 1 ] ),
+				'text_direction' => $this->is_rtl( $matches[ 1 ] ),
 			);
 		}
 	}
@@ -112,9 +131,9 @@ class Babble_Languages extends Babble_Plugin {
 		if ( ( 0 === validate_file( $lang ) ) && is_readable( $locale_file ) ) {
 			$locale_file_code = file_get_contents( $locale_file );
 			// Regex to find something looking like: $text_direction = 'rtl';
-			return (bool) preg_match( '/\$text_direction\s?=\s?[\'|"]rtl[\'|"]\s?;/i', $locale_file_code );
+			return ( (bool) preg_match( '/\$text_direction\s?=\s?[\'|"]rtl[\'|"]\s?;/i', $locale_file_code ) ) ? 'rtl' : 'ltr';
 		}
-		return false;
+		return 'ltr';
 	}
 	
 	/**
