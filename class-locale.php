@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Base class for dealing with the language currently displayed by the site.
+ * Manages the locale currently set for the site.
  *
  * @package WordPress
  * @subpackage Babble
@@ -53,6 +53,11 @@ class Babble_Locale {
 	 **/
 	protected $version = 1;
 	
+	/**
+	 * Setup any add_action or add_filter calls. Initiate properties.
+	 *
+	 * @return void
+	 **/
 	function __construct() {
 		add_action( 'admin_init', array( & $this, 'admin_init' ) );
 		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
@@ -61,6 +66,7 @@ class Babble_Locale {
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
+		// @FIXME: Allow this to be changed
 		$this->default_lang = 'en';
 	}
 
