@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+require_once( 'class-plugin.php' );
 require_once( 'class-locale.php' );
 require_once( 'class-languages.php' );
 require_once( 'babble-poc.php' );

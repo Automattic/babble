@@ -1,0 +1,30 @@
+/* @override http://wp-bleeding.simonwheatley.co.uk/css/languages-options.css?ver=1 */
+
+table.babble_languages .column-language-code {
+	width: 10%;
+}
+
+table.babble_languages .column-language {
+	width: 30%;
+}
+
+table.babble_languages .check-column {
+	width: 5%;
+}
+
+table.babble_languages tbody th.check-column {
+	padding-bottom: 0;
+}
+
+table.babble_languages .column-display_name {
+	width: 25%;
+}
+
+table.babble_languages .column-url_prefix {
+	width: 10%;
+}
+
+table.babble_languages .column-text_direction {
+	width: 15%;
+}
+

@@ -47,7 +47,7 @@ class Babble_Locale {
 	
 	/**
 	 * The current version for purposes of rewrite rules, any 
-	 * DB updates, etc
+	 * DB updates, cache busting, etc
 	 *
 	 * @var int
 	 **/
