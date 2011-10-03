@@ -32,6 +32,13 @@ class Babble_Languages extends Babble_Plugin {
 	protected $version = 1;
 	
 	/**
+	 * Any fields to show errors on, currently only used by URL Prefix fields.
+	 *
+	 * @var array
+	 **/
+	protected $errors;
+	
+	/**
 	 * Setup any add_action or add_filter calls. Initiate properties.
 	 *
 	 * @return void
@@ -40,8 +47,15 @@ class Babble_Languages extends Babble_Plugin {
 		$this->setup( 'babble-languages' );
 		$this->add_action( 'admin_menu', 'admin_menu' );
 		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );
+		if ( $this->available_langs = get_option( 'babble_available_languages', false ) ) {
+			error_log( "Refresh available langs" );
+			$this->parse_available_languages();
+		}
 	}
 	
+	// WP HOOKS
+	// ========
+
 	/**
 	 * Hooks the WP admin_menu action 
 	 *
@@ -59,8 +73,12 @@ class Babble_Languages extends Babble_Plugin {
 	 **/
 	public function load_options() {
 		wp_enqueue_style( 'babble_languages_options', $this->url( '/css/languages-options.css' ), null, $this->version );
+		$this->maybe_process_languages();
 	}
 	
+	// CALLBACKS
+	// =========
+
 	/**
 	 * Callback function to provide the HTML for the "Available Languages"
 	 * options page.
@@ -69,27 +87,71 @@ class Babble_Languages extends Babble_Plugin {
 	 **/
 	public function options() {
 		$this->parse_available_languages();
-		$available_langs = $this->available_langs;
-		$this->lang_preferences = array(
+		$this->lang_prefs = array(
 			'ar' => array(
 				'display_name' => 'العربية',
 			)
 		);
-		$langs = array_merge_recursive( $available_langs, $this->lang_preferences );
-		foreach ( $langs as & $lang ) {
-			$lang[ 'url_prefix' ] = ( @ isset( $_POST[ 'url_prefix_' . $lang[ 'code' ] ] ) ) ? $_POST[ 'url_prefix_' . $lang[ 'code' ] ] : @ $lang[ 'url_prefix' ];
+		$langs = array_merge_recursive( $this->available_langs, $this->lang_prefs );
+		foreach ( $langs as $code => & $lang ) {
+			$lang[ 'url_prefix' ] = ( @ isset( $_POST[ 'url_prefix_' . $code ] ) ) ? $_POST[ "url_prefix_$code" ] : @ $lang[ 'url_prefix' ];
 			if ( ! $lang[ 'url_prefix' ] )
 				$lang[ 'url_prefix' ] = $lang[ 'code_short' ];
-			$lang[ 'text_direction' ] = ( @ isset( $_POST[ 'text_direction_' . $lang[ 'code' ] ] ) ) ? $_POST[ 'text_direction_' . $lang[ 'code' ] ] : @ $lang[ 'text_direction' ];
+			$lang[ 'text_direction' ] = ( @ isset( $_POST[ "text_direction_$code" ] ) ) ? $_POST[ "text_direction_$code" ] : @ $lang[ 'text_direction' ];
 			// This line must come after the text direction value is set
 			$lang[ 'input_lang_class' ] = ( 'rtl' == $lang[ 'text_direction' ] ) ? 'lang-rtl' : 'lang-ltr' ;
-			$lang[ 'display_name' ] = ( @ isset( $_POST[ 'display_name_' . $lang[ 'code' ] ] ) ) ? $_POST[ 'display_name_' . $lang[ 'code' ] ] : @ $lang[ 'display_name' ];
+			$lang[ 'display_name' ] = ( @ isset( $_POST[ "display_name_$code" ] ) ) ? $_POST[ "display_name_$code" ] : @ $lang[ 'display_name' ];
 			if ( ! $lang[ 'display_name' ] )
 				$lang[ 'display_name' ] = $lang[ 'names' ];
+			// Note any url_prefix errors
+			$lang[ 'url_prefix_error' ] = ( @ $this->errors[ "url_prefix_$code" ] ) ? 'babble-error' : '0' ;
 		}
 		$vars = array();
 		$vars[ 'langs' ] = $langs;
 		$this->render_admin( 'options-available-languages.php', $vars );
+	}
+	
+	// PUBLIC METHODS
+	// ==============
+
+	// None… yet…
+	
+	// PRIVATE/PROTECTED METHODS
+	// =========================
+	
+	/**
+	 * Checks if there is a POSTed request to process. Checks it's properly
+	 * nonced up. Processes it.
+	 *
+	 * @return void
+	 **/
+	protected function maybe_process_languages() {
+		if ( ! @ $_POST[ '_babble_nonce' ] )
+			return;
+		check_admin_referer( 'babble_lang_prefs', '_babble_nonce' );
+		$lang_prefs = array();
+		$url_prefixes = array();
+		foreach ( $this->available_langs as $code => $lang ) {
+			$lang_prefs[ $code ] = array(
+				'display_name' => @ $_POST[ 'display_name_' . $code ],
+				'url_prefix' => @ $_POST[ 'url_prefix_' . $code ],
+				'text_direction' => @ $_POST[ 'text_direction_' . $code ],
+			);
+			// Ensure text_direction is only 'ltr' or 'rtl'
+			$lang_prefs[ $code ][ 'text_direction' ] = ( 'rtl' == $lang_prefs[ $code ][ 'text_direction' ] ) ? 'rtl' : 'ltr';
+			// Check we don't have more than one language using the same url prefix
+			error_log( "Check for " . $lang_prefs[ $code ][ 'url_prefix' ] );
+			if ( array_key_exists( $lang_prefs[ $code ][ 'url_prefix' ], $url_prefixes ) ) {
+				$lang_1 = $this->format_code_lang( $code );
+				$lang_2 = $this->format_code_lang( $url_prefixes[ $lang_prefs[ $code ][ 'url_prefix' ] ] );
+				$msg = sprintf( __( 'The languages "%1$s" and "%2$s" are using the same URL Prefix. Each URL prefix should be unique.', 'babble' ), $lang_1, $lang_2 );
+				$this->set_admin_error( $msg );
+				$this->errors[ 'url_prefix_' . $lang_prefs[ $code ][ 'url_prefix' ] ] = true;
+				$this->errors[ "url_prefix_$code" ] = true;
+			} else {
+				$url_prefixes[ $lang_prefs[ $code ][ 'url_prefix' ] ] = $code;
+			}
+		}
 	}
 	
 	/**
@@ -102,7 +164,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * 	'text_direction' 	=> 'ltr',
 	 * );
 	 *
-	 * @return array An array of languages
+	 * @return void
 	 **/
 	protected function parse_available_languages() {
 		unset( $this->available_langs );
@@ -116,6 +178,7 @@ class Babble_Languages extends Babble_Plugin {
 				'text_direction' => $this->is_rtl( $matches[ 1 ] ),
 			);
 		}
+		update_option( 'babble_available_languages', $this->available_langs );
 	}
 	
 	/**
@@ -141,6 +204,8 @@ class Babble_Languages extends Babble_Plugin {
 	 *
 	 * This method is an identical copy of format_code_lang 
 	 * in wp-admin/includes/ms.php
+	 *
+	 * @FIXME: We end up with a load of anglicised names, which doesn't seem super-friendly, internationally speaking.
 	 * 
 	 * @see format_code_lang()
 	 *

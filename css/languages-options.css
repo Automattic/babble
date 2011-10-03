@@ -1,4 +1,6 @@
-/* @override http://wp-bleeding.simonwheatley.co.uk/css/languages-options.css?ver=1 */
+/* @override 
+	http://wp-bleeding.simonwheatley.co.uk/wp-content/plugins/babble/css/languages-options.css?ver=1
+*/
 
 table.babble_languages .column-language-code {
 	width: 10%;
@@ -36,4 +38,10 @@ table.babble_languages .column-text_direction {
 .lang-ltr {
 	direction: ltr !important; /* Forgive me this one !important, please */
 	text-align: left;
+}
+
+input.babble-error {
+	background-color: #ffebe8;
+	border-color: #c00;
+	color: #000;
 }
