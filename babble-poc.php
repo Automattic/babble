@@ -355,14 +355,14 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 	
 	if ( is_singular() || is_single() || $editing_post ) {
 		// error_log( "Get translations" );
-		$translations = sil_get_post_translations( get_the_ID() );
+		$translations = bbl_get_post_translations( get_the_ID() );
 	}
 
 	foreach ( $alt_langs as $i => & $alt_lang ) {
 		$title = sprintf( __( 'Switch to %s', 'sil' ), $alt_lang->names );
 		if ( is_admin() ) {
 			if ( $editing_post ) {
-				if ( isset( $translations[ $alt_lang ]->ID ) ) { // Translation exists
+				if ( isset( $translations[ $alt_lang->code ]->ID ) ) { // Translation exists
 					$href = add_query_arg( array( 'lang' => $alt_lang, 'post' => $translations[ $alt_lang->code ]->ID ) );
 				} else { // Translation does not exist
 					$default_post = $translations[ bbl_get_default_lang_code() ];

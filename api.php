@@ -81,7 +81,7 @@ function bbl_restore_lang() {
  * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
  * @access public
  **/
-function sil_get_post_translations( $post ) {
+function bbl_get_post_translations( $post ) {
 	global $sil_post_types, $sil_lang_map;
 	$post = get_post( $post );
 	// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
@@ -111,7 +111,7 @@ function sil_get_post_translations( $post ) {
  **/
 function sil_get_default_lang_post( $post ) {
 	$post = get_post( $post );
-	$translations = sil_get_post_translations( $post->ID );
+	$translations = bbl_get_post_translations( $post->ID );
 	if ( isset( $translations[ bbl_get_default_lang_code() ] ) )
 		return $translations[ bbl_get_default_lang_code() ];
 	return false;
