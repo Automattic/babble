@@ -99,24 +99,24 @@ class Babble_Languages extends Babble_Plugin {
 		// Refresh the current languages
 		$this->parse_available_languages();
 		// Merge in our previously set language settings
-		$langs = bbl_array_merge_recursive_simple( $this->available_langs, $this->lang_prefs );
+		$langs = $this->merge_lang_sets( $this->available_langs, $this->lang_prefs );
 		// Merge in any POSTed field values
 		foreach ( $langs as $code => & $lang ) {
-			$lang[ 'url_prefix' ] = ( @ isset( $_POST[ 'url_prefix_' . $code ] ) ) ? $_POST[ "url_prefix_$code" ] : @ $lang[ 'url_prefix' ];
-			if ( ! $lang[ 'url_prefix' ] )
-				$lang[ 'url_prefix' ] = $lang[ 'code_short' ];
-			$lang[ 'text_direction' ] = ( @ isset( $_POST[ "text_direction_$code" ] ) ) ? $_POST[ "text_direction_$code" ] : @ $lang[ 'text_direction' ];
+			$lang->url_prefix = ( @ isset( $_POST[ 'url_prefix_' . $code ] ) ) ? $_POST[ "url_prefix_$code" ] : @ $lang->url_prefix;
+			if ( ! $lang->url_prefix )
+				$lang->url_prefix = $lang->code_short;
+			$lang->text_direction = ( @ isset( $_POST[ "text_direction_$code" ] ) ) ? $_POST[ "text_direction_$code" ] : @ $lang->text_direction;
 			// This line must come after the text direction value is set
-			$lang[ 'input_lang_class' ] = ( 'rtl' == $lang[ 'text_direction' ] ) ? 'lang-rtl' : 'lang-ltr' ;
-			$lang[ 'display_name' ] = ( @ isset( $_POST[ "display_name_$code" ] ) ) ? $_POST[ "display_name_$code" ] : @ $lang[ 'display_name' ];
-			if ( ! $lang[ 'display_name' ] )
-				$lang[ 'display_name' ] = $lang[ 'names' ];
+			$lang->input_lang_class = ( 'rtl' == $lang->text_direction ) ? 'lang-rtl' : 'lang-ltr' ;
+			$lang->display_name = ( @ isset( $_POST[ "display_name_$code" ] ) ) ? $_POST[ "display_name_$code" ] : @ $lang->display_name;
+			if ( ! $lang->display_name )
+				$lang->display_name = $lang->names;
 			// Note any url_prefix errors
-			$lang[ 'url_prefix_error' ] = ( @ $this->errors[ "url_prefix_$code" ] ) ? 'babble-error' : '0' ;
+			$lang->url_prefix_error = ( @ $this->errors[ "url_prefix_$code" ] ) ? 'babble-error' : '0' ;
 			// Flag the active languages
-			$lang[ 'active' ] = false;
+			$lang->active = false;
 			if ( in_array( $code, $this->active_langs ) )
-				$lang[ 'active' ] = true;
+				$lang->active = true;
 			
 		}
 		$vars = array();
@@ -131,6 +131,36 @@ class Babble_Languages extends Babble_Plugin {
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
+
+	/**
+	 * Merge two arrays of language objects. If a language exists in
+	 * $langs_b that doesn't in $langs_a, it will be added to the 
+	 * final array. If a language has a property in both arrays, the
+	 * property value from $langs_b will overwrite the property value
+	 * in $langs_a. If a language in $langs_b has a property that 
+	 * doesn't exist in $langs_a then it will be added to that
+	 * language in the final array.
+	 *
+	 * @param array $langs_a An array of language objects
+	 * @param array $langs_b An array of language objects
+	 * @return array An array of language objects
+	 **/
+	protected function merge_lang_sets( $langs_a, $langs_b ) {
+		$langs = array();
+		foreach ( $langs_a as $code => $lang_a ) {
+			// Langs only in A get copied from A, simple.
+			if ( ! isset( $langs_b[ $code ] ) ) {
+				$langs[ $code ] = $lang_a;
+				continue;
+			}
+			// The properties of langs in both A & B are merged
+			$langs[ $code ] = $lang_a;
+			$lang_b = $langs_b[ $code ];
+			foreach ( $lang_b as $p => $v )
+				$langs[ $code ]->$p = $v;
+		}
+		return $langs;
+	}
 	
 	/**
 	 * Checks if there is a POSTed request to process. Checks it's properly
@@ -139,7 +169,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return void
 	 **/
 	protected function maybe_process_languages() {
-		if ( ! @ $_POST[ '_babble_nonce' ] )
+		if ( ! isset( $_POST[ '_babble_nonce' ] ) )
 			return;
 		check_admin_referer( 'babble_lang_prefs', '_babble_nonce' );
 
@@ -148,33 +178,33 @@ class Babble_Languages extends Babble_Plugin {
 		$lang_prefs = array();
 		$url_prefixes = array();
 		foreach ( $this->available_langs as $code => $lang ) {
-			$lang_prefs[ $code ] = array(
-				'display_name' => @ $_POST[ 'display_name_' . $code ],
-				'url_prefix' => @ $_POST[ 'url_prefix_' . $code ],
-				'text_direction' => @ $_POST[ 'text_direction_' . $code ],
-			);
+			$lang_pref = new stdClass;
+			$lang_pref->display_name = @ $_POST[ 'display_name_' . $code ];
+			$lang_pref->url_prefix = @ $_POST[ 'url_prefix_' . $code ];
+			$lang_pref->text_direction = @ $_POST[ 'text_direction_' . $code ];
 			// Ensure text_direction is only 'ltr' or 'rtl'
-			$lang_prefs[ $code ][ 'text_direction' ] = ( 'rtl' == $lang_prefs[ $code ][ 'text_direction' ] ) ? 'rtl' : 'ltr';
+			$lang_pref->text_direction = ( 'rtl' == $lang_pref->text_direction ) ? 'rtl' : 'ltr';
 			// Check we don't have more than one language using the same url prefix
-			if ( array_key_exists( $lang_prefs[ $code ][ 'url_prefix' ], $url_prefixes ) ) {
+			if ( array_key_exists( $lang_pref->url_prefix, $url_prefixes ) ) {
 				$lang_1 = $this->format_code_lang( $code );
-				$lang_2 = $this->format_code_lang( $url_prefixes[ $lang_prefs[ $code ][ 'url_prefix' ] ] );
+				$lang_2 = $this->format_code_lang( $url_prefixes[ $lang_pref->url_prefix ] );
 				$msg = sprintf( __( 'The languages "%1$s" and "%2$s" are using the same URL Prefix. Each URL prefix should be unique.', 'babble' ), $lang_1, $lang_2 );
 				$this->set_admin_error( $msg );
-				$this->errors[ 'url_prefix_' . $lang_prefs[ $code ][ 'url_prefix' ] ] = true;
+				$this->errors[ 'url_prefix_' . $lang_pref->url_prefix ] = true;
 				$this->errors[ "url_prefix_$code" ] = true;
 			} else {
-				$url_prefixes[ $lang_prefs[ $code ][ 'url_prefix' ] ] = $code;
+				$url_prefixes[ $lang_pref->url_prefix ] = $code;
 			}
+			$lang_prefs[ $code ] = $lang_pref;
 		}
 		
 		// Now save the active languages
 		
 		if ( ! $this->errors ) {
-			$langs = bbl_array_merge_recursive_simple( $this->available_langs, $this->lang_prefs );
+			$langs = $this->merge_lang_sets( $this->available_langs, $this->lang_prefs );
 			$active_langs = array();
 			foreach ( (array) @ $_POST[ 'active_langs' ] as $code )
-				$active_langs[ $langs[ $code ][ 'url_prefix' ] ] = $code;
+				$active_langs[ $langs[ $code ]->url_prefix ] = $code;
 			if ( count( $active_langs ) < 2 ) {
 				$this->set_admin_error( __( 'You must set at least two languages as active.', 'babble' ) );
 				$this->errors[ 'active_langs' ];
@@ -198,13 +228,14 @@ class Babble_Languages extends Babble_Plugin {
 	/**
 	 * Parse the files in wp-content/languages and work out what 
 	 * languages we've got available. Populates self::available_langs
-	 * with an array which looks like:
-	 * array(
-	 * 	'code' 		=> 'en_GB',
-	 * 	'code_short' 	=> 'en',
-	 * 	'text_direction' 	=> 'ltr',
-	 * );
-	 *
+	 * with an array of language objects which look like:
+  	 * 'ar' => 
+  	 * 		object(stdClass)
+  	 * 			public 'names' => string 'Arabic'
+  	 * 			public 'code' => string 'ar'
+  	 * 			public 'code_short' => string 'ar'
+  	 * 			public 'text_direction' => string 'rtl'
+ 	 * 
 	 * @return void
 	 **/
 	protected function parse_available_languages() {
@@ -212,12 +243,15 @@ class Babble_Languages extends Babble_Plugin {
 		$this->available_langs = array();
 		foreach ( glob( WP_LANG_DIR . '/*.mo' ) as $mo_file ) {
 			preg_match( '/(([a-z]+)(_[a-z]+)?)\.mo$/i', $mo_file, $matches );
-			$this->available_langs[ $matches[ 1 ] ] = array(
+			$lang = array(
 				'names' => $this->format_code_lang( $matches[ 2 ] ),
 				'code' => $matches[ 1 ],
 				'code_short' => $matches[ 2 ],
 				'text_direction' => $this->is_rtl( $matches[ 1 ] ),
 			);
+			// Cast to an object, in case we want to start using actual classes
+			// at some point in the future.
+			$this->available_langs[ $matches[ 1 ] ] = (object) $lang;
 		}
 		$this->update_option( 'available_langs', $this->available_langs );
 	}
@@ -274,49 +308,5 @@ class Babble_Languages extends Babble_Plugin {
 }
 
 $babble_languages = new Babble_Languages();
-
-/**
- * array_merge_recursive() merges the elements of one or more arrays 
- * together so that the values of one are appended to the end of the 
- * previous one. It returns the resulting array.
- *
- * If the input arrays have the same string keys, then the value in 
- * the array given earlier in the arguments is overwritten by the 
- * value from the array given later in the arguments.
- *
- * From: http://uk.php.net/manual/en/function.array-merge-recursive.php#104145
- *
- * @FIXME: Not GPL, I guess. Do I have to rewrite?
- *
- * @param array Initial array to merge.
- * … Variable list of arrays to recursively, but simply, merge.
- * @return array An array of values resulted from merging the arguments together.
- **/
-function bbl_array_merge_recursive_simple() {
-	if ( func_num_args() < 2 )
-		throw new exception( 'bbl_array_merge_recursive_simple needs two or more array arguments', E_USER_WARNING );
-	$arrays = func_get_args();
-	$merged = array();
-	while ( $arrays ) {
-		$array = array_shift( $arrays );
-		if ( ! is_array( $array ) )
-			throw new exception( 'bbl_array_merge_recursive_simple encountered a non array argument', E_USER_WARNING );
-		if ( ! $array )
-			continue;
-		foreach ( $array as $key => $value ) {
-			if ( is_string( $key ) ) {
-				if ( is_array( $value ) && array_key_exists( $key, $merged ) && is_array( $merged[ $key ] ) ) {
-					$merged[ $key ] = bbl_array_merge_recursive_simple( $merged[ $key ], $value ) ;
-				} else {
-					$merged[ $key ] = $value;
-				}
-			} else {
-				$merged[] = $value;
-			}
-		}
-	}
-	return $merged;
-}
-
 
 ?>
