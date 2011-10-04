@@ -162,7 +162,7 @@ class Babble_Locale {
 
 			// error_log( "Locale (before): $locale for request (" . $this->get_request_string() . ")" );
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
-				$this->set_lang( $matches[ 0 ] );
+				$this->set_lang_from_prefix( $matches[ 0 ] );
 		}
 		// Shouldn't be necessary, but…
 		if ( ! $this->lang )
@@ -194,6 +194,7 @@ class Babble_Locale {
 		}
 		// Otherwise, simply set the lang for this request
 		$wp->query_vars[ 'lang' ] = $this->lang;
+		$wp->query_vars[ 'lang_url_prefix' ] = $this->url_prefix;
 	}
 
 	/**
@@ -205,7 +206,7 @@ class Babble_Locale {
 	 **/
 	function query_vars( $query_vars ) {
 		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
-		return array_merge( $query_vars, array( 'lang' ) );
+		return array_merge( $query_vars, array( 'lang', 'lang_url_prefix' ) );
 	}
 
 	/**
@@ -229,7 +230,8 @@ class Babble_Locale {
 		else
 			$base_url = '';
 		$path = ltrim( $path, '/' );
-		$url = trailingslashit( $base_url ) . $this->lang . '/' . $path;
+		error_log( "Lang $this->lang and prefix $this->url_prefix" );
+		$url = trailingslashit( $base_url ) . $this->url_prefix . '/' . $path;
 		return $url;
 	}
 
@@ -240,12 +242,11 @@ class Babble_Locale {
 	 * Get the current lang for this class, which is also the
 	 * current lang in the Query Vars.
 	 *
-	 * @param  
 	 * @return void
 	 **/
-	public function get_lang( $lang ) {
-		return $this->lang;
-	}
+	// public function get_lang() {
+	// 	return $this->lang;
+	// }
 
 	/**
 	 * Set the current lang for this class, and in Query Vars.
@@ -287,7 +288,19 @@ class Babble_Locale {
 	protected function set_lang( $code ) {
 		global $babble_languages;
 		$this->lang = $code;
-		$this->url_prefix = $babble_languages->get_url_prefix( $this->lang );
+		$this->url_prefix = $babble_languages->get_url_prefix_from_code( $this->lang );
+		error_log( "Set labg: $this->lang | $this->url_prefix" );
+	}
+
+	/**
+	 * Set the language for the URL prefix provided.
+	 *
+	 * @param string $url_prefix A URL prefix, e.g. "de" 
+	 * @return void
+	 **/
+	protected function set_lang_from_prefix( $url_prefix ) {
+		global $babble_languages;
+		$this->set_lang( $babble_languages->get_code_from_url_prefix( $url_prefix ) );
 	}
 
 	/**
