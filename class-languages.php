@@ -154,10 +154,22 @@ class Babble_Languages extends Babble_Plugin {
 	 * @param string $code A language code, e.g. "fr_BE" 
 	 * @return bool|string A URL prefix, as set by the admin when editing the lang prefs, or false if no language
 	 **/
-	public function get_url_prefix( $code ) {
+	public function get_url_prefix_from_code( $code ) {
 		if ( ! isset( $this->langs[ $code ]->url_prefix ) )
 			return false;
 		return $this->langs[ $code ]->url_prefix;
+	}
+	
+	/**
+	 * Given a URL prefix, return the language code.
+	 *
+	 * @param string $code A URL prefix, e.g. "de", as set by the admin
+	 * @return bool|string A language code, e.g. "de_DE", or false if no language
+	 **/
+	public function get_code_from_url_prefix( $url_prefix ) {
+		if ( ! isset( $this->active_langs[ $url_prefix ] ) )
+			return false;
+		return $this->active_langs[ $url_prefix ];
 	}
 	
 	// PRIVATE/PROTECTED METHODS
