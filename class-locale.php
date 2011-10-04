@@ -23,6 +23,13 @@ class Babble_Locale {
 	 * @var string
 	 **/
 	protected $lang;
+
+	/**
+	 * The URL prefix for the current request
+	 *
+	 * @var string
+	 **/
+	protected $url_prefix;
 	
 	/**
 	 * The default language for this site.
@@ -137,30 +144,35 @@ class Babble_Locale {
 	 * @return string The locale
 	 **/
 	public function set_locale( $locale ) {
-		global $wp_rewrite;
+		global $wp_rewrite, $babble_languages;
 		if ( isset( $this->lang ) )
 			return $this->lang;
 		if ( is_admin() ) {
 			$current_user = wp_get_current_user();
-			if ( ! ( $this->lang = @ $_GET[ 'lang' ] ) )
-				$this->lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true );
+			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
+			if ( isset( $_GET[ 'lang' ] ) ) {
+				$this->set_lang( $_GET[ 'lang' ] );
+			} else {
+				if ( $lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) )
+					$this->set_lang( $lang );
+			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
 			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo, this may mean holding $locale (e.g. "de_DE") and $lang (e.g. "de") separately
 
 			// error_log( "Locale (before): $locale for request (" . $this->get_request_string() . ")" );
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
-				$this->lang = $matches[ 0 ];
+				$this->set_lang( $matches[ 0 ] );
 		}
 		// Shouldn't be necessary, but…
 		if ( ! $this->lang )
-			$this->lang = $this->default_lang;
+			$this->set_lang( $this->default_lang );
 		// Save for logged in users
 		// @FIXME: Possible additional DB queries here?
 		if ( is_user_logged_in() && $current_user = wp_get_current_user() )
 			update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
 		if ( ! isset( $this->lang ) )
-			$this->lang = $this->default_lang;
+			$this->set_lang( $this->default_lang );
 		return $this->lang;
 	}
 
@@ -246,7 +258,7 @@ class Babble_Locale {
 		if ( ! is_array( $this->lang_stack ) )
 			$this->lang_stack = array();
 		$this->lang_stack[] = $this->lang;
-		$this->lang = $lang;
+		$this->set_lang( $lang );
 		set_query_var( 'lang', $this->lang );
 	}
 	
@@ -256,12 +268,27 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	public function restore_lang() {
-		$this->lang = array_pop( $this->lang_stack );
+		$this->set_lang( array_pop( $this->lang_stack ) );
 		set_query_var( 'lang', $this->lang );
 	}
 
-	// Private Methods
-	// ---------------
+	// Non-public Methods
+	// ------------------
+
+	/**
+	 * Set the language code and URL prefix for any 
+	 * subsequent requests.
+	 *
+	 * @FIXME: Currently we don't check that the language is valid
+	 *
+	 * @param string $code A language code
+	 * @return void
+	 **/
+	protected function set_lang( $code ) {
+		global $babble_languages;
+		$this->lang = $code;
+		$this->url_prefix = $babble_languages->get_url_prefix( $this->lang );
+	}
 
 	/**
 	 * Get the request string for the request, using code copied 
