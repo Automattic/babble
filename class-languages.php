@@ -166,11 +166,20 @@ class Babble_Languages extends Babble_Plugin {
 	 *
 	 * @return object|boolean A Babble language object
 	 **/
-	public function get_curent_lang() {
+	public function get_current_lang() {
 		global $babble_locale;
 		if ( ! isset( $this->langs[ $babble_locale->get_lang() ] ) )
 			return false;
 		return $this->langs[ $babble_locale->get_lang() ];
+	}
+
+	/**
+	 * Returns the default language code for this site.
+	 *
+	 * @return string A language code, e.g. "he_IL"
+	 **/
+	function get_default_lang_code() {
+		return $this->default_lang;
 	}
 	
 	/**

@@ -244,9 +244,9 @@ class Babble_Locale {
 	 *
 	 * @return void
 	 **/
-	// public function get_lang() {
-	// 	return $this->lang;
-	// }
+	public function get_lang() {
+		return $this->lang;
+	}
 
 	/**
 	 * Set the current lang for this class, and in Query Vars.
@@ -289,7 +289,6 @@ class Babble_Locale {
 		global $babble_languages;
 		$this->lang = $code;
 		$this->url_prefix = $babble_languages->get_url_prefix_from_code( $this->lang );
-		error_log( "Set labg: $this->lang | $this->url_prefix" );
 	}
 
 	/**

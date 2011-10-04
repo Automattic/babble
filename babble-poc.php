@@ -23,9 +23,6 @@ require_once( 'api.php' );
 // @FIXME: Move into class property when creating the actual plugin
 define( 'SIL_LANG_REGEX', '|^[^/]+|i' );
 
-// @FIXME: Proper method for assigning default language: https://github.com/simonwheatley/translations/issues/3
-define( 'SIL_DEFAULT_LANG', 'en' );
-
 /**
  * Hooks the WP init action early
  *
@@ -94,7 +91,7 @@ function sil_registered_post_type( $post_type, $args ) {
 	$sil_syncing = true;
 	
 	// @FIXME: Not sure this is the best way to specify languages
-	$langs = apply_filters( 'sil_languages', array( 'en' ) );
+	$langs = bbl_get_active_langs();
 	
 	// This languages map will provide a mechanism to work out which 
 	// post types associate with which
@@ -105,7 +102,7 @@ function sil_registered_post_type( $post_type, $args ) {
 	
 	// Lose the default language as the existing post_types are English
 	// @FIXME: Need to specify the default language somewhere
-	$default_lang = array_search( SIL_DEFAULT_LANG, $langs );
+	$default_lang = array_search( bbl_get_default_lang_code(), $langs );
 	unset( $langs[ $default_lang ] );
 	
 	// $args is an object at this point, but register_post_type needs an array
@@ -141,7 +138,7 @@ function sil_registered_post_type( $post_type, $args ) {
 		// I would prefer to keep the post_type human readable, as human devs and sysadmins always 
 		// end up needing to read this kind of thing.
 		// Perhaps we need to create some kind of map like (post_type) + (lang) => (shadow translated post_type)
-		$new_post_type = strtolower( $post_type . "_$lang" );
+		$new_post_type = strtolower( $post_type . "_{$lang->code}" );
 	
 		// foreach ( $new_args[ 'labels' ] as & $label )
 		// 	$label = "$label ($lang)";
@@ -151,7 +148,7 @@ function sil_registered_post_type( $post_type, $args ) {
 			error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
 		} else {
 			$sil_post_types[ $new_post_type ] = $post_type;
-			$sil_lang_map[ $new_post_type ] = $lang;
+			$sil_lang_map[ $new_post_type ] = $lang->code;
 			// This will not work until init has run at the early priority used
 			// to register the post_translation taxonomy. However we catch all the
 			// post_types registered before the hook runs, so we don't miss any 
@@ -190,7 +187,7 @@ function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
 	
 	// Lose the default language as the existing taxonomies are English
 	// @FIXME: Need to specify the default language somewhere
-	$default_lang = array_search( SIL_DEFAULT_LANG, $langs );
+	$default_lang = array_search( bbl_get_default_lang_code(), $langs );
 	unset( $langs[ $default_lang ] );
 	
 	// @FIXME: Is it reckless to convert ALL object instances in $args to an array?
@@ -222,7 +219,7 @@ function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
 	
 	$sil_syncing = false;
 }
-add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
+// add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
 
 /**
  * Hooks the WP parse_request action 
@@ -234,18 +231,18 @@ add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
  * @access private
  **/
 function sil_parse_request( $wp ) {
-	global $babble_locale;
+	global $babble_locale, $babble_languages;
 
 	// Sequester the original query, in case we need it to get the default content later
 	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
 
 	// Detect language specific homepages
-	if ( $wp->request == $wp->query_vars[ 'lang' ] ) {
+	if ( $wp->request == $wp->query_vars[ 'lang_url_prefix' ] ) {
 		unset( $wp->query_vars[ 'error' ] );
 		// @FIXME: Cater for front pages which don't list the posts
 		// Trigger the archive listing for the relevant shadow post type
 		// for this language.
-		if ( 'en' != $wp->query_vars[ 'lang' ] ) {
+		if ( 'en_US' != $wp->query_vars[ 'lang' ] ) {
 			$wp->query_vars[ 'post_type' ] = 'post_' . $wp->query_vars[ 'lang' ];
 		}
 		return;
@@ -253,7 +250,7 @@ function sil_parse_request( $wp ) {
 
 	// If we're asking for the default content, it's fine
 	// error_log( "Original query: " . print_r( $wp->query_vars, true ) );
-	if ( 'en' == $wp->query_vars[ 'lang' ] ) {
+	if ( 'en_US' == $wp->query_vars[ 'lang' ] ) {
 		// error_log( "Default content" );
 		// error_log( "New Query 0: " . print_r( $wp->query_vars, true ) );
 		return;
@@ -299,7 +296,7 @@ function sil_the_posts( $posts ) {
 			if ( $default_post = sil_get_default_lang_post( $post->ID ) )
 				$subs_index[ $post->ID ] = $default_post->ID;
 		}
-		if ( ! sil_get_transid( $post ) && SIL_DEFAULT_LANG == sil_get_post_lang( $post ) )
+		if ( ! sil_get_transid( $post ) && bbl_get_default_lang_code() == bbl_get_post_lang( $post ) )
 			sil_set_transid( $post );
 	}
 	if ( ! $subs_index )
@@ -339,9 +336,10 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		if ( $alt_lang->code == sil_get_current_lang_code() )
 			unset( $alt_langs[ $i ] );
 
+	$current_lang = bbl_get_current_lang();
 	$args = array(
 		'id' => 'sil_languages',
-		'title' => sil_get_current_lang_code(),
+		'title' => $current_lang->names,
 		'href' => '#',
 		'parent' => false,
 		'meta' => false
@@ -367,7 +365,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 				if ( isset( $translations[ $alt_lang ]->ID ) ) { // Translation exists
 					$href = add_query_arg( array( 'lang' => $alt_lang, 'post' => $translations[ $alt_lang->code ]->ID ) );
 				} else { // Translation does not exist
-					$default_post = $translations[ SIL_DEFAULT_LANG ];
+					$default_post = $translations[ bbl_get_default_lang_code() ];
 					$href = sil_get_new_translation_url( $default_post, $alt_lang->code );
 					$title = sprintf( __( 'Create for %s', 'sil' ), $alt_lang->names );
 				}
@@ -379,15 +377,15 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 				$href = get_permalink( $translations[ $alt_lang->code ]->ID );
 			} else { // Translation does not exist
 				// Generate a URL to create the translation
-				$default_post = $translations[ SIL_DEFAULT_LANG ];
+				$default_post = $translations[ bbl_get_default_lang_code() ];
 				$href = sil_get_new_translation_url( $default_post, $alt_lang->code );
 				$title = sprintf( __( 'Create for %s', 'sil' ), $alt_lang->names );
 			}
 			// error_log( "Lang ($lang) HREF ($href)" );
-		} else if ( $wp->request == sil_get_current_lang_code() ) { // Language homepages
+		} else if ( is_front_page() ) { // is_front_page works for language homepages
 			// error_log( "Removing home_url filter" );
 			remove_filter( 'home_url', array( $babble_locale, 'home_url'), null, 2 );
-			$href = home_url( $alt_lang->url_prefix );
+			$href = home_url( "$alt_lang->url_prefix/" );
 			// error_log( "Adding home_url filter" );
 			add_filter( 'home_url', array( $babble_locale, 'home_url'), null, 2 );
 		}
@@ -422,6 +420,8 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 	} else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) { // Deal with shadow post types
 		return $post_link;
 	}
+
+	error_log( "Base post type: $base_post_type ($post->post_title)" );
 
 	// Deal with post_types shadowing the post post_type
 	if ( 'post' == $base_post_type ) {
@@ -488,7 +488,8 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 				$author,
 				$post->post_name,
 			);
-			$lang = sil_get_post_lang( $post );
+			$lang = bbl_get_post_lang( $post );
+			error_log( "Getting link, lang: $lang ($post->post_title)" );
 			bbl_switch_to_lang( $lang );
 			$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
 			bbl_restore_lang();
@@ -523,7 +524,7 @@ function sil_page_link( $link, $id ) {
 		return $link;
 	error_log( "Link IN: $link" );
 	$sil_syncing = true;
-	$lang = sil_get_post_lang( $id );
+	$lang = bbl_get_post_lang( $id );
 	bbl_switch_to_lang( $lang );
 	$link = get_page_link( $id );
 	bbl_restore_lang();
@@ -550,7 +551,7 @@ function sil_get_transid( $post ) {
 	// "There can be only one" (so we'll just drop the others)
 	if ( isset( $transids[ 0 ] ) )
 		return $transids[ 0 ];
-	if ( SIL_DEFAULT_LANG == sil_get_post_lang( $post ) )
+	if ( bbl_get_default_lang_code() == bbl_get_post_lang( $post ) )
 		return false;
 	
 	return new WP_Error( 'no_transid', __( "No TransID available for post ID ($post->ID)", 'bbl' ) );
@@ -579,7 +580,7 @@ function sil_wp_insert_post( $post_id, $post ) {
 	sil_set_transid( $post, $transid );
 
 	// Ensure the post is in the correct shadow post_type
-	if ( SIL_DEFAULT_LANG != sil_get_current_lang_code() ) {
+	if ( bbl_get_default_lang_code() != sil_get_current_lang_code() ) {
 		$new_post_type = strtolower( $post->post_type . '_' . sil_get_current_lang_code() );
 		wp_update_post( array( 'ID' => $post_id, 'post_type' => $new_post_type ) );
 	}

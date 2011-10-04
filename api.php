@@ -37,10 +37,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 function sil_get_current_lang_code() {
 	// Outside the admin area, it's a WP Query Variable
 	if ( ! is_admin() )
-		return get_query_var( 'lang' ) ? get_query_var( 'lang' ) : SIL_DEFAULT_LANG;
+		return get_query_var( 'lang' ) ? get_query_var( 'lang' ) : bbl_get_default_lang_code();
 	// In the admin area, it's a GET param
 	$current_user = wp_get_current_user();
-	return get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) ? get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) : SIL_DEFAULT_LANG;
+	return get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) ? get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) : bbl_get_default_lang_code();
 }
 
 /**
@@ -96,7 +96,7 @@ function sil_get_post_translations( $post ) {
 		if ( isset( $sil_lang_map[ $post->post_type ] ) )
 			$translations[ $sil_lang_map[ $post->post_type ] ] = $post;
 		else
-			$translations[ SIL_DEFAULT_LANG ] = $post;
+			$translations[ bbl_get_default_lang_code() ] = $post;
 	}
 	return $translations;
 }
@@ -112,8 +112,8 @@ function sil_get_post_translations( $post ) {
 function sil_get_default_lang_post( $post ) {
 	$post = get_post( $post );
 	$translations = sil_get_post_translations( $post->ID );
-	if ( isset( $translations[ SIL_DEFAULT_LANG ] ) )
-		return $translations[ SIL_DEFAULT_LANG ];
+	if ( isset( $translations[ bbl_get_default_lang_code() ] ) )
+		return $translations[ bbl_get_default_lang_code() ];
 	return false;
 }
 
@@ -124,14 +124,14 @@ function sil_get_default_lang_post( $post ) {
  * @return string|object Either a language code, or a WP_Error object
  * @access public
  **/
-function sil_get_post_lang( $post ) {
+function bbl_get_post_lang( $post ) {
 	global $sil_lang_map;
 	$post = get_post( $post );
 	if ( ! $post )
 		return new WP_Error( 'invalid_post', __( 'Invalid Post' ) );
 	if ( isset( $sil_lang_map[ $post->post_type ] ) )
 		return $sil_lang_map[ $post->post_type ];
-	return SIL_DEFAULT_LANG;
+	return bbl_get_default_lang_code();
 }
 
 /**
@@ -165,11 +165,34 @@ function sil_get_new_translation_url( $default_post, $lang ) {
  * 
  * @uses Babble_Languages::get_active_langs to do the actual work
  *
- * @return array An array of language objects
+ * @return array An array of Babble language objects
  **/
 function bbl_get_active_langs() {
 	global $babble_languages;
 	return $babble_languages->get_active_langs();
+}
+
+/**
+ * Returns the current language object, respecting any
+ * language switches; i.e. if your request was for
+ * Arabic, but the language is currently switched to
+ * French, this will return French.
+ *
+ * @return object A Babble language object
+ **/
+function bbl_get_current_lang() {
+	global $babble_languages;
+	return $babble_languages->get_current_lang();
+}
+
+/**
+ * Returns the default language code for this site.
+ *
+ * @return string A language code, e.g. "he_IL"
+ **/
+function bbl_get_default_lang_code() {
+	global $babble_languages;
+	return $babble_languages->get_default_lang_code();
 }
 
 ?>
