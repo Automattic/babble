@@ -153,4 +153,23 @@ function sil_get_new_translation_url( $default_post, $lang ) {
 	return $url;
 }
 
+/**
+ * Return the active language objects for the current site. A
+ * language object looks like:
+ * 'ar' => 
+ * 		object(stdClass)
+ * 			public 'names' => string 'Arabic'
+ * 			public 'code' => string 'ar'
+ * 			public 'code_short' => string 'ar'
+ * 			public 'text_direction' => string 'rtl'
+ * 
+ * @uses Babble_Languages::get_active_langs to do the actual work
+ *
+ * @return array An array of language objects
+ **/
+function bbl_get_active_langs() {
+	global $babble_languages;
+	return $babble_languages->get_active_langs();
+}
+
 ?>

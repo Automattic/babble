@@ -25,7 +25,8 @@ class Babble_Languages extends Babble_Plugin {
 	protected $lang_prefs;
 	
 	/**
-	 * The languages selected for this site.
+	 * An array of language codes, keyed by language prefix
+	 * for all the languages selected as active for this site.
 	 *
 	 * @var array
 	 **/
@@ -59,8 +60,9 @@ class Babble_Languages extends Babble_Plugin {
 			error_log( "Refresh available langs" );
 			$this->parse_available_languages();
 		}
-		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
 		$this->active_langs = $this->get_option( 'active_langs', array() );
+		$this->langs = $this->get_option( 'langs', array() );
+		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
 	}
 	
 	// WP HOOKS
@@ -127,7 +129,24 @@ class Babble_Languages extends Babble_Plugin {
 	// PUBLIC METHODS
 	// ==============
 
-	// None… yet…
+	/**
+	 * Return the active language objects for the current site, keyed
+	 * by URL prefix. A language object looks like:
+	 * 'ar' => 
+	 * 		object(stdClass)
+	 * 			public 'names' => string 'Arabic'
+	 * 			public 'code' => string 'ar'
+	 * 			public 'code_short' => string 'ar'
+	 * 			public 'text_direction' => string 'rtl'
+	 * 
+	 * @return array An array of language objects
+	 **/
+	public function get_active_langs() {
+		$langs = array();
+		foreach ( $this->active_langs as $url_prefix => $code )
+			$langs[ $url_prefix ] = $this->langs[ $code ];
+		return $langs;
+	}
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
@@ -211,6 +230,8 @@ class Babble_Languages extends Babble_Plugin {
 			} else {
 				$this->active_langs = $active_langs;
 				$this->update_option( 'active_langs', $this->active_langs );
+				$this->langs = $langs;
+				$this->update_option( 'langs', $this->langs );
 			}
 		}
 		
