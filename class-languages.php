@@ -148,6 +148,18 @@ class Babble_Languages extends Babble_Plugin {
 		return $langs;
 	}
 	
+	/**
+	 * Given a language code, return the URL prefix.
+	 *
+	 * @param string $code A language code, e.g. "fr_BE" 
+	 * @return bool|string A URL prefix, as set by the admin when editing the lang prefs, or false if no language
+	 **/
+	public function get_url_prefix( $code ) {
+		if ( ! isset( $this->langs[ $code ]->url_prefix ) )
+			return false;
+		return $this->langs[ $code ]->url_prefix;
+	}
+	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
 
@@ -274,6 +286,14 @@ class Babble_Languages extends Babble_Plugin {
 			// at some point in the future.
 			$this->available_langs[ $matches[ 1 ] ] = (object) $lang;
 		}
+		// Add in US English, which is the default on WordPress and has no language files
+		$en = new stdClass;
+		$en->names = 'English; US';
+		$en->code = 'en_US';
+		$en->code_short = 'en';
+		$en->text_direction = 'ltr';
+		$this->available_langs[ 'en_US' ] = $en;
+		ksort( $this->available_langs );
 		$this->update_option( 'available_langs', $this->available_langs );
 	}
 	
