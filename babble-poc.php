@@ -330,6 +330,15 @@ add_action( 'the_posts', 'sil_the_posts' );
  **/
 function sil_admin_bar_menu( $wp_admin_bar ) {
 	global $wp, $sil_post_types, $sil_lang_map, $babble_locale;
+
+	// @FIXME: Not sure this is the best way to specify languages
+	$alt_langs = bbl_get_active_langs();
+
+	// Remove the current language
+	foreach ( $alt_langs as $i => & $alt_lang )
+		if ( $alt_lang->code == sil_get_current_lang_code() )
+			unset( $alt_langs[ $i ] );
+
 	$args = array(
 		'id' => 'sil_languages',
 		'title' => sil_get_current_lang_code(),
@@ -338,13 +347,6 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		'meta' => false
 	);
 	$wp_admin_bar->add_menu( $args );
-
-	// @FIXME: Not sure this is the best way to specify languages
-	$langs = apply_filters( 'sil_languages', array( 'en' ) );
-	// Remove the current language
-	foreach ( $langs as $i => & $lang )
-		if ( $lang == sil_get_current_lang_code() )
-			unset( $langs[ $i ] );
 	
 	// Create a handy flag for whether we're editing a post
 	$editing_post = false;
@@ -358,39 +360,39 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		$translations = sil_get_post_translations( get_the_ID() );
 	}
 
-	foreach ( $langs as $i => & $lang ) {
-		$title = sprintf( __( 'Switch to %s', 'sil' ), $lang );
+	foreach ( $alt_langs as $i => & $alt_lang ) {
+		$title = sprintf( __( 'Switch to %s', 'sil' ), $alt_lang->names );
 		if ( is_admin() ) {
 			if ( $editing_post ) {
-				if ( isset( $translations[ $lang ]->ID ) ) { // Translation exists
-					$href = add_query_arg( array( 'lang' => $lang, 'post' => $translations[ $lang ]->ID ) );
+				if ( isset( $translations[ $alt_lang ]->ID ) ) { // Translation exists
+					$href = add_query_arg( array( 'lang' => $alt_lang, 'post' => $translations[ $alt_lang->code ]->ID ) );
 				} else { // Translation does not exist
 					$default_post = $translations[ SIL_DEFAULT_LANG ];
-					$href = sil_get_new_translation_url( $default_post, $lang );
-					$title = sprintf( __( 'Create for %s', 'sil' ), $lang );
+					$href = sil_get_new_translation_url( $default_post, $alt_lang->code );
+					$title = sprintf( __( 'Create for %s', 'sil' ), $alt_lang->names );
 				}
 			} else {
-				$href = add_query_arg( array( 'lang' => $lang ) );
+				$href = add_query_arg( array( 'lang' => $alt_lang->code ) );
 			}
 		} else if ( is_singular() || is_single() ) {
-			if ( isset( $translations[ $lang ]->ID ) ) { // Translation exists
-				$href = get_permalink( $translations[ $lang ]->ID );
+			if ( isset( $translations[ $alt_lang->code ]->ID ) ) { // Translation exists
+				$href = get_permalink( $translations[ $alt_lang->code ]->ID );
 			} else { // Translation does not exist
 				// Generate a URL to create the translation
 				$default_post = $translations[ SIL_DEFAULT_LANG ];
-				$href = sil_get_new_translation_url( $default_post, $lang );
-				$title = sprintf( __( 'Create for %s', 'sil' ), $lang );
+				$href = sil_get_new_translation_url( $default_post, $alt_lang->code );
+				$title = sprintf( __( 'Create for %s', 'sil' ), $alt_lang->names );
 			}
 			// error_log( "Lang ($lang) HREF ($href)" );
 		} else if ( $wp->request == sil_get_current_lang_code() ) { // Language homepages
 			// error_log( "Removing home_url filter" );
 			remove_filter( 'home_url', array( $babble_locale, 'home_url'), null, 2 );
-			$href = home_url( $lang );
+			$href = home_url( $alt_lang->url_prefix );
 			// error_log( "Adding home_url filter" );
 			add_filter( 'home_url', array( $babble_locale, 'home_url'), null, 2 );
 		}
 		$args = array(
-			'id' => "sil_languages_$lang",
+			'id' => "sil_languages_{$alt_lang->url_prefix}",
 			'href' => $href,
 			'parent' => 'sil_languages',
 			'meta' => false,
