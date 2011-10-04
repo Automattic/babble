@@ -31,6 +31,13 @@ class Babble_Languages extends Babble_Plugin {
 	 * @var array
 	 **/
 	protected $active_langs;
+
+	/**
+	 * The language code for the default language.
+	 *
+	 * @var string
+	 **/
+	protected $default_lang;
 	
 	/**
 	 * The current version for purposes of rewrite rules, any 
@@ -63,6 +70,7 @@ class Babble_Languages extends Babble_Plugin {
 		$this->active_langs = $this->get_option( 'active_langs', array() );
 		$this->langs = $this->get_option( 'langs', array() );
 		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
+		$this->default_lang = $this->get_option( 'default_lang', 'en_US' );
 	}
 	
 	// WP HOOKS
@@ -123,6 +131,8 @@ class Babble_Languages extends Babble_Plugin {
 		}
 		$vars = array();
 		$vars[ 'langs' ] = $langs;
+		$vars[ 'default_lang' ] = $this->default_lang;
+		$vars[ 'active_langs' ] = $this->get_active_langs();
 		$this->render_admin( 'options-available-languages.php', $vars );
 	}
 	
@@ -139,13 +149,28 @@ class Babble_Languages extends Babble_Plugin {
 	 * 			public 'code_short' => string 'ar'
 	 * 			public 'text_direction' => string 'rtl'
 	 * 
-	 * @return array An array of language objects
+	 * @return array An array of Babble language objects
 	 **/
 	public function get_active_langs() {
 		$langs = array();
 		foreach ( $this->active_langs as $url_prefix => $code )
 			$langs[ $url_prefix ] = $this->langs[ $code ];
 		return $langs;
+	}
+
+	/**
+	 * Returns the current language object, respecting any
+	 * language switches; i.e. if your request was for
+	 * Arabic, but the language is currently switched to
+	 * French, this will return French.
+	 *
+	 * @return object|boolean A Babble language object
+	 **/
+	public function get_curent_lang() {
+		global $babble_locale;
+		if ( ! isset( $this->langs[ $babble_locale->get_lang() ] ) )
+			return false;
+		return $this->langs[ $babble_locale->get_lang() ];
 	}
 	
 	/**
@@ -261,6 +286,10 @@ class Babble_Languages extends Babble_Plugin {
 		
 		// Finish up, redirecting if we're all OK
 		if ( ! $this->errors ) {
+			// First the default language
+			$default_lang = @ $_POST[ 'default_lang' ];
+			$this->update_option( 'default_lang', $default_lang );
+			// Now the prefs
 			$this->update_option( 'lang_prefs', $lang_prefs );
 			// Now set a reassuring message and redirect back to the clean settings page
 			$this->set_admin_notice( __( 'Your language settings have been saved.', 'babble' ) );

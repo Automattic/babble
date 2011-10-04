@@ -10,6 +10,15 @@
 
 <p><?php _e( 'Please select the languages you wish to translate this site into, and select "Save Changes" below the languages table.' ); ?></p>
 
+<p>
+	<label for="default_lang"><?php _e( 'Default language:', 'babble' ); ?></label> 
+	<select name="default_lang" id="default_lang">
+		<?php foreach( $active_langs as $lang ) : ?>
+			<option value="<?php echo esc_attr( $lang->code ); ?>" <?php selected( $lang->code, $default_lang ); ?>><?php echo esc_html( $lang->names ); ?></option>
+		<?php endforeach; ?>
+	</select>
+</p>
+
 <table class="wp-list-table widefat fixed babble_languages" cellspacing="0">
 	<thead>
 	<tr>
