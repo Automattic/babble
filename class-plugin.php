@@ -118,20 +118,33 @@ class Babble_Plugin {
 		$this->name = $name;
 		// Attempt to handle Windows
 		$ds = ( defined( 'DIRECTORY_SEPARATOR' ) ) ? DIRECTORY_SEPARATOR : '\\';
+		error_log( "DS: $ds" );
 		$file = str_replace( $ds, '/', __FILE__ );
+		error_log( "__FILE__: " . __FILE__ );
+		error_log( "file: $file" );
 		$plugin_dir = str_replace( $ds, '/', WP_PLUGIN_DIR );
+		error_log( "plugin_dir: $plugin_dir" );
 		// Setup the dir and url for this plugin/theme
 		if ( stripos( $file, 'themes' ) ) {
+			error_log( "This is a theme" );
 			// This is a theme
 			$this->type = 'theme';
+			error_log( "Type: $this->type" );
 			$this->dir = get_stylesheet_directory();
+			error_log( "dir: $this->dir" );
 			$this->url = get_stylesheet_directory_uri();
+			error_log( "url: $this->url" );
 		} elseif ( stripos( $file, $plugin_dir ) !== false ) {
+			error_log( "This is a plugin" );
 			// This is a plugin
 			$this->folder = rtrim( basename( dirname( $file ) ), '/' );
+			error_log( "folder: $this->folder" );
 			$this->type = 'plugin';
+			error_log( "Type: $this->type" );
 			$this->dir = trailingslashit( $plugin_dir ) . $this->folder;
+			error_log( "dir: $this->dir" );
 			$this->url = plugins_url( $this->folder );
+			error_log( "url: $this->url" );
 		} else {
 			// WTF?
 			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugin_dir . ' or "themes" in ' . $file );
