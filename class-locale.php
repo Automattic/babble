@@ -141,18 +141,14 @@ class Babble_Locale {
 			return $this->lang;
 		if ( is_admin() ) {
 			$current_user = wp_get_current_user();
-			delete_user_meta( $current_user->ID, 'bbl_admin_lang' );
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 			if ( isset( $_GET[ 'lang' ] ) ) {
-				error_log( "EN 0: " . $_GET[ 'lang' ] );
 				$this->set_lang( $_GET[ 'lang' ] );
 			} else {
 				if ( $lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) ) {
-					error_log( "EN 1: " . $lang );
 					$this->set_lang( $lang );
 				}
 			}
-			error_log( "Locale setting $this->lang" );
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
 			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo, this may mean holding $locale (e.g. "de_DE") and $lang (e.g. "de") separately
@@ -163,18 +159,14 @@ class Babble_Locale {
 		}
 		// Shouldn't be necessary, but…
 		if ( ! $this->lang ) {
-			error_log( "Lang 2: $this->lang" );
 			$this->set_lang( bbl_get_default_lang_code() );
 		}
-		error_log( "Lang 3: $this->lang" );
 		// Save for logged in users
 		// @FIXME: Possible additional DB queries here?
 		if ( is_user_logged_in() && $current_user = wp_get_current_user() )
 			update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
-		error_log( "Lang 4: $this->lang" );
 		if ( ! isset( $this->lang ) )
 			$this->set_lang( bbl_get_default_lang_code() );
-		error_log( "Lang 5: $this->lang" );
 		return $this->lang;
 	}
 
