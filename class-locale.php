@@ -164,7 +164,7 @@ class Babble_Locale {
 		// Shouldn't be necessary, but…
 		if ( ! $this->lang ) {
 			error_log( "Lang 2: $this->lang" );
-			$this->set_lang( $this->default_lang() );
+			$this->set_lang( bbl_get_default_lang_code() );
 		}
 		error_log( "Lang 3: $this->lang" );
 		// Save for logged in users
@@ -173,7 +173,7 @@ class Babble_Locale {
 			update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
 		error_log( "Lang 4: $this->lang" );
 		if ( ! isset( $this->lang ) )
-			$this->set_lang( $this->default_lang() );
+			$this->set_lang( bbl_get_default_lang_code() );
 		error_log( "Lang 5: $this->lang" );
 		return $this->lang;
 	}
@@ -190,7 +190,7 @@ class Babble_Locale {
 		// If this is the site root, redirect to default language homepage 
 		if ( ! $wp->request ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
-			wp_redirect( home_url( $this->default_lang( true ) ) );
+			wp_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
 			add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 			exit;
 		}
@@ -277,24 +277,6 @@ class Babble_Locale {
 
 	// Non-public Methods
 	// ------------------
-
-	/**
-	 * Retrieves the default_lang from the Babble_Languages class.
-	 *
-	 * @uses Babble_Languages::get_default_lang_code()
-	 * @uses Babble_Languages::get_url_prefix_from_code()
-	 *
-	 * @param bool $as_url_prefix If true, return URL prefix, else return language code
-	 * @return string A language code
-	 **/
-	protected function default_lang( $as_url_prefix = false ) {
-		global $babble_languages;
-		$code = $babble_languages->get_default_lang_code();
-		if ( $as_url_prefix )
-			return $babble_languages->get_url_prefix_from_code( $code );
-		error_log( "Code: $code" );
-		return $code;
-	}
 
 	/**
 	 * Set the language code and URL prefix for any 

@@ -195,4 +195,15 @@ function bbl_get_default_lang_code() {
 	return $babble_languages->get_default_lang_code();
 }
 
+/**
+ * Returns the default language code for this site.
+ *
+ * @return string The language URL prefix set by the admin, e.g. "de"
+ **/
+function bbl_get_default_lang_url_prefix() {
+	global $babble_languages;
+	$code = $babble_languages->get_default_lang_code();
+	return $babble_languages->get_url_prefix_from_code( $code );
+}
+
 ?>
