@@ -60,7 +60,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function __construct() {
-		$this->setup( 'babble-languages' );
+		$this->setup( 'babble-languages', 'plugin' );
 		$this->add_action( 'admin_menu', 'admin_menu' );
 		$this->add_action( 'admin_notices', 'admin_notices' );
 		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );

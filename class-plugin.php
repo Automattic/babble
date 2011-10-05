@@ -26,6 +26,9 @@
 //         - Fix for get_option
 // 1.31    - Attempt to cope with Win32 directory separators
 // 1.32    - Add a remove_filter method
+// 1.33    - Add `sil_plugins_dir` and `sil_plugins_url` filters, to allow placement 
+//           outside the `wp-content/plugins/` folder, for example using `require_once` 
+//           to include from the theme `functions.php`.
 // ======================================================================================
 
 
@@ -112,43 +115,41 @@ class Babble_Plugin {
 	 * @return void
 	 * @author Simon Wheatley
 	 **/
-	public function setup( $name = '' ) {
+	public function setup( $name = '', $type = null ) {
 		if ( ! $name )
 			throw new exception( "Please pass the name parameter into the setup method." );
 		$this->name = $name;
-		// Attempt to handle Windows
+
+		// Attempt to handle a Windows
 		$ds = ( defined( 'DIRECTORY_SEPARATOR' ) ) ? DIRECTORY_SEPARATOR : '\\';
-		error_log( "DS: $ds" );
 		$file = str_replace( $ds, '/', __FILE__ );
-		error_log( "__FILE__: " . __FILE__ );
-		error_log( "file: $file" );
-		$plugin_dir = str_replace( $ds, '/', WP_PLUGIN_DIR );
-		error_log( "plugin_dir: $plugin_dir" );
+		$plugins_dir = str_replace( $ds, '/', WP_PLUGIN_DIR );
 		// Setup the dir and url for this plugin/theme
-		if ( stripos( $file, 'themes' ) ) {
-			error_log( "This is a theme" );
+		if ( 'theme' == $type ) {
 			// This is a theme
 			$this->type = 'theme';
-			error_log( "Type: $this->type" );
 			$this->dir = get_stylesheet_directory();
-			error_log( "dir: $this->dir" );
 			$this->url = get_stylesheet_directory_uri();
-			error_log( "url: $this->url" );
-		} elseif ( stripos( $file, $plugin_dir ) !== false ) {
-			error_log( "This is a plugin" );
+		} elseif ( stripos( $file, $plugins_dir ) !== false || 'plugin' == $type ) {
 			// This is a plugin
-			$this->folder = rtrim( basename( dirname( $file ) ), '/' );
-			error_log( "folder: $this->folder" );
+			$this->folder = trim( basename( dirname( $file ) ), '/' );
 			$this->type = 'plugin';
-			error_log( "Type: $this->type" );
-			$this->dir = trailingslashit( $plugin_dir ) . $this->folder;
-			error_log( "dir: $this->dir" );
-			$this->url = plugins_url( $this->folder );
-			error_log( "url: $this->url" );
+			// Allow someone to override the assumptions we're making here about where 
+			// the plugin is held. For example, if this plugin is included as part of 
+			// the files for a theme, in wp-content/themes/[your theme]/plugins/ then
+			// you could hook `sil_plugins_dir` and `sil_plugins_url` to correct
+			// our assumptions.
+			// N.B. Because this code is running when the file is required, other plugins
+			// may not be loaded and able to hook these filters!
+			$plugins_dir = apply_filters( 'sil_plugins_dir', $plugins_dir, $this->name );
+			$plugins_url = apply_filters( 'sil_plugins_url', plugins_url(), $this->name );
+			$this->dir = trailingslashit( $plugins_dir ) . $this->folder . '/';
+			$this->url = trailingslashit( $plugins_url ) . $this->folder . '/';
 		} else {
 			// WTF?
 			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugin_dir . ' or "themes" in ' . $file );
 		}
+
 		// Suffix for enqueuing
 		$this->suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '.dev' : '';
 		
@@ -441,7 +442,7 @@ class Babble_Plugin {
 		else if ( file_exists( $this->dir( "templates/$template_file" ) ) )
 			return $this->dir( "templates/$template_file" );
 		// Oh dear. We can't find the template.
-		$msg = sprintf( __( "This plugin template could not be found: %s" ), $this->dir( "templates/$template_file" ) );
+		$msg = sprintf( __( "This plugin template could not be found, perhaps you need to hook `sil_plugins_dir` and `sil_plugins_url`: %s" ), $this->dir( "templates/$template_file" ) );
 		error_log( "Template error: $msg" );
 		echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
 	}
