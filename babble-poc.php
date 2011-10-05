@@ -242,7 +242,7 @@ function sil_parse_request( $wp ) {
 		// @FIXME: Cater for front pages which don't list the posts
 		// Trigger the archive listing for the relevant shadow post type
 		// for this language.
-		if ( 'en_US' != $wp->query_vars[ 'lang' ] ) {
+		if ( bbl_get_default_lang_code() != $wp->query_vars[ 'lang' ] ) {
 			$wp->query_vars[ 'post_type' ] = 'post_' . $wp->query_vars[ 'lang' ];
 		}
 		return;
@@ -250,7 +250,7 @@ function sil_parse_request( $wp ) {
 
 	// If we're asking for the default content, it's fine
 	// error_log( "Original query: " . print_r( $wp->query_vars, true ) );
-	if ( 'en_US' == $wp->query_vars[ 'lang' ] ) {
+	if ( bbl_get_default_lang_code() == $wp->query_vars[ 'lang' ] ) {
 		// error_log( "Default content" );
 		// error_log( "New Query 0: " . print_r( $wp->query_vars, true ) );
 		return;

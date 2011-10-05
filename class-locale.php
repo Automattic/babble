@@ -32,13 +32,6 @@ class Babble_Locale {
 	protected $url_prefix;
 	
 	/**
-	 * The default language for this site.
-	 *
-	 * @var string
-	 **/
-	public $default_lang;
-	
-	/**
 	 * A simple flag to stop infinite recursion in various places.
 	 *
 	 * @var boolean
@@ -73,8 +66,6 @@ class Babble_Locale {
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
-		// @FIXME: Allow this to be changed
-		$this->default_lang = 'en';
 	}
 
 	/**
@@ -145,17 +136,23 @@ class Babble_Locale {
 	 **/
 	public function set_locale( $locale ) {
 		global $wp_rewrite, $babble_languages;
+		
 		if ( isset( $this->lang ) )
 			return $this->lang;
 		if ( is_admin() ) {
 			$current_user = wp_get_current_user();
+			delete_user_meta( $current_user->ID, 'bbl_admin_lang' );
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 			if ( isset( $_GET[ 'lang' ] ) ) {
+				error_log( "EN 0: " . $_GET[ 'lang' ] );
 				$this->set_lang( $_GET[ 'lang' ] );
 			} else {
-				if ( $lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) )
+				if ( $lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) ) {
+					error_log( "EN 1: " . $lang );
 					$this->set_lang( $lang );
+				}
 			}
+			error_log( "Locale setting $this->lang" );
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
 			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo, this may mean holding $locale (e.g. "de_DE") and $lang (e.g. "de") separately
@@ -165,14 +162,19 @@ class Babble_Locale {
 				$this->set_lang_from_prefix( $matches[ 0 ] );
 		}
 		// Shouldn't be necessary, but…
-		if ( ! $this->lang )
-			$this->set_lang( $this->default_lang );
+		if ( ! $this->lang ) {
+			error_log( "Lang 2: $this->lang" );
+			$this->set_lang( $this->default_lang() );
+		}
+		error_log( "Lang 3: $this->lang" );
 		// Save for logged in users
 		// @FIXME: Possible additional DB queries here?
 		if ( is_user_logged_in() && $current_user = wp_get_current_user() )
 			update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
+		error_log( "Lang 4: $this->lang" );
 		if ( ! isset( $this->lang ) )
-			$this->set_lang( $this->default_lang );
+			$this->set_lang( $this->default_lang() );
+		error_log( "Lang 5: $this->lang" );
 		return $this->lang;
 	}
 
@@ -188,7 +190,7 @@ class Babble_Locale {
 		// If this is the site root, redirect to default language homepage 
 		if ( ! $wp->request ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
-			wp_redirect( home_url( $this->default_lang ) );
+			wp_redirect( home_url( $this->default_lang( true ) ) );
 			add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 			exit;
 		}
@@ -204,7 +206,7 @@ class Babble_Locale {
 	 * @param array $query_vars An array of the public query vars 
 	 * @return array An array of the public query vars
 	 **/
-	function query_vars( $query_vars ) {
+	public function query_vars( $query_vars ) {
 		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 		return array_merge( $query_vars, array( 'lang', 'lang_url_prefix' ) );
 	}
@@ -221,7 +223,7 @@ class Babble_Locale {
 	 * @param int $blog_id The ID of the blog 
 	 * @return string The URL
 	 **/
-	function home_url( $url, $path ) {
+	public function home_url( $url, $path ) {
 		$orig_url = $url;
 		// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
 		// @FIXME: Do I need to use something multibyte string safe, rather than str_replace?
@@ -275,6 +277,24 @@ class Babble_Locale {
 
 	// Non-public Methods
 	// ------------------
+
+	/**
+	 * Retrieves the default_lang from the Babble_Languages class.
+	 *
+	 * @uses Babble_Languages::get_default_lang_code()
+	 * @uses Babble_Languages::get_url_prefix_from_code()
+	 *
+	 * @param bool $as_url_prefix If true, return URL prefix, else return language code
+	 * @return string A language code
+	 **/
+	protected function default_lang( $as_url_prefix = false ) {
+		global $babble_languages;
+		$code = $babble_languages->get_default_lang_code();
+		if ( $as_url_prefix )
+			return $babble_languages->get_url_prefix_from_code( $code );
+		error_log( "Code: $code" );
+		return $code;
+	}
 
 	/**
 	 * Set the language code and URL prefix for any 

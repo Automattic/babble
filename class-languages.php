@@ -74,6 +74,8 @@ class Babble_Languages extends Babble_Plugin {
 		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
 		$this->default_lang = $this->get_option( 'default_lang', 'en_US' );
 		// @FIXME: Add something in so the user gets setup with the single language they are currently using
+		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) )
+			$this->set_defaults();
 	}
 	
 	// WP HOOKS
@@ -193,7 +195,7 @@ class Babble_Languages extends Babble_Plugin {
 	 *
 	 * @return string A language code, e.g. "he_IL"
 	 **/
-	function get_default_lang_code() {
+	public function get_default_lang_code() {
 		return $this->default_lang;
 	}
 	
@@ -411,6 +413,41 @@ class Babble_Languages extends Babble_Plugin {
 		return strtr( $code, $lang_codes );
 	}
 
+	/**
+	 * Setup some initial language data, so the user's site doesn't immediately
+	 * fail when the plugin is activated.
+	 *
+	 * @return void
+	 **/
+	protected function set_defaults() {
+		// WPLANG is defined in wp-config.
+		if ( defined( 'WPLANG' ) )
+			$locale = WPLANG;
+
+		// If multisite, check options.
+		if ( is_multisite() && !defined('WP_INSTALLING') ) {
+			$ms_locale = get_option('WPLANG');
+			if ( $ms_locale === false )
+				$ms_locale = get_site_option('WPLANG');
+
+			if ( $ms_locale !== false )
+				$locale = $ms_locale;
+		}
+
+		if ( empty( $locale ) )
+			$locale = 'en_US';
+
+		$url_prefix = strtolower( substr( $locale, 0, 2 ) );
+
+		$this->active_langs = array( $url_prefix => $locale );
+
+		$this->langs = array( $locale => $this->available_langs[ $locale ] );
+		$this->langs[ $locale ]->url_prefix = $url_prefix;
+		$this->langs[ $locale ]->display_name = $this->langs[ $locale ]->names;
+		$this->default_lang = $locale;
+		error_log( "Default lang: $this->default_lang" );
+		error_log( "Langs 0 ($locale) ($url_prefix): " . print_r( $this->langs, true ) );
+	}
 }
 
 $babble_languages = new Babble_Languages();
