@@ -65,7 +65,7 @@ class Babble_Languages extends Babble_Plugin {
 		$this->add_action( 'admin_notices', 'admin_notices' );
 		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );
 
-		if ( $this->available_langs = $this->get_option( 'available_langs', false ) ) {
+		if ( ! ( $this->available_langs = $this->get_option( 'available_langs', false ) ) ) {
 			error_log( "Refresh available langs" );
 			$this->parse_available_languages();
 		}
