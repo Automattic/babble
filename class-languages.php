@@ -62,7 +62,9 @@ class Babble_Languages extends Babble_Plugin {
 	public function __construct() {
 		$this->setup( 'babble-languages' );
 		$this->add_action( 'admin_menu', 'admin_menu' );
+		$this->add_action( 'admin_notices', 'admin_notices' );
 		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );
+
 		if ( $this->available_langs = $this->get_option( 'available_langs', false ) ) {
 			error_log( "Refresh available langs" );
 			$this->parse_available_languages();
@@ -71,10 +73,23 @@ class Babble_Languages extends Babble_Plugin {
 		$this->langs = $this->get_option( 'langs', array() );
 		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
 		$this->default_lang = $this->get_option( 'default_lang', 'en_US' );
+		// @FIXME: Add something in so the user gets setup with the single language they are currently using
 	}
 	
 	// WP HOOKS
 	// ========
+
+	/**
+	 * Hooks the WP admin_notices action to warn the admin
+	 * if the permalinks aren't pretty enough.
+	 *
+	 * @return void
+	 **/
+	public function admin_notices() {
+		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) ) {
+			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble problem:</strong> Please visit the <a href="">Available Languages settings</a> and setup your available languages and the default language.', 'babble' ), 'options-general.php?page=babble_languages' ) );
+		}
+	}
 
 	/**
 	 * Hooks the WP admin_menu action 
