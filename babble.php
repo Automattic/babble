@@ -3,8 +3,8 @@
 /*
 Plugin Name: Babble
 Plugin URI: http://simonwheatley.co.uk/wordpress/babble
-Description: Much more classy!
-Version: Alpha 1.1
+Description: Now with Taxonomies!
+Version: Alpha 1.2
 Author: Simon Wheatley
 Author URI: http://simonwheatley.co.uk/wordpress/
 */
@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 require_once( 'class-plugin.php' );
 require_once( 'class-locale.php' );
 require_once( 'class-languages.php' );
+require_once( 'class-taxonomy.php' );
 require_once( 'babble-poc.php' );
 // require_once( 'class-Post-Public.php' );
 // require_once( 'api-new.php' );

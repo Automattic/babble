@@ -5,7 +5,7 @@
  *
  * @package WordPress
  * @subpackage Babble
- * @since 0.1
+ * @since Alpha 1.1
  */
 class Babble_Languages extends Babble_Plugin {
 	
@@ -184,10 +184,10 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return object|boolean A Babble language object
 	 **/
 	public function get_current_lang() {
-		global $babble_locale;
-		if ( ! isset( $this->langs[ $babble_locale->get_lang() ] ) )
+		global $bbl_locale;
+		if ( ! isset( $this->langs[ $bbl_locale->get_lang() ] ) )
 			return false;
-		return $this->langs[ $babble_locale->get_lang() ];
+		return $this->langs[ $bbl_locale->get_lang() ];
 	}
 
 	/**
@@ -450,6 +450,6 @@ class Babble_Languages extends Babble_Plugin {
 	}
 }
 
-$babble_languages = new Babble_Languages();
+$bbl_languages = new Babble_Languages();
 
 ?>

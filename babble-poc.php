@@ -45,8 +45,8 @@ function sil_init_early() {
 		$post_types = array( 'post', 'page' );
 	register_taxonomy( 'post_translation', $post_types, array(
 		'rewrite' => false,
-		'public' => true,
-		'show_ui' => true,
+		'public' => false,
+		'show_ui' => false,
 		'show_in_nav_menus' => false,
 		'label' => __( 'Post Translation ID', 'sil' ),
 	) );
@@ -231,7 +231,7 @@ function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
  * @access private
  **/
 function sil_parse_request( $wp ) {
-	global $babble_locale, $babble_languages;
+	global $bbl_locale, $bbl_languages;
 
 	// Sequester the original query, in case we need it to get the default content later
 	$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
@@ -326,7 +326,7 @@ add_action( 'the_posts', 'sil_the_posts' );
  * @access private
  **/
 function sil_admin_bar_menu( $wp_admin_bar ) {
-	global $wp, $sil_post_types, $sil_lang_map, $babble_locale;
+	global $wp, $sil_post_types, $sil_lang_map, $bbl_locale;
 
 	// @FIXME: Not sure this is the best way to specify languages
 	$alt_langs = bbl_get_active_langs();
@@ -384,10 +384,10 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 			// error_log( "Lang ($lang) HREF ($href)" );
 		} else if ( is_front_page() ) { // is_front_page works for language homepages
 			// error_log( "Removing home_url filter" );
-			remove_filter( 'home_url', array( $babble_locale, 'home_url'), null, 2 );
+			remove_filter( 'home_url', array( $bbl_locale, 'home_url'), null, 2 );
 			$href = home_url( "$alt_lang->url_prefix/" );
 			// error_log( "Adding home_url filter" );
-			add_filter( 'home_url', array( $babble_locale, 'home_url'), null, 2 );
+			add_filter( 'home_url', array( $bbl_locale, 'home_url'), null, 2 );
 		}
 		$args = array(
 			'id' => "sil_languages_{$alt_lang->url_prefix}",

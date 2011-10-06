@@ -5,7 +5,7 @@
  *
  * @package WordPress
  * @subpackage Babble
- * @since 0.1
+ * @since Alpha 1
  */
 class Babble_Locale {
 	
@@ -135,7 +135,7 @@ class Babble_Locale {
 	 * @return string The locale
 	 **/
 	public function set_locale( $locale ) {
-		global $wp_rewrite, $babble_languages;
+		global $wp_rewrite, $bbl_languages;
 		
 		if ( isset( $this->lang ) )
 			return $this->lang;
@@ -280,9 +280,9 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	protected function set_lang( $code ) {
-		global $babble_languages;
+		global $bbl_languages;
 		$this->lang = $code;
-		$this->url_prefix = $babble_languages->get_url_prefix_from_code( $this->lang );
+		$this->url_prefix = $bbl_languages->get_url_prefix_from_code( $this->lang );
 	}
 
 	/**
@@ -292,8 +292,8 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	protected function set_lang_from_prefix( $url_prefix ) {
-		global $babble_languages;
-		$this->set_lang( $babble_languages->get_code_from_url_prefix( $url_prefix ) );
+		global $bbl_languages;
+		$this->set_lang( $bbl_languages->get_code_from_url_prefix( $url_prefix ) );
 	}
 
 	/**
@@ -377,6 +377,6 @@ class Babble_Locale {
 
 }
 
-$babble_locale = new Babble_Locale();
+$bbl_locale = new Babble_Locale();
 
 ?>

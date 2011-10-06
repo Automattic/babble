@@ -53,8 +53,8 @@ function sil_get_current_lang_code() {
  * @return void
  **/
 function bbl_switch_to_lang( $lang ) {
-	global $babble_locale;
-	$babble_locale->switch_to_lang( $lang );
+	global $bbl_locale;
+	$bbl_locale->switch_to_lang( $lang );
 }
 
 /**
@@ -66,8 +66,8 @@ function bbl_switch_to_lang( $lang ) {
  * @return void
  **/
 function bbl_restore_lang() {
-	global $babble_locale;
-	$babble_locale->restore_lang();
+	global $bbl_locale;
+	$bbl_locale->restore_lang();
 }
 
 /**
@@ -168,8 +168,8 @@ function sil_get_new_translation_url( $default_post, $lang ) {
  * @return array An array of Babble language objects
  **/
 function bbl_get_active_langs() {
-	global $babble_languages;
-	return $babble_languages->get_active_langs();
+	global $bbl_languages;
+	return $bbl_languages->get_active_langs();
 }
 
 /**
@@ -181,8 +181,8 @@ function bbl_get_active_langs() {
  * @return object A Babble language object
  **/
 function bbl_get_current_lang() {
-	global $babble_languages;
-	return $babble_languages->get_current_lang();
+	global $bbl_languages;
+	return $bbl_languages->get_current_lang();
 }
 
 /**
@@ -191,8 +191,8 @@ function bbl_get_current_lang() {
  * @return string A language code, e.g. "he_IL"
  **/
 function bbl_get_default_lang_code() {
-	global $babble_languages;
-	return $babble_languages->get_default_lang_code();
+	global $bbl_languages;
+	return $bbl_languages->get_default_lang_code();
 }
 
 /**
@@ -201,9 +201,9 @@ function bbl_get_default_lang_code() {
  * @return string The language URL prefix set by the admin, e.g. "de"
  **/
 function bbl_get_default_lang_url_prefix() {
-	global $babble_languages;
-	$code = $babble_languages->get_default_lang_code();
-	return $babble_languages->get_url_prefix_from_code( $code );
+	global $bbl_languages;
+	$code = $bbl_languages->get_default_lang_code();
+	return $bbl_languages->get_url_prefix_from_code( $code );
 }
 
 ?>
