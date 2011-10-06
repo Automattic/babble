@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>Docs For Class Babble_Locale</title>
+			<link rel="stylesheet" href="../../media/stylesheet.css" />
+			<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+			<div class="page-body">			
+<h2 class="class-name">Class Babble_Locale</h2>
+
+<a name="sec-description"></a>
+<div class="info-box">
+	<div class="info-box-title">Description</div>
+	<div class="nav-bar">
+					<span class="disabled">Description</span> |
+													<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+						|											<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+						
+					</div>
+	<div class="info-box-body">
+        		<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Manages the locale currently set for the site.</p>
+	<ul class="tags">
+				<li><span class="field">since:</span> Alpha 1</li>
+			</ul>
+		<p class="notes">
+			Located in <a class="field" href="_class-locale.php.html">/class-locale.php</a> (line <span class="field">10</span>)
+		</p>
+		
+				
+		<pre></pre>
+	
+			</div>
+</div>
+
+
+
+	<a name="sec-var-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variable Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+						<span class="disabled">Vars</span> (<a href="#sec-vars">details</a>)
+							| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+								</div>
+		<div class="info-box-body">
+			<div class="var-summary">
+																																																																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$lang" title="details" class="var-name">$lang</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$lang_regex" title="details" class="var-name">$lang_regex</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">array</span>
+					<a href="#$lang_stack" title="details" class="var-name">$lang_stack</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">boolean</span>
+					<a href="#$no_recursion" title="details" class="var-name">$no_recursion</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$url_prefix" title="details" class="var-name">$url_prefix</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">int</span>
+					<a href="#$version" title="details" class="var-name">$version</a>
+				</div>
+											</div>
+		</div>
+	</div>
+
+	<a name="sec-method-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Method Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+																		<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+				 
+				|
+						<span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
+		</div>
+		<div class="info-box-body">			
+			<div class="method-summary">
+																																																																																																																																				
+												<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#__construct" title="details" class="method-name">__construct</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#admin_init" title="details" class="method-name">admin_init</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#admin_notices" title="details" class="method-name">admin_notices</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#get_lang" title="details" class="method-name">get_lang</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#get_request_string" title="details" class="method-name">get_request_string</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#home_url" title="details" class="method-name">home_url</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$url</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$path</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$orig_scheme</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$blog_id</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">array</span>
+										<a href="#internal_rewrite_rules_filter" title="details" class="method-name">internal_rewrite_rules_filter</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$rules</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$langs</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#maybe_update" title="details" class="method-name">maybe_update</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#mod_rewrite_rules" title="details" class="method-name">mod_rewrite_rules</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$rules</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#parse_request_early" title="details" class="method-name">parse_request_early</a>
+											(<span class="var-type">object</span>&nbsp;<span class="var-name">$wp</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">array</span>
+										<a href="#query_vars" title="details" class="method-name">query_vars</a>
+											(<span class="var-type">array</span>&nbsp;<span class="var-name">$query_vars</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#restore_lang" title="details" class="method-name">restore_lang</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#set_lang" title="details" class="method-name">set_lang</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$code</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#set_lang_from_prefix" title="details" class="method-name">set_lang_from_prefix</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$url_prefix</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#set_locale" title="details" class="method-name">set_locale</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$locale</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#switch_to_lang" title="details" class="method-name">switch_to_lang</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$lang</span>)
+									</div>
+								</div>
+		</div>
+	</div>		
+
+	<a name="sec-vars"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variables</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+										<a href="#sec-var-summary">Vars</a> (<span class="disabled">details</span>)
+						
+			
+										| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+					</div>
+		<div class="info-box-body">
+			<a name="var$lang" id="$lang"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$lang</span>
+						(line <span class="line-number">25</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The language for the current request.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$lang_regex" id="$lang_regex"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$lang_regex</span>
+			 = <span class="var-default"> '|^[^/]+|i'</span>			(line <span class="line-number">18</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">A regex to get the language code prefix from  a URL.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$lang_stack" id="$lang_stack"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">array</span>
+			<span class="var-name">$lang_stack</span>
+						(line <span class="line-number">46</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The languages that we've switched to, in order.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$no_recursion" id="$no_recursion"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">boolean</span>
+			<span class="var-name">$no_recursion</span>
+						(line <span class="line-number">39</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">A simple flag to stop infinite recursion in various places.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$url_prefix" id="$url_prefix"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$url_prefix</span>
+						(line <span class="line-number">32</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The URL prefix for the current request</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$version" id="$version"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">int</span>
+			<span class="var-name">$version</span>
+			 = <span class="var-default"> 1</span>			(line <span class="line-number">54</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The current version for purposes of rewrite rules, any  DB updates, cache busting, etc</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+						
+		</div>
+	</div>
+	
+	<a name="sec-methods"></a>
+	<div class="info-box">
+		<div class="info-box-title">Methods</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+															<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+																	<a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+						
+		</div>
+		<div class="info-box-body">
+			<A NAME='method_detail'></A>
+
+<a name="method__construct" id="__construct"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">Constructor __construct</span> (line <span class="line-number">61</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Setup any add_action or add_filter calls. Initiate properties.</p>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			__construct
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodadmin_init" id="admin_init"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">admin_init</span> (line <span class="line-number">76</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP admin_init action</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			admin_init
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodadmin_notices" id="admin_notices"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">admin_notices</span> (line <span class="line-number">87</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP admin_notices action to warn the admin  if the permalinks aren't pretty enough.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			admin_notices
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodget_lang" id="get_lang"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">get_lang</span> (line <span class="line-number">239</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Get the current lang for this class, which is also the  current lang in the Query Vars.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			get_lang
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodget_request_string" id="get_request_string"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">get_request_string</span> (line <span class="line-number">303</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Get the request string for the request, using code copied  straight from WP-&gt;parse_request.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The request</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			get_request_string
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodhome_url" id="home_url"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">home_url</span> (line <span class="line-number">217</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP home_url action</p>
+<p class="description"><p>Hackity hack: this function is attached with add_filter within  the query_vars filter.</p></p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The URL</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			home_url
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$url</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$path</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$orig_scheme</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$blog_id</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$url</span><span class="var-description">: The URL</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$path</span><span class="var-description">: The path</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$orig_scheme</span><span class="var-description">: The original scheme</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$blog_id</span><span class="var-description">: The ID of the blog</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodinternal_rewrite_rules_filter" id="internal_rewrite_rules_filter"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">internal_rewrite_rules_filter</span> (line <span class="line-number">122</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP pre_update_option_rewrite_rules filter to add  the prefix to the rewrite rule regexes to deal with the  virtual language dir.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> An array of language codes utilised for this site.</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">array</span>
+		<span class="method-name">
+			internal_rewrite_rules_filter
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$rules</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$langs</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$langs</span><span class="var-description">: The language codes</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$rules</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodmaybe_update" id="maybe_update"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">maybe_update</span> (line <span class="line-number">359</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Checks the DB structure is up to date.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			maybe_update
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodmod_rewrite_rules" id="mod_rewrite_rules"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">mod_rewrite_rules</span> (line <span class="line-number">99</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Ensure we keep the standard WP rewrite rules.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> A mod_rewrite rules block</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			mod_rewrite_rules
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$rules</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$rules</span><span class="var-description">: The mod_rewrite rules block generated by WP</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodparse_request_early" id="parse_request_early"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">parse_request_early</span> (line <span class="line-number">180</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP parse_request action</p>
+<p class="description"><p>FIXME: Should I be extending and replacing the WP class?</p></p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			parse_request_early
+		</span>
+					(<span class="var-type">object</span>&nbsp;<span class="var-name">$wp</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">object</span>
+				<span class="var-name">$wp</span><span class="var-description">: WP object, passed by reference (so no need to return)</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodquery_vars" id="query_vars"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">query_vars</span> (line <span class="line-number">200</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP query_vars filter to add various of our geo  search specific query_vars.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> An array of the public query vars</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">array</span>
+		<span class="method-name">
+			query_vars
+		</span>
+					(<span class="var-type">array</span>&nbsp;<span class="var-name">$query_vars</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$query_vars</span><span class="var-description">: An array of the public query vars</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodrestore_lang" id="restore_lang"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">restore_lang</span> (line <span class="line-number">263</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Restore the previous lang from the switched stack.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			restore_lang
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodset_lang" id="set_lang"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">set_lang</span> (line <span class="line-number">280</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Set the language code and URL prefix for any  subsequent requests.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			set_lang
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$code</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$code</span><span class="var-description">: A language code</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodset_lang_from_prefix" id="set_lang_from_prefix"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">set_lang_from_prefix</span> (line <span class="line-number">292</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Set the language for the URL prefix provided.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			set_lang_from_prefix
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$url_prefix</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$url_prefix</span><span class="var-description">: A URL prefix, e.g. &quot;de&quot;</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodset_locale" id="set_locale"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">set_locale</span> (line <span class="line-number">137</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP locale filter to switch locales whenever we gosh darned want.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The locale</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			set_locale
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$locale</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$locale</span><span class="var-description">: The locale</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodswitch_to_lang" id="switch_to_lang"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">switch_to_lang</span> (line <span class="line-number">249</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Set the current lang for this class, and in Query Vars.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			switch_to_lang
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$lang</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$lang</span><span class="var-description">: The language code to switch to</span>			</li>
+				</ul>
+		
+			
+	</div>
+						
+		</div>
+	</div>
+
+
+	<p class="notes" id="credit">
+		Documentation generated on Thu, 06 Oct 2011 16:44:19 +0100 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.3</a>
+	</p>
+	</div></body>
+</html>

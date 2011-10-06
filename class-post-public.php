@@ -3,8 +3,7 @@
 /**
  * Class for handling the public, content handling post types.
  *
- * @package WordPress
- * @subpackage Babble
+ * @package Babble
  * @since 0.1
  */
 class Babble_Post_Public {

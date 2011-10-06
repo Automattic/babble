@@ -1,3 +1,12 @@
+<?php 
+	/**
+	 * HTML template for the Available Languages screen in the admin area.
+	 *
+	 * @package Babble
+	 * @subpackage Templates
+	 * @since Alpha 1.1
+	 */
+ ?>
 <div class="wrap">
 <div id="icon-tools" class="icon32"><br></div><h2><?php _e( 'Available Languages', 'babble' ); ?></h2>
 

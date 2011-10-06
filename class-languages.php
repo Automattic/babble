@@ -3,8 +3,7 @@
 /**
  * Manages the languages available for the site.
  *
- * @package WordPress
- * @subpackage Babble
+ * @package Babble
  * @since Alpha 1.1
  */
 class Babble_Languages extends Babble_Plugin {
@@ -96,7 +95,6 @@ class Babble_Languages extends Babble_Plugin {
 	/**
 	 * Hooks the WP admin_menu action 
 	 *
-	 * @param  
 	 * @return void
 	 **/
 	public function admin_menu() {

@@ -54,7 +54,7 @@
  * An additional benefit is that it leads to code re-use, especially with regards to Ajax (i.e. 
  * your display code can be called from many locations)
  * 
- * @package WordPress plugin base library
+ * @package Babble
  * @author Simon Wheatley
  * @copyright Copyright (C) Simon Wheatley (except where noted)
  **/

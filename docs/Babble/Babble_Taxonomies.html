@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>Docs For Class Babble_Taxonomies</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+			<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+			<div class="page-body">			
+<h2 class="class-name">Class Babble_Taxonomies</h2>
+
+<a name="sec-description"></a>
+<div class="info-box">
+	<div class="info-box-title">Description</div>
+	<div class="nav-bar">
+					<span class="disabled">Description</span> |
+													<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+						|											<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+						
+					</div>
+	<div class="info-box-body">
+        		<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Manages the translations for taxonomies.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">copyright:</span> Copyright (C) Simon Wheatley (except where noted)</li>
+				<li><span class="field">since:</span> Alpha 1.2</li>
+			</ul>
+		<p class="notes">
+			Located in <a class="field" href="_class-taxonomy.php.html">/class-taxonomy.php</a> (line <span class="field">9</span>)
+		</p>
+		
+				
+		<pre><a href="../Babble/Babble_Plugin.html">Babble_Plugin</a>
+   |
+   --Babble_Taxonomies</pre>
+	
+			</div>
+</div>
+
+
+
+	<a name="sec-var-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variable Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+						<span class="disabled">Vars</span> (<a href="#sec-vars">details</a>)
+							| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+								</div>
+		<div class="info-box-body">
+			<div class="var-summary">
+																																																<div class="var-title">
+					<span class="var-type">array</span>
+					<a href="#$lang_map" title="details" class="var-name">$lang_map</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">boolean</span>
+					<a href="#$no_recursion" title="details" class="var-name">$no_recursion</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">array</span>
+					<a href="#$taxonomies" title="details" class="var-name">$taxonomies</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">int</span>
+					<a href="#$version" title="details" class="var-name">$version</a>
+				</div>
+											</div>
+		</div>
+	</div>
+
+	<a name="sec-method-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Method Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+																		<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+				 
+				|
+						<span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
+		</div>
+		<div class="info-box-body">			
+			<div class="method-summary">
+																																																												
+												<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#__construct" title="details" class="method-name">__construct</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">int</span>
+										<a href="#get_transid" title="details" class="method-name">get_transid</a>
+											(<span class="var-type">int</span>&nbsp;<span class="var-name">$target_term_id</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#init_early" title="details" class="method-name">init_early</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#parse_request" title="details" class="method-name">parse_request</a>
+											(<span class="var-type">object</span>&nbsp;<span class="var-name">$wp</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#registered_taxonomy" title="details" class="method-name">registered_taxonomy</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$taxonomy</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$object_type</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$args</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">int</span>
+										<a href="#set_transid" title="details" class="method-name">set_transid</a>
+											(<span class="var-type">int</span>&nbsp;<span class="var-name">$target_term_id</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$transid</span> = <span class="var-default">null</span>], <span class="var-type">int</span>&nbsp;<span class="var-name">$translation_group_id</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#translated_taxonomy" title="details" class="method-name">translated_taxonomy</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$origin_taxonomy</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$lang_code</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$taxonomy</span>)
+									</div>
+								</div>
+		</div>
+	</div>		
+
+	<a name="sec-vars"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variables</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+										<a href="#sec-var-summary">Vars</a> (<span class="disabled">details</span>)
+						
+			
+										| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+					</div>
+		<div class="info-box-body">
+			<a name="var$lang_map" id="$lang_map"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">array</span>
+			<span class="var-name">$lang_map</span>
+						(line <span class="line-number">38</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The languages represented by each of the shadow taxonomies.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$no_recursion" id="$no_recursion"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">boolean</span>
+			<span class="var-name">$no_recursion</span>
+						(line <span class="line-number">16</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">A simple flag to stop infinite recursion in various places.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$taxonomies" id="$taxonomies"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">array</span>
+			<span class="var-name">$taxonomies</span>
+						(line <span class="line-number">31</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The shadow taxonomies created to handle the translated terms.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$version" id="$version"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">int</span>
+			<span class="var-name">$version</span>
+			 = <span class="var-default"> 1</span>			(line <span class="line-number">24</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The current version for purposes of rewrite rules, any  DB updates, cache busting, etc</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+							<h4>Inherited Variables</h4>
+				<A NAME='inherited_vars'><!-- --></A>
+									<p>Inherited from <span class="classname"><a href="../Babble/Babble_Plugin.html">Babble_Plugin</a></span></p>
+					<blockquote>
+													<span class="var-title">
+								<span class="var-name"><a href="../Babble/Babble_Plugin.html#var$dir">Babble_Plugin::$dir</a></span><br>
+							</span>
+													<span class="var-title">
+								<span class="var-name"><a href="../Babble/Babble_Plugin.html#var$folder">Babble_Plugin::$folder</a></span><br>
+							</span>
+													<span class="var-title">
+								<span class="var-name"><a href="../Babble/Babble_Plugin.html#var$name">Babble_Plugin::$name</a></span><br>
+							</span>
+													<span class="var-title">
+								<span class="var-name"><a href="../Babble/Babble_Plugin.html#var$suffix">Babble_Plugin::$suffix</a></span><br>
+							</span>
+													<span class="var-title">
+								<span class="var-name"><a href="../Babble/Babble_Plugin.html#var$theme_activation_function">Babble_Plugin::$theme_activation_function</a></span><br>
+							</span>
+													<span class="var-title">
+								<span class="var-name"><a href="../Babble/Babble_Plugin.html#var$type">Babble_Plugin::$type</a></span><br>
+							</span>
+													<span class="var-title">
+								<span class="var-name"><a href="../Babble/Babble_Plugin.html#var$url">Babble_Plugin::$url</a></span><br>
+							</span>
+											</blockquote> 
+										
+		</div>
+	</div>
+	
+	<a name="sec-methods"></a>
+	<div class="info-box">
+		<div class="info-box-title">Methods</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+															<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+																	<a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+						
+		</div>
+		<div class="info-box-body">
+			<A NAME='method_detail'></A>
+
+<a name="method__construct" id="__construct"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">Constructor __construct</span> (line <span class="line-number">45</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Setup any add_action or add_filter calls. Initiate properties.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			__construct
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodget_transid" id="get_transid"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">get_transid</span> (line <span class="line-number">202</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Return the translation group ID (a term ID) that the given term ID  belongs to.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The transID the target term belongs to</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">int</span>
+		<span class="method-name">
+			get_transid
+		</span>
+					(<span class="var-type">int</span>&nbsp;<span class="var-name">$target_term_id</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$target_term_id</span><span class="var-description">: The term ID to find the translation group for</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodinit_early" id="init_early"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">init_early</span> (line <span class="line-number">60</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP init action early</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			init_early
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodparse_request" id="parse_request"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">parse_request</span> (line <span class="line-number">156</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP parse_request action</p>
+<p class="description"><p>FIXME: Should I be extending and replacing the WP class?</p></p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			parse_request
+		</span>
+					(<span class="var-type">object</span>&nbsp;<span class="var-name">$wp</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">object</span>
+				<span class="var-name">$wp</span><span class="var-description">: WP object, passed by reference (so no need to return)</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodregistered_taxonomy" id="registered_taxonomy"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">registered_taxonomy</span> (line <span class="line-number">91</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP registered_taxonomy action</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			registered_taxonomy
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$taxonomy</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$object_type</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$args</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$taxonomy</span><span class="var-description">: The name of the newly registered taxonomy</span>			</li>
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$args</span><span class="var-description">: The args passed to register the taxonomy</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$object_type</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodset_transid" id="set_transid"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">set_transid</span> (line <span class="line-number">215</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Set the translation group ID (a term ID) that the given term ID  belongs to.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The transID the target term belongs to</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">int</span>
+		<span class="method-name">
+			set_transid
+		</span>
+					(<span class="var-type">int</span>&nbsp;<span class="var-name">$target_term_id</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$transid</span> = <span class="var-default">null</span>], <span class="var-type">int</span>&nbsp;<span class="var-name">$translation_group_id</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$target_term_id</span><span class="var-description">: The term ID to set the translation group for</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$translation_group_id</span><span class="var-description">: The ID of the translation group to add this</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$transid</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodtranslated_taxonomy" id="translated_taxonomy"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">translated_taxonomy</span> (line <span class="line-number">188</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Provided with a taxonomy name, e.g. `post_tag`, and a language  code, will return the shadow taxonomy in that language.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The taxonomy name in that language</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			translated_taxonomy
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$origin_taxonomy</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$lang_code</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$taxonomy</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$taxonomy</span><span class="var-description">: The origin taxonomy</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$lang_code</span><span class="var-description">: The target language code</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$origin_taxonomy</span>			</li>
+				</ul>
+		
+			
+	</div>
+							<h4>Inherited Methods</h4>
+				<a name='inherited_methods'><!-- --></a>	
+									<!-- =========== Summary =========== -->
+					<p>Inherited From <span class="classname"><a href="../Babble/Babble_Plugin.html">Babble_Plugin</a></span></p>
+					<blockquote>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodadd_action">Babble_Plugin::add_action()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodadd_filter">Babble_Plugin::add_filter()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodadd_meta_box">Babble_Plugin::add_meta_box()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodadd_shortcode">Babble_Plugin::add_shortcode()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodajax_die">Babble_Plugin::ajax_die()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodcapture">Babble_Plugin::capture()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodcapture_admin">Babble_Plugin::capture_admin()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methoddelete_option">Babble_Plugin::delete_option()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methoddir">Babble_Plugin::dir()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodget_all_options">Babble_Plugin::get_all_options()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodget_option">Babble_Plugin::get_option()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodload_locale">Babble_Plugin::load_locale()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodlocate_template">Babble_Plugin::locate_template()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodregister_activation">Babble_Plugin::register_activation()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodregister_deactivation">Babble_Plugin::register_deactivation()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodremove_filter">Babble_Plugin::remove_filter()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodrender">Babble_Plugin::render()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodrender_admin">Babble_Plugin::render_admin()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodrender_admin_error">Babble_Plugin::render_admin_error()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodrender_admin_notice">Babble_Plugin::render_admin_notice()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodsetup">Babble_Plugin::setup()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodset_admin_error">Babble_Plugin::set_admin_error()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodset_admin_notice">Babble_Plugin::set_admin_notice()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodtheme_activation">Babble_Plugin::theme_activation()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodtruncate">Babble_Plugin::truncate()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodupdate_all_options">Babble_Plugin::update_all_options()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodupdate_option">Babble_Plugin::update_option()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#methodurl">Babble_Plugin::url()</a></span><br>
+													<span class="method-name"><a href="../Babble/Babble_Plugin.html#method_admin_notices">Babble_Plugin::_admin_notices()</a></span><br>
+											</blockquote>
+										
+		</div>
+	</div>
+
+
+	<p class="notes" id="credit">
+		Documentation generated on Thu, 06 Oct 2011 16:48:28 +0100 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.3</a>
+	</p>
+	</div></body>
+</html>

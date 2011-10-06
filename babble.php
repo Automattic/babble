@@ -27,6 +27,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+/**
+ * Main plugin information and requires.
+ *
+ * @package Babble
+ * @since Alpha 1
+ * @copyright Copyright (C) Simon Wheatley (except where noted)
+ */
+
 require_once( 'class-plugin.php' );
 require_once( 'class-locale.php' );
 require_once( 'class-languages.php' );

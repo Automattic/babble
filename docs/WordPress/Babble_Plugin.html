@@ -1,0 +1,1429 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>Docs For Class Babble_Plugin</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+			<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+			<div class="page-body">			
+<h2 class="class-name">Class Babble_Plugin</h2>
+
+<a name="sec-description"></a>
+<div class="info-box">
+	<div class="info-box-title">Description</div>
+	<div class="nav-bar">
+					<span class="disabled">Description</span> |
+							<a href="#sec-descendents">Descendents</a>
+			|											<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+						|											<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+						
+					</div>
+	<div class="info-box-body">
+        		<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Wraps up several useful functions for WordPress plugins and provides a method to separate  display HTML from PHP code.</p>
+<p class="description"><p>&lt;h4&gt;Display Rendering&lt;/h4&gt;</p><p>The class uses a similar technique to Ruby On Rails views, whereby the display HTML is kept  in a separate directory and file from the main code.  A display is 'rendered' (sent to the browser)  or 'captured' (returned to the calling function).</p><p>Template files are separated into two areas: admin and user.  Admin templates are only for display in  the WordPress admin interface, while user templates are typically for display on the site (although neither  of these are enforced).  All templates are PHP code, but are referred to without .php extension.</p><p>The reason for this separation is that one golden rule of plugin creation is that someone will  always want to change the formatting and style of your output.  Rather than forcing them to  modify the plugin (bad), or modify files within the plugin (equally bad), the class allows  user templates to be overridden with files contained within the theme.</p><p>An additional benefit is that it leads to code re-use, especially with regards to Ajax (i.e.  your display code can be called from many locations)</p></p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">copyright:</span> Copyright (C) Simon Wheatley (except where noted)</li>
+			</ul>
+		<p class="notes">
+			Located in <a class="field" href="_class-plugin.php.html">/class-plugin.php</a> (line <span class="field">61</span>)
+		</p>
+		
+				
+		<pre></pre>
+	
+			</div>
+</div>
+
+	<a name="sec-descendents"></a>
+	<div class="info-box">
+		<div class="info-box-title">Direct descendents</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+			<span class="disabled">Descendents</span>
+			|												<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+								|															<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+								</div>
+		<div class="info-box-body">
+			<table cellpadding="2" cellspacing="0" class="class-table">
+				<tr>
+					<th class="class-table-header">Class</th>
+					<th class="class-table-header">Description</th>
+				</tr>
+								<tr>
+					<td style="padding-right: 2em"><a href="../Babble/Babble_Languages.html">Babble_Languages</a></td>
+					<td>
+											Manages the languages available for the site.
+										</td>
+				</tr>
+								<tr>
+					<td style="padding-right: 2em"><a href="../Babble/Babble_Taxonomies.html">Babble_Taxonomies</a></td>
+					<td>
+											Manages the translations for taxonomies.
+										</td>
+				</tr>
+							</table>
+		</div>
+	</div>
+
+
+	<a name="sec-var-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variable Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+							<a href="#sec-descendents">Descendents</a> |
+						<span class="disabled">Vars</span> (<a href="#sec-vars">details</a>)
+							| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+								</div>
+		<div class="info-box-body">
+			<div class="var-summary">
+																																																																								<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$dir" title="details" class="var-name">$dir</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$folder" title="details" class="var-name">$folder</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$name" title="details" class="var-name">$name</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$suffix" title="details" class="var-name">$suffix</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$theme_activation_function" title="details" class="var-name">$theme_activation_function</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$type" title="details" class="var-name">$type</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">string</span>
+					<a href="#$url" title="details" class="var-name">$url</a>
+				</div>
+											</div>
+		</div>
+	</div>
+
+	<a name="sec-method-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Method Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+							<a href="#sec-descendents">Descendents</a> |
+																		<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+				 
+				|
+						<span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
+		</div>
+		<div class="info-box-body">			
+			<div class="method-summary">
+																																																																																																																																																																																																																																												
+												<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#add_action" title="details" class="method-name">add_action</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$action</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$priority</span> = <span class="var-default">10</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$accepted_args</span> = <span class="var-default">1</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#add_filter" title="details" class="method-name">add_filter</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$filter</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$priority</span> = <span class="var-default">10</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$accepted_args</span> = <span class="var-default">1</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$action</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#add_meta_box" title="details" class="method-name">add_meta_box</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$title</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>], <span class="var-type">int</span>&nbsp;<span class="var-name">$page</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$context</span> = <span class="var-default">'advanced'</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$priority</span> = <span class="var-default">'default'</span>], [<span class="var-type">mixed</span>&nbsp;<span class="var-name">$args</span> = <span class="var-default">null</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#add_shortcode" title="details" class="method-name">add_shortcode</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$tag</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">null</span>], <span class="var-type">callable</span>&nbsp;<span class="var-name">$func</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#ajax_die" title="details" class="method-name">ajax_die</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$msg</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#capture" title="details" class="method-name">capture</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$template_file</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$vars</span> = <span class="var-default">null</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$ug_name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$array</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#capture_admin" title="details" class="method-name">capture_admin</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$template_file</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$vars</span> = <span class="var-default">null</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$ug_name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$array</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">bool</span>
+										<a href="#delete_option" title="details" class="method-name">delete_option</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$key</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#dir" title="details" class="method-name">dir</a>
+											(<span class="var-type">$path</span>&nbsp;<span class="var-name">$path</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">mixed</span>
+										<a href="#get_all_options" title="details" class="method-name">get_all_options</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">mixed</span>
+										<a href="#get_option" title="details" class="method-name">get_option</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$key</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$value</span> = <span class="var-default">null</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#load_locale" title="details" class="method-name">load_locale</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#locate_template" title="details" class="method-name">locate_template</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$template_file</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#register_activation" title="details" class="method-name">register_activation</a>
+											([<span class="var-type">string</span>&nbsp;<span class="var-name">$pluginfile</span> = <span class="var-default">__FILE__</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#register_deactivation" title="details" class="method-name">register_deactivation</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$pluginfile</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#remove_filter" title="details" class="method-name">remove_filter</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$filter</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$priority</span> = <span class="var-default">10</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$accepted_args</span> = <span class="var-default">1</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$action</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#render" title="details" class="method-name">render</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$template_file</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$vars</span> = <span class="var-default">null</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#render_admin" title="details" class="method-name">render_admin</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$template_file</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$vars</span> = <span class="var-default">null</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#render_admin_error" title="details" class="method-name">render_admin_error</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$error</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#render_admin_notice" title="details" class="method-name">render_admin_notice</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$notice</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#setup" title="details" class="method-name">setup</a>
+											([<span class="var-type"></span>&nbsp;<span class="var-name">$name</span> = <span class="var-default">''</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$type</span> = <span class="var-default">null</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#set_admin_error" title="details" class="method-name">set_admin_error</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$msg</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#set_admin_notice" title="details" class="method-name">set_admin_notice</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$msg</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#theme_activation" title="details" class="method-name">theme_activation</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#truncate" title="details" class="method-name">truncate</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$str</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$num_words</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">mixed</span>
+										<a href="#update_all_options" title="details" class="method-name">update_all_options</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$value</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">bool</span>
+										<a href="#update_option" title="details" class="method-name">update_option</a>
+											(<span class="var-type">string</span>&nbsp;<span class="var-name">$key</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$value</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">string</span>
+										<a href="#url" title="details" class="method-name">url</a>
+											(<span class="var-type">$path</span>&nbsp;<span class="var-name">$path</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#_admin_notices" title="details" class="method-name">_admin_notices</a>
+										()
+									</div>
+								</div>
+		</div>
+	</div>		
+
+	<a name="sec-vars"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variables</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+							<a href="#sec-descendents">Descendents</a> |
+										<a href="#sec-var-summary">Vars</a> (<span class="disabled">details</span>)
+						
+			
+										| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+					</div>
+		<div class="info-box-body">
+			<a name="var$dir" id="$dir"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$dir</span>
+						(line <span class="line-number">75</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The filepath to the directory containing this plugin</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$folder" id="$folder"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$folder</span>
+						(line <span class="line-number">89</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The name of the directory containing this plugin, e.g. &quot;my-plugin&quot;</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$name" id="$name"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$name</span>
+						(line <span class="line-number">68</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The name of this plugin</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$suffix" id="$suffix"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$suffix</span>
+						(line <span class="line-number">96</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Useful for switching between debug and compressed scripts.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$theme_activation_function" id="$theme_activation_function"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$theme_activation_function</span>
+						(line <span class="line-number">110</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Note the name of the function to call when the theme is activated.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$type" id="$type"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$type</span>
+						(line <span class="line-number">103</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Records the type of this class, either 'plugin' or 'theme'.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+<a name="var$url" id="$url"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">string</span>
+			<span class="var-name">$url</span>
+						(line <span class="line-number">82</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">The URL for the directory containing this plugin</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+						
+		</div>
+	</div>
+	
+	<a name="sec-methods"></a>
+	<div class="info-box">
+		<div class="info-box-title">Methods</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+							<a href="#sec-descendents">Descendents</a> |
+															<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+																	<a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+						
+		</div>
+		<div class="info-box-body">
+			<A NAME='method_detail'></A>
+
+<a name="methodadd_action" id="add_action"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">add_action</span> (line <span class="line-number">190</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Register a WordPress action and map it back to the calling object</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			add_action
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$action</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$priority</span> = <span class="var-default">10</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$accepted_args</span> = <span class="var-default">1</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$action</span><span class="var-description">: Name of the action</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$function</span><span class="var-description">: Function name (optional)</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$priority</span><span class="var-description">: WordPress priority (optional)</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$accepted_args</span><span class="var-description">: Number of arguments the function accepts (optional)</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodadd_filter" id="add_filter"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">add_filter</span> (line <span class="line-number">207</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Register a WordPress filter and map it back to the calling object</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			add_filter
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$filter</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$priority</span> = <span class="var-default">10</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$accepted_args</span> = <span class="var-default">1</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$action</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$action</span><span class="var-description">: Name of the action</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$function</span><span class="var-description">: Function name (optional)</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$priority</span><span class="var-description">: WordPress priority (optional)</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$accepted_args</span><span class="var-description">: Number of arguments the function accepts (optional)</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$filter</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodadd_meta_box" id="add_meta_box"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">add_meta_box</span> (line <span class="line-number">463</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Register a WordPress meta box</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			add_meta_box
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$title</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>], <span class="var-type">int</span>&nbsp;<span class="var-name">$page</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$context</span> = <span class="var-default">'advanced'</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$priority</span> = <span class="var-default">'default'</span>], [<span class="var-type">mixed</span>&nbsp;<span class="var-name">$args</span> = <span class="var-default">null</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$id</span><span class="var-description">: ID for the box, also used as a function name if none is given</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$title</span><span class="var-description">: Title for the box</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$page</span><span class="var-description">: The type of edit page on which to show the box (post, page, link).</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$function</span><span class="var-description">: Function name (optional)</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$context</span><span class="var-description">: e.g. 'advanced' or 'core' (optional)</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$priority</span><span class="var-description">: Priority, rough effect on the ordering (optional)</span>			</li>
+					<li>
+				<span class="var-type">mixed</span>
+				<span class="var-name">$args</span><span class="var-description">: Some arguments to pass to the callback function as part of a larger object (optional)</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodadd_shortcode" id="add_shortcode"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">add_shortcode</span> (line <span class="line-number">479</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Add hook for shortcode tag.</p>
+<p class="description"><p>There can only be one hook for each shortcode. Which means that if another  plugin has a similar shortcode, it will override yours or yours will override  theirs depending on which order the plugins are included and/or ran.</p></p>
+	<ul class="tags">
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			add_shortcode
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$tag</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">null</span>], <span class="var-type">callable</span>&nbsp;<span class="var-name">$func</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$tag</span><span class="var-description">: Shortcode tag to be searched in post content.</span>			</li>
+					<li>
+				<span class="var-type">callable</span>
+				<span class="var-name">$func</span><span class="var-description">: Hook to run when shortcode is found.</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$function</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodajax_die" id="ajax_die"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">ajax_die</span> (line <span class="line-number">574</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Echoes out some JSON indicating that stuff has gone wrong.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			ajax_die
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$msg</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$msg</span><span class="var-description">: The error message</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodcapture" id="capture"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">capture</span> (line <span class="line-number">325</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Returns a section of user display code, returning the rendered markup.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			capture
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$template_file</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$vars</span> = <span class="var-default">null</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$ug_name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$array</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$ug_name</span><span class="var-description">: Name of the admin file (without extension)</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$array</span><span class="var-description">: Array of variable name=&gt;value that is available to the display code (optional)</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$template_file</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$vars</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodcapture_admin" id="capture_admin"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">capture_admin</span> (line <span class="line-number">341</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Returns a section of user display code, returning the rendered markup.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			capture_admin
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$template_file</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$vars</span> = <span class="var-default">null</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$ug_name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$array</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$ug_name</span><span class="var-description">: Name of the admin file (without extension)</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$array</span><span class="var-description">: Array of variable name=&gt;value that is available to the display code (optional)</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$template_file</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$vars</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methoddelete_option" id="delete_option"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">delete_option</span> (line <span class="line-number">560</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Deletes the array index on an option named as per this plugin.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> False if option was not updated and true if option was updated.</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">bool</span>
+		<span class="method-name">
+			delete_option
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$key</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$key</span><span class="var-description">: A string</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methoddir" id="dir"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">dir</span> (line <span class="line-number">490</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Returns the filesystem path for a file/dir within this plugin.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Filesystem path</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			dir
+		</span>
+					(<span class="var-type">$path</span>&nbsp;<span class="var-name">$path</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$path</span>
+				<span class="var-name">$path</span><span class="var-description">: string The path within this plugin, e.g. '/js/clever-fx.js'</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodget_all_options" id="get_all_options"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">get_all_options</span> (line <span class="line-number">511</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Gets the value of an option named as per this plugin.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Whatever</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">mixed</span>
+		<span class="method-name">
+			get_all_options
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodget_option" id="get_option"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">get_option</span> (line <span class="line-number">532</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Gets the value from an array index on an option named as per this plugin.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Whatever</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">mixed</span>
+		<span class="method-name">
+			get_option
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$key</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$value</span> = <span class="var-default">null</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$key</span><span class="var-description">: A string</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$value</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodload_locale" id="load_locale"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">load_locale</span> (line <span class="line-number">170</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hook called to change the locale directory.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			load_locale
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodlocate_template" id="locate_template"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">locate_template</span> (line <span class="line-number">430</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Takes a filename and attempts to find that in the designated plugin templates  folder in the theme (defaults to main theme directory, but uses a custom filter  to allow theme devs to specify a sub-folder for all plugin template files using  this system).</p>
+<p class="description"><p>Searches in the STYLESHEETPATH before TEMPLATEPATH to cope with themes which  inherit from a parent theme by just overloading one file.</p></p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The path to the template file to use</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			locate_template
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$template_file</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$template_file</span><span class="var-description">: A template filename to search for</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodregister_activation" id="register_activation"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">register_activation</span> (line <span class="line-number">235</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Special activation function that takes into account the plugin directory</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			register_activation
+		</span>
+					([<span class="var-type">string</span>&nbsp;<span class="var-name">$pluginfile</span> = <span class="var-default">__FILE__</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$pluginfile</span><span class="var-description">: The plugin file location (i.e. __FILE__)</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$function</span><span class="var-description">: Optional function name, or default to 'activate'</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodregister_deactivation" id="register_deactivation"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">register_deactivation</span> (line <span class="line-number">269</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Special deactivation function that takes into account the plugin directory</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			register_deactivation
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$pluginfile</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$pluginfile</span><span class="var-description">: The plugin file location (i.e. __FILE__)</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$function</span><span class="var-description">: Optional function name, or default to 'deactivate'</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodremove_filter" id="remove_filter"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">remove_filter</span> (line <span class="line-number">222</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">De-register a WordPress filter and map it back to the calling object</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> © John Godley</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			remove_filter
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$filter</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$function</span> = <span class="var-default">''</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$priority</span> = <span class="var-default">10</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$accepted_args</span> = <span class="var-default">1</span>], <span class="var-type">string</span>&nbsp;<span class="var-name">$action</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$action</span><span class="var-description">: Name of the action</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$function</span><span class="var-description">: Function name (optional)</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$priority</span><span class="var-description">: WordPress priority (optional)</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$accepted_args</span><span class="var-description">: Number of arguments the function accepts (optional)</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$filter</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodrender" id="render"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">render</span> (line <span class="line-number">280</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Renders a template, looking first for the template file in the theme directory  and afterwards in this plugin's /theme/ directory.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			render
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$template_file</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$vars</span> = <span class="var-default">null</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$template_file</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$vars</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodrender_admin" id="render_admin"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">render_admin</span> (line <span class="line-number">302</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Renders an admin template from this plugin's /templates-admin/ directory.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			render_admin
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$template_file</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$vars</span> = <span class="var-default">null</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$template_file</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$vars</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodrender_admin_error" id="render_admin_error"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">render_admin_error</span> (line <span class="line-number">387</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Echoes some HTML for an admin error.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			render_admin_error
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$error</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$error</span><span class="var-description">: The error</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodrender_admin_notice" id="render_admin_notice"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">render_admin_notice</span> (line <span class="line-number">376</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Echoes some HTML for an admin notice.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			render_admin_notice
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$notice</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$notice</span><span class="var-description">: The notice</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodsetup" id="setup"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">setup</span> (line <span class="line-number">118</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Initiate!</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			setup
+		</span>
+					([<span class="var-type"></span>&nbsp;<span class="var-name">$name</span> = <span class="var-default">''</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$type</span> = <span class="var-default">null</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$name</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$type</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodset_admin_error" id="set_admin_error"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">set_admin_error</span> (line <span class="line-number">411</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Sets a string as an admin error.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			set_admin_error
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$msg</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$msg</span><span class="var-description">: A *localised* admin error message</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodset_admin_notice" id="set_admin_notice"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">set_admin_notice</span> (line <span class="line-number">398</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Sets a string as an admin notice.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			set_admin_notice
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$msg</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$msg</span><span class="var-description">: A *localised* admin notice message</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodtheme_activation" id="theme_activation"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">theme_activation</span> (line <span class="line-number">251</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hack to catch theme activation. We hook the load-themes.php action, look for the  &quot;activated&quot; GET param and make a big fat assumption if we find it.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			theme_activation
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodtruncate" id="truncate"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">truncate</span> (line <span class="line-number">589</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Truncates a string in a human friendly way.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The truncated string</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			truncate
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$str</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$num_words</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$str</span><span class="var-description">: The string to truncate</span>			</li>
+					<li>
+				<span class="var-type">int</span>
+				<span class="var-name">$num_words</span><span class="var-description">: The number of words to truncate to</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodupdate_all_options" id="update_all_options"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">update_all_options</span> (line <span class="line-number">521</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Sets the value of an option named as per this plugin.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Whatever</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">mixed</span>
+		<span class="method-name">
+			update_all_options
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$value</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$value</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodupdate_option" id="update_option"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">update_option</span> (line <span class="line-number">547</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Sets the value on an array index on an option named as per this plugin.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> False if option was not updated and true if option was updated.</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">bool</span>
+		<span class="method-name">
+			update_option
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$key</span>, <span class="var-type">mixed</span>&nbsp;<span class="var-name">$value</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$key</span><span class="var-description">: A string</span>			</li>
+					<li>
+				<span class="var-type">mixed</span>
+				<span class="var-name">$value</span><span class="var-description">: Whatever</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodurl" id="url"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">url</span> (line <span class="line-number">501</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Returns the URL for for a file/dir within this plugin.</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> URL</li>
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> protected</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			url
+		</span>
+					(<span class="var-type">$path</span>&nbsp;<span class="var-name">$path</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$path</span>
+				<span class="var-name">$path</span><span class="var-description">: string The path within this plugin, e.g. '/js/clever-fx.js'</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="method_admin_notices" id="_admin_notices"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">_admin_notices</span> (line <span class="line-number">356</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Hooks the WP admin_notices action to render any notices  that have been set with the set_admin_notice method.</p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Simon Wheatley</li>
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			_admin_notices
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+						
+		</div>
+	</div>
+
+
+	<p class="notes" id="credit">
+		Documentation generated on Thu, 06 Oct 2011 16:46:23 +0100 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.3</a>
+	</p>
+	</div></body>
+</html>

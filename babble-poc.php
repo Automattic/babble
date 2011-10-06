@@ -18,6 +18,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+/**
+ * Rough proof of concept functions. Nothing of any permanence.
+ *
+ * @package Babble
+ * @subpackage Proof of Concept
+ * @since Alpha 0
+ */
+
 require_once( 'api.php' );
 
 // @FIXME: Move into class property when creating the actual plugin
@@ -541,7 +549,7 @@ function sil_set_transid( $post, $transid = false ) {
 		$transid_name = 'post_transid_' . uniqid();
 		$result = wp_insert_term( $transid_name, 'post_translation', array() );
 		if ( is_wp_error( $result ) )
-			error_log( "Problem creating a new TransID: " . print_r( $result, true ) );
+			error_log( "Problem creating a new Post TransID: " . print_r( $result, true ) );
 		else
 			$transid = $result[ 'term_id' ];
 	}
