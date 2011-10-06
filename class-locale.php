@@ -3,8 +3,7 @@
 /**
  * Manages the locale currently set for the site.
  *
- * @package WordPress
- * @subpackage Babble
+ * @package Babble
  * @since Alpha 1
  */
 class Babble_Locale {
@@ -153,7 +152,6 @@ class Babble_Locale {
 			// @FIXME: Should probably check the available languages here
 			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo, this may mean holding $locale (e.g. "de_DE") and $lang (e.g. "de") separately
 
-			// error_log( "Locale (before): $locale for request (" . $this->get_request_string() . ")" );
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
 				$this->set_lang_from_prefix( $matches[ 0 ] );
 		}
@@ -292,7 +290,7 @@ class Babble_Locale {
 	 **/
 	protected function set_lang_from_prefix( $url_prefix ) {
 		global $bbl_languages;
-		$this->set_lang( $bbl_languages->get_code_from_url_prefix( $url_prefix ) );
+		$this->set_lang( bbl_get_lang_from_prefix( $url_prefix ) );
 	}
 
 	/**

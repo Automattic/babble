@@ -309,7 +309,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		if ( is_admin() ) {
 			if ( $editing_post ) {
 				if ( isset( $translations[ $alt_lang->code ]->ID ) ) { // Translation exists
-					$href = add_query_arg( array( 'lang' => $alt_lang, 'post' => $translations[ $alt_lang->code ]->ID ) );
+					$href = add_query_arg( array( 'lang' => $alt_lang->code, 'post' => $translations[ $alt_lang->code ]->ID ) );
 				} else { // Translation does not exist
 					$default_post = $translations[ bbl_get_default_lang_code() ];
 					$href = sil_get_new_translation_url( $default_post, $alt_lang->code );
@@ -358,17 +358,17 @@ add_action( 'admin_bar_menu', 'sil_admin_bar_menu', 100 );
 function sil_post_type_link( $post_link, $post, $leavename ) {
 	global $sil_post_types, $sil_lang_map, $wp_rewrite;
 
-	if ( 'post' != $post->post_type && 'page' != $post->post_type && ! isset( $sil_post_types[ $post->post_type ] ) )
+	// Regular ol' post types, and other types added by other plugins, etc
+	if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $sil_post_types[ $post->post_type ] ) )
 		return $post_link;
 
-	if ( 'post' == $post->post_type || 'page' == $post->post_type ) { // Deal with regular ol' posts & pages
-		$base_post_type = $post->post_type;
-	} else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) { // Deal with shadow post types
+	// Deal with our shadow post types
+	if ( ! ( $base_post_type = $sil_post_types[ $post->post_type ] ) ) 
 		return $post_link;
-	}
 
 	// Deal with post_types shadowing the post post_type
 	if ( 'post' == $base_post_type ) {
+		// @FIXME: Probably move this into another function
 		// @FIXME: Is there any way I can provide an appropriate permastruct so I can avoid having to copy all this code, with the associated maintenance headaches?
 		// START copying from get_permalink function
 		// N.B. The $permalink var is replaced with $post_link

@@ -3,9 +3,8 @@
 /**
  * Translations and languages API.
  *
- * @package WordPress
- * @subpackage Languages
- * @since ???
+ * @package Babble
+ * @since Alpha 1
  */
 
 /*  Copyright 2011 Simon Wheatley
@@ -204,6 +203,17 @@ function bbl_get_default_lang_url_prefix() {
 	global $bbl_languages;
 	$code = $bbl_languages->get_default_lang_code();
 	return $bbl_languages->get_url_prefix_from_code( $code );
+}
+
+/**
+ * Returns the language code for the provided URL prefix.
+ *
+ * @param string $url_prefix The URL prefix to find the language code for 
+ * @return string The language code, or false
+ **/
+function bbl_get_lang_from_prefix( $url_prefix ) {
+	global $bbl_languages;
+	return $bbl_languages->get_code_from_url_prefix( $url_prefix );
 }
 
 ?>
