@@ -224,7 +224,6 @@ class Babble_Locale {
 		else
 			$base_url = '';
 		$path = ltrim( $path, '/' );
-		error_log( "Lang $this->lang and prefix $this->url_prefix" );
 		$url = trailingslashit( $base_url ) . $this->url_prefix . '/' . $path;
 		return $url;
 	}

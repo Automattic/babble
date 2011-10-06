@@ -100,10 +100,8 @@ function sil_registered_post_type( $post_type, $args ) {
 	if ( ! $sil_post_types )
 		$sil_post_types = array();
 	
-	// Lose the default language as the existing post_types are English
-	// @FIXME: Need to specify the default language somewhere
-	$default_lang = array_search( bbl_get_default_lang_code(), $langs );
-	unset( $langs[ $default_lang ] );
+	// Lose the default language as any existing post types are in that language
+	unset( $langs[ bbl_get_default_lang_url_prefix() ] );
 	
 	// $args is an object at this point, but register_post_type needs an array
 	$args = get_object_vars( $args );
@@ -129,7 +127,7 @@ function sil_registered_post_type( $post_type, $args ) {
 		'custom-fields'
 	);
 	
-	$args[ 'show_ui' ] = false;
+	$args[ 'show_ui' ] = true;
 
 	foreach ( $langs as $lang ) {
 		$new_args = $args;
@@ -138,10 +136,10 @@ function sil_registered_post_type( $post_type, $args ) {
 		// I would prefer to keep the post_type human readable, as human devs and sysadmins always 
 		// end up needing to read this kind of thing.
 		// Perhaps we need to create some kind of map like (post_type) + (lang) => (shadow translated post_type)
-		$new_post_type = strtolower( $post_type . "_{$lang->code}" );
+		$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
 	
-		// foreach ( $new_args[ 'labels' ] as & $label )
-		// 	$label = "$label ($lang)";
+		foreach ( $new_args[ 'labels' ] as & $label )
+			$label = "$label ({$lang->code})";
 
 		$result = register_post_type( $new_post_type, $new_args );
 		if ( is_wp_error( $result ) ) {
@@ -160,66 +158,6 @@ function sil_registered_post_type( $post_type, $args ) {
 	$sil_syncing = false;
 }
 add_action( 'registered_post_type', 'sil_registered_post_type', null, 2 );
-
-/**
- * Hooks the WP registered_taxonomy action 
- *
- * @param string $taxonomy The name of the newly registered taxonomy 
- * @param array $args The args passed to register the taxonomy
- * @return void
- * @access private
- **/
-function sil_registered_taxonomy( $taxonomy, $object_type, $args ) {
-	// @FIXME: When we turn this into classes we can avoid a global $sil_syncing here
-	global $sil_syncing;
-
-	// Don't bother with non-public taxonomies for now
-	// If we remove this, we need to avoid dealing with post_translation and term_translation
-	if ( ! $args[ 'public' ] || 'post_translation' == $taxonomy || 'term_translation' == $taxonomy )
-		return;
-	
-	if ( $sil_syncing )
-		return;
-	$sil_syncing = true;
-	
-	// @FIXME: Not sure this is the best way to specify languages
-	$langs = apply_filters( 'sil_languages', array( 'en' ) );
-	
-	// Lose the default language as the existing taxonomies are English
-	// @FIXME: Need to specify the default language somewhere
-	$default_lang = array_search( bbl_get_default_lang_code(), $langs );
-	unset( $langs[ $default_lang ] );
-	
-	// @FIXME: Is it reckless to convert ALL object instances in $args to an array?
-	foreach ( $args as $key => & $arg ) {
-		if ( is_object( $arg ) )
-			$arg = get_object_vars( $arg );
-		// Don't set any args reserved for built-in post_types
-		if ( '_' == substr( $key, 0, 1 ) )
-			unset( $args[ $key ] );
-	}
-
-	$args[ 'rewrite' ] = false;
-	unset( $args[ 'name' ] );
-	unset( $args[ 'query_var' ] );
-
-	foreach ( $langs as $lang ) {
-		$new_args = $args;
-		
-		// @FIXME: Note currently we are in danger of a taxonomy name being longer than 32 chars
-		// Perhaps we need to create some kind of map like (taxonomy) + (lang) => (shadow translated taxonomy)
-		$new_taxonomy = $taxonomy . "_$lang";
-	
-		foreach ( $new_args[ 'labels' ] as & $label )
-			$label = "$label ($lang)";
-		
-		// error_log( "Register $new_taxonomy for " . implode( ', ', $object_type ) . " with args: " . print_r( $new_args, true ) );
-		register_taxonomy( $new_taxonomy, $object_type, $new_args );
-	}
-	
-	$sil_syncing = false;
-}
-// add_action( 'registered_taxonomy', 'sil_registered_taxonomy', null, 3 );
 
 /**
  * Hooks the WP parse_request action 
@@ -420,8 +358,6 @@ function sil_post_type_link( $post_link, $post, $leavename ) {
 	} else if ( ! $base_post_type = $sil_post_types[ $post->post_type ] ) { // Deal with shadow post types
 		return $post_link;
 	}
-
-	error_log( "Base post type: $base_post_type ($post->post_title)" );
 
 	// Deal with post_types shadowing the post post_type
 	if ( 'post' == $base_post_type ) {
