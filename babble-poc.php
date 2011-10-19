@@ -246,7 +246,7 @@ function sil_the_posts( $posts ) {
 			sil_set_transid( $post );
 	}
 	if ( ! $subs_index )
-		return;
+		return $posts;
 	$subs_posts = get_posts( array( 'include' => array_values( $subs_index ), 'post_status' => 'publish' ) );
 	// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
 	// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered
