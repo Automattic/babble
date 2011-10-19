@@ -159,7 +159,7 @@ function sil_get_new_translation_url( $default_post, $lang ) {
  * 		object(stdClass)
  * 			public 'names' => string 'Arabic'
  * 			public 'code' => string 'ar'
- * 			public 'code_short' => string 'ar'
+ * 			public 'url_prefix' => string 'ar'
  * 			public 'text_direction' => string 'rtl'
  * 
  * @uses Babble_Languages::get_active_langs to do the actual work

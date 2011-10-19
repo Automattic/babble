@@ -129,7 +129,7 @@ class Babble_Languages extends Babble_Plugin {
 		foreach ( $langs as $code => & $lang ) {
 			$lang->url_prefix = ( @ isset( $_POST[ 'url_prefix_' . $code ] ) ) ? $_POST[ "url_prefix_$code" ] : @ $lang->url_prefix;
 			if ( ! $lang->url_prefix )
-				$lang->url_prefix = $lang->code_short;
+				$lang->url_prefix = $lang->url_prefix;
 			$lang->text_direction = ( @ isset( $_POST[ "text_direction_$code" ] ) ) ? $_POST[ "text_direction_$code" ] : @ $lang->text_direction;
 			// This line must come after the text direction value is set
 			$lang->input_lang_class = ( 'rtl' == $lang->text_direction ) ? 'lang-rtl' : 'lang-ltr' ;
@@ -161,7 +161,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * 		object(stdClass)
 	 * 			public 'names' => string 'Arabic'
 	 * 			public 'code' => string 'ar'
-	 * 			public 'code_short' => string 'ar'
+	 * 			public 'url_prefix' => string 'ar'
 	 * 			public 'text_direction' => string 'rtl'
 	 * 
 	 * @return array An array of Babble language objects
@@ -288,6 +288,7 @@ class Babble_Languages extends Babble_Plugin {
 				$url_prefixes[ $lang_pref->url_prefix ] = $code;
 			}
 			$lang_prefs[ $code ] = $lang_pref;
+			error_log( "Lang: " . print_r( $lang, true ) );
 		}
 		
 		// Now save the active languages
@@ -331,7 +332,7 @@ class Babble_Languages extends Babble_Plugin {
   	 * 		object(stdClass)
   	 * 			public 'names' => string 'Arabic'
   	 * 			public 'code' => string 'ar'
-  	 * 			public 'code_short' => string 'ar'
+  	 * 			public 'url_prefix' => string 'ar'
   	 * 			public 'text_direction' => string 'rtl'
  	 * 
 	 * @return void
@@ -344,7 +345,7 @@ class Babble_Languages extends Babble_Plugin {
 			$lang = array(
 				'names' => $this->format_code_lang( $matches[ 2 ] ),
 				'code' => $matches[ 1 ],
-				'code_short' => $matches[ 2 ],
+				'url_prefix' => $matches[ 2 ],
 				'text_direction' => $this->is_rtl( $matches[ 1 ] ),
 			);
 			// Cast to an object, in case we want to start using actual classes
@@ -355,7 +356,7 @@ class Babble_Languages extends Babble_Plugin {
 		$en = new stdClass;
 		$en->names = 'English; US';
 		$en->code = 'en_US';
-		$en->code_short = 'en';
+		$en->url_prefix = 'en';
 		$en->text_direction = 'ltr';
 		$this->available_langs[ 'en_US' ] = $en;
 		ksort( $this->available_langs );
