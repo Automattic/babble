@@ -291,17 +291,26 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 		'meta' => false
 	);
 	$wp_admin_bar->add_menu( $args );
+
+	$screen = get_current_screen();
 	
 	// Create a handy flag for whether we're editing a post
 	$editing_post = false;
-	if ( is_admin() ) {
-		$screen = get_current_screen();
+	if ( is_admin() )
 		$editing_post = ( is_admin() && 'post' == $screen->base );
-	}
+	
+	// Create a handy flag for whether we're editing a term
+	$editing_term = false;
+	if ( is_admin() )
+		$editing_term = ( is_admin() && 'edit-tags' == $screen->base );
 	
 	if ( is_singular() || is_single() || $editing_post ) {
 		// error_log( "Get translations" );
 		$translations = bbl_get_post_translations( get_the_ID() );
+	} else if ( $editing_term ) {
+		error_log( "Get term translations" );
+		$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $screen->taxonomy );
+		$translations = bbl_get_term_translations( $term->term_id );
 	}
 
 	foreach ( $alt_langs as $i => & $alt_lang ) {
@@ -312,7 +321,15 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 					$href = add_query_arg( array( 'lang' => $alt_lang->code, 'post' => $translations[ $alt_lang->code ]->ID ) );
 				} else { // Translation does not exist
 					$default_post = $translations[ bbl_get_default_lang_code() ];
-					$href = sil_get_new_translation_url( $default_post, $alt_lang->code );
+					$href = bbl_get_new_post_translation_url( $default_post, $alt_lang->code );
+					$title = sprintf( __( 'Create for %s', 'sil' ), $alt_lang->names );
+				}
+			} else if ( $editing_term ) {
+				if ( isset( $translations[ $alt_lang->code ]->ID ) ) { // Translation exists
+					$href = add_query_arg( array( 'lang' => $alt_lang->code, 'post' => $translations[ $alt_lang->code ]->ID ) );
+				} else { // Translation does not exist
+					$default_term = $translations[ bbl_get_default_lang_code() ];
+					$href = bbl_get_new_term_translation_url( $default_term, $alt_lang->code, $screen->taxonomy );
 					$title = sprintf( __( 'Create for %s', 'sil' ), $alt_lang->names );
 				}
 			} else {
@@ -324,7 +341,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 			} else { // Translation does not exist
 				// Generate a URL to create the translation
 				$default_post = $translations[ bbl_get_default_lang_code() ];
-				$href = sil_get_new_translation_url( $default_post, $alt_lang->code );
+				$href = bbl_get_new_post_translation_url( $default_post, $alt_lang->code );
 				$title = sprintf( __( 'Create for %s', 'sil' ), $alt_lang->names );
 			}
 			// error_log( "Lang ($lang) HREF ($href)" );
@@ -520,7 +537,7 @@ function sil_wp_insert_post( $post_id, $post ) {
 	$sil_syncing = true;
 
 	// Get any approved term ID for the transid for any new translation
-	$transid = (int) @ $_GET[ 'sil_transid' ];
+	$transid = (int) @ $_GET[ 'bbl_transid' ];
 	sil_set_transid( $post, $transid );
 
 	// Ensure the post is in the correct shadow post_type

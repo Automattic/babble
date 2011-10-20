@@ -176,8 +176,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function edit_term_form_fields( $term ) {
 		$screen = get_current_screen();
 		$taxonomy = $screen->taxonomy;
-		$transids = (array) wp_get_object_terms( $term->term_id, 'term_translation' );
-		$transid = array_pop( $transids );
+		$transid = $this->get_transid( $term->term_id );
 		?>
 			<tr>
 				<th>
@@ -185,7 +184,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				</th>
 				<td>
 					<?php wp_nonce_field( 'bbl_edit_' . $term->term_id, '_bbl_nonce' ); ?>
-					<input type="text" name="bbl_term_translation" value="<?php echo esc_attr( $transid->term_id ); ?>" id="bbl_term_translation">
+					<input type="text" name="bbl_term_translation" value="<?php echo esc_attr( $transid ); ?>" id="bbl_term_translation">
 					<?php var_dump( $transid ); ?>
 				</td>
 			</tr>
@@ -296,7 +295,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		error_log( "QVs 1: " . print_r( $wp->query_vars, true ) );
-		// exit;
 	}
 	
 	// CALLBACKS
@@ -316,6 +314,60 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function translated_taxonomy( $origin_taxonomy, $lang_code ) {
 		return strtolower( "{$origin_taxonomy}_{$lang_code}" );
 	}
+
+	/**
+	 * Get the terms which are the translations for the provided 
+	 * post ID. N.B. The returned array of term objects (and false 
+	 * values) will include the post for the post ID passed.
+	 * 
+	 * @FIXME: Should I filter out the term ID passed?
+	 *
+	 * @param int|object $term Either a WP Term object, or a term_id 
+	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
+	 **/
+	public function get_term_translations( $term, $taxonomy = null ) {
+		var_dump( $term );
+		// var_dump( $this->lang_map );
+		$langs = bbl_get_active_langs();
+		$translations = array();
+		foreach ( $langs as $lang )
+			$translations[ $lang->code ] = false;
+		// var_dump( $term );
+		$transid = $this->get_transid( $term->term_id );
+		// var_dump( $transid );
+		$translations[ bbl_get_current_lang()->code ] = $term;
+		// var_dump( $translations );
+		return $translations;
+	}
+
+	/**
+	 * Return the admin URL to create a new translation for a term in a
+	 * particular language.
+	 *
+	 * @param int|object $default_term The term in the default language to create a new translation for, either WP Post object or post ID
+	 * @param string $lang The language code 
+	 * @return string The admin URL to create the new translation
+	 * @access public
+	 **/
+	function get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
+		if ( ! is_int( $default_term ) && is_null( $taxonomy ) )
+			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
+		else if ( is_int( $default_term ) )
+			$default_term = get_term( $default_term, $taxonomy );
+		if ( is_wp_error( $default_term ) )
+			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
+
+		var_dump( $default_term );
+		// $default_term = 
+		bbl_switch_to_lang( $lang );
+		var_dump( $default_term );
+		$transid = $this->get_transid( $default_term );
+		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
+		$url = add_query_arg( array( 'post_type' => $default_term->taxonomy, 'bbl_transid' => $transid, 'lang' => $lang ), $url );
+		bbl_restore_lang();
+		return $url;
+	}
+	
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
@@ -354,6 +406,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 }
 
-$bbl_Taxonomies = new Babble_Taxonomies();
+$bbl_taxonomies = new Babble_Taxonomies();
 
 ?>

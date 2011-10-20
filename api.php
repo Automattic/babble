@@ -101,6 +101,22 @@ function bbl_get_post_translations( $post ) {
 }
 
 /**
+ * Get the terms which are the translations for the provided 
+ * post ID. N.B. The returned array of term objects (and false 
+ * values) will include the post for the post ID passed.
+ * 
+ * @FIXME: Should I filter out the term ID passed?
+ *
+ * @param int|object $term Either a WP Term object, or a term_id 
+ * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
+ * @access public
+ **/
+function bbl_get_term_translations( $term, $taxonomy = null ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_term_translations( $term, $taxonomy );
+}
+
+/**
  * Returns the post ID for the post in the default language from which 
  * this post was translated.
  *
@@ -134,7 +150,7 @@ function bbl_get_post_lang( $post ) {
 }
 
 /**
- * Return the admin URL to create a new translation in a
+ * Return the admin URL to create a new translation for a post in a
  * particular language.
  *
  * @param int|object $default_post The post in the default language to create a new translation for, either WP Post object or post ID
@@ -142,14 +158,29 @@ function bbl_get_post_lang( $post ) {
  * @return string The admin URL to create the new translation
  * @access public
  **/
-function sil_get_new_translation_url( $default_post, $lang ) {
+function bbl_get_new_post_translation_url( $default_post, $lang ) {
 	$default_post = get_post( $default_post );
 	bbl_switch_to_lang( $lang );
 	$transid = sil_get_transid( $default_post );
 	$url = admin_url( '/post-new.php' );
-	$url = add_query_arg( array( 'post_type' => $default_post->post_type, 'sil_transid' => $transid, 'lang' => $lang ), $url );
+	$url = add_query_arg( array( 'post_type' => $default_post->post_type, 'bbl_transid' => $transid, 'lang' => $lang ), $url );
 	bbl_restore_lang();
 	return $url;
+}
+
+/**
+ * Return the admin URL to create a new translation for a term in a
+ * particular language.
+ *
+ * @param int|object $default_term The term in the default language to create a new translation for, either WP Post object or post ID
+ * @param string $lang The language code 
+ * @param string $taxonomy The taxonomy
+ * @return string The admin URL to create the new translation
+ * @access public
+ **/
+function bbl_get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_new_term_translation_url( $default_term, $lang, $taxonomy );
 }
 
 /**
