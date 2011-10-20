@@ -288,7 +288,6 @@ class Babble_Languages extends Babble_Plugin {
 				$url_prefixes[ $lang_pref->url_prefix ] = $code;
 			}
 			$lang_prefs[ $code ] = $lang_pref;
-			error_log( "Lang: " . print_r( $lang, true ) );
 		}
 		
 		// Now save the active languages
