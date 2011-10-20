@@ -44,6 +44,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function __construct() {
 		$this->setup( 'babble-taxonomy', 'plugin' );
+		if ( is_admin() ) {
+			$this->add_action( 'edit_category_form_fields', 'edit_term_form_fields' );
+			$this->add_action( 'edit_tag_form_fields', 'edit_term_form_fields' );
+			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
+		}
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
@@ -133,7 +138,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$this->taxonomies[ $new_taxonomy ] = $taxonomy;
 			$this->lang_map[ $new_taxonomy ] = $lang->code;
 			
-			error_log( "New tax: $new_taxonomy, " . print_r( $new_object_type, true ) . ", " . print_r( $new_args, true ) . "" );
+			// error_log( "New tax: $new_taxonomy, " . print_r( $new_object_type, true ) . ", " . print_r( $new_args, true ) . "" );
 
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
 		}
@@ -142,8 +147,56 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
+	 * Hooks the dynamic WP load-edit-tags.php action which is fired when the 
+	 * term edit page is loaded.
+	 *
+	 * @return void
+	 **/
+	public function load_edit_term() {
+		if ( ! @ $_POST[ 'bbl_term_translation' ] )
+			return;
+		$term_id = @ (int) $_POST[ 'tag_ID' ];
+		check_admin_referer( 'bbl_edit_' . $term_id, '_bbl_nonce' );
+		if ( ! ( $transid = @ $_POST[ 'bbl_term_translation' ] ) ) {
+			$result = wp_insert_term( $transid_name, 'term_translation', array() );
+			if ( is_wp_error( $result ) )
+				throw new exception( "Problem creating a new Term TransID: " . print_r( $result, true ) );
+			else
+				$transid = (int) $result[ 'term_id' ];
+		}
+		$result = wp_set_object_terms( $term_id, $transid, 'term_translation' );
+	}
+
+	/**
+	 * Add some debug fields to all term edit screens.
+	 *
+	 * @param object $term A term object 
+	 * @return void
+	 **/
+	public function edit_term_form_fields( $term ) {
+		$screen = get_current_screen();
+		$taxonomy = $screen->taxonomy;
+		$transids = (array) wp_get_object_terms( $term->term_id, 'term_translation' );
+		$transid = array_pop( $transids );
+		?>
+			<tr>
+				<th>
+					<label for="bbl_term_translation">Translation ID</label>
+				</th>
+				<td>
+					<?php wp_nonce_field( 'bbl_edit_' . $term->term_id, '_bbl_nonce' ); ?>
+					<input type="text" name="bbl_term_translation" value="<?php echo esc_attr( $transid->term_id ); ?>" id="bbl_term_translation">
+					<?php var_dump( $transid ); ?>
+				</td>
+			</tr>
+		<?php
+	}
+
+	/**
 	 * Hooks the WordPress term_link filter to provide functions to provide
 	 * appropriate links for the shadow taxonomies. 
+	 *
+	 * @see get_term_link from whence much of this was copied
 	 *
 	 * @param string $termlink The currently generated term URL
 	 * @param object $term The WordPress term object we're generating a link for
@@ -155,13 +208,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// No need to worry about the built in taxonomies
 		if ( 'post_tag' == $taxonomy || 'category' == $taxonomy || ! isset( $this->taxonomies[ $taxonomy ] ) )
 			return $termlink;
-		error_log( "term link for $term->name in $taxonomy: $termlink" );
 
 		// Deal with our shadow post types
 		if ( ! ( $base_taxonomy = $this->taxonomies[ $taxonomy ] ) ) 
 			return $post_link;
 
-		// Let us commence copying, near verbatim, from WordPress core functions
+		// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
 		global $wp_rewrite;
 
 		if ( !is_object($term) ) {
@@ -201,12 +253,15 @@ class Babble_Taxonomies extends Babble_Plugin {
 				}
 				$hierarchical_slugs = array_reverse($hierarchical_slugs);
 				$hierarchical_slugs[] = $slug;
+				error_log( "Termlink 0: $termlink" );
 				$termlink = str_replace("%$base_taxonomy%", implode('/', $hierarchical_slugs), $termlink);
+				error_log( "Termlink 1: $termlink | replaced %$base_taxonomy%" );
 			} else {
 				$termlink = str_replace("%$base_taxonomy%", $slug, $termlink);
 			}
 			$termlink = home_url( user_trailingslashit($termlink, 'category') );
 		}
+		// STOP copying from get_term_link
 
 		return $termlink;
 	}
@@ -221,6 +276,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function parse_request( $wp ) {
 
+		// If the current language is the default language, then we don't need
+		// to do anything at all
+		if ( bbl_is_default_lang() ) {
+			error_log( "QVs 0: " . print_r( $wp->query_vars, true ) );
+			return;
+		}
+
 		// Sequester the original query, in case we need it to get the default content later
 		if ( ! isset( $wp->query_vars[ 'bbl_original_query' ] ) )
 			$wp->query_vars[ 'bbl_original_query' ] = $wp->query_vars;
@@ -229,9 +291,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$taxonomy = $this->translated_taxonomy( 'tag', $wp->query_vars[ 'lang' ] );
 			$wp->query_vars[ $taxonomy ] = $wp->query_vars[ 'tag' ];
 			unset( $wp->query_vars[ 'tag' ] );
+		} else if ( isset( $wp->query_vars[ 'category' ] ) ) {
+			
 		}
 
-		error_log( "QVs: " . print_r( $wp->query_vars, true ) );
+		error_log( "QVs 1: " . print_r( $wp->query_vars, true ) );
 		// exit;
 	}
 	

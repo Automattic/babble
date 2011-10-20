@@ -195,6 +195,26 @@ function bbl_get_default_lang_code() {
 }
 
 /**
+ * Checks whether either the provided language code, 
+ * if provided, or the current language code are
+ * the default language.
+ * 
+ * i.e. is this language the default language
+ *
+ * n.b. the current language could have been switched
+ * using bbl_switch_to_lang
+ *
+ * @param string $lang_code The language code to check (optional) 
+ * @return bool True if the default language
+ **/
+function bbl_is_default_lang( $lang_code = null ) {
+	if ( is_null( $lang_code ) )
+		$lang_code = bbl_get_current_lang();
+	error_log( "Lang: $lang_code->code | " . bbl_get_default_lang_code() );
+	return ( bbl_get_default_lang_code() == $lang_code->code );
+}
+
+/**
  * Returns the default language code for this site.
  *
  * @return string The language URL prefix set by the admin, e.g. "de"
