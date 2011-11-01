@@ -45,13 +45,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function __construct() {
 		$this->setup( 'babble-taxonomy', 'plugin' );
 		if ( is_admin() ) {
-			$this->add_action( 'edit_category_form_fields', 'edit_term_form_fields' );
-			$this->add_action( 'edit_tag_form_fields', 'edit_term_form_fields' );
 			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
 		}
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
+		$this->add_action( 'created_term', null, null, 3 );
 		$this->add_filter( 'term_link', null, null, 3 );
 	}
 	
@@ -120,6 +119,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$args[ 'rewrite' ] = false;
 		unset( $args[ 'name' ] );
 
+		$this->add_taxonomy_hooks( $taxonomy );
+
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
 			$new_object_type = array();
@@ -141,6 +142,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 			// error_log( "New tax: $new_taxonomy, " . print_r( $new_object_type, true ) . ", " . print_r( $new_args, true ) . "" );
 
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
+
+			$this->add_taxonomy_hooks( $new_taxonomy );
 		}
 
 		$this->no_recursion = false;
@@ -168,6 +171,26 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
+	 * Hook the WP created_term action to add in a transid if available.
+	 *
+	 * @param int $term_id The term ID for the term created
+	 * @param int $tt_id The term taxonomy ID for the term created
+	 * @param string $taxonomy The taxonomy for the term created 
+	 * @return void
+	 **/
+	public function created_term( $term_id, $tt_id, $taxonomy ) {
+		if ( 'term_translation' == $taxonomy )
+			return;
+		$nonce = @ $_POST[ '_bbl_nonce' ];
+		if ( ! $nonce )
+			return;
+		if ( wp_verify_nonce( $nonce, "bbl_edit_$term_id" ) )
+			throw new exception( "Failed nonce check" );
+		$transid = @ $_POST[ 'bbl_transid' ];
+		$this->set_transid( $term_id, $transid );
+	}
+
+	/**
 	 * Add some debug fields to all term edit screens.
 	 *
 	 * @param object $term A term object 
@@ -188,6 +211,21 @@ class Babble_Taxonomies extends Babble_Plugin {
 					<?php var_dump( $transid ); ?>
 				</td>
 			</tr>
+		<?php
+	}
+
+	/**
+	 * Hooks the WP $taxonomy . '_add_form_fields' action to add fields
+	 * to the add term request.
+	 *
+	 * @param string $taxonomy The taxonomy to add a term to 
+	 * @return void
+	 **/
+	public function add_term_form_fields( $taxonomy ) {
+		$transid = (int) $_REQUEST[ 'bbl_transid' ];
+		wp_nonce_field( 'bbl_add_tag_' . $transid, '_bbl_nonce' );
+		?>
+			<input type="text" name="bbl_transid" value="<?php echo esc_attr( $transid ); ?>" id="bbl_transid" />
 		<?php
 	}
 
@@ -349,7 +387,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return string The admin URL to create the new translation
 	 * @access public
 	 **/
-	function get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
+	public function get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
 		if ( ! is_int( $default_term ) && is_null( $taxonomy ) )
 			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
 		else if ( is_int( $default_term ) )
@@ -371,6 +409,17 @@ class Babble_Taxonomies extends Babble_Plugin {
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
+
+	/**
+	 * Hooks up a taxonomy with all the actions/filters it needs.
+	 *
+	 * @param string $taxonomy The taxonomy in question 
+	 * @return void
+	 **/
+	protected function add_taxonomy_hooks( $taxonomy ) {
+		$this->add_action( $taxonomy . '_edit_form_fields', 'edit_term_form_fields' );
+		$this->add_action( $taxonomy . '_add_form_fields', 'add_term_form_fields' );
+	}
 
 	/**
 	 * Return the translation group ID (a term ID) that the given term ID 
