@@ -35,12 +35,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * @copyright Copyright (C) Simon Wheatley (except where noted)
  */
 
+require_once( 'api.php' );
 require_once( 'class-plugin.php' );
 require_once( 'class-locale.php' );
 require_once( 'class-languages.php' );
 require_once( 'class-taxonomy.php' );
+require_once( 'class-post-public.php' );
 require_once( 'babble-poc.php' );
-// require_once( 'class-Post-Public.php' );
 // require_once( 'api-new.php' );
 
 ?>

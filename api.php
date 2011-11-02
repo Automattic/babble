@@ -81,23 +81,8 @@ function bbl_restore_lang() {
  * @access public
  **/
 function bbl_get_post_translations( $post ) {
-	global $sil_post_types, $sil_lang_map;
-	$post = get_post( $post );
-	// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
-	$transid = sil_get_transid( $post );
-	if ( is_wp_error( $transid ) )
-		error_log( "Error getting transid: " . print_r( $transid, true ) );
-	$post_ids = get_objects_in_term( $transid, 'post_translation' );
-	// Get all the translations in one cached DB query
-	$posts = get_posts( array( 'include' => $post_ids, 'post_type' => 'any' ) );
-	$translations = array();
-	foreach ( $posts as & $post ) {
-		if ( isset( $sil_lang_map[ $post->post_type ] ) )
-			$translations[ $sil_lang_map[ $post->post_type ] ] = $post;
-		else
-			$translations[ bbl_get_default_lang_code() ] = $post;
-	}
-	return $translations;
+	global $bbl_post_public;
+	return $bbl_post_public->get_post_translations( $post );
 }
 
 /**
@@ -125,11 +110,8 @@ function bbl_get_term_translations( $term, $taxonomy = null ) {
  * @access public
  **/
 function sil_get_default_lang_post( $post ) {
-	$post = get_post( $post );
-	$translations = bbl_get_post_translations( $post->ID );
-	if ( isset( $translations[ bbl_get_default_lang_code() ] ) )
-		return $translations[ bbl_get_default_lang_code() ];
-	return false;
+	global $bbl_post_public;
+	return $bbl_post_public->get_default_lang_post( $post );
 }
 
 /**
@@ -140,13 +122,8 @@ function sil_get_default_lang_post( $post ) {
  * @access public
  **/
 function bbl_get_post_lang( $post ) {
-	global $sil_lang_map;
-	$post = get_post( $post );
-	if ( ! $post )
-		return new WP_Error( 'invalid_post', __( 'Invalid Post' ) );
-	if ( isset( $sil_lang_map[ $post->post_type ] ) )
-		return $sil_lang_map[ $post->post_type ];
-	return bbl_get_default_lang_code();
+	global $bbl_post_public;
+	return $bbl_post_public->get_post_lang( $post );
 }
 
 /**
@@ -159,13 +136,8 @@ function bbl_get_post_lang( $post ) {
  * @access public
  **/
 function bbl_get_new_post_translation_url( $default_post, $lang ) {
-	$default_post = get_post( $default_post );
-	bbl_switch_to_lang( $lang );
-	$transid = sil_get_transid( $default_post );
-	$url = admin_url( '/post-new.php' );
-	$url = add_query_arg( array( 'post_type' => $default_post->post_type, 'bbl_transid' => $transid, 'lang' => $lang ), $url );
-	bbl_restore_lang();
-	return $url;
+	global $bbl_post_public;
+	return $bbl_post_public->get_new_post_translation_url( $default_post, $lang );
 }
 
 /**
@@ -241,7 +213,6 @@ function bbl_get_default_lang_code() {
 function bbl_is_default_lang( $lang_code = null ) {
 	if ( is_null( $lang_code ) )
 		$lang_code = bbl_get_current_lang();
-	error_log( "Lang: $lang_code->code | " . bbl_get_default_lang_code() );
 	return ( bbl_get_default_lang_code() == $lang_code->code );
 }
 

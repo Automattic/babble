@@ -47,10 +47,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( is_admin() ) {
 			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
 		}
+		$this->add_action( 'created_term', null, null, 3 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
-		$this->add_action( 'created_term', null, null, 3 );
+		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'term_link', null, null, 3 );
 	}
 	
@@ -301,6 +302,30 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// STOP copying from get_term_link
 
 		return $termlink;
+	}
+
+	/**
+	 * Hooks the WP get_terms filter to ensure the terms all have transids.
+	 *
+	 * @param array $terms The terms which have been got 
+	 * @return array The terms which were got
+	 **/
+	public function get_terms( $terms ) {
+		error_log( "Taxes: " . print_r( $this->taxonomies, true ) );
+		foreach ( $terms as $term ) {
+			if ( isset( $this->taxonomies[ $taxonomy ] ) )
+				if ( ! $this->get_transid( $term->term_id ) )
+					throw new exception( "ERROR: Translated term ID $term->ter_id does not have a transid" );
+				else
+					continue;
+			if ( ! $this->get_transid( $term->term_id ) ) {
+				error_log( "Set transid on $term->term_id" );
+				$this->set_transid( $term->term_id );
+			} else {
+				error_log( "Got transid on $term->term_id" );
+			}
+		}
+		return $terms;
 	}
 
 	/**
