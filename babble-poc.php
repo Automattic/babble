@@ -310,7 +310,7 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 	} else if ( $editing_term ) {
 		error_log( "Get term translations" );
 		$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $screen->taxonomy );
-		$translations = bbl_get_term_translations( $term->term_id );
+		$translations = bbl_get_term_translations( $term->term_id, $screen->taxonomy );
 	}
 
 	foreach ( $alt_langs as $i => & $alt_lang ) {
@@ -325,8 +325,13 @@ function sil_admin_bar_menu( $wp_admin_bar ) {
 					$title = sprintf( __( 'Create for %s', 'sil' ), $alt_lang->names );
 				}
 			} else if ( $editing_term ) {
-				if ( isset( $translations[ $alt_lang->code ]->ID ) ) { // Translation exists
-					$href = add_query_arg( array( 'lang' => $alt_lang->code, 'post' => $translations[ $alt_lang->code ]->ID ) );
+				if ( isset( $translations[ $alt_lang->code ]->term_id ) ) { // Translation exists
+					$args = array( 
+						'lang' => $alt_lang->code, 
+						'taxonomy' => $translations[ $alt_lang->code ]->taxonomy, 
+						'tag_ID' => $translations[ $alt_lang->code ]->term_id 
+					);
+					$href = add_query_arg( $args );
 				} else { // Translation does not exist
 					$default_term = $translations[ bbl_get_default_lang_code() ];
 					$href = bbl_get_new_term_translation_url( $default_term, $alt_lang->code, $screen->taxonomy );

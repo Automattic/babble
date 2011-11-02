@@ -87,8 +87,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function registered_taxonomy( $taxonomy, $object_type, $args ) {
-		global $sil_post_types, $sil_lang_map;
-
 		// Don't bother with non-public taxonomies for now
 		// If we remove this, we need to avoid dealing with post_translation and term_translation
 		if ( ! $args[ 'public' ] || 'post_translation' == $taxonomy || 'term_translation' == $taxonomy )
@@ -137,7 +135,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 				$label = "$label ({$lang->code})";
 
 			$this->taxonomies[ $new_taxonomy ] = $taxonomy;
-			$this->lang_map[ $new_taxonomy ] = $lang->code;
+			if ( ! is_array( $this->lang_map[ $lang->code ] ) )
+				$this->lang_map[ $lang->code ] = array();
+			$this->lang_map[ $lang->code ][ $taxonomy ] = $new_taxonomy;
 			
 			// error_log( "New tax: $new_taxonomy, " . print_r( $new_object_type, true ) . ", " . print_r( $new_args, true ) . "" );
 
@@ -312,6 +312,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function parse_request( $wp ) {
+		error_log( "Request: " . print_r( $wp->query_vars, true ) );
 
 		// If the current language is the default language, then we don't need
 		// to do anything at all
@@ -361,21 +362,39 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @FIXME: Should I filter out the term ID passed?
 	 *
 	 * @param int|object $term Either a WP Term object, or a term_id 
-	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
+	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Term object
 	 **/
 	public function get_term_translations( $term, $taxonomy = null ) {
-		var_dump( $term );
-		// var_dump( $this->lang_map );
+		$term = get_term( $term, $taxonomy );
+
 		$langs = bbl_get_active_langs();
 		$translations = array();
 		foreach ( $langs as $lang )
 			$translations[ $lang->code ] = false;
-		// var_dump( $term );
+
 		$transid = $this->get_transid( $term->term_id );
-		// var_dump( $transid );
-		$translations[ bbl_get_current_lang()->code ] = $term;
+		// I thought this flaming bug where the get_objects_in_term function returned integers
+		// as strings was fixed. Seems not. See #17646 for details. Argh.
+		$term_ids = array_map( 'absint', get_objects_in_term( $transid, 'term_translation' ) );
+
+		// We're dealing with terms across multiple taxonomies
+		$base_taxonomy = isset( $this->taxonomies[ $taxonomy ] ) ? $this->taxonomies[ $taxonomy ] : $taxonomy ;
+		$taxonomies = array();
+		$taxonomies[] = $base_taxonomy;
+		foreach ( $this->lang_map as $lang_taxes )
+			$taxonomies[] = $lang_taxes[ $base_taxonomy ];
+
+		// Get all the translations in one cached DB query
+		$existing_terms = get_terms( $taxonomies, array( 'include' => $term_ids, 'hide_empty' => false ) );
+
+		// Finally, we're ready to return the terms in this 
+		// translation group.
+		$terms = array();
+		$terms[ bbl_get_current_lang()->code ] = $term;
 		// var_dump( $translations );
-		return $translations;
+		foreach ( $existing_terms as $t )
+			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = $t;
+		return $terms;
 	}
 
 	/**
@@ -387,25 +406,45 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return string The admin URL to create the new translation
 	 * @access public
 	 **/
-	public function get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
+	public function get_new_term_translation_url( $default_term, $lang_code, $taxonomy = null ) {
 		if ( ! is_int( $default_term ) && is_null( $taxonomy ) )
 			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
 		else if ( is_int( $default_term ) )
 			$default_term = get_term( $default_term, $taxonomy );
 		if ( is_wp_error( $default_term ) )
 			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
-
-		var_dump( $default_term );
+		
+		// var_dump( $default_term );
 		// $default_term = 
-		bbl_switch_to_lang( $lang );
-		var_dump( $default_term );
+		bbl_switch_to_lang( $lang_code );
+		// var_dump( $default_term );
+		error_log( "Lang map: " . print_r( $this->lang_map, true ) );
+		error_log( "Translated taxonomy: " . $this->lang_map[ $lang_code ][ $taxonomy ] );
 		$transid = $this->get_transid( $default_term );
 		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
-		$url = add_query_arg( array( 'post_type' => $default_term->taxonomy, 'bbl_transid' => $transid, 'lang' => $lang ), $url );
+		$url = add_query_arg( array( 'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 'bbl_transid' => $transid, 'lang' => $lang_code ), $url );
+		error_log( "URL: $url" );
 		bbl_restore_lang();
 		return $url;
 	}
-	
+
+	/**
+	 * Returns the language code associated with a particular taxonomy.
+	 *
+	 * @param string $taxonomy The taxonomy to get the language for 
+	 * @return string The lang code
+	 **/
+	protected function get_taxonomy_lang_code( $taxonomy ) {
+		if ( ! isset( $this->taxonomies[ $taxonomy ] ) )
+			return bbl_get_default_lang_code();
+		// var_dump( $this->lang_map );
+		foreach ( $this->lang_map as $lang => $data )
+			foreach ( $data as $trans_tax )
+				if ( $taxonomy == $trans_tax )
+					return $lang;
+		// error_log( "Found nothing." );
+		return false;
+	}
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
@@ -450,7 +489,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 			else
 				$transid = $result[ 'term_id' ];
 		}
-		return wp_set_object_terms( $target_term_id, $transid, 'term_translation' );
+		error_log( "Set transid for $target_term_id: $transid " . gettype( $transid ) . " | " . gettype( $target_term_id ) );
+		return wp_set_object_terms( $target_term_id, absint( $transid ), 'term_translation' );
 	}
 
 }
