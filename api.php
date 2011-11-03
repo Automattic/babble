@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * @return string A language code
  * @access public
  **/
-function sil_get_current_lang_code() {
+function bbl_get_current_lang_code() {
 	// Outside the admin area, it's a WP Query Variable
 	if ( ! is_admin() )
 		return get_query_var( 'lang' ) ? get_query_var( 'lang' ) : bbl_get_default_lang_code();

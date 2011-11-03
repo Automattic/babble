@@ -15,6 +15,20 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected $no_recursion;
 
+	/**
+	 * The shadow (translated) post types created by this plugin.
+	 *
+	 * @var array
+	 **/
+	protected $post_types;
+
+	/**
+	 * A structure describing the languages served by various post types.
+	 *
+	 * @var array
+	 **/
+	protected $lang_map;
+
 	// /**
 	//  * Regex for detecting the language from a URL
 	//  *
@@ -32,6 +46,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		
+		$this->post_types = array();
+		$this->lang_map = array();
 	}
 
 	/**
@@ -40,7 +56,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function init_early() {
-		global $sil_post_types;
 		register_taxonomy( 'term_translation', 'term', array(
 			'rewrite' => false,
 			'public' => true,
@@ -49,8 +64,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			'label' => __( 'Term Translation ID', 'sil' ),
 		) );
 		// Ensure we catch any existing language shadow post_types already registered
-		if ( is_array( $sil_post_types ) )
-			$post_types = array_merge( array( 'post', 'page' ), array_keys( $sil_post_types ) );
+		if ( is_array( $this->post_types ) )
+			$post_types = array_merge( array( 'post', 'page' ), array_keys( $this->post_types ) );
 		else
 			$post_types = array( 'post', 'page' );
 		register_taxonomy( 'post_translation', $post_types, array(
@@ -72,8 +87,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function registered_post_type( $post_type, $args ) {
-		global $sil_lang_map, $sil_post_types; 
-
 		// Don't bother with non-public post_types for now
 		// @FIXME: This may need to change for menus?
 		if ( ! $args->public )
@@ -85,13 +98,6 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// @FIXME: Not sure this is the best way to specify languages
 		$langs = bbl_get_active_langs();
-
-		// This languages map will provide a mechanism to work out which 
-		// post types associate with which
-		if ( ! $sil_lang_map ) 
-			$sil_lang_map = array();
-		if ( ! $sil_post_types )
-			$sil_post_types = array();
 
 		// Lose the default language as any existing post types are in that language
 		unset( $langs[ bbl_get_default_lang_url_prefix() ] );
@@ -138,8 +144,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			if ( is_wp_error( $result ) ) {
 				error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
 			} else {
-				$sil_post_types[ $new_post_type ] = $post_type;
-				$sil_lang_map[ $new_post_type ] = $lang->code;
+				$this->post_types[ $new_post_type ] = $post_type;
+				$this->lang_map[ $new_post_type ] = $lang->code;
 				// This will not work until init has run at the early priority used
 				// to register the post_translation taxonomy. However we catch all the
 				// post_types registered before the hook runs, so we don't miss any 
@@ -252,14 +258,14 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return string The permalink
 	 **/
 	public function post_type_link( $post_link, $post, $leavename ) {
-		global $sil_post_types, $sil_lang_map, $wp_rewrite;
+		global $wp_rewrite;
 
 		// Regular ol' post types, and other types added by other plugins, etc
-		if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $sil_post_types[ $post->post_type ] ) )
+		if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $this->post_types[ $post->post_type ] ) )
 			return $post_link;
 
 		// Deal with our shadow post types
-		if ( ! ( $base_post_type = $sil_post_types[ $post->post_type ] ) ) 
+		if ( ! ( $base_post_type = $this->post_types[ $post->post_type ] ) ) 
 			return $post_link;
 
 		// Deal with post_types shadowing the post post_type
@@ -390,8 +396,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->set_transid( $post, $transid );
 
 		// Ensure the post is in the correct shadow post_type
-		if ( bbl_get_default_lang_code() != sil_get_current_lang_code() ) {
-			$new_post_type = strtolower( $post->post_type . '_' . sil_get_current_lang_code() );
+		if ( bbl_get_default_lang_code() != bbl_get_current_lang_code() ) {
+			$new_post_type = strtolower( $post->post_type . '_' . bbl_get_current_lang_code() );
 			wp_update_post( array( 'ID' => $post_id, 'post_type' => $new_post_type ) );
 		}
 		$this->no_recursion = false;
@@ -411,12 +417,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @access public
 	 **/
 	public function get_post_lang( $post ) {
-		global $sil_lang_map;
 		$post = get_post( $post );
 		if ( ! $post )
 			return new WP_Error( 'invalid_post', __( 'Invalid Post' ) );
-		if ( isset( $sil_lang_map[ $post->post_type ] ) )
-			return $sil_lang_map[ $post->post_type ];
+		if ( isset( $this->lang_map[ $post->post_type ] ) )
+			return $this->lang_map[ $post->post_type ];
 		return bbl_get_default_lang_code();
 	}
 
@@ -464,7 +469,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
 	 **/
 	public function get_post_translations( $post ) {
-		global $sil_post_types, $sil_lang_map;
 		$post = get_post( $post );
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
@@ -475,8 +479,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$posts = get_posts( array( 'include' => $post_ids, 'post_type' => 'any' ) );
 		$translations = array();
 		foreach ( $posts as & $post ) {
-			if ( isset( $sil_lang_map[ $post->post_type ] ) )
-				$translations[ $sil_lang_map[ $post->post_type ] ] = $post;
+			if ( isset( $this->lang_map[ $post->post_type ] ) )
+				$translations[ $this->lang_map[ $post->post_type ] ] = $post;
 			else
 				$translations[ bbl_get_default_lang_code() ] = $post;
 		}
