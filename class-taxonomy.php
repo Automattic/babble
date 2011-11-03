@@ -311,18 +311,18 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return array The terms which were got
 	 **/
 	public function get_terms( $terms ) {
-		error_log( "Taxes: " . print_r( $this->taxonomies, true ) );
+		// error_log( "Taxes: " . print_r( $this->taxonomies, true ) );
 		foreach ( $terms as $term ) {
 			if ( isset( $this->taxonomies[ $taxonomy ] ) )
 				if ( ! $this->get_transid( $term->term_id ) )
-					throw new exception( "ERROR: Translated term ID $term->ter_id does not have a transid" );
+					throw new exception( "ERROR: Translated term ID $term->term_id does not have a transid" );
 				else
 					continue;
 			if ( ! $this->get_transid( $term->term_id ) ) {
-				error_log( "Set transid on $term->term_id" );
+				// error_log( "Set transid on $term->term_id" );
 				$this->set_transid( $term->term_id );
-			} else {
-				error_log( "Got transid on $term->term_id" );
+			// } else {
+				// error_log( "Got transid on $term->term_id" );
 			}
 		}
 		return $terms;
@@ -432,6 +432,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @access public
 	 **/
 	public function get_new_term_translation_url( $default_term, $lang_code, $taxonomy = null ) {
+		error_log( "Default term: " . print_r( $default_term, true ) );
 		if ( ! is_int( $default_term ) && is_null( $taxonomy ) )
 			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
 		else if ( is_int( $default_term ) )

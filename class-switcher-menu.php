@@ -94,7 +94,7 @@ class Babble_Switcher_Menu {
 		// Create a handy flag for whether we're editing a term
 		$editing_term = false;
 		if ( is_admin() )
-			$editing_term = ( is_admin() && 'edit-tags' == $screen->base );
+			$editing_term = ( is_admin() && 'edit-tags' == $screen->base && isset( $_GET[ 'tag_ID' ] ) );
 
 		if ( is_singular() || is_single() || $editing_post ) {
 			$this->translations = bbl_get_post_translations( get_the_ID() );
@@ -106,10 +106,13 @@ class Babble_Switcher_Menu {
 		foreach ( $alt_langs as $i => & $alt_lang ) {
 			if ( is_admin() ) {
 				if ( $editing_post ) {
+					error_log( "Editing post link" );
 					$this->add_admin_post_link( $this->links[ 0 ], $alt_lang );
 				} else if ( $editing_term ) {
+					error_log( "Editing term link" );
 					$this->add_admin_term_link( $this->links[ 0 ], $alt_lang );
 				} else {
+					error_log( "Generic link link" );
 					$this->add_admin_generic_link( $this->links[ 0 ], $alt_lang );
 				}
 			} else if ( is_singular() || is_single() ) {
@@ -129,7 +132,7 @@ class Babble_Switcher_Menu {
 	 * @param object $lang A Babble language object for this link
 	 **/
 	protected function add_admin_generic_link( & $parent, $lang ) {
-		$href = add_query_arg( array( 'lang' => $alt_lang->code ) );
+		$href = add_query_arg( array( 'lang' => $lang->code ) );
 		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
@@ -152,6 +155,8 @@ class Babble_Switcher_Menu {
 	 **/
 	protected function add_admin_term_link( & $parent, $lang ) {
 		$classes = array();
+		$screen = get_current_screen();
+		error_log( "Translations: " . print_r( $translations, true ) );
 		if ( isset( $this->translations[ $lang->code ]->term_id ) ) { // Translation exists
 			$args = array( 
 				'lang' => $lang->code, 
@@ -192,7 +197,7 @@ class Babble_Switcher_Menu {
 	protected function add_admin_post_link( & $parent, $lang ) {
 		$classes = array();
 		if ( isset( $this->translations[ $lang->code ]->ID ) ) { // Translation exists
-			$href = add_query_arg( array( 'lang' => $lang->code, 'post' => $this->translations[ $alt_lang->code ]->ID ) );
+			$href = add_query_arg( array( 'lang' => $lang->code, 'post' => $this->translations[ $lang->code ]->ID ) );
 			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-post';

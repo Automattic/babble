@@ -335,7 +335,7 @@ class Babble_Post_Public extends Babble_Plugin {
 					$post->post_name,
 				);
 				$lang = bbl_get_post_lang( $post );
-				error_log( "Getting link, lang: $lang ($post->post_title)" );
+				// error_log( "Getting link, lang: $lang ($post->post_title)" );
 				bbl_switch_to_lang( $lang );
 				$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
 				bbl_restore_lang();
@@ -364,14 +364,14 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function page_link( $link, $id ) {
 		if ( $this->no_recursion )
 			return $link;
-		error_log( "Link IN: $link" );
+		// error_log( "Link IN: $link" );
 		$this->no_recursion = true;
 		$lang = bbl_get_post_lang( $id );
 		bbl_switch_to_lang( $lang );
 		$link = get_page_link( $id );
 		bbl_restore_lang();
 		$this->no_recursion = false;
-		error_log( "Link OUT: $link" );
+		// error_log( "Link OUT: $link" );
 		return $link;
 	}
 
