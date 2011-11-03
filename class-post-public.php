@@ -7,6 +7,13 @@
  * @since 0.1
  */
 class Babble_Post_Public extends Babble_Plugin {
+	
+	/**
+	 * A simple flag to stop infinite recursion in various places.
+	 *
+	 * @var boolean
+	 **/
+	protected $no_recursion;
 
 	// /**
 	//  * Regex for detecting the language from a URL
@@ -65,17 +72,16 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function registered_post_type( $post_type, $args ) {
-		// @FIXME: When we turn this into classes we can avoid a global $sil_syncing here
-		global $sil_syncing, $sil_lang_map, $sil_post_types; 
+		global $sil_lang_map, $sil_post_types; 
 
 		// Don't bother with non-public post_types for now
 		// @FIXME: This may need to change for menus?
 		if ( ! $args->public )
 			return;
 
-		if ( $sil_syncing )
+		if ( $this->no_recursion )
 			return;
-		$sil_syncing = true;
+		$this->no_recursion = true;
 
 		// @FIXME: Not sure this is the best way to specify languages
 		$langs = bbl_get_active_langs();
@@ -142,7 +148,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 
-		$sil_syncing = false;
+		$this->no_recursion = false;
 	}
 
 	/**
@@ -350,16 +356,15 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return string
 	 **/
 	public function page_link( $link, $id ) {
-		global $sil_syncing;
-		if ( $sil_syncing )
+		if ( $this->no_recursion )
 			return $link;
 		error_log( "Link IN: $link" );
-		$sil_syncing = true;
+		$this->no_recursion = true;
 		$lang = bbl_get_post_lang( $id );
 		bbl_switch_to_lang( $lang );
 		$link = get_page_link( $id );
 		bbl_restore_lang();
-		$sil_syncing = false;
+		$this->no_recursion = false;
 		error_log( "Link OUT: $link" );
 		return $link;
 	}
@@ -372,14 +377,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function wp_insert_post( $post_id, $post ) {
-		global $sil_syncing;
-		if ( $sil_syncing )
+		if ( $this->no_recursion )
 			return;
 
 		if ( 'auto-draft' != $post->post_status )
 			return;
 
-		$sil_syncing = true;
+		$this->no_recursion = true;
 
 		// Get any approved term ID for the transid for any new translation
 		$transid = (int) @ $_GET[ 'bbl_transid' ];
@@ -390,7 +394,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			$new_post_type = strtolower( $post->post_type . '_' . sil_get_current_lang_code() );
 			wp_update_post( array( 'ID' => $post_id, 'post_type' => $new_post_type ) );
 		}
-		$sil_syncing = false;
+		$this->no_recursion = false;
 		// Now we have to do a redirect, to ensure the WP Nonce gets generated correctly
 		wp_redirect( admin_url( "/post.php?post=$post_id&action=edit" ) );
 	}
