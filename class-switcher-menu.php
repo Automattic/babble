@@ -92,13 +92,14 @@ class Babble_Switcher_Menu {
 		);
 
 		$this->screen = is_admin() ? get_current_screen() : false;
+		error_log( "Screen: " . print_r( $this->screen, true ) );
 
 		// Create a handy flag for whether we're editing a post or listing posts
 		$editing_post = false;
 		$listing_posts = false;
 		if ( is_admin() ) {
 			$editing_post = ( is_admin() && 'post' == $this->screen->base && isset( $_GET[ 'post' ] ) );
-			$listing_posts = ( is_admin() && 'post' == $this->screen->base && ! isset( $_GET[ 'post' ] ) );
+			$listing_posts = ( is_admin() && 'edit' == $this->screen->base && ! isset( $_GET[ 'post' ] ) );
 		}
 
 		// Create a handy flag for whether we're editing a term or listing terms
@@ -125,6 +126,9 @@ class Babble_Switcher_Menu {
 				} else if ( $editing_term ) {
 					error_log( "Editing term link" );
 					$this->add_admin_term_link( $this->links[ 0 ], $alt_lang );
+				} else if ( $listing_posts ) {
+					error_log( "Listing posts link" );
+					$this->add_admin_list_posts_link( $this->links[ 0 ], $alt_lang );
 				} else if ( $listing_terms ) {
 					error_log( "Listing terms link" );
 					$this->add_admin_list_terms_link( $this->links[ 0 ], $alt_lang );
@@ -215,7 +219,6 @@ class Babble_Switcher_Menu {
 			'lang' => $lang->code, 
 			'taxonomy' => bbl_get_taxonomy_in_lang( $this->screen->taxonomy, $lang->code ),
 		);
-		error_log( "Args: " . print_r( $args, true ) );
 		$href = add_query_arg( $args );
 		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
@@ -259,6 +262,35 @@ class Babble_Switcher_Menu {
 		$classes[] = 'bbl-admin-post-type';
 		$classes[] = 'bbl-lang';
 		$classes[] = 'bbl-post';
+		$parent[ 'children' ][] = array(
+			'href' => $href,
+			'id' => $lang->url_prefix,
+			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
+			'title' => $title,
+		);
+	}
+
+	/**
+	 * Add an admin list posts screen link to the parent link provided (by reference).
+	 *
+	 * @param array $parent A reference to the parent link
+	 * @param object $lang A Babble language object for this link
+	 * @return void
+	 **/
+	protected function add_admin_list_posts_link( & $parent, $lang ) {
+		$classes = array();
+		$args = array( 
+			'lang' => $lang->code, 
+			'post_type' => bbl_get_post_type_in_lang( $this->screen->post_type, $lang->code ),
+		);
+		$href = add_query_arg( $args );
+		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
+		$classes[] = 'bbl-admin';
+		$classes[] = 'bbl-admin-edit-post';
+		$classes[] = 'bbl-admin-post-type';
+		$classes[] = 'bbl-lang';
+
 		$parent[ 'children' ][] = array(
 			'href' => $href,
 			'id' => $lang->url_prefix,
