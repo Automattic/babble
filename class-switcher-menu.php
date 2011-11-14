@@ -9,7 +9,6 @@
  * @package Babble
  * @since 0.2
  */
-// class Babble_Switcher_Menu extends Babble_Plugin {
 class Babble_Switcher_Menu {
 	
 	/**
@@ -92,7 +91,6 @@ class Babble_Switcher_Menu {
 		);
 
 		$this->screen = is_admin() ? get_current_screen() : false;
-		error_log( "Screen: " . print_r( $this->screen, true ) );
 
 		// Create a handy flag for whether we're editing a post or listing posts
 		$editing_post = false;

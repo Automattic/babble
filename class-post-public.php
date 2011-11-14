@@ -133,7 +133,10 @@ class Babble_Post_Public extends Babble_Plugin {
 			'custom-fields'
 		);
 
-		$args[ 'show_ui' ] = true;
+		// I am a little concerned that this argument may make things
+		// brittle, e.g. the UI might stop showing up in the shadow
+		// post type edit screens, p'raps.
+		$args[ 'show_ui' ] = false;
 
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
