@@ -136,7 +136,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		// I am a little concerned that this argument may make things
 		// brittle, e.g. the UI might stop showing up in the shadow
 		// post type edit screens, p'raps.
-		$args[ 'show_ui' ] = false;
+		$args[ 'show_ui' ] = true;
 
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
@@ -413,12 +413,12 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// Ensure the post is in the correct shadow post_type
 		if ( bbl_get_default_lang_code() != bbl_get_current_lang_code() ) {
-			$new_post_type = strtolower( $post->post_type . '_' . bbl_get_current_lang_code() );
+			$new_post_type = $this->get_post_type_in_lang( $post->post_type, bbl_get_current_lang_code() );
 			wp_update_post( array( 'ID' => $post_id, 'post_type' => $new_post_type ) );
 		}
 		$this->no_recursion = false;
 		// Now we have to do a redirect, to ensure the WP Nonce gets generated correctly
-		wp_redirect( admin_url( "/post.php?post=$post_id&action=edit" ) );
+		wp_redirect( admin_url( "/post.php?post=$post_id&action=edit&post_type={$post->post_type}" ) );
 	}
 
 	
@@ -449,12 +449,19 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param string $lang The language code 
 	 * @return string The admin URL to create the new translation
 	 **/
-	public function get_new_post_translation_url( $default_post, $lang ) {
+	public function get_new_post_translation_url( $default_post, $lang_code ) {
 		$default_post = get_post( $default_post );
-		bbl_switch_to_lang( $lang );
+		bbl_switch_to_lang( $lang_code );
 		$transid = $this->get_transid( $default_post );
 		$url = admin_url( '/post-new.php' );
-		$url = add_query_arg( array( 'post_type' => $default_post->post_type, 'bbl_transid' => $transid, 'lang' => $lang ), $url );
+		$args = array( 
+			'bbl_transid' => $transid, 
+			'lang' => $lang_code, 
+			'post_type' => $this->get_post_type_in_lang( $default_post->post_type, $lang_code ),
+		);
+		error_log( "default post ( $lang_code ): " . print_r( $default_post, true ) );
+		error_log( "args: " . print_r( $args, true ) );
+		$url = add_query_arg( $args, $url );
 		bbl_restore_lang();
 		return $url;
 	}
@@ -523,8 +530,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param string $lang_code The language code for the required language 
 	 * @return void
 	 **/
-	public function get_post_type_in_lang( $taxonomy, $lang_code ) {
-		$base_post_type = $this->get_base_post_type( $taxonomy );
+	public function get_post_type_in_lang( $post_type, $lang_code ) {
+		$base_post_type = $this->get_base_post_type( $post_type );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_post_type;
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];

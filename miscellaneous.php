@@ -21,15 +21,19 @@
 function bbl_admin_init() {
 	$taxonomy = @ $_GET[ 'taxonomy' ];
 	$post_type = @ $_GET[ 'post_type' ];
-	$new_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, bbl_get_current_lang_code() );
+	$cur_lang_code = bbl_get_current_lang_code();
+	error_log( "Cur lang_code $cur_lang_code" );
+	$new_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, $cur_lang_code );
 	if ( $taxonomy != $new_taxonomy ) {
 		$url = add_query_arg( array( 'taxonomy' => $new_taxonomy ) );
+		error_log( "Redirect" );
 		wp_redirect( $url );
 		exit;
 	}
-	$new_post_type = bbl_get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
+	$new_post_type = bbl_get_post_type_in_lang( $post_type, $cur_lang_code );
 	if ( $post_type != $new_post_type ) {
 		$url = add_query_arg( array( 'post_type' => $new_post_type ) );
+		error_log( "Redirect" );
 		wp_redirect( $url );
 		exit;
 	}
