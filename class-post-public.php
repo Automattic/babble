@@ -52,6 +52,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
+		$this->add_filter( 'add_menu_classes' );
 		
 		$this->post_types = array();
 		$this->lang_map = array();
@@ -421,6 +422,24 @@ class Babble_Post_Public extends Babble_Plugin {
 		wp_redirect( admin_url( "/post.php?post=$post_id&action=edit&post_type={$post->post_type}" ) );
 	}
 
+	/**
+	 * Hooks the WP add_menu_classes filter to try and remove the
+	 * links to shadow post types.
+	 *
+	 * @param array $menu The WP admin menu 
+	 * @return array The WP admin menu
+	 **/
+	public function add_menu_classes( $menu ) {
+		foreach ( $menu as $key => $item ) {
+			$vars = array();
+			$url_info = parse_url( $item[ 2 ] );
+			parse_str( $url_info[ 'query' ], $vars );
+			if ( ! isset( $vars[ 'post_type' ] ) || ! isset( $this->post_types[ $vars[ 'post_type' ] ] ) )
+				continue;
+			unset( $menu[ $key ] );
+		}
+		return $menu;
+	}
 	
 	// PUBLIC METHODS
 	// ==============
