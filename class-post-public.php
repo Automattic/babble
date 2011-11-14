@@ -452,7 +452,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function get_new_post_translation_url( $default_post, $lang ) {
 		$default_post = get_post( $default_post );
 		bbl_switch_to_lang( $lang );
-		$transid = sil_get_transid( $default_post );
+		$transid = $this->get_transid( $default_post );
 		$url = admin_url( '/post-new.php' );
 		$url = add_query_arg( array( 'post_type' => $default_post->post_type, 'bbl_transid' => $transid, 'lang' => $lang ), $url );
 		bbl_restore_lang();
