@@ -23,7 +23,6 @@ class Babble_Admin_bar extends Babble_Plugin {
 		global $bbl_switcher_menu;
 
 		$links = $bbl_switcher_menu->get_switcher_links( 'bbl-admin-bar' );
-		error_log( "Links: " . print_r( $links, true ) );
 	
 		foreach ( $links as $link ) {
 			$link[ 'parent' ] = false;

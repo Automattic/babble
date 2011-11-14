@@ -70,22 +70,6 @@ function bbl_restore_lang() {
 }
 
 /**
- * Get the posts which are the translations for the provided 
- * post ID. N.B. The returned array of post objects (and false 
- * values) will include the post for the post ID passed.
- * 
- * @FIXME: Should I filter out the post ID passed?
- *
- * @param int|object $post Either a WP Post object, or a post ID 
- * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
- * @access public
- **/
-function bbl_get_post_translations( $post ) {
-	global $bbl_post_public;
-	return $bbl_post_public->get_post_translations( $post );
-}
-
-/**
  * Get the terms which are the translations for the provided 
  * post ID. N.B. The returned array of term objects (and false 
  * values) will include the post for the post ID passed.
@@ -102,6 +86,72 @@ function bbl_get_term_translations( $term, $taxonomy = null ) {
 }
 
 /**
+ * Return the admin URL to create a new translation for a term in a
+ * particular language.
+ *
+ * @param int|object $default_term The term in the default language to create a new translation for, either WP Post object or post ID
+ * @param string $lang The language code 
+ * @param string $taxonomy The taxonomy
+ * @return string The admin URL to create the new translation
+ * @access public
+ **/
+function bbl_get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_new_term_translation_url( $default_term, $lang, $taxonomy );
+}
+
+/**
+ * Returns the language code associated with a particular taxonomy.
+ *
+ * @param string $taxonomy The taxonomy to get the language for 
+ * @return string The lang code
+ **/
+function bbl_get_taxonomy_lang_code( $taxonomy ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_taxonomy_lang_code( $taxonomy );
+}
+
+/**
+ * Return the base taxonomy (in the default language) for a 
+ * provided taxonomy.
+ *
+ * @param string $taxonomy The name of a taxonomy 
+ * @return string The name of the base taxonomy
+ **/
+function bbl_get_base_taxonomy( $taxonomy ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_base_taxonomy( $taxonomy );
+}
+
+/**
+ * Returns the equivalent taxonomy in the specified language.
+ *
+ * @param string $taxonomy A taxonomy to return in a given language
+ * @param string $lang_code The language code for the required language 
+ * @return void
+ **/
+function bbl_get_taxonomy_in_lang( $taxonomy, $lang_code ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_taxonomy_in_lang( $taxonomy, $lang_code );
+}
+
+/**
+ * Get the posts which are the translations for the provided 
+ * post ID. N.B. The returned array of post objects (and false 
+ * values) will include the post for the post ID passed.
+ * 
+ * @FIXME: Should I filter out the post ID passed?
+ *
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
+ * @access public
+ **/
+function bbl_get_post_translations( $post ) {
+	global $bbl_post_public;
+	return $bbl_post_public->get_post_translations( $post );
+}
+
+/**
  * Returns the post ID for the post in the default language from which 
  * this post was translated.
  *
@@ -109,7 +159,7 @@ function bbl_get_term_translations( $term, $taxonomy = null ) {
  * @return int The ID of the default language equivalent post
  * @access public
  **/
-function sil_get_default_lang_post( $post ) {
+function bbl_get_default_lang_post( $post ) {
 	global $bbl_post_public;
 	return $bbl_post_public->get_default_lang_post( $post );
 }
@@ -141,18 +191,16 @@ function bbl_get_new_post_translation_url( $default_post, $lang ) {
 }
 
 /**
- * Return the admin URL to create a new translation for a term in a
- * particular language.
+ * Return the post type name for the equivalent post type for the 
+ * supplied original post type in the requested language.
  *
- * @param int|object $default_term The term in the default language to create a new translation for, either WP Post object or post ID
- * @param string $lang The language code 
- * @param string $taxonomy The taxonomy
- * @return string The admin URL to create the new translation
- * @access public
+ * @param string $post_type The originating post type
+ * @param string $lang_code The code for the language required
+ * @return string A post type name, e.g. "page" or "post"
  **/
-function bbl_get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
-	global $bbl_taxonomies;
-	return $bbl_taxonomies->get_new_term_translation_url( $default_term, $lang, $taxonomy );
+function bbl_get_post_type_in_lang( $original_post_type, $lang_code ) {
+	global $bbl_post_public;
+	return $bbl_post_public->get_post_type_in_lang( $original_post_type, $lang_code );
 }
 
 /**
@@ -237,5 +285,6 @@ function bbl_get_lang_from_prefix( $url_prefix ) {
 	global $bbl_languages;
 	return $bbl_languages->get_code_from_url_prefix( $url_prefix );
 }
+
 
 ?>

@@ -27,6 +27,13 @@ class Babble_Switcher_Menu {
 	 **/
 	protected $links;
 	
+	/**
+	 * The WP Screen object
+	 *
+	 * @var object
+	 **/
+	protected $screen;
+	
 	// PUBLIC METHODS
 	// ==============
 
@@ -84,26 +91,33 @@ class Babble_Switcher_Menu {
 			'title' => $current_lang->names,
 		);
 
-		$screen = is_admin() ? get_current_screen() : false;
+		$this->screen = is_admin() ? get_current_screen() : false;
 
-		// Create a handy flag for whether we're editing a post
+		// Create a handy flag for whether we're editing a post or listing posts
 		$editing_post = false;
-		if ( is_admin() )
-			$editing_post = ( is_admin() && 'post' == $screen->base );
+		$listing_posts = false;
+		if ( is_admin() ) {
+			$editing_post = ( is_admin() && 'post' == $this->screen->base && isset( $_GET[ 'post' ] ) );
+			$listing_posts = ( is_admin() && 'post' == $this->screen->base && ! isset( $_GET[ 'post' ] ) );
+		}
 
-		// Create a handy flag for whether we're editing a term
+		// Create a handy flag for whether we're editing a term or listing terms
 		$editing_term = false;
-		if ( is_admin() )
-			$editing_term = ( is_admin() && 'edit-tags' == $screen->base && isset( $_GET[ 'tag_ID' ] ) );
+		$listing_terms = false;
+		if ( is_admin() ) {
+			$editing_term = ( is_admin() && 'edit-tags' == $this->screen->base && isset( $_GET[ 'tag_ID' ] ) );
+			$listing_terms = ( is_admin() && 'edit-tags' == $this->screen->base && ! isset( $_GET[ 'tag_ID' ] ) );
+		}
 
 		if ( is_singular() || is_single() || $editing_post ) {
 			$this->translations = bbl_get_post_translations( get_the_ID() );
 		} else if ( $editing_term ) {
-			$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $screen->taxonomy );
-			$this->translations = bbl_get_term_translations( $term->term_id, $screen->taxonomy );
+			$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
+			$this->translations = bbl_get_term_translations( $term->term_id, $this->screen->taxonomy );
 		}
 
 		foreach ( $alt_langs as $i => & $alt_lang ) {
+			// @TODO: Convert to a switch statement, convert all the vars to a single property on the class
 			if ( is_admin() ) {
 				if ( $editing_post ) {
 					error_log( "Editing post link" );
@@ -111,6 +125,9 @@ class Babble_Switcher_Menu {
 				} else if ( $editing_term ) {
 					error_log( "Editing term link" );
 					$this->add_admin_term_link( $this->links[ 0 ], $alt_lang );
+				} else if ( $listing_terms ) {
+					error_log( "Listing terms link" );
+					$this->add_admin_list_terms_link( $this->links[ 0 ], $alt_lang );
 				} else {
 					error_log( "Generic link link" );
 					$this->add_admin_generic_link( $this->links[ 0 ], $alt_lang );
@@ -155,8 +172,6 @@ class Babble_Switcher_Menu {
 	 **/
 	protected function add_admin_term_link( & $parent, $lang ) {
 		$classes = array();
-		$screen = get_current_screen();
-		error_log( "Translations: " . print_r( $translations, true ) );
 		if ( isset( $this->translations[ $lang->code ]->term_id ) ) { // Translation exists
 			$args = array( 
 				'lang' => $lang->code, 
@@ -169,16 +184,46 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-existing-edit-term';
 		} else { // Translation does not exist
 			$default_term = $this->translations[ bbl_get_default_lang_code() ];
-			$href = bbl_get_new_term_translation_url( $default_term, $lang->code, $screen->taxonomy );
+			$href = bbl_get_new_term_translation_url( $default_term, $lang->code, $this->screen->taxonomy );
 			$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
 		}
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
-		$classes[] = 'bbl-admin-term';
+		$classes[] = 'bbl-admin-taxonomy';
+		$classes[] = 'bbl-admin-edit-term';
 		$classes[] = 'bbl-lang';
-		$classes[] = 'bbl-post';
+		$parent[ 'children' ][] = array(
+			'href' => $href,
+			'id' => $lang->url_prefix,
+			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
+			'title' => $title,
+		);
+	}
+
+	/**
+	 * Add an admin list terms screen link to the parent link provided (by reference).
+	 *
+	 * @param array $parent A reference to the parent link
+	 * @param object $lang A Babble language object for this link
+	 * @return void
+	 **/
+	protected function add_admin_list_terms_link( & $parent, $lang ) {
+		$classes = array();
+		$args = array( 
+			'lang' => $lang->code, 
+			'taxonomy' => bbl_get_taxonomy_in_lang( $this->screen->taxonomy, $lang->code ),
+		);
+		error_log( "Args: " . print_r( $args, true ) );
+		$href = add_query_arg( $args );
+		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
+		$classes[] = 'bbl-admin';
+		$classes[] = 'bbl-admin-taxonomy';
+		$classes[] = 'bbl-admin-list-terms';
+		$classes[] = 'bbl-lang';
+
 		$parent[ 'children' ][] = array(
 			'href' => $href,
 			'id' => $lang->url_prefix,
@@ -210,7 +255,8 @@ class Babble_Switcher_Menu {
 		}
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
-		$classes[] = 'bbl-admin-post';
+		$classes[] = 'bbl-admin-edit-post';
+		$classes[] = 'bbl-admin-post-type';
 		$classes[] = 'bbl-lang';
 		$classes[] = 'bbl-post';
 		$parent[ 'children' ][] = array(

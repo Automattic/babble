@@ -29,6 +29,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected $lang_map;
 
+	/**
+	 * Another structure describing the languages served by various post types.
+	 *
+	 * @var array
+	 **/
+	protected $lang_map2;
+
 	// /**
 	//  * Regex for detecting the language from a URL
 	//  *
@@ -146,6 +153,12 @@ class Babble_Post_Public extends Babble_Plugin {
 			} else {
 				$this->post_types[ $new_post_type ] = $post_type;
 				$this->lang_map[ $new_post_type ] = $lang->code;
+
+				// @TODO: Refactor the $this::lang_map array so we can use this new structure instead
+				if ( ! is_array( $this->lang_map2[ $lang->code ] ) )
+					$this->lang_map2[ $lang->code ] = array();
+				$this->lang_map2[ $lang->code ][ $post_type ] = $new_post_type;
+
 				// This will not work until init has run at the early priority used
 				// to register the post_translation taxonomy. However we catch all the
 				// post_types registered before the hook runs, so we don't miss any 
@@ -226,7 +239,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$subs_index = array();
 		foreach ( $posts as & $post ) {
 			if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
-				if ( $default_post = sil_get_default_lang_post( $post->ID ) )
+				if ( $default_post = bbl_get_default_lang_post( $post->ID ) )
 					$subs_index[ $post->ID ] = $default_post->ID;
 			}
 			if ( ! $this->get_transid( $post ) && bbl_get_default_lang_code() == bbl_get_post_lang( $post ) )
@@ -487,6 +500,32 @@ class Babble_Post_Public extends Babble_Plugin {
 		return $translations;
 	}
 
+	/**
+	 * Return the base taxonomy (in the default language) for a 
+	 * provided taxonomy.
+	 *
+	 * @param string $taxonomy The name of a taxonomy 
+	 * @return string The name of the base taxonomy
+	 **/
+	public function get_base_post_type( $taxonomy ) {
+		if ( ! isset( $this->post_types[ $taxonomy ] ) )
+			return $taxonomy;
+		return $this->post_types[ $taxonomy ];
+	}
+
+	/**
+	 * Returns the equivalent taxonomy in the specified language.
+	 *
+	 * @param string $taxonomy A taxonomy to return in a given language
+	 * @param string $lang_code The language code for the required language 
+	 * @return void
+	 **/
+	public function get_post_type_in_lang( $taxonomy, $lang_code ) {
+		$base_post_type = $this->get_base_post_type( $taxonomy );
+		if ( bbl_get_default_lang_code() == $lang_code )
+			return $base_post_type;
+		return $this->lang_map2[ $lang_code ][ $base_post_type ];
+	}
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================

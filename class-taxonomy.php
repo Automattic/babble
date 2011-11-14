@@ -248,7 +248,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			return $termlink;
 
 		// Deal with our shadow post types
-		if ( ! ( $base_taxonomy = $this->taxonomies[ $taxonomy ] ) ) 
+		if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) 
 			return $post_link;
 
 		// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
@@ -460,7 +460,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @param string $taxonomy The taxonomy to get the language for 
 	 * @return string The lang code
 	 **/
-	protected function get_taxonomy_lang_code( $taxonomy ) {
+	public function get_taxonomy_lang_code( $taxonomy ) {
 		if ( ! isset( $this->taxonomies[ $taxonomy ] ) )
 			return bbl_get_default_lang_code();
 		// var_dump( $this->lang_map );
@@ -470,6 +470,33 @@ class Babble_Taxonomies extends Babble_Plugin {
 					return $lang;
 		// error_log( "Found nothing." );
 		return false;
+	}
+
+	/**
+	 * Return the base taxonomy (in the default language) for a 
+	 * provided taxonomy.
+	 *
+	 * @param string $taxonomy The name of a taxonomy 
+	 * @return string The name of the base taxonomy
+	 **/
+	public function get_base_taxonomy( $taxonomy ) {
+		if ( ! isset( $this->taxonomies[ $taxonomy ] ) )
+			return $taxonomy;
+		return $this->taxonomies[ $taxonomy ];
+	}
+
+	/**
+	 * Returns the equivalent taxonomy in the specified language.
+	 *
+	 * @param string $taxonomy A taxonomy to return in a given language
+	 * @param string $lang_code The language code for the required language 
+	 * @return void
+	 **/
+	public function get_taxonomy_in_lang( $taxonomy, $lang_code ) {
+		$base_taxonomy = $this->get_base_taxonomy( $taxonomy );
+		if ( bbl_get_default_lang_code() == $lang_code )
+			return $base_taxonomy;
+		return $this->lang_map[ $lang_code ][ $base_taxonomy ];
 	}
 	
 	// PRIVATE/PROTECTED METHODS

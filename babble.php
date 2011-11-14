@@ -43,6 +43,7 @@ require_once( 'class-taxonomy.php' );
 require_once( 'class-post-public.php' );
 require_once( 'class-switcher-menu.php' );
 require_once( 'class-admin-bar.php' );
+require_once( 'miscellaneous.php' );
 // require_once( 'api-new.php' );
 
 ?>
