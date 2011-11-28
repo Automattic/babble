@@ -286,5 +286,45 @@ function bbl_get_lang_from_prefix( $url_prefix ) {
 	return $bbl_languages->get_code_from_url_prefix( $url_prefix );
 }
 
+/**
+ * Start logging for Babble
+ *
+ * @return void
+ **/
+function bbl_start_logging() {
+	global $bbl_log;
+	$bbl_log->logging = true;
+}
+
+/**
+ * Stop logging for Babble
+ *
+ * @return void
+ **/
+function bbl_stop_logging() {
+	global $bbl_log;
+	$bbl_log->logging = false;
+}
+
+/**
+ * Start logging for Babble
+ *
+ * @return void
+ **/
+function bbl_is_logging() {
+	global $bbl_log;
+	return $bbl_log->logging;
+}
+
+/**
+ * Log a message.
+ *
+ * @param string $msg Log this message 
+ * @return void
+ **/
+function bbl_log( $msg ) {
+	global $bbl_log;
+	$bbl_log->log( $msg );
+}
 
 ?>

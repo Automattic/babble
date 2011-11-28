@@ -152,8 +152,9 @@ class Babble_Post_Public extends Babble_Plugin {
 				$label = "$label ({$lang->code})";
 
 			$result = register_post_type( $new_post_type, $new_args );
+			// bbl_log( "Registered $new_post_type" );
 			if ( is_wp_error( $result ) ) {
-				error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
+				bbl_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
 			} else {
 				$this->post_types[ $new_post_type ] = $post_type;
 				$this->lang_map[ $new_post_type ] = $lang->code;
@@ -201,10 +202,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// If we're asking for the default content, it's fine
-		// error_log( "Original query: " . print_r( $wp->query_vars, true ) );
+		// bbl_log( "Original query: " . print_r( $wp->query_vars, true ) );
 		if ( bbl_get_default_lang_code() == $wp->query_vars[ 'lang' ] ) {
-			// error_log( "Default content" );
-			// error_log( "New Query 0: " . print_r( $wp->query_vars, true ) );
+			// bbl_log( "Default content" );
+			// bbl_log( "New Query 0: " . print_r( $wp->query_vars, true ) );
 			return;
 		}
 
@@ -225,7 +226,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
 			$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . '_' . $wp->query_vars[ 'lang' ];
 		}
-		error_log( "New Query: " . print_r( $wp->query_vars, true ) );
+		bbl_log( "New Query: " . print_r( $wp->query_vars, true ) );
 	}
 
 	/**
@@ -352,7 +353,7 @@ class Babble_Post_Public extends Babble_Plugin {
 					$post->post_name,
 				);
 				$lang = bbl_get_post_lang( $post );
-				// error_log( "Getting link, lang: $lang ($post->post_title)" );
+				// bbl_log( "Getting link, lang: $lang ($post->post_title)" );
 				bbl_switch_to_lang( $lang );
 				$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
 				bbl_restore_lang();
@@ -364,7 +365,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 
 		} else if ( 'page' == $base_post_type ) {
-			// error_log( "Get page link for $post_link" );
+			// bbl_log( "Get page link for $post_link" );
 			return get_page_link( $post->ID, $leavename );
 		}
 
@@ -381,14 +382,14 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function page_link( $link, $id ) {
 		if ( $this->no_recursion )
 			return $link;
-		// error_log( "Link IN: $link" );
+		// bbl_log( "Link IN: $link" );
 		$this->no_recursion = true;
 		$lang = bbl_get_post_lang( $id );
 		bbl_switch_to_lang( $lang );
 		$link = get_page_link( $id );
 		bbl_restore_lang();
 		$this->no_recursion = false;
-		// error_log( "Link OUT: $link" );
+		// bbl_log( "Link OUT: $link" );
 		return $link;
 	}
 
@@ -478,8 +479,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			'lang' => $lang_code, 
 			'post_type' => $this->get_post_type_in_lang( $default_post->post_type, $lang_code ),
 		);
-		error_log( "default post ( $lang_code ): " . print_r( $default_post, true ) );
-		error_log( "args: " . print_r( $args, true ) );
+		bbl_log( "default post ( $lang_code ): " . print_r( $default_post, true ) );
+		bbl_log( "args: " . print_r( $args, true ) );
 		$url = add_query_arg( $args, $url );
 		bbl_restore_lang();
 		return $url;
@@ -514,11 +515,17 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post = get_post( $post );
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
+		bbl_log( "Transid: $transid" );
 		if ( is_wp_error( $transid ) )
-			error_log( "Error getting transid: " . print_r( $transid, true ) );
+			bbl_log( "Error getting transid: " . print_r( $transid, true ) );
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
 		// Get all the translations in one cached DB query
-		$posts = get_posts( array( 'include' => $post_ids, 'post_type' => 'any' ) );
+		$args = array(
+			'include' => $post_ids,
+			'post_type' => 'any',
+			'post_status' => array( 'publish', 'pending', 'draft', 'future' ),
+		);
+		$posts = get_posts( $args );
 		$translations = array();
 		foreach ( $posts as & $post ) {
 			if ( isset( $this->lang_map[ $post->post_type ] ) )
@@ -551,8 +558,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function get_post_type_in_lang( $post_type, $lang_code ) {
 		$base_post_type = $this->get_base_post_type( $post_type );
+		bbl_log( "Lang: " . $lang_code );
+		bbl_log( "Post type: $post_type" );
+		bbl_log( "Base post type: $base_post_type" );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_post_type;
+		bbl_log( "Mapped post type: " . $this->lang_map2[ $lang_code ][ $base_post_type ] );
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];
 	}
 	
@@ -573,13 +584,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	function get_transid( $post ) {
 		$post = get_post( $post );
 		$transids = (array) wp_get_object_terms( $post->ID, 'post_translation', array( 'fields' => 'ids' ) );
+		bbl_log( "Transids: " . print_r( $transids, true ) );
 		// "There can be only one" (so we'll just drop the others)
 		if ( isset( $transids[ 0 ] ) )
 			return $transids[ 0 ];
-		if ( bbl_get_default_lang_code() == bbl_get_post_lang( $post ) )
-			return false;
-
-		return new WP_Error( 'no_transid', __( "No TransID available for post ID ($post->ID)", 'bbl' ) );
+		
+		return $this->set_transid( $post );
 	}
 
 	/**
@@ -587,7 +597,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 *
 	 * @param int|object $post Either a Post ID or a WP Post object 
 	 * @param string $transid (optional) A transid to associate with the post
-	 * @return void
+	 * @return string The transid which has just been set
 	 * @access private
 	 **/
 	function set_transid( $post, $transid = false ) {
@@ -604,6 +614,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
 		if ( is_wp_error( $result ) )
 			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+		
+		return $transid;
 	}
 
 }

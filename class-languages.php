@@ -65,7 +65,7 @@ class Babble_Languages extends Babble_Plugin {
 		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );
 
 		if ( ! ( $this->available_langs = $this->get_option( 'available_langs', false ) ) ) {
-			error_log( "Refresh available langs" );
+			bbl_log( "Refresh available langs" );
 			$this->parse_available_languages();
 		}
 		$this->active_langs = $this->get_option( 'active_langs', array() );
@@ -443,8 +443,8 @@ class Babble_Languages extends Babble_Plugin {
 		$this->langs[ $locale ]->url_prefix = $url_prefix;
 		$this->langs[ $locale ]->display_name = $this->langs[ $locale ]->names;
 		$this->default_lang = $locale;
-		error_log( "Default lang: $this->default_lang" );
-		error_log( "Langs 0 ($locale) ($url_prefix): " . print_r( $this->langs, true ) );
+		bbl_log( "Default lang: $this->default_lang" );
+		bbl_log( "Langs 0 ($locale) ($url_prefix): " . print_r( $this->langs, true ) );
 	}
 }
 

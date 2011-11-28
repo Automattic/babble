@@ -117,14 +117,16 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		$args[ 'rewrite' ] = false;
 		unset( $args[ 'name' ] );
+		unset( $args[ 'object_type' ] );
 
 		$this->add_taxonomy_hooks( $taxonomy );
 
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
 			$new_object_type = array();
+			// N.B. Here we assume that the taxonomy is on a post type
 			foreach( $object_type as $ot )
-				$new_object_type[] = strtolower( "{$ot}_{$lang->code}" );
+				$new_object_type[] = bbl_get_post_type_in_lang( $ot, $lang->code );
 
 			$new_args[ 'query_var' ] = strtolower( $args[ 'query_var' ] . "_{$lang->code}" );
 
@@ -140,9 +142,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 				$this->lang_map[ $lang->code ] = array();
 			$this->lang_map[ $lang->code ][ $taxonomy ] = $new_taxonomy;
 			
-			// error_log( "New tax: $new_taxonomy, " . print_r( $new_object_type, true ) . ", " . print_r( $new_args, true ) . "" );
-
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
+			
+			// bbl_log( "New tax: $new_taxonomy, " . implode( ',', $new_object_type ) . ", args: " . print_r( $new_args, true ) );
 
 			$this->add_taxonomy_hooks( $new_taxonomy );
 		}
@@ -291,9 +293,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 				}
 				$hierarchical_slugs = array_reverse($hierarchical_slugs);
 				$hierarchical_slugs[] = $slug;
-				error_log( "Termlink 0: $termlink" );
+				bbl_log( "Termlink 0: $termlink" );
 				$termlink = str_replace("%$base_taxonomy%", implode('/', $hierarchical_slugs), $termlink);
-				error_log( "Termlink 1: $termlink | replaced %$base_taxonomy%" );
+				bbl_log( "Termlink 1: $termlink | replaced %$base_taxonomy%" );
 			} else {
 				$termlink = str_replace("%$base_taxonomy%", $slug, $termlink);
 			}
@@ -311,7 +313,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return array The terms which were got
 	 **/
 	public function get_terms( $terms ) {
-		// error_log( "Taxes: " . print_r( $this->taxonomies, true ) );
+		bbl_log( "Taxes: " . print_r( $this->taxonomies, true ) );
 		foreach ( $terms as $term ) {
 			if ( isset( $this->taxonomies[ $taxonomy ] ) )
 				if ( ! $this->get_transid( $term->term_id ) )
@@ -319,10 +321,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 				else
 					continue;
 			if ( ! $this->get_transid( $term->term_id ) ) {
-				// error_log( "Set transid on $term->term_id" );
+				bbl_log( "Set transid on $term->term_id" );
 				$this->set_transid( $term->term_id );
-			// } else {
-				// error_log( "Got transid on $term->term_id" );
+			} else {
+				bbl_log( "Got transid on $term->term_id" );
 			}
 		}
 		return $terms;
@@ -337,12 +339,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function parse_request( $wp ) {
-		error_log( "Request: " . print_r( $wp->query_vars, true ) );
+		// bbl_log( "Request: " . print_r( $wp->query_vars, true ) );
 
 		// If the current language is the default language, then we don't need
 		// to do anything at all
 		if ( bbl_is_default_lang() ) {
-			error_log( "QVs 0: " . print_r( $wp->query_vars, true ) );
+			bbl_log( "QVs 0: " . print_r( $wp->query_vars, true ) );
 			return;
 		}
 
@@ -354,11 +356,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$taxonomy = $this->translated_taxonomy( 'tag', $wp->query_vars[ 'lang' ] );
 			$wp->query_vars[ $taxonomy ] = $wp->query_vars[ 'tag' ];
 			unset( $wp->query_vars[ 'tag' ] );
-		} else if ( isset( $wp->query_vars[ 'category' ] ) ) {
-			
+		} else if ( isset( $wp->query_vars[ 'category_name' ] ) ) {
+			$taxonomy = $this->translated_taxonomy( 'category', $wp->query_vars[ 'lang' ] );
+			$wp->query_vars[ $taxonomy ] = $wp->query_vars[ 'category_name' ];
+			unset( $wp->query_vars[ 'category_name' ] );
 		}
 
-		error_log( "QVs 1: " . print_r( $wp->query_vars, true ) );
+		bbl_log( "QVs 1: " . print_r( $wp->query_vars, true ) );
 	}
 	
 	// CALLBACKS
@@ -398,7 +402,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$translations[ $lang->code ] = false;
 
 		$transid = $this->get_transid( $term->term_id );
-		// I thought this flaming bug where the get_objects_in_term function returned integers
+		// I thought the fracking bug where the get_objects_in_term function returned integers
 		// as strings was fixed. Seems not. See #17646 for details. Argh.
 		$term_ids = array_map( 'absint', get_objects_in_term( $transid, 'term_translation' ) );
 
@@ -432,7 +436,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @access public
 	 **/
 	public function get_new_term_translation_url( $default_term, $lang_code, $taxonomy = null ) {
-		error_log( "Default term: " . print_r( $default_term, true ) );
+		bbl_log( "Default term: " . print_r( $default_term, true ) );
 		if ( ! is_int( $default_term ) && is_null( $taxonomy ) )
 			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
 		else if ( is_int( $default_term ) )
@@ -444,12 +448,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// $default_term = 
 		bbl_switch_to_lang( $lang_code );
 		// var_dump( $default_term );
-		error_log( "Lang map: " . print_r( $this->lang_map, true ) );
-		error_log( "Translated taxonomy: " . $this->lang_map[ $lang_code ][ $taxonomy ] );
+		bbl_log( "Lang map: " . print_r( $this->lang_map, true ) );
+		bbl_log( "Translated taxonomy: " . $this->lang_map[ $lang_code ][ $taxonomy ] );
 		$transid = $this->get_transid( $default_term );
 		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
 		$url = add_query_arg( array( 'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 'bbl_transid' => $transid, 'lang' => $lang_code ), $url );
-		error_log( "URL: $url" );
+		bbl_log( "URL: $url" );
 		bbl_restore_lang();
 		return $url;
 	}
@@ -542,7 +546,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			else
 				$transid = $result[ 'term_id' ];
 		}
-		error_log( "Set transid for $target_term_id: $transid " . gettype( $transid ) . " | " . gettype( $target_term_id ) );
+		bbl_log( "Set transid for $target_term_id: $transid " . gettype( $transid ) . " | " . gettype( $target_term_id ) );
 		return wp_set_object_terms( $target_term_id, absint( $transid ), 'term_translation' );
 	}
 
