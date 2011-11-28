@@ -71,8 +71,6 @@ class Babble_Switcher_Menu {
 		if ( is_array( $this->links ) && ! empty( $this->links ) )
 			return; // Already done
 		
-		bbl_start_logging();
-		
 		$this->links = array();
 
 		// @FIXME: Not sure this is the best way to specify languages
@@ -148,8 +146,6 @@ class Babble_Switcher_Menu {
 				$this->add_taxonomy_archive_link( $this->links[ 0 ], $alt_lang );
 			}
 		}
-		
-		bbl_stop_logging();
 	}
 
 	/**

@@ -53,6 +53,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
+		$this->add_filter( 'posts_request' );
 		
 		$this->post_types = array();
 		$this->lang_map = array();
@@ -185,6 +186,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function parse_request( $wp ) {
 		global $bbl_locale, $bbl_languages;
+		
+		bbl_start_logging();
+
+		if ( is_admin() )
+			return;
 
 		// Sequester the original query, in case we need it to get the default content later
 		$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
@@ -224,9 +230,22 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: This is not a reliable way to detect queries for the 'post' post_type.
 			$wp->query_vars[ 'post_type' ] = 'post_' . $wp->query_vars[ 'lang' ];
 		} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
-			$wp->query_vars[ 'post_type' ] = $wp->query_vars[ 'post_type' ] . '_' . $wp->query_vars[ 'lang' ];
+			$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $wp->query_vars[ 'post_type' ], $wp->query_vars[ 'lang' ] );
 		}
 		bbl_log( "New Query: " . print_r( $wp->query_vars, true ) );
+		
+	}
+
+	/**
+	 * Hooks posts_request.
+	 *
+	 * @param  
+	 * @return void
+	 **/
+	public function posts_request( $query ) {
+		bbl_log( "Query: $query" );
+		bbl_stop_logging();
+		return $query;
 	}
 
 	/**
