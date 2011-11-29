@@ -230,7 +230,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			// Trigger the archive listing for the relevant shadow post type
 			// for this language.
 			if ( bbl_get_default_lang_code() != $wp->query_vars[ 'lang' ] ) {
-				$wp->query_vars[ 'post_type' ] = 'post_' . $wp->query_vars[ 'lang' ];
+				$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', $wp->query_vars[ 'lang' ] );
 			}
 			return;
 		}
