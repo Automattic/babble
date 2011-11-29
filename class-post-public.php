@@ -148,7 +148,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: We are in danger of a post_type name being longer than 20 chars
 			// I would prefer to keep the post_type human readable, as human devs and sysadmins always 
 			// end up needing to read this kind of thing.
-			// Perhaps we need to create some kind of map like (post_type) + (lang) => (shadow translated post_type)
 			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
 
 			foreach ( $new_args[ 'labels' ] as & $label )
