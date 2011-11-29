@@ -324,7 +324,10 @@ function bbl_is_logging() {
  **/
 function bbl_log( $msg ) {
 	global $bbl_log;
-	$bbl_log->log( $msg );
+	if ( $bbl_log )
+		$bbl_log->log( $msg );
+	else
+		error_log( "Full Babble logging unavailable: $msg" );
 }
 
 ?>
