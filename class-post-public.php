@@ -54,6 +54,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
+		$this->add_action( 'updated_post_meta', null, null, 4 );
 		
 		$this->post_types = array();
 		$this->lang_map = array();
@@ -173,6 +174,35 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 
+		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP update_post_meta action to sync metadata across to the
+	 * translations in shadow post types.
+	 *
+	 * @param int $meta_id The ID for this meta entry
+	 * @param int $post_id The ID for the WordPress Post object this meta relates to
+	 * @param string $meta_key The key for this meta entry
+	 * @param mixed $meta_value The new value for this meta entry
+	 * @return void
+	 **/
+	public function updated_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
+		bbl_log( "Update post meta: $meta_id, $post_id, $meta_key, " . print_r( $meta_value, true ) );
+		// Some metadata shouldn't be synced
+		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
+			return;
+
+		$this->no_recursion = true;
+		bbl_log( "Syncing $meta_key" );
+		$translations = $this->get_post_translations( $post_id );
+		bbl_log( "translations: " . print_r( $translations, true ) );
+		foreach ( $translations as $lang_code => & $translation ) {
+			if ( $this->get_post_lang( $post_id ) == $lang_code )
+				continue;
+			update_post_meta( $translation->ID, $meta_key, $meta_value );
+		}
+		
 		$this->no_recursion = false;
 	}
 
