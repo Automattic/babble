@@ -140,6 +140,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		// brittle, e.g. the UI might stop showing up in the shadow
 		// post type edit screens, p'raps.
 		$args[ 'show_ui' ] = true;
+		$slug = ( $args[ 'rewrite' ][ 'slug' ] ) ? $args[ 'rewrite' ][ 'slug' ] : $post_type;
 
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
@@ -152,6 +153,11 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			foreach ( $new_args[ 'labels' ] as & $label )
 				$label = "$label ({$lang->code})";
+				
+			if ( ! is_array( $new_args[ 'rewrite' ] ) )
+				$new_args[ 'rewrite' ] = array();
+			// Do I not need to add this query_var into the query_vars filter? It seems not.
+			$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
 
 			$result = register_post_type( $new_post_type, $new_args );
 			// bbl_log( "Registered $new_post_type" );
@@ -611,6 +617,22 @@ class Babble_Post_Public extends Babble_Plugin {
 			return $base_post_type;
 		bbl_log( "Mapped post type: " . $this->lang_map2[ $lang_code ][ $base_post_type ] );
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];
+	}
+
+	/**
+	 * Returns a slug translated into a particular language.
+	 *
+	 * @param string $slug The slug to translate
+	 * @param string $lang_code The language code of the language to translate it into
+	 * @return void
+	 **/
+	public function get_translated_slug( $slug, $lang_code ) {
+		$_slug = strtolower( apply_filters( 'bbl_translate_slug', $slug ) );
+		error_log( "Slug for $lang_code: $slug | $_slug" );
+		if ( $_slug &&  $_slug != $slug )
+			return $_slug;
+		// Do we need to check that the slug is unique at this point?
+		return strtolower( "{$_slug}_{$lang_code}" );
 	}
 	
 	// PRIVATE/PROTECTED METHODS
