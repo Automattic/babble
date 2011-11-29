@@ -250,13 +250,13 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( isset( $wp->query_vars[ 'pagename' ] ) && $wp->query_vars[ 'pagename' ] ) {
 			// Substitute post_type for 
 			$wp->query_vars[ 'name' ] = $wp->query_vars[ 'pagename' ];
-			$wp->query_vars[ 'page_' . $wp->query_vars[ 'lang' ] ] = $wp->query_vars[ 'pagename' ];
-			$wp->query_vars[ 'post_type' ] = 'page_' . $wp->query_vars[ 'lang' ];
+			$wp->query_vars[ bbl_get_post_type_in_lang( 'page', $wp->query_vars[ 'lang' ] ) ] = $wp->query_vars[ 'pagename' ];
+			$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'page', $wp->query_vars[ 'lang' ] );
 			unset( $wp->query_vars[ 'page' ] );
 			unset( $wp->query_vars[ 'pagename' ] );
 		} elseif ( isset( $wp->query_vars[ 'year' ] ) ) { 
 			// @FIXME: This is not a reliable way to detect queries for the 'post' post_type.
-			$wp->query_vars[ 'post_type' ] = 'post_' . $wp->query_vars[ 'lang' ];
+			$wp->query_vars[ 'post_type' ] =  bbl_get_post_type_in_lang( 'post', $wp->query_vars[ 'lang' ] );
 		} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
 			$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $wp->query_vars[ 'post_type' ], $wp->query_vars[ 'lang' ] );
 		}
