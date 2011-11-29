@@ -59,8 +59,8 @@ class Babble_Locale {
 	 **/
 	function __construct() {
 		add_action( 'admin_init', array( & $this, 'admin_init' ) );
-		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
 		add_action( 'admin_notices', array( & $this, 'admin_notices' ) );
+		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
 		add_filter( 'locale', array( & $this, 'set_locale' ) );
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );

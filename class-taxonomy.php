@@ -52,8 +52,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
 		$this->add_filter( 'get_terms' );
-		$this->add_filter( 'term_link', null, null, 3 );
 		$this->add_filter( 'posts_request' );
+		$this->add_filter( 'term_link', null, null, 3 );
 	}
 	
 	// WP HOOKS
