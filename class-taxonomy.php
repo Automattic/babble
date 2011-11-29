@@ -53,6 +53,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'term_link', null, null, 3 );
+		$this->add_filter( 'posts_request' );
 	}
 	
 	// WP HOOKS
@@ -351,13 +352,21 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Sequester the original query, in case we need it to get the default content later
 		if ( ! isset( $wp->query_vars[ 'bbl_original_query' ] ) )
 			$wp->query_vars[ 'bbl_original_query' ] = $wp->query_vars;
-		
+
 		if ( isset( $wp->query_vars[ 'tag' ] ) ) {
-			$taxonomy = $this->translated_taxonomy( 'tag', $wp->query_vars[ 'lang' ] );
-			$wp->query_vars[ $taxonomy ] = $wp->query_vars[ 'tag' ];
+			$taxonomy = $this->get_taxonomy_in_lang( 'post_tag', $wp->query_vars[ 'lang' ] );
+			// $wp->query_vars[ $taxonomy ] = $wp->query_vars[ 'tag' ];
+			if ( ! is_array( $wp->query_vars[ 'tax_query' ] ) )
+				$wp->query_vars[ 'tax_query' ] = array();
+			
+			$wp->query_vars[ 'tax_query' ][] = array(
+				'taxonomy' => $taxonomy,
+				'field' => 'slug',
+				'terms' => $wp->query_vars[ 'tag' ],
+			);
 			unset( $wp->query_vars[ 'tag' ] );
 		} else if ( isset( $wp->query_vars[ 'category_name' ] ) ) {
-			$taxonomy = $this->translated_taxonomy( 'category', $wp->query_vars[ 'lang' ] );
+			$taxonomy = $this->get_taxonomy_in_lang( 'category', $wp->query_vars[ 'lang' ] );
 			if ( ! is_array( $wp->query_vars[ 'tax_query' ] ) )
 				$wp->query_vars[ 'tax_query' ] = array();
 			
@@ -369,8 +378,18 @@ class Babble_Taxonomies extends Babble_Plugin {
 			
 			unset( $wp->query_vars[ 'category_name' ] );
 		}
-
 		bbl_log( "QVs 1: " . print_r( $wp->query_vars, true ) );
+	}
+
+	/**
+	 * Hooks posts_request.
+	 *
+	 * @param  
+	 * @return void
+	 **/
+	public function posts_request( $query ) {
+		bbl_log( "Query: $query" );
+		return $query;
 	}
 	
 	// CALLBACKS
@@ -507,8 +526,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function get_taxonomy_in_lang( $taxonomy, $lang_code ) {
 		$base_taxonomy = $this->get_base_taxonomy( $taxonomy );
+		bbl_log( "Taxonomy: $base_taxonomy|$taxonomy|$lang_code – " . print_r( $this->lang_map, true ) );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_taxonomy;
+		bbl_log( "Lang code: $lang_code|$base_taxonomy" );
 		return $this->lang_map[ $lang_code ][ $base_taxonomy ];
 	}
 	
