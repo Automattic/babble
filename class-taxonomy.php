@@ -358,7 +358,16 @@ class Babble_Taxonomies extends Babble_Plugin {
 			unset( $wp->query_vars[ 'tag' ] );
 		} else if ( isset( $wp->query_vars[ 'category_name' ] ) ) {
 			$taxonomy = $this->translated_taxonomy( 'category', $wp->query_vars[ 'lang' ] );
-			$wp->query_vars[ $taxonomy ] = $wp->query_vars[ 'category_name' ];
+			if ( ! is_array( $wp->query_vars[ 'tax_query' ] ) )
+				$wp->query_vars[ 'tax_query' ] = array();
+			
+			$wp->query_vars[ 'tax_query' ][] = array(
+				'taxonomy' => $taxonomy,
+				'field' => 'slug',
+				'terms' => $wp->query_vars[ 'category_name' ],
+			);
+			
+			// $wp->query_vars[  ] = $wp->query_vars[ 'category_name' ];
 			unset( $wp->query_vars[ 'category_name' ] );
 		}
 
