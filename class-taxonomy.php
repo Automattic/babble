@@ -367,7 +367,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 				'terms' => $wp->query_vars[ 'category_name' ],
 			);
 			
-			// $wp->query_vars[  ] = $wp->query_vars[ 'category_name' ];
 			unset( $wp->query_vars[ 'category_name' ] );
 		}
 
