@@ -458,7 +458,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// var_dump( $default_term );
 		bbl_log( "Lang map: " . print_r( $this->lang_map, true ) );
 		bbl_log( "Translated taxonomy: " . $this->lang_map[ $lang_code ][ $taxonomy ] );
-		$transid = $this->get_transid( $default_term );
+		bbl_log( "Lang map: " . print_r( $default_term, true ) );
+		$transid = $this->get_transid( $default_term->term_id );
 		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
 		$url = add_query_arg( array( 'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 'bbl_transid' => $transid, 'lang' => $lang_code ), $url );
 		bbl_log( "URL: $url" );
@@ -534,6 +535,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	protected function get_transid( $target_term_id ) {
 		$transids = wp_get_object_terms( $target_term_id, 'term_translation', array( 'fields' => 'ids' ) );
+		bbl_log( "Transids: " . print_r( $transids, true ) );
 		return (int) array_pop( $transids );
 	}
 

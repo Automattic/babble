@@ -241,7 +241,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function posts_request( $query ) {
-		bbl_log( "Query: $query" );
+		// bbl_log( "Query: $query" );
 		return $query;
 	}
 

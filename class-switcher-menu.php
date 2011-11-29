@@ -124,6 +124,7 @@ class Babble_Switcher_Menu {
 
 		foreach ( $alt_langs as $i => & $alt_lang ) {
 			// @TODO: Convert to a switch statement, convert all the vars to a single property on the class
+			bbl_start_logging();
 			if ( is_admin() ) {
 				if ( $editing_post ) {			// Admin: Editing post link
 					$this->add_admin_post_link( $this->links[ 0 ], $alt_lang );
@@ -145,6 +146,7 @@ class Babble_Switcher_Menu {
 				// is_front_page works for language homepages, phew
 				$this->add_taxonomy_archive_link( $this->links[ 0 ], $alt_lang );
 			}
+			bbl_stop_logging();
 		}
 	}
 
@@ -208,6 +210,7 @@ class Babble_Switcher_Menu {
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
 		);
+		bbl_log( "Added $title with $href" );
 	}
 
 	/**
