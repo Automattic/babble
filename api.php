@@ -127,10 +127,10 @@ function bbl_get_base_taxonomy( $taxonomy ) {
  * Returns the equivalent taxonomy in the specified language.
  *
  * @param string $taxonomy A taxonomy to return in a given language
- * @param string $lang_code The language code for the required language 
+ * @param string $lang_code The language code for the required language (optional, defaults to current)
  * @return void
  **/
-function bbl_get_taxonomy_in_lang( $taxonomy, $lang_code ) {
+function bbl_get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
 	global $bbl_taxonomies;
 	return $bbl_taxonomies->get_taxonomy_in_lang( $taxonomy, $lang_code );
 }
@@ -195,10 +195,10 @@ function bbl_get_new_post_translation_url( $default_post, $lang ) {
  * supplied original post type in the requested language.
  *
  * @param string $post_type The originating post type
- * @param string $lang_code The code for the language required
+ * @param string $lang_code The language code for the required language (optional, defaults to current)
  * @return string A post type name, e.g. "page" or "post"
  **/
-function bbl_get_post_type_in_lang( $original_post_type, $lang_code ) {
+function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
 	global $bbl_post_public;
 	return $bbl_post_public->get_post_type_in_lang( $original_post_type, $lang_code );
 }

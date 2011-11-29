@@ -516,10 +516,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * Returns the equivalent taxonomy in the specified language.
 	 *
 	 * @param string $taxonomy A taxonomy to return in a given language
-	 * @param string $lang_code The language code for the required language 
+	 * @param string $lang_code The language code for the required language (optional, defaults to current)
 	 * @return void
 	 **/
-	public function get_taxonomy_in_lang( $taxonomy, $lang_code ) {
+	public function get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
+		if ( is_null( $lang_code ) )
+			$lang_code = bbl_get_current_lang_code();
 		$base_taxonomy = $this->get_base_taxonomy( $taxonomy );
 		bbl_log( "Taxonomy: $base_taxonomy|$taxonomy|$lang_code – " . print_r( $this->lang_map, true ) );
 		if ( bbl_get_default_lang_code() == $lang_code )

@@ -622,12 +622,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns a slug translated into a particular language.
 	 *
 	 * @param string $slug The slug to translate
-	 * @param string $lang_code The language code of the language to translate it into
+	 * @param string $lang_code The language code for the required language (optional, defaults to current)
 	 * @return void
 	 **/
-	public function get_translated_slug( $slug, $lang_code ) {
+	public function get_translated_slug( $slug, $lang_code = null ) {
+		if ( is_null( $lang_code ) )
+			$lang_code = bbl_get_current_lang_code();
 		$_slug = strtolower( apply_filters( 'bbl_translate_slug', $slug ) );
-		error_log( "Slug for $lang_code: $slug | $_slug" );
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
 		// Do we need to check that the slug is unique at this point?
