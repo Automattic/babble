@@ -187,8 +187,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function parse_request( $wp ) {
 		global $bbl_locale, $bbl_languages;
 		
-		bbl_start_logging();
-
 		if ( is_admin() )
 			return;
 
@@ -244,7 +242,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function posts_request( $query ) {
 		bbl_log( "Query: $query" );
-		bbl_stop_logging();
 		return $query;
 	}
 
