@@ -353,30 +353,25 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( ! isset( $wp->query_vars[ 'bbl_original_query' ] ) )
 			$wp->query_vars[ 'bbl_original_query' ] = $wp->query_vars;
 
-		if ( isset( $wp->query_vars[ 'tag' ] ) ) {
-			$taxonomy = $this->get_taxonomy_in_lang( 'post_tag', $wp->query_vars[ 'lang' ] );
-			// $wp->query_vars[ $taxonomy ] = $wp->query_vars[ 'tag' ];
+		if ( isset( $wp->query_vars[ 'tag' ] ) || isset( $wp->query_vars[ 'category_name' ] ) ) {
+			if ( isset( $wp->query_vars[ 'tag' ] ) ) {
+				$taxonomy = $this->get_taxonomy_in_lang( 'post_tag', $wp->query_vars[ 'lang' ] );
+				$terms = $wp->query_vars[ 'tag' ];
+				unset( $wp->query_vars[ 'tag' ] );
+			} else if ( isset( $wp->query_vars[ 'category_name' ] ) ) {
+				$taxonomy = $this->get_taxonomy_in_lang( 'category', $wp->query_vars[ 'lang' ] );
+				$terms = $wp->query_vars[ 'category_name' ];
+				unset( $wp->query_vars[ 'category_name' ] );
+			}
+
 			if ( ! is_array( $wp->query_vars[ 'tax_query' ] ) )
 				$wp->query_vars[ 'tax_query' ] = array();
 			
 			$wp->query_vars[ 'tax_query' ][] = array(
 				'taxonomy' => $taxonomy,
 				'field' => 'slug',
-				'terms' => $wp->query_vars[ 'tag' ],
+				'terms' => $terms,
 			);
-			unset( $wp->query_vars[ 'tag' ] );
-		} else if ( isset( $wp->query_vars[ 'category_name' ] ) ) {
-			$taxonomy = $this->get_taxonomy_in_lang( 'category', $wp->query_vars[ 'lang' ] );
-			if ( ! is_array( $wp->query_vars[ 'tax_query' ] ) )
-				$wp->query_vars[ 'tax_query' ] = array();
-			
-			$wp->query_vars[ 'tax_query' ][] = array(
-				'taxonomy' => $taxonomy,
-				'field' => 'slug',
-				'terms' => $wp->query_vars[ 'category_name' ],
-			);
-			
-			unset( $wp->query_vars[ 'category_name' ] );
 		}
 		bbl_log( "QVs 1: " . print_r( $wp->query_vars, true ) );
 	}
