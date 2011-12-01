@@ -20,10 +20,12 @@
  **/
 function bbl_admin_init() {
 	global $pagenow;
-	$taxonomy = @ $_GET[ 'taxonomy' ];
+
+	$taxonomy = isset( $_GET[ 'taxonomy' ] ) ? $_GET[ 'taxonomy' ] : false;
+	$post_type = isset( $_GET[ 'post_type' ] ) ? $_GET[ 'post_type' ] : false;
 
 	// Deal with the special URL case of the listing screens for vanilla posts
-	if ( ! ( $post_type = @ $_GET[ 'post_type' ] ) && 'edit.php' == $pagenow )
+	if ( ! $post_type && 'edit.php' == $pagenow )
 		$post_type = 'post';
 
 	$cur_lang_code = bbl_get_current_lang_code();
