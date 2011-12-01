@@ -145,7 +145,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				$label = "$label ({$lang->code})";
 
 			$this->taxonomies[ $new_taxonomy ] = $taxonomy;
-			if ( ! is_array( $this->lang_map[ $lang->code ] ) )
+			if ( ! isset( $this->lang_map[ $lang->code ] ) || ! is_array( $this->lang_map[ $lang->code ] ) )
 				$this->lang_map[ $lang->code ] = array();
 			$this->lang_map[ $lang->code ][ $taxonomy ] = $new_taxonomy;
 			

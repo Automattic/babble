@@ -167,7 +167,10 @@ class Babble_Post_Public extends Babble_Plugin {
 				$this->lang_map[ $new_post_type ] = $lang->code;
 
 				// @TODO: Refactor the $this::lang_map array so we can use this new structure instead
-				if ( ! is_array( $this->lang_map2[ $lang->code ] ) )
+				// if ( ! isset( $this->lang_map2[ $lang->code ] ) ) {
+				// 	var_dump( $this->lang_map2 );
+				// }
+				if ( ! isset( $this->lang_map2[ $lang->code ] ) || ! is_array( $this->lang_map2[ $lang->code ] ) )
 					$this->lang_map2[ $lang->code ] = array();
 				$this->lang_map2[ $lang->code ][ $post_type ] = $new_post_type;
 
@@ -485,6 +488,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		foreach ( $menu as $key => $item ) {
 			$vars = array();
 			$url_info = parse_url( $item[ 2 ] );
+			if ( ! isset( $url_info[ 'query' ] ) )
+				continue;
 			parse_str( $url_info[ 'query' ], $vars );
 			if ( ! isset( $vars[ 'post_type' ] ) || ! isset( $this->post_types[ $vars[ 'post_type' ] ] ) )
 				continue;
