@@ -53,7 +53,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
-		$this->add_filter( 'term_link', null, null, 3 );
+		// $this->add_filter( 'term_link', null, null, 3 );
 	}
 	
 	// WP HOOKS
@@ -122,6 +122,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		$this->add_taxonomy_hooks( $taxonomy );
 
+		$slug = ( $args[ 'rewrite' ][ 'slug' ] ) ? $args[ 'rewrite' ][ 'slug' ] : $taxonomy;
+
+		// bbl_start_logging();
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
 			$new_object_type = array();
@@ -129,7 +132,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 			foreach( $object_type as $ot )
 				$new_object_type[] = bbl_get_post_type_in_lang( $ot, $lang->code );
 
-			$new_args[ 'query_var' ] = strtolower( $args[ 'query_var' ] . "_{$lang->code}" );
+			if ( ! is_array( $new_args[ 'rewrite' ] ) )
+				$new_args[ 'rewrite' ] = array();
+			// Do I not need to add this query_var into the query_vars filter? It seems not.
+			$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
 
 			// @FIXME: Note currently we are in danger of a taxonomy name being longer than 32 chars
 			// Perhaps we need to create some kind of map like (taxonomy) + (lang) => (shadow translated taxonomy)
@@ -145,10 +151,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 			
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
 			
-			// bbl_log( "New tax: $new_taxonomy, " . implode( ',', $new_object_type ) . ", args: " . print_r( $new_args, true ) );
+			bbl_log( "New tax: $new_taxonomy, " . implode( ',', $new_object_type ) . ", args: " . print_r( $new_args, true ) );
 
 			$this->add_taxonomy_hooks( $new_taxonomy );
 		}
+		// bbl_stop_logging();
 
 		$this->no_recursion = false;
 	}
@@ -244,68 +251,74 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @param string $taxonomy The 
 	 * @return string The term link
 	 **/
-	public function term_link( $termlink, $term, $taxonomy ) {
-		$taxonomy = strtolower( $taxonomy );
-		// No need to worry about the built in taxonomies
-		if ( 'post_tag' == $taxonomy || 'category' == $taxonomy || ! isset( $this->taxonomies[ $taxonomy ] ) )
-			return $termlink;
-
-		// Deal with our shadow post types
-		if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) 
-			return $post_link;
-
-		// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
-		global $wp_rewrite;
-
-		if ( !is_object($term) ) {
-			if ( is_int($term) ) {
-				$term = &get_term($term, $base_taxonomy);
-			} else {
-				$term = &get_term_by('slug', $term, $base_taxonomy);
-			}
-		}
-
-		if ( !is_object($term) )
-			$term = new WP_Error('invalid_term', __('Empty Term'));
-
-		if ( is_wp_error( $term ) )
-			return $term;
-
-		$termlink = $wp_rewrite->get_extra_permastruct($base_taxonomy);
-
-		$slug = $term->slug;
-		$t = get_taxonomy($base_taxonomy);
-
-		if ( empty($termlink) ) {
-			if ( 'category' == $base_taxonomy )
-				$termlink = '?cat=' . $term->term_id;
-			elseif ( $t->query_var )
-				$termlink = "?$t->query_var=$slug";
-			else
-				$termlink = "?taxonomy=$base_taxonomy&term=$slug";
-			$termlink = home_url($termlink);
-		} else {
-			if ( $t->rewrite['hierarchical'] ) {
-				$hierarchical_slugs = array();
-				$ancestors = get_ancestors($term->term_id, $base_taxonomy);
-				foreach ( (array)$ancestors as $ancestor ) {
-					$ancestor_term = get_term($ancestor, $base_taxonomy);
-					$hierarchical_slugs[] = $ancestor_term->slug;
-				}
-				$hierarchical_slugs = array_reverse($hierarchical_slugs);
-				$hierarchical_slugs[] = $slug;
-				bbl_log( "Termlink 0: $termlink" );
-				$termlink = str_replace("%$base_taxonomy%", implode('/', $hierarchical_slugs), $termlink);
-				bbl_log( "Termlink 1: $termlink | replaced %$base_taxonomy%" );
-			} else {
-				$termlink = str_replace("%$base_taxonomy%", $slug, $termlink);
-			}
-			$termlink = home_url( user_trailingslashit($termlink, 'category') );
-		}
-		// STOP copying from get_term_link
-
-		return $termlink;
-	}
+	// public function term_link( $termlink, $term, $taxonomy ) {
+	// 	$taxonomy = strtolower( $taxonomy );
+	// 	// No need to worry about the built in taxonomies
+	// 	if ( 'post_tag' == $taxonomy || 'category' == $taxonomy || ! isset( $this->taxonomies[ $taxonomy ] ) )
+	// 		return $termlink;
+	// 
+	// 	// Deal with our shadow taxonomies
+	// 	if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) 
+	// 		return $post_link;
+	// 
+	// 	bbl_log( "Base tax: " . print_r( $base_taxonomy, true ) );
+	// 
+	// 	// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
+	// 	global $wp_rewrite;
+	// 
+	// 	if ( !is_object($term) ) {
+	// 		if ( is_int($term) ) {
+	// 			$term = &get_term($term, $base_taxonomy);
+	// 		} else {
+	// 			$term = &get_term_by('slug', $term, $base_taxonomy);
+	// 		}
+	// 	}
+	// 
+	// 	bbl_log( "Got term: $term->slug" );
+	// 
+	// 	if ( !is_object($term) )
+	// 		$term = new WP_Error('invalid_term', __('Empty Term'));
+	// 
+	// 	if ( is_wp_error( $term ) )
+	// 		return $term;
+	// 
+	// 	$termlink = $wp_rewrite->get_extra_permastruct($base_taxonomy);
+	// 
+	// 	$slug = $term->slug;
+	// 	$t = get_taxonomy($base_taxonomy);
+	// 
+	// 	bbl_log( "Got tax: " . print_r( $t, true ) );
+	// 
+	// 	if ( empty($termlink) ) {
+	// 		if ( 'category' == $base_taxonomy )
+	// 			$termlink = '?cat=' . $term->term_id;
+	// 		elseif ( $t->query_var )
+	// 			$termlink = "?$t->query_var=$slug";
+	// 		else
+	// 			$termlink = "?taxonomy=$base_taxonomy&term=$slug";
+	// 		$termlink = home_url($termlink);
+	// 	} else {
+	// 		if ( $t->rewrite['hierarchical'] ) {
+	// 			$hierarchical_slugs = array();
+	// 			$ancestors = get_ancestors($term->term_id, $base_taxonomy);
+	// 			foreach ( (array)$ancestors as $ancestor ) {
+	// 				$ancestor_term = get_term($ancestor, $base_taxonomy);
+	// 				$hierarchical_slugs[] = $ancestor_term->slug;
+	// 			}
+	// 			$hierarchical_slugs = array_reverse($hierarchical_slugs);
+	// 			$hierarchical_slugs[] = $slug;
+	// 			bbl_log( "Termlink 0: $termlink" );
+	// 			$termlink = str_replace("%$base_taxonomy%", implode('/', $hierarchical_slugs), $termlink);
+	// 			bbl_log( "Termlink 1: $termlink | replaced %$base_taxonomy%" );
+	// 		} else {
+	// 			$termlink = str_replace("%$base_taxonomy%", $slug, $termlink);
+	// 		}
+	// 		$termlink = home_url( user_trailingslashit($termlink, 'category') );
+	// 	}
+	// 	// STOP copying from get_term_link
+	// 
+	// 	return $termlink;
+	// }
 
 	/**
 	 * Hooks the WP get_terms filter to ensure the terms all have transids.
@@ -340,6 +353,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function parse_request( $wp ) {
+		// bbl_start_logging();
 		// bbl_log( "Request: " . print_r( $wp->query_vars, true ) );
 
 		// If the current language is the default language, then we don't need
@@ -353,25 +367,32 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( ! isset( $wp->query_vars[ 'bbl_original_query' ] ) )
 			$wp->query_vars[ 'bbl_original_query' ] = $wp->query_vars;
 
-		if ( isset( $wp->query_vars[ 'tag' ] ) || isset( $wp->query_vars[ 'category_name' ] ) ) {
-			if ( isset( $wp->query_vars[ 'tag' ] ) ) {
-				$taxonomy = $this->get_taxonomy_in_lang( 'post_tag', $wp->query_vars[ 'lang' ] );
-				$terms = $wp->query_vars[ 'tag' ];
-				unset( $wp->query_vars[ 'tag' ] );
-			} else if ( isset( $wp->query_vars[ 'category_name' ] ) ) {
-				$taxonomy = $this->get_taxonomy_in_lang( 'category', $wp->query_vars[ 'lang' ] );
-				$terms = $wp->query_vars[ 'category_name' ];
-				unset( $wp->query_vars[ 'category_name' ] );
-			}
+		$taxonomy 	= false;
+		$terms 		= false;
+
+		if ( isset( $wp->query_vars[ 'tag' ] ) ) {
+			$taxonomy = $this->get_taxonomy_in_lang( 'post_tag', $wp->query_vars[ 'lang' ] );
+			$terms = $wp->query_vars[ 'tag' ];
+			unset( $wp->query_vars[ 'tag' ] );
+		} else if ( isset( $wp->query_vars[ 'category_name' ] ) ) {
+			$taxonomy = $this->get_taxonomy_in_lang( 'category', $wp->query_vars[ 'lang' ] );
+			$terms = $wp->query_vars[ 'category_name' ];
+			unset( $wp->query_vars[ 'category_name' ] );
+		} else {
+			// bbl_log( "" );
+		}
+
+		if ( $taxonomy && $terms ) {
 
 			if ( ! is_array( $wp->query_vars[ 'tax_query' ] ) )
 				$wp->query_vars[ 'tax_query' ] = array();
-			
+		
 			$wp->query_vars[ 'tax_query' ][] = array(
 				'taxonomy' => $taxonomy,
 				'field' => 'slug',
 				'terms' => $terms,
 			);
+		
 		}
 		bbl_log( "QVs 1: " . print_r( $wp->query_vars, true ) );
 	}
@@ -528,6 +549,25 @@ class Babble_Taxonomies extends Babble_Plugin {
 			return $base_taxonomy;
 		bbl_log( "Lang code: $lang_code|$base_taxonomy" );
 		return $this->lang_map[ $lang_code ][ $base_taxonomy ];
+	}
+
+	/**
+	 * Returns a slug translated into a particular language.
+	 *
+	 * @TODO: This is more or less the same method as Babble_Post_Public::get_taxonomy_lang_code, do I need to DRY that up?
+	 *
+	 * @param string $slug The slug to translate
+	 * @param string $lang_code The language code for the required language (optional, defaults to current)
+	 * @return void
+	 **/
+	public function get_translated_slug( $slug, $lang_code = null ) {
+		if ( is_null( $lang_code ) )
+			$lang_code = bbl_get_current_lang_code();
+		$_slug = strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug ) );
+		if ( $_slug &&  $_slug != $slug )
+			return $_slug;
+		// Do we need to check that the slug is unique at this point?
+		return strtolower( "{$_slug}_{$lang_code}" );
 	}
 	
 	// PRIVATE/PROTECTED METHODS

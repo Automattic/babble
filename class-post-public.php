@@ -52,8 +52,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
-		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
-		$this->add_filter( 'post_type_link', null, null, 3 );
+		// $this->add_filter( 'post_link', 'post_type_link', null, 3 );
+		// $this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		
 		$this->post_types = array();
@@ -326,102 +326,102 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param object $post The WP Post object being linked to
 	 * @return string The permalink
 	 **/
-	public function post_type_link( $post_link, $post, $leavename ) {
-		global $wp_rewrite;
-
-		// Regular ol' post types, and other types added by other plugins, etc
-		if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $this->post_types[ $post->post_type ] ) )
-			return $post_link;
-
-		// Deal with our shadow post types
-		if ( ! ( $base_post_type = $this->post_types[ $post->post_type ] ) ) 
-			return $post_link;
-
-		// Deal with post_types shadowing the post post_type
-		if ( 'post' == $base_post_type ) {
-			// @FIXME: Probably move this into another function
-			// @FIXME: Is there any way I can provide an appropriate permastruct so I can avoid having to copy all this code, with the associated maintenance headaches?
-			// START copying from get_permalink function
-			// N.B. The $permalink var is replaced with $post_link
-			$rewritecode = array(
-				'%year%',
-				'%monthnum%',
-				'%day%',
-				'%hour%',
-				'%minute%',
-				'%second%',
-				'%postname%',
-				'%post_id%',
-				'%category%',
-				'%author%',
-				'%pagename%',
-			);
-
-			$post_link = get_option('permalink_structure');
-
-			// @FIXME: Should I somehow fake this, so plugin authors who hook it still get some consequence?
-			// $post_link = apply_filters('pre_post_link', $post_link, $post, $leavename);
-
-			if ( '' != $post_link && ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) ) ) {
-				$unixtime = strtotime($post->post_date);
-
-				$category = '';
-				if ( strpos($post_link, '%category%') !== false ) {
-					$cats = get_the_category($post->ID);
-					if ( $cats ) {
-						usort($cats, '_usort_terms_by_ID'); // order by ID
-						$category = $cats[0]->slug;
-						if ( $parent = $cats[0]->parent )
-							$category = get_category_parents($parent, false, '/', true) . $category;
-					}
-					// show default category in permalinks, without
-					// having to assign it explicitly
-					if ( empty($category) ) {
-						$default_category = get_category( get_option( 'default_category' ) );
-						$category = is_wp_error( $default_category ) ? '' : $default_category->slug;
-					}
-				}
-
-				$author = '';
-				if ( strpos($post_link, '%author%') !== false ) {
-					$authordata = get_userdata($post->post_author);
-					$author = $authordata->user_nicename;
-				}
-
-				$date = explode(" ",date('Y m d H i s', $unixtime));
-				$rewritereplace =
-				array(
-					$date[0],
-					$date[1],
-					$date[2],
-					$date[3],
-					$date[4],
-					$date[5],
-					$post->post_name,
-					$post->ID,
-					$category,
-					$author,
-					$post->post_name,
-				);
-				$lang = bbl_get_post_lang( $post );
-				// bbl_log( "Getting link, lang: $lang ($post->post_title)" );
-				bbl_switch_to_lang( $lang );
-				$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
-				bbl_restore_lang();
-				$post_link = user_trailingslashit($post_link, 'single');
-				// END copying from get_permalink function
-				return $post_link;
-			} else { // if they're not using the fancy permalink option the link won't work. Known bug. :)
-				return $post_link;
-			}
-
-		} else if ( 'page' == $base_post_type ) {
-			// bbl_log( "Get page link for $post_link" );
-			return get_page_link( $post->ID, $leavename );
-		}
-
-		return $post_link;
-	}
+	// public function post_type_link( $post_link, $post, $leavename ) {
+	// 	global $wp_rewrite;
+	// 
+	// 	// Regular ol' post types, and other types added by other plugins, etc
+	// 	if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $this->post_types[ $post->post_type ] ) )
+	// 		return $post_link;
+	// 
+	// 	// Deal with our shadow post types
+	// 	if ( ! ( $base_post_type = $this->post_types[ $post->post_type ] ) ) 
+	// 		return $post_link;
+	// 
+	// 	// Deal with post_types shadowing the post post_type
+	// 	if ( 'post' == $base_post_type ) {
+	// 		// @FIXME: Probably move this into another function
+	// 		// @FIXME: Is there any way I can provide an appropriate permastruct so I can avoid having to copy all this code, with the associated maintenance headaches?
+	// 		// START copying from get_permalink function
+	// 		// N.B. The $permalink var is replaced with $post_link
+	// 		$rewritecode = array(
+	// 			'%year%',
+	// 			'%monthnum%',
+	// 			'%day%',
+	// 			'%hour%',
+	// 			'%minute%',
+	// 			'%second%',
+	// 			'%postname%',
+	// 			'%post_id%',
+	// 			'%category%',
+	// 			'%author%',
+	// 			'%pagename%',
+	// 		);
+	// 
+	// 		$post_link = get_option('permalink_structure');
+	// 
+	// 		// @FIXME: Should I somehow fake this, so plugin authors who hook it still get some consequence?
+	// 		// $post_link = apply_filters('pre_post_link', $post_link, $post, $leavename);
+	// 
+	// 		if ( '' != $post_link && ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) ) ) {
+	// 			$unixtime = strtotime($post->post_date);
+	// 
+	// 			$category = '';
+	// 			if ( strpos($post_link, '%category%') !== false ) {
+	// 				$cats = get_the_category($post->ID);
+	// 				if ( $cats ) {
+	// 					usort($cats, '_usort_terms_by_ID'); // order by ID
+	// 					$category = $cats[0]->slug;
+	// 					if ( $parent = $cats[0]->parent )
+	// 						$category = get_category_parents($parent, false, '/', true) . $category;
+	// 				}
+	// 				// show default category in permalinks, without
+	// 				// having to assign it explicitly
+	// 				if ( empty($category) ) {
+	// 					$default_category = get_category( get_option( 'default_category' ) );
+	// 					$category = is_wp_error( $default_category ) ? '' : $default_category->slug;
+	// 				}
+	// 			}
+	// 
+	// 			$author = '';
+	// 			if ( strpos($post_link, '%author%') !== false ) {
+	// 				$authordata = get_userdata($post->post_author);
+	// 				$author = $authordata->user_nicename;
+	// 			}
+	// 
+	// 			$date = explode(" ",date('Y m d H i s', $unixtime));
+	// 			$rewritereplace =
+	// 			array(
+	// 				$date[0],
+	// 				$date[1],
+	// 				$date[2],
+	// 				$date[3],
+	// 				$date[4],
+	// 				$date[5],
+	// 				$post->post_name,
+	// 				$post->ID,
+	// 				$category,
+	// 				$author,
+	// 				$post->post_name,
+	// 			);
+	// 			$lang = bbl_get_post_lang( $post );
+	// 			// bbl_log( "Getting link, lang: $lang ($post->post_title)" );
+	// 			bbl_switch_to_lang( $lang );
+	// 			$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
+	// 			bbl_restore_lang();
+	// 			$post_link = user_trailingslashit($post_link, 'single');
+	// 			// END copying from get_permalink function
+	// 			return $post_link;
+	// 		} else { // if they're not using the fancy permalink option the link won't work. Known bug. :)
+	// 			return $post_link;
+	// 		}
+	// 
+	// 	} else if ( 'page' == $base_post_type ) {
+	// 		// bbl_log( "Get page link for $post_link" );
+	// 		return get_page_link( $post->ID, $leavename );
+	// 	}
+	// 
+	// 	return $post_link;
+	// }
 
 	/**
 	 * Hooks the WP page_link filter to ensure correct virtual language directory prefix, etc.
@@ -628,7 +628,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function get_translated_slug( $slug, $lang_code = null ) {
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
-		$_slug = strtolower( apply_filters( 'bbl_translate_slug', $slug ) );
+		$_slug = strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug ) );
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
 		// Do we need to check that the slug is unique at this point?
