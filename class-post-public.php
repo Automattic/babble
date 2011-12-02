@@ -456,8 +456,12 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( 'page' == get_option('show_on_front') ) {
 			$front_page_transid = $this->get_transid( get_option( 'page_on_front' ) );
 			$this_transid = $this->get_transid( $post_id );
-			$lang_code = bbl_get_post_lang_code( $post_id );
-			return '/' . bbl_get_prefix_from_lang_code( $lang_code ) . '/';
+			if ( $front_page_transid == $this_transid ) {
+				bbl_switch_to_lang( bbl_get_post_lang_code( $post_id ) );
+				$link = home_url();
+				bbl_restore_lang();
+				return $link;
+			}
 		}
 
 		$this->no_recursion = true;
