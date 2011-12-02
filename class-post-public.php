@@ -45,16 +45,17 @@ class Babble_Post_Public extends Babble_Plugin {
 	
 	function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
+
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_post_type', null, null, 2 );
+		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
-		$this->add_action( 'updated_post_meta', null, null, 4 );
 		
 		$this->post_types = array();
 		$this->lang_map = array();
