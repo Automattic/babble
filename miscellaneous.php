@@ -37,11 +37,13 @@ function bbl_admin_init() {
 			exit;
 		}
 	}
-	$new_post_type = bbl_get_post_type_in_lang( $post_type, $cur_lang_code );
-	if ( $post_type != $new_post_type ) {
-		$url = add_query_arg( array( 'post_type' => $new_post_type ) );
-		wp_redirect( $url );
-		exit;
+	if ( $post_type ) {
+		$new_post_type = bbl_get_post_type_in_lang( $post_type, $cur_lang_code );
+		if ( $post_type != $new_post_type ) {
+			$url = add_query_arg( array( 'post_type' => $new_post_type ) );
+			wp_redirect( $url );
+			exit;
+		}
 	}
 }
 add_action( 'admin_init', 'bbl_admin_init' );
