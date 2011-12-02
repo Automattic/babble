@@ -34,9 +34,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * @access public
  **/
 function bbl_get_current_lang_code() {
-	// Outside the admin area, it's a WP Query Variable
-	if ( ! is_admin() )
-		return get_query_var( 'lang' ) ? get_query_var( 'lang' ) : bbl_get_default_lang_code();
+	if ( ! is_admin() ) {
+		global $bbl_locale;
+		return $bbl_locale->get_lang();
+	}
 	// In the admin area, it's a GET param
 	$current_user = wp_get_current_user();
 	return get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) ? get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) : bbl_get_default_lang_code();
@@ -171,9 +172,9 @@ function bbl_get_default_lang_post( $post ) {
  * @return string|object Either a language code, or a WP_Error object
  * @access public
  **/
-function bbl_get_post_lang( $post ) {
+function bbl_get_post_lang_code( $post ) {
 	global $bbl_post_public;
-	return $bbl_post_public->get_post_lang( $post );
+	return $bbl_post_public->get_post_lang_code( $post );
 }
 
 /**
