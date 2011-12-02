@@ -52,8 +52,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
-		// $this->add_filter( 'post_link', 'post_type_link', null, 3 );
-		// $this->add_filter( 'post_type_link', null, null, 3 );
+		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
+		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		
 		$this->post_types = array();
@@ -225,6 +225,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function parse_request( $wp ) {
 		global $bbl_locale, $bbl_languages;
 
+		bbl_start_logging();
+
 		if ( is_admin() )
 			return;
 
@@ -238,7 +240,11 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: Cater for front pages which don't list the posts
 			if ( 'page' == get_option('show_on_front') && get_option('page_on_front') ) {
 				// @TODO: Get translated page ID
+				bbl_log( "Current lang code: " . bbl_get_current_lang_code() );
 				$wp->query_vars[ 'page_id' ] = $this->get_post_in_lang( get_option('page_on_front'), bbl_get_current_lang_code() )->ID;
+				bbl_log( "New Query: " . print_r( $wp->query_vars, true ) );
+				bbl_stop_logging();
+				return;
 			}
 
 			// Trigger the archive listing for the relevant shadow post type
@@ -277,6 +283,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		bbl_log( "New Query: " . print_r( $wp->query_vars, true ) );
 
+		bbl_stop_logging();
 	}
 
 	/**
@@ -308,7 +315,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				if ( $default_post = bbl_get_default_lang_post( $post->ID ) )
 					$subs_index[ $post->ID ] = $default_post->ID;
 			}
-			if ( ! $this->get_transid( $post ) && bbl_get_default_lang_code() == bbl_get_post_lang( $post ) )
+			if ( ! $this->get_transid( $post ) && bbl_get_default_lang_code() == bbl_get_post_lang_code( $post ) )
 				$this->set_transid( $post );
 		}
 		if ( ! $subs_index )
@@ -336,102 +343,102 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param object $post The WP Post object being linked to
 	 * @return string The permalink
 	 **/
-	// public function post_type_link( $post_link, $post, $leavename ) {
-	// 	global $wp_rewrite;
-	// 
-	// 	// Regular ol' post types, and other types added by other plugins, etc
-	// 	if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $this->post_types[ $post->post_type ] ) )
-	// 		return $post_link;
-	// 
-	// 	// Deal with our shadow post types
-	// 	if ( ! ( $base_post_type = $this->post_types[ $post->post_type ] ) ) 
-	// 		return $post_link;
-	// 
-	// 	// Deal with post_types shadowing the post post_type
-	// 	if ( 'post' == $base_post_type ) {
-	// 		// @FIXME: Probably move this into another function
-	// 		// @FIXME: Is there any way I can provide an appropriate permastruct so I can avoid having to copy all this code, with the associated maintenance headaches?
-	// 		// START copying from get_permalink function
-	// 		// N.B. The $permalink var is replaced with $post_link
-	// 		$rewritecode = array(
-	// 			'%year%',
-	// 			'%monthnum%',
-	// 			'%day%',
-	// 			'%hour%',
-	// 			'%minute%',
-	// 			'%second%',
-	// 			'%postname%',
-	// 			'%post_id%',
-	// 			'%category%',
-	// 			'%author%',
-	// 			'%pagename%',
-	// 		);
-	// 
-	// 		$post_link = get_option('permalink_structure');
-	// 
-	// 		// @FIXME: Should I somehow fake this, so plugin authors who hook it still get some consequence?
-	// 		// $post_link = apply_filters('pre_post_link', $post_link, $post, $leavename);
-	// 
-	// 		if ( '' != $post_link && ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) ) ) {
-	// 			$unixtime = strtotime($post->post_date);
-	// 
-	// 			$category = '';
-	// 			if ( strpos($post_link, '%category%') !== false ) {
-	// 				$cats = get_the_category($post->ID);
-	// 				if ( $cats ) {
-	// 					usort($cats, '_usort_terms_by_ID'); // order by ID
-	// 					$category = $cats[0]->slug;
-	// 					if ( $parent = $cats[0]->parent )
-	// 						$category = get_category_parents($parent, false, '/', true) . $category;
-	// 				}
-	// 				// show default category in permalinks, without
-	// 				// having to assign it explicitly
-	// 				if ( empty($category) ) {
-	// 					$default_category = get_category( get_option( 'default_category' ) );
-	// 					$category = is_wp_error( $default_category ) ? '' : $default_category->slug;
-	// 				}
-	// 			}
-	// 
-	// 			$author = '';
-	// 			if ( strpos($post_link, '%author%') !== false ) {
-	// 				$authordata = get_userdata($post->post_author);
-	// 				$author = $authordata->user_nicename;
-	// 			}
-	// 
-	// 			$date = explode(" ",date('Y m d H i s', $unixtime));
-	// 			$rewritereplace =
-	// 			array(
-	// 				$date[0],
-	// 				$date[1],
-	// 				$date[2],
-	// 				$date[3],
-	// 				$date[4],
-	// 				$date[5],
-	// 				$post->post_name,
-	// 				$post->ID,
-	// 				$category,
-	// 				$author,
-	// 				$post->post_name,
-	// 			);
-	// 			$lang = bbl_get_post_lang( $post );
-	// 			// bbl_log( "Getting link, lang: $lang ($post->post_title)" );
-	// 			bbl_switch_to_lang( $lang );
-	// 			$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
-	// 			bbl_restore_lang();
-	// 			$post_link = user_trailingslashit($post_link, 'single');
-	// 			// END copying from get_permalink function
-	// 			return $post_link;
-	// 		} else { // if they're not using the fancy permalink option the link won't work. Known bug. :)
-	// 			return $post_link;
-	// 		}
-	// 
-	// 	} else if ( 'page' == $base_post_type ) {
-	// 		// bbl_log( "Get page link for $post_link" );
-	// 		return get_page_link( $post->ID, $leavename );
-	// 	}
-	// 
-	// 	return $post_link;
-	// }
+	public function post_type_link( $post_link, $post, $leavename ) {
+		global $wp_rewrite;
+	
+		// Regular ol' post types, and other types added by other plugins, etc
+		if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $this->post_types[ $post->post_type ] ) )
+			return $post_link;
+	
+		// Deal with our shadow post types
+		if ( ! ( $base_post_type = $this->post_types[ $post->post_type ] ) ) 
+			return $post_link;
+	
+		// Deal with post_types shadowing the post post_type
+		if ( 'post' == $base_post_type ) {
+			// @FIXME: Probably move this into another function
+			// @FIXME: Is there any way I can provide an appropriate permastruct so I can avoid having to copy all this code, with the associated maintenance headaches?
+			// START copying from get_permalink function
+			// N.B. The $permalink var is replaced with $post_link
+			$rewritecode = array(
+				'%year%',
+				'%monthnum%',
+				'%day%',
+				'%hour%',
+				'%minute%',
+				'%second%',
+				'%postname%',
+				'%post_id%',
+				'%category%',
+				'%author%',
+				'%pagename%',
+			);
+	
+			$post_link = get_option('permalink_structure');
+	
+			// @FIXME: Should I somehow fake this, so plugin authors who hook it still get some consequence?
+			// $post_link = apply_filters('pre_post_link', $post_link, $post, $leavename);
+	
+			if ( '' != $post_link && ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) ) ) {
+				$unixtime = strtotime($post->post_date);
+	
+				$category = '';
+				if ( strpos($post_link, '%category%') !== false ) {
+					$cats = get_the_category($post->ID);
+					if ( $cats ) {
+						usort($cats, '_usort_terms_by_ID'); // order by ID
+						$category = $cats[0]->slug;
+						if ( $parent = $cats[0]->parent )
+							$category = get_category_parents($parent, false, '/', true) . $category;
+					}
+					// show default category in permalinks, without
+					// having to assign it explicitly
+					if ( empty($category) ) {
+						$default_category = get_category( get_option( 'default_category' ) );
+						$category = is_wp_error( $default_category ) ? '' : $default_category->slug;
+					}
+				}
+	
+				$author = '';
+				if ( strpos($post_link, '%author%') !== false ) {
+					$authordata = get_userdata($post->post_author);
+					$author = $authordata->user_nicename;
+				}
+	
+				$date = explode(" ",date('Y m d H i s', $unixtime));
+				$rewritereplace =
+				array(
+					$date[0],
+					$date[1],
+					$date[2],
+					$date[3],
+					$date[4],
+					$date[5],
+					$post->post_name,
+					$post->ID,
+					$category,
+					$author,
+					$post->post_name,
+				);
+				$lang = bbl_get_post_lang_code( $post );
+				// bbl_log( "Getting link, lang: $lang ($post->post_title)" );
+				bbl_switch_to_lang( $lang );
+				$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
+				bbl_restore_lang();
+				$post_link = user_trailingslashit($post_link, 'single');
+				// END copying from get_permalink function
+				return $post_link;
+			} else { // if they're not using the fancy permalink option the link won't work. Known bug. :)
+				return $post_link;
+			}
+	
+		} else if ( 'page' == $base_post_type ) {
+			// bbl_log( "Get page link for $post_link" );
+			return get_page_link( $post->ID, $leavename );
+		}
+	
+		return $post_link;
+	}
 
 	/**
 	 * Hooks the WP page_link filter to ensure correct virtual language directory prefix, etc.
@@ -440,17 +447,24 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param int $id The ID for the post represented by this permalink 
 	 * @return string
 	 **/
-	public function page_link( $link, $id ) {
+	public function page_link( $link, $post_id ) {
 		if ( $this->no_recursion )
 			return $link;
-		// bbl_log( "Link IN: $link" );
+
+		// Deal with the language front pages
+		if ( 'page' == get_option('show_on_front') ) {
+			$front_page_transid = $this->get_transid( get_option( 'page_on_front' ) );
+			$this_transid = $this->get_transid( $post_id );
+			$lang_code = bbl_get_post_lang_code( $post_id );
+			return '/' . bbl_get_prefix_from_lang_code( $lang_code ) . '/';
+		}
+
 		$this->no_recursion = true;
-		$lang = bbl_get_post_lang( $id );
+		$lang = bbl_get_post_lang_code( $post_id );
 		bbl_switch_to_lang( $lang );
-		$link = get_page_link( $id );
+		$link = get_page_link( $post_id );
 		bbl_restore_lang();
 		$this->no_recursion = false;
-		// bbl_log( "Link OUT: $link" );
 		return $link;
 	}
 
@@ -515,7 +529,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return string|object Either a language code, or a WP_Error object
 	 * @access public
 	 **/
-	public function get_post_lang( $post ) {
+	public function get_post_lang_code( $post ) {
 		$post = get_post( $post );
 		if ( ! $post )
 			return new WP_Error( 'invalid_post', __( 'Invalid Post' ) );
@@ -640,10 +654,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function get_post_in_lang( $post, $lang_code, $fallback = true ) {
 		$translations = $this->get_post_translations( $post );
-		if ( isset( $translations[ $lang_code ] ) )
+		if ( isset( $translations[ $lang_code ] ) ) {
+			bbl_log( "Translation exists in $lang_code" );
 			return $translations[ $lang_code ];
-		if ( ! $fallback )
+		}
+		if ( ! $fallback ) {
 			return false;
+		}
 		return $translations[ bbl_get_default_lang_code() ];
 	}
 

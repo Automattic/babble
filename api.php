@@ -287,6 +287,17 @@ function bbl_get_lang_from_prefix( $url_prefix ) {
 }
 
 /**
+ * Returns the language code for the provided URL prefix.
+ *
+ * @param string $lang_code The language code to look up
+ * @return string The language URL prefix set by the admin, e.g. "de"
+ **/
+function bbl_get_prefix_from_lang_code( $lang_code ) {
+	global $bbl_languages;
+	return $bbl_languages->get_url_prefix_from_code( $lang_code );
+}
+
+/**
  * Start logging for Babble
  *
  * @return void

@@ -250,74 +250,74 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @param string $taxonomy The 
 	 * @return string The term link
 	 **/
-	// public function term_link( $termlink, $term, $taxonomy ) {
-	// 	$taxonomy = strtolower( $taxonomy );
-	// 	// No need to worry about the built in taxonomies
-	// 	if ( 'post_tag' == $taxonomy || 'category' == $taxonomy || ! isset( $this->taxonomies[ $taxonomy ] ) )
-	// 		return $termlink;
-	// 
-	// 	// Deal with our shadow taxonomies
-	// 	if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) 
-	// 		return $post_link;
-	// 
-	// 	bbl_log( "Base tax: " . print_r( $base_taxonomy, true ) );
-	// 
-	// 	// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
-	// 	global $wp_rewrite;
-	// 
-	// 	if ( !is_object($term) ) {
-	// 		if ( is_int($term) ) {
-	// 			$term = &get_term($term, $base_taxonomy);
-	// 		} else {
-	// 			$term = &get_term_by('slug', $term, $base_taxonomy);
-	// 		}
-	// 	}
-	// 
-	// 	bbl_log( "Got term: $term->slug" );
-	// 
-	// 	if ( !is_object($term) )
-	// 		$term = new WP_Error('invalid_term', __('Empty Term'));
-	// 
-	// 	if ( is_wp_error( $term ) )
-	// 		return $term;
-	// 
-	// 	$termlink = $wp_rewrite->get_extra_permastruct($base_taxonomy);
-	// 
-	// 	$slug = $term->slug;
-	// 	$t = get_taxonomy($base_taxonomy);
-	// 
-	// 	bbl_log( "Got tax: " . print_r( $t, true ) );
-	// 
-	// 	if ( empty($termlink) ) {
-	// 		if ( 'category' == $base_taxonomy )
-	// 			$termlink = '?cat=' . $term->term_id;
-	// 		elseif ( $t->query_var )
-	// 			$termlink = "?$t->query_var=$slug";
-	// 		else
-	// 			$termlink = "?taxonomy=$base_taxonomy&term=$slug";
-	// 		$termlink = home_url($termlink);
-	// 	} else {
-	// 		if ( $t->rewrite['hierarchical'] ) {
-	// 			$hierarchical_slugs = array();
-	// 			$ancestors = get_ancestors($term->term_id, $base_taxonomy);
-	// 			foreach ( (array)$ancestors as $ancestor ) {
-	// 				$ancestor_term = get_term($ancestor, $base_taxonomy);
-	// 				$hierarchical_slugs[] = $ancestor_term->slug;
-	// 			}
-	// 			$hierarchical_slugs = array_reverse($hierarchical_slugs);
-	// 			$hierarchical_slugs[] = $slug;
-	// 			bbl_log( "Termlink 0: $termlink" );
-	// 			$termlink = str_replace("%$base_taxonomy%", implode('/', $hierarchical_slugs), $termlink);
-	// 			bbl_log( "Termlink 1: $termlink | replaced %$base_taxonomy%" );
-	// 		} else {
-	// 			$termlink = str_replace("%$base_taxonomy%", $slug, $termlink);
-	// 		}
-	// 		$termlink = home_url( user_trailingslashit($termlink, 'category') );
-	// 	}
-	// 	// STOP copying from get_term_link
-	// 
-	// 	return $termlink;
-	// }
+	public function term_link( $termlink, $term, $taxonomy ) {
+		$taxonomy = strtolower( $taxonomy );
+		// No need to worry about the built in taxonomies
+		if ( 'post_tag' == $taxonomy || 'category' == $taxonomy || ! isset( $this->taxonomies[ $taxonomy ] ) )
+			return $termlink;
+	
+		// Deal with our shadow taxonomies
+		if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) 
+			return $post_link;
+	
+		bbl_log( "Base tax: " . print_r( $base_taxonomy, true ) );
+	
+		// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
+		global $wp_rewrite;
+	
+		if ( !is_object($term) ) {
+			if ( is_int($term) ) {
+				$term = &get_term($term, $base_taxonomy);
+			} else {
+				$term = &get_term_by('slug', $term, $base_taxonomy);
+			}
+		}
+	
+		bbl_log( "Got term: $term->slug" );
+	
+		if ( !is_object($term) )
+			$term = new WP_Error('invalid_term', __('Empty Term'));
+	
+		if ( is_wp_error( $term ) )
+			return $term;
+	
+		$termlink = $wp_rewrite->get_extra_permastruct($base_taxonomy);
+	
+		$slug = $term->slug;
+		$t = get_taxonomy($base_taxonomy);
+	
+		bbl_log( "Got tax: " . print_r( $t, true ) );
+	
+		if ( empty($termlink) ) {
+			if ( 'category' == $base_taxonomy )
+				$termlink = '?cat=' . $term->term_id;
+			elseif ( $t->query_var )
+				$termlink = "?$t->query_var=$slug";
+			else
+				$termlink = "?taxonomy=$base_taxonomy&term=$slug";
+			$termlink = home_url($termlink);
+		} else {
+			if ( $t->rewrite['hierarchical'] ) {
+				$hierarchical_slugs = array();
+				$ancestors = get_ancestors($term->term_id, $base_taxonomy);
+				foreach ( (array)$ancestors as $ancestor ) {
+					$ancestor_term = get_term($ancestor, $base_taxonomy);
+					$hierarchical_slugs[] = $ancestor_term->slug;
+				}
+				$hierarchical_slugs = array_reverse($hierarchical_slugs);
+				$hierarchical_slugs[] = $slug;
+				bbl_log( "Termlink 0: $termlink" );
+				$termlink = str_replace("%$base_taxonomy%", implode('/', $hierarchical_slugs), $termlink);
+				bbl_log( "Termlink 1: $termlink | replaced %$base_taxonomy%" );
+			} else {
+				$termlink = str_replace("%$base_taxonomy%", $slug, $termlink);
+			}
+			$termlink = home_url( user_trailingslashit($termlink, 'category') );
+		}
+		// STOP copying from get_term_link
+	
+		return $termlink;
+	}
 
 	/**
 	 * Hooks the WP get_terms filter to ensure the terms all have transids.
@@ -543,7 +543,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			return false; // @FIXME: Should I actually be throwing an error here?
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
-		bbl_start_logging();
 		$base_taxonomy = $this->get_base_taxonomy( $taxonomy );
 		bbl_log( "Taxonomy: $base_taxonomy|$taxonomy|$lang_code – " . print_r( $this->lang_map, true ) );
 		if ( bbl_get_default_lang_code() == $lang_code )
