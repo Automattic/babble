@@ -619,16 +619,16 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Return the base taxonomy (in the default language) for a 
-	 * provided taxonomy.
+	 * Return the base post type (in the default language) for a 
+	 * provided post type.
 	 *
-	 * @param string $taxonomy The name of a taxonomy 
-	 * @return string The name of the base taxonomy
+	 * @param string $post_type The name of a post type 
+	 * @return string The name of the base post type
 	 **/
-	public function get_base_post_type( $taxonomy ) {
-		if ( ! isset( $this->post_types[ $taxonomy ] ) )
-			return $taxonomy;
 		return $this->post_types[ $taxonomy ];
+	public function get_base_post_type( $post_type ) {
+			return $post_type;
+		return $this->post_types[ $post_type ];
 	}
 
 	/**
