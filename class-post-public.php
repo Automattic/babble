@@ -224,7 +224,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function parse_request( $wp ) {
 		global $bbl_locale, $bbl_languages;
-		
+
 		if ( is_admin() )
 			return;
 
@@ -259,6 +259,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// Now swap the query vars so we get the content in the right language post_type
 
+		bbl_log( "Posts 4" );
 		// @FIXME: Do I need to change $wp->matched query? I think $wp->matched_rule is fine?
 		// @FIXME: Danger of post type slugs clashing??
 		if ( isset( $wp->query_vars[ 'pagename' ] ) && $wp->query_vars[ 'pagename' ] ) {
@@ -275,7 +276,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $wp->query_vars[ 'post_type' ], $wp->query_vars[ 'lang' ] );
 		}
 		bbl_log( "New Query: " . print_r( $wp->query_vars, true ) );
-		
+
 	}
 
 	/**
@@ -627,6 +628,23 @@ class Babble_Post_Public extends Babble_Plugin {
 			return $base_post_type;
 		bbl_log( "Mapped post type: " . $this->lang_map2[ $lang_code ][ $base_post_type ] );
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];
+	}
+
+	/**
+	 * Returns the post in a particular language, or 
+	 *
+	 * @param int|object $post Either a WP Post object, or a post ID 
+	 * @param string $lang_code The language code for the required language 
+	 * @param boolean $fallback If true: if a post is not available, fallback to the default language content (defaults to true)
+	 * @return object|boolean The WP Post object, or if $fallback was false and no post then returns false
+	 **/
+	public function get_post_in_lang( $post, $lang_code, $fallback = true ) {
+		$translations = $this->get_post_translations( $post );
+		if ( isset( $translations[ $lang_code ] ) )
+			return $translations[ $lang_code ];
+		if ( ! $fallback )
+			return false;
+		return $translations[ bbl_get_default_lang_code() ];
 	}
 
 	/**

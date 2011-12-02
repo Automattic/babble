@@ -124,7 +124,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		$slug = ( $args[ 'rewrite' ][ 'slug' ] ) ? $args[ 'rewrite' ][ 'slug' ] : $taxonomy;
 
-		// bbl_start_logging();
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
 			$new_object_type = array();
@@ -353,7 +352,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function parse_request( $wp ) {
-		// bbl_start_logging();
 		// bbl_log( "Request: " . print_r( $wp->query_vars, true ) );
 
 		// If the current language is the default language, then we don't need
@@ -538,11 +536,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 *
 	 * @param string $taxonomy A taxonomy to return in a given language
 	 * @param string $lang_code The language code for the required language (optional, defaults to current)
-	 * @return void
+	 * @return boolean|string The taxonomy name, or false if no taxonomy was specified
 	 **/
 	public function get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
+		if ( ! $taxonomy )
+			return false; // @FIXME: Should I actually be throwing an error here?
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
+		bbl_start_logging();
 		$base_taxonomy = $this->get_base_taxonomy( $taxonomy );
 		bbl_log( "Taxonomy: $base_taxonomy|$taxonomy|$lang_code – " . print_r( $this->lang_map, true ) );
 		if ( bbl_get_default_lang_code() == $lang_code )
