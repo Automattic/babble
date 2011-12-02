@@ -234,7 +234,13 @@ class Babble_Post_Public extends Babble_Plugin {
 		// Detect language specific homepages
 		if ( $wp->request == $wp->query_vars[ 'lang_url_prefix' ] ) {
 			unset( $wp->query_vars[ 'error' ] );
+
 			// @FIXME: Cater for front pages which don't list the posts
+			if ( 'page' == get_option('show_on_front') && get_option('page_on_front') ) {
+				// @TODO: Get translated page ID
+				$wp->query_vars[ 'page_id' ] = $this->get_post_in_lang( get_option('page_on_front'), bbl_get_current_lang_code() )->ID;
+			}
+
 			// Trigger the archive listing for the relevant shadow post type
 			// for this language.
 			if ( bbl_get_default_lang_code() != $wp->query_vars[ 'lang' ] ) {
