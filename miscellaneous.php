@@ -5,8 +5,7 @@
  * classes for whatever reason. Consider these various things
  * Private access, for this plugin only, please.
  *
- * Will try to keep the functions in here to an absolute minumum,
- * and to justify the presence of each explictly in the DocBlock.
+ * Will try to keep the functions in here to an absolute minumum.
  *
  * @package Babble
  * @since Alpha 1.1
