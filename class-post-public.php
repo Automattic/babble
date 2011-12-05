@@ -56,6 +56,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
+		$this->add_filter( 'single_template' );
 		
 		$this->post_types = array();
 		$this->lang_map = array();
@@ -522,6 +523,39 @@ class Babble_Post_Public extends Babble_Plugin {
 			unset( $menu[ $key ] );
 		}
 		return $menu;
+	}
+
+	/**
+	 * Hooks the WP filter single_template to deal with the shadow post
+	 * types for pages, ensuring they use the right template.
+	 *
+	 * @param string $template Path to a template file 
+	 * @return Path to a template file
+	 **/
+	public function single_template( $template ) {
+		// Deal with the language front pages and custom page templates
+		if ( 'page' == get_option('show_on_front') ) {
+			$front_page_transid = $this->get_transid( get_option( 'page_on_front' ) );
+			$this_transid = $this->get_transid( get_the_ID() );
+			if ( $front_page_transid == $this_transid ) {
+				error_log( "SW: is front page" );
+				$post = get_post( get_the_ID() );
+				// global $wp_query, $wp;
+				if ( 'page' == $this->get_base_post_type( $post->post_type ) ) {
+					if ( $custom_page_template = get_post_meta( get_option( 'page_on_front' ), '_wp_page_template', true ) )
+						$templates = array( $custom_page_template );
+					else
+						$templates = array( 'page.php' );
+					error_log( "SW: Templat s ".print_r( $templates, true ) );
+					if ( $_template = locate_template( $templates ) ) {
+						error_log( "SW: $_template" );
+						return $_template;
+					}
+					error_log( "SW: WRONG $_template" );
+				}
+			}
+		}
+		return $template;
 	}
 	
 	// PUBLIC METHODS
