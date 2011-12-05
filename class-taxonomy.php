@@ -48,7 +48,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
 		}
 		$this->add_action( 'created_term', null, null, 3 );
-		$this->add_action( 'init', 'init_early', 0 );
+		$this->add_action( 'plugins_loaded', 'plugins_loaded', 0 );
+		$this->add_action( 'after_setup_theme', 'plugins_loaded' );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
 		$this->add_filter( 'get_terms' );
@@ -64,7 +65,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 *
 	 * @return void
 	 **/
-	public function init_early() {
+	public function plugins_loaded() {
 		// Ensure we catch any existing language shadow taxonomies already registered
 		if ( is_array( $this->taxonomies ) )
 			$taxonomies = array_merge( array( 'post_tag', 'category' ), array_keys( $this->taxonomies ) );
@@ -78,6 +79,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 			'show_in_nav_menus' => false,
 			'label' => __( 'Term Translation ID', 'bbl' ),
 		) );
+
+		// Catch any taxonomy which were registered before this class came along
+		// and hooked the registered_post_type action.
+		$existing_taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
+		// var_dump( $existing_taxonomies );
+		// exit;
+		foreach ( $existing_taxonomies as $taxonomy_object )
+			$this->registered_taxonomy( $taxonomy_object->name, $taxonomy_object->object_type, get_object_vars( $taxonomy_object ) );
 	}
 	
 	/**
