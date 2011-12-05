@@ -207,7 +207,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$translations = $this->get_post_translations( $post_id );
 		bbl_log( "translations: " . print_r( $translations, true ) );
 		foreach ( $translations as $lang_code => & $translation ) {
-			if ( $this->get_post_lang( $post_id ) == $lang_code )
+			if ( $this->get_post_lang_code( $post_id ) == $lang_code )
 				continue;
 			update_post_meta( $translation->ID, $meta_key, $meta_value );
 		}
