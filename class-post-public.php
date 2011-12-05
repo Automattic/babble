@@ -47,6 +47,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->setup( 'babble-post-public', 'plugin' );
 
 		$this->add_action( 'init', 'init_early', 0 );
+		$this->add_action( 'plugins_loaded' );
+		$this->add_action( 'after_setup_theme', 'plugins_loaded' );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
@@ -67,7 +69,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 *
 	 * @return void
 	 **/
-	public function init_early() {
+	public function plugins_loaded() {
 		register_taxonomy( 'term_translation', 'term', array(
 			'rewrite' => false,
 			'public' => true,
@@ -75,6 +77,17 @@ class Babble_Post_Public extends Babble_Plugin {
 			'show_in_nav_menus' => false,
 			'label' => __( 'Term Translation ID', 'sil' ),
 		) );
+
+		// Catch any post types which were registered before this class came along
+		// and hooked the registered_post_type action.
+		bbl_start_logging();
+		$existing_post_types = get_post_types( array( 'public' => true ), 'objects' );
+		bbl_log( "Catching now!" );
+		foreach ( $existing_post_types as $post_type_object ) {
+			bbl_log( "Catch and register: $post_type_object->name" );
+			$this->registered_post_type( $post_type_object->name, $post_type_object );
+		}
+
 		// Ensure we catch any existing language shadow post_types already registered
 		if ( is_array( $this->post_types ) )
 			$post_types = array_merge( array( 'post', 'page' ), array_keys( $this->post_types ) );
