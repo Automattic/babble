@@ -337,7 +337,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_terms( $terms ) {
 		bbl_log( "Taxes: " . print_r( $this->taxonomies, true ) );
 		foreach ( $terms as $term ) {
-			if ( isset( $this->taxonomies[ $taxonomy ] ) )
+			if ( isset( $this->taxonomies[ $term->taxonomy ] ) )
 				if ( ! $this->get_transid( $term->term_id ) )
 					throw new exception( "ERROR: Translated term ID $term->term_id does not have a transid" );
 				else
