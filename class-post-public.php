@@ -176,6 +176,9 @@ class Babble_Post_Public extends Babble_Plugin {
 				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
 			}
 
+			bbl_start_logging();
+			bbl_log( "register post type: $new_post_type" );
+			bbl_stop_logging();
 			$result = register_post_type( $new_post_type, $new_args );
 			// bbl_log( "Registered $new_post_type" );
 			if ( is_wp_error( $result ) ) {
@@ -243,8 +246,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function parse_request( $wp ) {
 		global $bbl_locale, $bbl_languages;
 
-		bbl_start_logging();
-
 		if ( is_admin() )
 			return;
 
@@ -259,9 +260,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			if ( 'page' == get_option('show_on_front') && get_option('page_on_front') ) {
 				// @TODO: Get translated page ID
 				bbl_log( "Current lang code: " . bbl_get_current_lang_code() );
-				$wp->query_vars[ 'page_id' ] = $this->get_post_in_lang( get_option('page_on_front'), bbl_get_current_lang_code() )->ID;
-				bbl_log( "New Query: " . print_r( $wp->query_vars, true ) );
-				bbl_stop_logging();
+				$wp->query_vars[ 'p' ] = $this->get_post_in_lang( get_option('page_on_front'), bbl_get_current_lang_code() )->ID;
+				$wp->query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
 				return;
 			}
 
@@ -316,17 +316,20 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP the_posts filter. 
+	 * Hooks the WP the_posts filter on WP_Query. 
 	 * 
 	 * Check the post_title, post_excerpt, post_content and substitute from
 	 * the default language where appropriate.
 	 *
 	 * @param array $posts The posts retrieved by WP_Query, passed by reference 
+	 * @param object $wp_query The WP_Query, passed by reference 
 	 * @return array The posts
 	 **/
-	public function the_posts( $posts ) {
+	public function the_posts( $posts, $wp_query ) {
 		if ( is_admin() )
 			return $posts;
+		
+		// Get fallback content
 		$subs_index = array();
 		foreach ( $posts as & $post ) {
 			if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
@@ -578,6 +581,31 @@ class Babble_Post_Public extends Babble_Plugin {
 	// ==============
 
 	/**
+	 * Discover whether a post is set as the front page
+	 * for the site in a particular language.
+	 *
+	 * @param int $post_id The ID of a post 
+	 * @return boolean True if this post is used as the front page of the site for a language
+	 **/
+	public function is_language_front_page( $post_id = null, $lang_code = null ) {
+		if ( 'page' != get_option('show_on_front') )
+		 	return false;
+
+		$post = get_post( $post_id );
+		// If we have a lang code, and it doesn't match the requested post lang then this 
+		// is not the right front page
+		if ( ! is_null( $lang_code ) && $lang_code != $this->get_post_lang_code( $post->ID ) )
+			return false;
+		
+		$front_page_transid = $this->get_transid( get_option( 'page_on_front' ) );
+		$this_transid = $this->get_transid( get_the_ID() );
+		if ( $front_page_transid != $this_transid )
+			return false;
+
+		return true;
+	}
+
+	/**
 	 * Return the language code for the language a given post is written for/in.
 	 *
 	 * @param int|object $post Either a WP Post object, or a post ID 
@@ -675,18 +703,18 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param string $post_type The name of a post type 
 	 * @return string The name of the base post type
 	 **/
-		return $this->post_types[ $taxonomy ];
 	public function get_base_post_type( $post_type ) {
+		if ( ! isset( $this->post_types[ $post_type ] ) )
 			return $post_type;
 		return $this->post_types[ $post_type ];
 	}
 
 	/**
-	 * Returns the equivalent taxonomy in the specified language.
+	 * Returns the equivalent post_type in the specified language.
 	 *
-	 * @param string $taxonomy A taxonomy to return in a given language
+	 * @param string $taxonomy A post_type to return in a given language
 	 * @param string $lang_code The language code for the required language 
-	 * @return void
+	 * @return boolean|string The equivalent post_type name, or false if it doesn't exist
 	 **/
 	public function get_post_type_in_lang( $post_type, $lang_code ) {
 		$base_post_type = $this->get_base_post_type( $post_type );
@@ -695,6 +723,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_log( "Base post type: $base_post_type" );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_post_type;
+		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) )
+			return false;
+		bbl_log( "Map: " . print_r( $this->lang_map2, true ) );
 		bbl_log( "Mapped post type: " . $this->lang_map2[ $lang_code ][ $base_post_type ] );
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];
 	}

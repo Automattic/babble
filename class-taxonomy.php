@@ -159,6 +159,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				$this->lang_map[ $lang->code ] = array();
 			$this->lang_map[ $lang->code ][ $taxonomy ] = $new_taxonomy;
 			
+			
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
 			
 			bbl_log( "New tax: $new_taxonomy, " . implode( ',', $new_object_type ) . ", args: " . print_r( $new_args, true ) );
@@ -339,6 +340,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_terms( $terms ) {
 		bbl_log( "Taxes: " . print_r( $this->taxonomies, true ) );
 		foreach ( $terms as $term ) {
+			if ( isset( $this->taxonomies ) )
+				continue;
 			if ( isset( $this->taxonomies[ $term->taxonomy ] ) )
 				if ( ! $this->get_transid( $term->term_id ) )
 					throw new exception( "ERROR: Translated term ID $term->term_id does not have a transid" );
