@@ -140,10 +140,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 			foreach( $object_type as $ot )
 				$new_object_type[] = bbl_get_post_type_in_lang( $ot, $lang->code );
 
-			if ( ! is_array( $new_args[ 'rewrite' ] ) )
-				$new_args[ 'rewrite' ] = array();
-			// Do I not need to add this query_var into the query_vars filter? It seems not.
-			$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
+			if ( false !== $args[ 'rewrite' ] ) {
+				if ( ! is_array( $new_args[ 'rewrite' ] ) )
+					$new_args[ 'rewrite' ] = array();
+				// Do I not need to add this query_var into the query_vars filter? It seems not.
+				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
+			}
 
 			// @FIXME: Note currently we are in danger of a taxonomy name being longer than 32 chars
 			// Perhaps we need to create some kind of map like (taxonomy) + (lang) => (shadow translated taxonomy)

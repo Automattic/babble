@@ -169,10 +169,12 @@ class Babble_Post_Public extends Babble_Plugin {
 			foreach ( $new_args[ 'labels' ] as & $label )
 				$label = "$label ({$lang->code})";
 				
-			if ( ! is_array( $new_args[ 'rewrite' ] ) )
-				$new_args[ 'rewrite' ] = array();
-			// Do I not need to add this query_var into the query_vars filter? It seems not.
-			$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
+			if ( false !== $args[ 'rewrite' ] ) {
+				if ( ! is_array( $new_args[ 'rewrite' ] ) )
+					$new_args[ 'rewrite' ] = array();
+				// Do I not need to add this query_var into the query_vars filter? It seems not.
+				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
+			}
 
 			$result = register_post_type( $new_post_type, $new_args );
 			// bbl_log( "Registered $new_post_type" );
