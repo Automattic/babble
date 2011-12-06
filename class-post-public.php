@@ -114,6 +114,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! $args->public )
 			return;
 
+		// Don't shadow shadow post types, it's going to get silly
+		if ( in_array( $post_type, $this->post_types ) )
+			return;
+
 		if ( $this->no_recursion )
 			return;
 		$this->no_recursion = true;
