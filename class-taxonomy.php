@@ -48,8 +48,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
 		}
 		$this->add_action( 'created_term', null, null, 3 );
-		$this->add_action( 'plugins_loaded', 'plugins_loaded', 0 );
-		$this->add_action( 'after_setup_theme', 'plugins_loaded' );
+		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
 		$this->add_filter( 'get_terms' );
@@ -65,12 +64,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 *
 	 * @return void
 	 **/
-	public function plugins_loaded() {
-		// Ensure we catch any existing language shadow taxonomies already registered
-		if ( is_array( $this->taxonomies ) )
-			$taxonomies = array_merge( array( 'post_tag', 'category' ), array_keys( $this->taxonomies ) );
-		else
-			$taxonomies = array( 'post_tag', 'category' );
+	public function init_early() {
+		// // Ensure we catch any existing language shadow taxonomies already registered
+		// if ( is_array( $this->taxonomies ) )
+		// 	$taxonomies = array_merge( array( 'post_tag', 'category' ), array_keys( $this->taxonomies ) );
+		// else
+		// 	$taxonomies = array( 'post_tag', 'category' );
+
 		// This translation will connect each term with it's translated equivalents
 		register_taxonomy( 'term_translation', 'term', array(
 			'rewrite' => false,
