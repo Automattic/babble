@@ -43,7 +43,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	//  **/
 	// protected $lang_regex = '|^[^/]+|i';
 	
-	function __construct() {
+	public function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
 
 		$this->add_action( 'init', 'init_early', 0 );
