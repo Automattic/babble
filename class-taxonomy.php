@@ -51,6 +51,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
+		$this->add_action( 'bbl_registered_shadow_post_types', 'registered_shadow_post_types' );
 		$this->add_action( 'set_object_terms', null, null, 5 );
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
@@ -99,16 +100,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function registered_taxonomy( $taxonomy, $object_type, $args ) {
-		bbl_log( "Taxonomy $taxonomy" );
 		// Don't bother with non-public taxonomies for now
 		// If we remove this, we need to avoid dealing with post_translation and term_translation
 		if ( ! $args[ 'public' ] || 'post_translation' == $taxonomy || 'term_translation' == $taxonomy ) {
-			bbl_log( "Returning for $taxonomy" );
 			return;
 		}
 
 		if ( $this->no_recursion ) {
-			bbl_log( "No recursion on $taxonomy" );
 			return;
 		}
 
@@ -119,20 +117,17 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		// Untranslated taxonomies do not have shadow equivalents in each language,
 		// but do apply to the bast post_type and all it's shadow post_types.
-		bbl_log( "Check tax $taxonomy is translated: $taxonomy" );
 		if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
-			bbl_log( "Tax $taxonomy IS translated: $taxonomy" );
 			// Apply this taxonomy to all the shadow post types
 			// of all of the base post_types it applies to.
 			foreach ( $object_type as $ot ) {
 				if ( ! ( $base_post_type = bbl_get_base_post_type( $ot ) ) ) {
-					bbl_log( "Base post type: $base_post_type" );
 					continue;
 				}
 				$shadow_post_types = bbl_get_shadow_post_types( $base_post_type );
-				bbl_log( "Shadow post types for $taxonomy: " . implode( ', ', $shadow_post_types ) );
-				foreach ( $shadow_post_types as $shadow_post_type )
+				foreach ( $shadow_post_types as $shadow_post_type ) {
 					register_taxonomy_for_object_type( $taxonomy, $shadow_post_type );
+				}
 			}
 			$this->no_recursion = false;
 			return;
@@ -195,6 +190,39 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// bbl_stop_logging();
 
 		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP bbl_registered_shadow_post_types action to check that we've applied
+	 * all untranslated taxonomies to the shadow post types created for this base
+	 * post type. 
+	 * 
+	 * @param string $post_type The post type for which the shadow post types have been registered. 
+	 * @return void
+	 **/
+	public function registered_shadow_post_types( $post_type ) {
+		$taxonomies = get_object_taxonomies( $post_type );
+
+		$object_type = (array) $post_type;
+		
+		foreach ( $taxonomies as $taxonomy ) {
+			// @TODO: This is very nearly copy pasted from registered_taxonomy above, abstract the code into a joint function
+			// Untranslated taxonomies do not have shadow equivalents in each language,
+			// but do apply to the bast post_type and all it's shadow post_types.
+			if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+				// Apply this taxonomy to all the shadow post types
+				// of all of the base post_types it applies to.
+				foreach ( $object_type as $ot ) {
+					if ( ! ( $base_post_type = bbl_get_base_post_type( $ot ) ) ) {
+						continue;
+					}
+					$shadow_post_types = bbl_get_shadow_post_types( $base_post_type );
+					foreach ( $shadow_post_types as $shadow_post_type ) {
+						register_taxonomy_for_object_type( $taxonomy, $shadow_post_type );
+					}
+				}
+			}
+		}
 	}
 
 	/**

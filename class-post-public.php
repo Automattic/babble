@@ -178,9 +178,6 @@ class Babble_Post_Public extends Babble_Plugin {
 				$this->lang_map[ $new_post_type ] = $lang->code;
 
 				// @TODO: Refactor the $this::lang_map array so we can use this new structure instead
-				// if ( ! isset( $this->lang_map2[ $lang->code ] ) ) {
-				// 	var_dump( $this->lang_map2 );
-				// }
 				if ( ! isset( $this->lang_map2[ $lang->code ] ) || ! is_array( $this->lang_map2[ $lang->code ] ) )
 					$this->lang_map2[ $lang->code ] = array();
 				$this->lang_map2[ $lang->code ][ $post_type ] = $new_post_type;
@@ -192,7 +189,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				register_taxonomy_for_object_type( 'post_translation', $new_post_type );
 			}
 		}
-
+		do_action( 'bbl_registered_shadow_post_types', $post_type );
 		$this->no_recursion = false;
 	}
 
@@ -317,8 +314,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		global $bbl_locale, $bbl_languages;
 
-		if ( is_admin() )
+		if ( is_admin() ) {
 			return;
+		}
 
 		$wp->query_vars = $this->translate_query_vars( $wp->query_vars, $wp->request );
 	}
@@ -754,7 +752,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
 		if ( is_wp_error( $transid ) )
-			bbl_log( "Error getting transid: " . print_r( $transid, true ) );
+			error_log( "Error getting transid: " . print_r( $transid, true ) );
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
 		// Get all the translations in one cached DB query
 		$args = array(
