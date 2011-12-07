@@ -161,8 +161,13 @@ class Babble_Locale {
 		}
 		// Save for logged in users
 		// @FIXME: Possible additional DB queries here?
-		if ( is_user_logged_in() && $current_user = wp_get_current_user() )
+		if ( is_user_logged_in() && $current_user = wp_get_current_user() ) {
+			// @TODO: Don't set languages off of 404 requests, if the request comes
+			// from a logged in admin, it'll reset their language (which 
+			// is annoying). The problem is that we are so early at this point
+			// that we can't tell if it's a 404. :(
 			update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
+		}
 		if ( ! isset( $this->lang ) )
 			$this->set_lang( bbl_get_default_lang_code() );
 		return $this->lang;
