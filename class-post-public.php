@@ -293,7 +293,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		}
 		if ( $query->is_main_query() ) {
-			error_log( "This is the main query" );
 			return;
 		}
 		
@@ -515,27 +514,39 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param object $post The WP Post object which has just been inserted 
 	 * @return void
 	 **/
-	public function wp_insert_post( $post_id, $post ) {
+	public function wp_insert_post( $new_post_id, $new_post ) {
 		if ( $this->no_recursion )
 			return;
 
-		if ( 'auto-draft' != $post->post_status )
+		if ( 'auto-draft' != $new_post->post_status )
 			return;
 
 		$this->no_recursion = true;
 
 		// Get any approved term ID for the transid for any new translation
 		$transid = (int) @ $_GET[ 'bbl_transid' ];
-		$this->set_transid( $post, $transid );
+		$this->set_transid( $new_post, $transid );
+
+		$origin_id = (int) @ $_GET[ 'bbl_origin_id' ];
 
 		// Ensure the post is in the correct shadow post_type
 		if ( bbl_get_default_lang_code() != bbl_get_current_lang_code() ) {
-			$new_post_type = $this->get_post_type_in_lang( $post->post_type, bbl_get_current_lang_code() );
-			wp_update_post( array( 'ID' => $post_id, 'post_type' => $new_post_type ) );
+			$new_post_type = $this->get_post_type_in_lang( $new_post->post_type, bbl_get_current_lang_code() );
+			wp_update_post( array( 'ID' => $new_post_id, 'post_type' => $new_post_type ) );
+		}
+		$metas = $this->get_all_post_meta( $origin_id );
+		foreach ( $metas as $meta ) {
+			// Some metadata shouldn't be synced
+			if ( in_array( $meta->meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
+				continue;
+			add_post_meta( $new_post_id, $meta->meta_key, $meta->meta_value );
 		}
 		$this->no_recursion = false;
+		
+		do_action( 'bbl_created_new_shadow_post', $new_post_id, $origin_id );
+		
 		// Now we have to do a redirect, to ensure the WP Nonce gets generated correctly
-		wp_redirect( admin_url( "/post.php?post=$post_id&action=edit&post_type={$post->post_type}" ) );
+		wp_redirect( admin_url( "/post.php?post={$new_post_id}&action=edit&post_type={$new_post->post_type}" ) );
 	}
 
 	/**
@@ -714,6 +725,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$url = admin_url( '/post-new.php' );
 		$args = array( 
 			'bbl_transid' => $transid, 
+			'bbl_origin_id' => $default_post->ID, 
 			'lang' => $lang_code, 
 			'post_type' => $this->get_post_type_in_lang( $default_post->post_type, $lang_code ),
 		);
@@ -858,6 +870,26 @@ class Babble_Post_Public extends Babble_Plugin {
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
+
+	/**
+	 * Gets all the post meta for a post in an array.
+	 * 
+	 * Hello VIP Code reviewer. I imagine you've just noticed the
+	 * direct database access at this point, and are wondering just
+	 * what the heck I think I'm doing? The issue is that I need to
+	 * clone a post, including postmeta and there is no built-in
+	 * meta API function to get all the postmeta entries for
+	 * a given post. Hope we can agree that this is OK, unless
+	 * I'm missing something?
+	 *
+	 * @param int $post A WordPress post ID
+	 * @return array An array of postmeta values
+	 **/
+	protected function get_all_post_meta( $post_id ) {
+		global $wpdb;
+		$sql = " SELECT * FROM $wpdb->postmeta WHERE post_id = %d ";
+		return $wpdb->get_results( $wpdb->prepare( $sql, $post_id ) );
+	}
 
 	/**
 	 * Get the transID for this post, this is an identifier linking all the translations 

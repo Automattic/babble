@@ -55,6 +55,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_action( 'set_object_terms', null, null, 5 );
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
+		$this->add_action( 'bbl_created_new_shadow_post', 'created_new_shadow_post', null, 2 );
 		// $this->add_filter( 'term_link', null, null, 3 );
 	}
 	
@@ -109,7 +110,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( $this->no_recursion ) {
 			return;
 		}
-
 		$this->no_recursion = true;
 
 		if ( ! is_array( $object_type ) )
@@ -223,6 +223,37 @@ class Babble_Taxonomies extends Babble_Plugin {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Hooks the Babble action bbl_created_new_shadow_post, which is fired
+	 * when a new translation post is created, to sync any existing untranslated
+	 * taxonomy terms.
+	 *
+	 * @param int $new_post_id The ID of the new post (to sync to)
+	 * @param int $origin_post_id The ID of the originating post (to sync from)
+	 * @return void
+	 **/
+	public function created_new_shadow_post( $new_post_id, $origin_post_id ) {
+		$new_post = get_post( $new_post_id );
+		$origin_post = get_post( $origin_post_id );
+		
+		if ( $this->no_recursion ) {
+			return;
+		}
+		$this->no_recursion = true;
+		
+		$taxonomies = get_object_taxonomies( $origin_post->post_type );
+
+		foreach ( $taxonomies as $taxonomy ) {
+			if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+				$term_ids = wp_get_object_terms( $origin_post->ID, $taxonomy, array( 'fields' => 'ids' ) );
+				$term_ids = array_map( 'absint', $term_ids );
+				wp_set_object_terms( $new_post->ID, $term_ids, $taxonomy );
+			}
+		}
+
+		$this->no_recursion = false;
 	}
 
 	/**
