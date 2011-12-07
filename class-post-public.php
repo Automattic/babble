@@ -699,7 +699,10 @@ class Babble_Post_Public extends Babble_Plugin {
 			'post_type' => 'any',
 			'post_status' => array( 'publish', 'pending', 'draft', 'future' ),
 		);
+		// We want a clean listing, without any particular language
+		bbl_stop_translating();
 		$posts = get_posts( $args );
+		bbl_start_translating();
 		$translations = array();
 		foreach ( $posts as & $post ) {
 			if ( isset( $this->lang_map[ $post->post_type ] ) )
