@@ -322,6 +322,39 @@ function bbl_get_prefix_from_lang_code( $lang_code ) {
 	return $bbl_languages->get_url_prefix_from_code( $lang_code );
 }
 
+global $bbl_translating;
+$bbl_translating = true;
+
+/**
+ * Start doing translation.
+ *
+ * @return void 
+ **/
+function bbl_start_translating() {
+	global $bbl_translating;
+	$bbl_translating = true;
+}
+
+/**
+ * Stop doing any translation.
+ *
+ * @return void 
+ **/
+function bbl_stop_translating() {
+	global $bbl_translating;
+	$bbl_translating = false;
+}
+
+/**
+ * Should we be doing any translation.
+ *
+ * @return boolean True for yes 
+ **/
+function bbl_translating() {
+	global $bbl_translating;
+	return $bbl_translating;
+}
+
 /**
  * Start logging for Babble
  *
@@ -343,16 +376,6 @@ function bbl_stop_logging() {
 }
 
 /**
- * Start logging for Babble
- *
- * @return void
- **/
-function bbl_is_logging() {
-	global $bbl_log;
-	return $bbl_log->logging;
-}
-
-/**
  * Log a message.
  *
  * @param string $msg Log this message 
@@ -364,6 +387,16 @@ function bbl_log( $msg ) {
 		$bbl_log->log( $msg );
 	else
 		error_log( "Full Babble logging unavailable: $msg" );
+}
+
+/**
+ * Whether Babble is logging right now.
+ *
+ * @return boolean True for yes, natch
+ **/
+function bbl_is_logging() {
+	global $bbl_log;
+	return $bbl_log->logging;
 }
 
 ?>
