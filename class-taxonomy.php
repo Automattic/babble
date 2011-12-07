@@ -263,11 +263,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function load_edit_term() {
-		if ( ! @ $_POST[ 'bbl_term_translation' ] )
+		$bbl_term_translation = isset( $_POST[ 'bbl_term_translation' ] ) ? $_POST[ 'bbl_term_translation' ] : false;
+		if ( ! $bbl_term_translation )
 			return;
-		$term_id = @ (int) $_POST[ 'tag_ID' ];
+		$term_id = isset( $_POST[ 'tag_ID' ] ) ? (int) $_POST[ 'tag_ID' ] : false;
 		check_admin_referer( 'bbl_edit_' . $term_id, '_bbl_nonce' );
-		if ( ! ( $transid = @ $_POST[ 'bbl_term_translation' ] ) ) {
+		$transid = isset( $_POST[ 'bbl_term_translation' ] ) ? $_POST[ 'bbl_term_translation' ] : false;
+		if ( ! $transid ) {
 			$result = wp_insert_term( $transid_name, 'term_translation', array() );
 			if ( is_wp_error( $result ) )
 				throw new exception( "Problem creating a new Term TransID: " . print_r( $result, true ) );
@@ -649,6 +651,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return boolean|string The taxonomy name, or false if no taxonomy was specified
 	 **/
 	public function get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
+		// Some taxonomies are untranslated…
+		if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) )
+			return $taxonomy;
+			
 		if ( ! $taxonomy )
 			return false; // @FIXME: Should I actually be throwing an error here?
 		if ( is_null( $lang_code ) )
