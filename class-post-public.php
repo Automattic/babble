@@ -60,6 +60,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
+		$this->add_action( 'post_updated' );
 		
 		$this->post_types = array();
 		$this->lang_map = array();
@@ -515,25 +516,27 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function wp_insert_post( $new_post_id, $new_post ) {
-		if ( $this->no_recursion )
-			return;
-
 		if ( 'auto-draft' != $new_post->post_status )
 			return;
 
+		if ( $this->no_recursion )
+			return;
 		$this->no_recursion = true;
 
 		// Get any approved term ID for the transid for any new translation
-		$transid = (int) @ $_GET[ 'bbl_transid' ];
+		$transid = isset( $_GET[ 'bbl_transid' ] ) ? (int) $_GET[ 'bbl_transid' ] : false;
 		$this->set_transid( $new_post, $transid );
 
-		$origin_id = (int) @ $_GET[ 'bbl_origin_id' ];
+		$origin_id = isset( $_GET[ 'bbl_origin_id' ] ) ? (int) $_GET[ 'bbl_origin_id' ] : false;
+		$origin_post = get_post( $origin_id );
 
 		// Ensure the post is in the correct shadow post_type
 		if ( bbl_get_default_lang_code() != bbl_get_current_lang_code() ) {
 			$new_post_type = $this->get_post_type_in_lang( $new_post->post_type, bbl_get_current_lang_code() );
 			wp_update_post( array( 'ID' => $new_post_id, 'post_type' => $new_post_type ) );
 		}
+
+		// Copy all the metadata across
 		$metas = $this->get_all_post_meta( $origin_id );
 		foreach ( $metas as $meta ) {
 			// Some metadata shouldn't be synced
@@ -541,12 +544,38 @@ class Babble_Post_Public extends Babble_Plugin {
 				continue;
 			add_post_meta( $new_post_id, $meta->meta_key, $meta->meta_value );
 		}
-		$this->no_recursion = false;
+
+		// Copy the various core post properties across
+		$this->sync_properties( $origin_id, $new_post_id );
 		
+		$this->no_recursion = false;
+
 		do_action( 'bbl_created_new_shadow_post', $new_post_id, $origin_id );
 		
 		// Now we have to do a redirect, to ensure the WP Nonce gets generated correctly
 		wp_redirect( admin_url( "/post.php?post={$new_post_id}&action=edit&post_type={$new_post->post_type}" ) );
+	}
+
+	/**
+	 * Hooks the WP post_updated action to ensure that the 
+	 * required properties are copied to the other posts in 
+	 * this translation group.
+	 *
+	 * @param int $post_id The ID of the post being updated
+	 * @return void
+	 **/
+	public function post_updated( $post_id ) {
+		if ( $this->no_recursion )
+			return;
+		$this->no_recursion = true;
+
+		$translations = $this->get_post_translations( $post_id );
+		foreach ( $translations as $lang_code => & $translation ) {
+			// Copy the various core post properties across
+			$this->sync_properties( $post_id, $translation->ID );
+		}
+		
+		$this->no_recursion = false;
 	}
 
 	/**
@@ -894,6 +923,36 @@ class Babble_Post_Public extends Babble_Plugin {
 		global $wpdb;
 		$sql = " SELECT * FROM $wpdb->postmeta WHERE post_id = %d ";
 		return $wpdb->get_results( $wpdb->prepare( $sql, $post_id ) );
+	}
+
+	/**
+	 * Copy various properties from one post to another.
+	 *
+	 * @param int $origin_id The origin post, to copy FROM 
+	 * @param int $new_post_id The new post, to copy TO 
+	 * @return void
+	 **/
+	protected function sync_properties( $origin_id, $new_post_id ) {
+		$origin_post = get_post( $origin_id );
+
+		$parent_post = false;
+		if ( $origin_post->post_parent )
+			$parent_post = $this->get_post_in_lang( $origin_post->post_parent, bbl_get_current_lang_code() );
+
+		$postdata = array(
+			'ID' => $new_post_id,
+			'post_author' => $origin_post->post_author,
+			'post_date' => $origin_post->post_date,
+			'post_date_gmt' => $origin_post->post_date_gmt,
+			'comment_status' => $origin_post->comment_status,
+			'ping_status' => $origin_post->ping_status,
+			'post_password' => $origin_post->post_password,
+			'menu_order' => $origin_post->menu_order,
+			'post_mime_type' => $origin_post->post_mime_type,
+		);
+		if ( $parent_post )
+			$postdata[ 'post_parent' ] = $parent_post->ID;
+		wp_update_post( $postdata );	
 	}
 
 	/**
