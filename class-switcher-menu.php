@@ -108,18 +108,14 @@ class Babble_Switcher_Menu {
 			$listing_terms = ( is_admin() && 'edit-tags' == $this->screen->base && ! isset( $_GET[ 'tag_ID' ] ) );
 		}
 
-		bbl_log( "test" );
 		if ( is_singular() || is_single() || $editing_post ) {
-			bbl_log( "Sing " . get_the_ID() );
 			$this->translations = bbl_get_post_translations( get_the_ID() );
 		} else if ( is_tax() || is_category() || $editing_term ) {
 			if ( is_admin() )
 				$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
 			else
 				$term = get_queried_object();
-			bbl_log( "Term: " . print_r( $term, true ) );
 			$this->translations = bbl_get_term_translations( $term->term_id, $term->taxonomy );
-			bbl_log( "Translations: " . print_r( $this->translations, true ) );
 		}
 
 		foreach ( $alt_langs as $i => & $alt_lang ) {
@@ -208,7 +204,6 @@ class Babble_Switcher_Menu {
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
 		);
-		bbl_log( "Added $title with $href" );
 	}
 
 	/**
@@ -256,7 +251,6 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-existing-edit-post';
 		} else { // Translation does not exist
 			$default_post = $this->translations[ bbl_get_default_lang_code() ];
-			bbl_log( "Translations: " . print_r( $this->translations, true ) );
 			$href = bbl_get_new_post_translation_url( $default_post, $lang->code );
 			$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-add';
@@ -376,7 +370,6 @@ class Babble_Switcher_Menu {
 	 * @return void
 	 **/
 	protected function add_taxonomy_archive_link( & $parent, $lang ) {
-		bbl_log( "Add tax archive link" );
 		$classes = array();
 		if ( isset( $this->translations[ $lang->code ]->term_id ) ) { // Translation exists
 			bbl_switch_to_lang( $lang->code );

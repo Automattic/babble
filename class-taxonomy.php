@@ -162,8 +162,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
 			
-			bbl_log( "New tax: $new_taxonomy, " . implode( ',', $new_object_type ) . ", args: " . print_r( $new_args, true ) );
-
 			$this->add_taxonomy_hooks( $new_taxonomy );
 		}
 		// bbl_stop_logging();
@@ -272,8 +270,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) 
 			return $post_link;
 	
-		bbl_log( "Base tax: " . print_r( $base_taxonomy, true ) );
-	
 		// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
 		global $wp_rewrite;
 	
@@ -285,8 +281,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			}
 		}
 	
-		bbl_log( "Got term: $term->slug" );
-	
 		if ( !is_object($term) )
 			$term = new WP_Error('invalid_term', __('Empty Term'));
 	
@@ -297,8 +291,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	
 		$slug = $term->slug;
 		$t = get_taxonomy($base_taxonomy);
-	
-		bbl_log( "Got tax: " . print_r( $t, true ) );
 	
 		if ( empty($termlink) ) {
 			if ( 'category' == $base_taxonomy )
@@ -318,9 +310,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				}
 				$hierarchical_slugs = array_reverse($hierarchical_slugs);
 				$hierarchical_slugs[] = $slug;
-				bbl_log( "Termlink 0: $termlink" );
 				$termlink = str_replace("%$base_taxonomy%", implode('/', $hierarchical_slugs), $termlink);
-				bbl_log( "Termlink 1: $termlink | replaced %$base_taxonomy%" );
 			} else {
 				$termlink = str_replace("%$base_taxonomy%", $slug, $termlink);
 			}
@@ -338,7 +328,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return array The terms which were got
 	 **/
 	public function get_terms( $terms ) {
-		bbl_log( "Taxes: " . print_r( $this->taxonomies, true ) );
 		foreach ( $terms as $term ) {
 			if ( isset( $this->taxonomies ) )
 				continue;
@@ -348,10 +337,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				else
 					continue;
 			if ( ! $this->get_transid( $term->term_id ) ) {
-				bbl_log( "Set transid on $term->term_id" );
 				$this->set_transid( $term->term_id );
-			} else {
-				bbl_log( "Got transid on $term->term_id" );
 			}
 		}
 		return $terms;
@@ -366,12 +352,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function parse_request( $wp ) {
-		// bbl_log( "Request: " . print_r( $wp->query_vars, true ) );
 
 		// If the current language is the default language, then we don't need
 		// to do anything at all
 		if ( bbl_is_default_lang() ) {
-			bbl_log( "QVs 0: " . print_r( $wp->query_vars, true ) );
 			return;
 		}
 
@@ -390,8 +374,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$taxonomy = $this->get_taxonomy_in_lang( 'category', $wp->query_vars[ 'lang' ] );
 			$terms = $wp->query_vars[ 'category_name' ];
 			unset( $wp->query_vars[ 'category_name' ] );
-		} else {
-			// bbl_log( "" );
 		}
 
 		if ( $taxonomy && $terms ) {
@@ -416,7 +398,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function posts_request( $query ) {
-		bbl_log( "Query: $query" );
+		// bbl_log( "Query: $query" );
 		return $query;
 	}
 	
@@ -491,7 +473,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @access public
 	 **/
 	public function get_new_term_translation_url( $default_term, $lang_code, $taxonomy = null ) {
-		bbl_log( "Default term: " . print_r( $default_term, true ) );
 		if ( ! is_int( $default_term ) && is_null( $taxonomy ) )
 			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
 		else if ( is_int( $default_term ) )
@@ -503,13 +484,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// $default_term = 
 		bbl_switch_to_lang( $lang_code );
 		// var_dump( $default_term );
-		bbl_log( "Lang map: " . print_r( $this->lang_map, true ) );
-		bbl_log( "Translated taxonomy: " . $this->lang_map[ $lang_code ][ $taxonomy ] );
-		bbl_log( "Lang map: " . print_r( $default_term, true ) );
 		$transid = $this->get_transid( $default_term->term_id );
 		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
 		$url = add_query_arg( array( 'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 'bbl_transid' => $transid, 'lang' => $lang_code ), $url );
-		bbl_log( "URL: $url" );
 		bbl_restore_lang();
 		return $url;
 	}
@@ -558,10 +535,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
 		$base_taxonomy = $this->get_base_taxonomy( $taxonomy );
-		bbl_log( "Taxonomy: $base_taxonomy|$taxonomy|$lang_code – " . print_r( $this->lang_map, true ) );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_taxonomy;
-		bbl_log( "Lang code: $lang_code|$base_taxonomy" );
 		return $this->lang_map[ $lang_code ][ $base_taxonomy ];
 	}
 
@@ -607,7 +582,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	protected function get_transid( $target_term_id ) {
 		$transids = wp_get_object_terms( $target_term_id, 'term_translation', array( 'fields' => 'ids' ) );
-		bbl_log( "Transids: " . print_r( $transids, true ) );
 		return (int) array_pop( $transids );
 	}
 
@@ -628,7 +602,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			else
 				$transid = $result[ 'term_id' ];
 		}
-		bbl_log( "Set transid for $target_term_id: $transid " . gettype( $transid ) . " | " . gettype( $target_term_id ) );
 		return wp_set_object_terms( $target_term_id, absint( $transid ), 'term_translation' );
 	}
 
