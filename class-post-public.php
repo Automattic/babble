@@ -46,6 +46,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
 
+		$this->add_action( 'added_post_meta', null, null, 4 );
+		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'pre_get_posts' );
@@ -195,7 +197,38 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP update_post_meta action to sync metadata across to the
+	 * Hooks the WP added_post_meta action to sync metadata across to the
+	 * translations in shadow post types.
+	 *
+	 * @param int $meta_id The ID for this meta entry
+	 * @param int $post_id The ID for the WordPress Post object this meta relates to
+	 * @param string $meta_key The key for this meta entry
+	 * @param mixed $meta_value The new value for this meta entry
+	 * @return void
+	 **/
+	public function added_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
+		error_log( "SW: Added post meta PID $post_id | $meta_key | $meta_value " );
+		// Some metadata shouldn't be synced
+		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
+			return;
+
+		if ( $this->no_recursion )
+			return;
+		$this->no_recursion = true;
+
+		$translations = $this->get_post_translations( $post_id );
+		foreach ( $translations as $lang_code => & $translation ) {
+			error_log( "SW: Added post meta for translation PID $translation->ID | $meta_key | $meta_value" );
+			if ( $this->get_post_lang_code( $translation->ID ) == $lang_code )
+				continue;
+			add_post_meta( $translation->ID, $meta_key, $meta_value );
+		}
+		
+		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP updated_post_meta action to sync metadata across to the
 	 * translations in shadow post types.
 	 *
 	 * @param int $meta_id The ID for this meta entry
@@ -205,16 +238,52 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function updated_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
+		error_log( "SW: Updated post meta PID $post_id | $meta_key | $meta_value " );
 		// Some metadata shouldn't be synced
 		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
 			return;
 
+		if ( $this->no_recursion )
+			return;
 		$this->no_recursion = true;
+
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
-			if ( $this->get_post_lang_code( $post_id ) == $lang_code )
+			error_log( "SW: Updated post meta for translation PID $translation->ID | $meta_key | $meta_value" );
+			if ( $this->get_post_lang_code( $translation->ID ) == $lang_code )
 				continue;
 			update_post_meta( $translation->ID, $meta_key, $meta_value );
+		}
+		
+		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP deleted_post_meta action to sync metadata across to the
+	 * translations in shadow post types.
+	 *
+	 * @param int $meta_id The ID for this meta entry
+	 * @param int $post_id The ID for the WordPress Post object this meta relates to
+	 * @param string $meta_key The key for this meta entry
+	 * @param mixed $meta_value The new value for this meta entry
+	 * @return void
+	 **/
+	public function deleted_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
+		error_log( "SW: deleted post meta PID $post_id | $meta_key | $meta_value " );
+		// Some metadata shouldn't be synced
+		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
+			return;
+
+		if ( $this->no_recursion )
+			return;
+		$this->no_recursion = true;
+
+		$translations = $this->get_post_translations( $post_id );
+		foreach ( $translations as $lang_code => & $translation ) {
+			error_log( "SW: Deleted post meta for translation PID $translation->ID | $meta_key | $meta_value" );
+			if ( $this->get_post_lang_code( $translation->ID ) == $lang_code )
+				continue;
+			delete_post_meta( $translation->ID, $meta_key, $meta_value );
 		}
 		
 		$this->no_recursion = false;
@@ -267,7 +336,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function posts_request( $query ) {
-		error_log( "Query: $query" );
+		// error_log( "Query: $query" );
 		return $query;
 	}
 
@@ -693,6 +762,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( is_wp_error( $transid ) )
 			bbl_log( "Error getting transid: " . print_r( $transid, true ) );
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
+		error_log( "Post IDs for translations ($transid): " . print_r( $post_ids, true ) );
 		// Get all the translations in one cached DB query
 		$args = array(
 			'include' => $post_ids,
