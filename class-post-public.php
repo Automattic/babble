@@ -76,15 +76,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			'label' => __( 'Term Translation ID', 'sil' ),
 		) );
 
-		// // Catch any post types which were registered before this class came along
-		// // and hooked the registered_post_type action.
-		// $existing_post_types = get_post_types( array( 'public' => true ), 'objects' );
-		// bbl_log( "Catching now!" );
-		// foreach ( $existing_post_types as $post_type_object ) {
-		// 	bbl_log( "Catch and register: $post_type_object->name" );
-		// 	$this->registered_post_type( $post_type_object->name, $post_type_object );
-		// }
-
 		// Ensure we catch any existing language shadow post_types already registered
 		if ( is_array( $this->post_types ) )
 			$post_types = array_merge( array( 'post', 'page' ), array_keys( $this->post_types ) );
@@ -176,13 +167,9 @@ class Babble_Post_Public extends Babble_Plugin {
 				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
 			}
 
-			bbl_start_logging();
-			bbl_log( "register post type: $new_post_type" );
-			bbl_stop_logging();
 			$result = register_post_type( $new_post_type, $new_args );
-			// bbl_log( "Registered $new_post_type" );
 			if ( is_wp_error( $result ) ) {
-				bbl_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
+				// bbl_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
 			} else {
 				$this->post_types[ $new_post_type ] = $post_type;
 				$this->lang_map[ $new_post_type ] = $lang->code;
@@ -217,15 +204,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function updated_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
-		bbl_log( "Update post meta: $meta_id, $post_id, $meta_key, " . print_r( $meta_value, true ) );
 		// Some metadata shouldn't be synced
 		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
 			return;
 
 		$this->no_recursion = true;
-		bbl_log( "Syncing $meta_key" );
 		$translations = $this->get_post_translations( $post_id );
-		bbl_log( "translations: " . print_r( $translations, true ) );
 		foreach ( $translations as $lang_code => & $translation ) {
 			if ( $this->get_post_lang_code( $post_id ) == $lang_code )
 				continue;
@@ -259,7 +243,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: Cater for front pages which don't list the posts
 			if ( 'page' == get_option('show_on_front') && get_option('page_on_front') ) {
 				// @TODO: Get translated page ID
-				bbl_log( "Current lang code: " . bbl_get_current_lang_code() );
 				$wp->query_vars[ 'p' ] = $this->get_post_in_lang( get_option('page_on_front'), bbl_get_current_lang_code() )->ID;
 				$wp->query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
 				return;
@@ -274,16 +257,12 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// If we're asking for the default content, it's fine
-		// bbl_log( "Original query: " . print_r( $wp->query_vars, true ) );
 		if ( bbl_get_default_lang_code() == $wp->query_vars[ 'lang' ] ) {
-			// bbl_log( "Default content" );
-			// bbl_log( "New Query 0: " . print_r( $wp->query_vars, true ) );
 			return;
 		}
 
 		// Now swap the query vars so we get the content in the right language post_type
 
-		bbl_log( "Posts 4" );
 		// @FIXME: Do I need to change $wp->matched query? I think $wp->matched_rule is fine?
 		// @FIXME: Danger of post type slugs clashing??
 		if ( isset( $wp->query_vars[ 'pagename' ] ) && $wp->query_vars[ 'pagename' ] ) {
@@ -299,9 +278,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
 			$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $wp->query_vars[ 'post_type' ], $wp->query_vars[ 'lang' ] );
 		}
-		bbl_log( "New Query: " . print_r( $wp->query_vars, true ) );
-
-		bbl_stop_logging();
 	}
 
 	/**
@@ -442,7 +418,6 @@ class Babble_Post_Public extends Babble_Plugin {
 					$post->post_name,
 				);
 				$lang = bbl_get_post_lang_code( $post );
-				// bbl_log( "Getting link, lang: $lang ($post->post_title)" );
 				bbl_switch_to_lang( $lang );
 				$post_link = home_url( str_replace( $rewritecode, $rewritereplace, $post_link ) );
 				bbl_restore_lang();
@@ -454,7 +429,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 	
 		} else if ( 'page' == $base_post_type ) {
-			// bbl_log( "Get page link for $post_link" );
 			return get_page_link( $post->ID, $leavename );
 		}
 	
@@ -639,8 +613,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			'lang' => $lang_code, 
 			'post_type' => $this->get_post_type_in_lang( $default_post->post_type, $lang_code ),
 		);
-		bbl_log( "default post ( $lang_code ): " . print_r( $default_post, true ) );
-		bbl_log( "args: " . print_r( $args, true ) );
 		$url = add_query_arg( $args, $url );
 		bbl_restore_lang();
 		return $url;
@@ -675,7 +647,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post = get_post( $post );
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
-		bbl_log( "Transid: $transid" );
 		if ( is_wp_error( $transid ) )
 			bbl_log( "Error getting transid: " . print_r( $transid, true ) );
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
@@ -718,16 +689,28 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function get_post_type_in_lang( $post_type, $lang_code ) {
 		$base_post_type = $this->get_base_post_type( $post_type );
-		bbl_log( "Lang: " . $lang_code );
-		bbl_log( "Post type: $post_type" );
-		bbl_log( "Base post type: $base_post_type" );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_post_type;
 		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) )
 			return false;
-		bbl_log( "Map: " . print_r( $this->lang_map2, true ) );
-		bbl_log( "Mapped post type: " . $this->lang_map2[ $lang_code ][ $base_post_type ] );
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];
+	}
+
+	/**
+	 * Returns an array of all the shadow post types associated with
+	 * this post type.
+	 *
+	 * @param string $base_post_type The post type to look up shadow post types for 
+	 * @return array The names of all the related shadow post types
+	 **/
+	public function get_shadow_post_types( $base_post_type ) {
+		$post_types = array();
+		$langs = bbl_get_active_langs();
+		foreach ( $langs as $lang ) {
+			if ( isset( $this->lang_map2[ $lang->code ][ $base_post_type ] ) )
+				$post_types[] = $this->lang_map2[ $lang->code ][ $base_post_type ];
+		}
+		return $post_types;
 	}
 
 	/**
@@ -741,7 +724,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function get_post_in_lang( $post, $lang_code, $fallback = true ) {
 		$translations = $this->get_post_translations( $post );
 		if ( isset( $translations[ $lang_code ] ) ) {
-			bbl_log( "Translation exists in $lang_code" );
 			return $translations[ $lang_code ];
 		}
 		if ( ! $fallback ) {
@@ -784,7 +766,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	function get_transid( $post ) {
 		$post = get_post( $post );
 		$transids = (array) wp_get_object_terms( $post->ID, 'post_translation', array( 'fields' => 'ids' ) );
-		bbl_log( "Transids: " . print_r( $transids, true ) );
 		// "There can be only one" (so we'll just drop the others)
 		if ( isset( $transids[ 0 ] ) )
 			return $transids[ 0 ];

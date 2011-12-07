@@ -205,6 +205,30 @@ function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
 }
 
 /**
+ * Return the base post type (in the default language) for a 
+ * provided post type.
+ *
+ * @param string $post_type The name of a post type 
+ * @return string The name of the base post type
+ **/
+function bbl_get_base_post_type( $post_type ) {
+	global $bbl_post_public;
+	return $bbl_post_public->get_base_post_type( $post_type );
+}
+
+/**
+ * Returns an array of all the shadow post types associated with
+ * this post type.
+ *
+ * @param string $base_post_type The post type to look up shadow post types for 
+ * @return array The names of all the related shadow post types
+ **/
+function bbl_get_shadow_post_types( $base_post_type ) {
+	global $bbl_post_public;
+	return $bbl_post_public->get_shadow_post_types( $base_post_type );
+}
+
+/**
  * Return the active language objects for the current site. A
  * language object looks like:
  * 'ar' => 
