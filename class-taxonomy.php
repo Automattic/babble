@@ -80,13 +80,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 			'label' => __( 'Term Translation ID', 'bbl' ),
 		) );
 
-		// Catch any taxonomy which were registered before this class came along
-		// and hooked the registered_post_type action.
-		$existing_taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
-		// var_dump( $existing_taxonomies );
-		// exit;
-		foreach ( $existing_taxonomies as $taxonomy_object )
-			$this->registered_taxonomy( $taxonomy_object->name, $taxonomy_object->object_type, get_object_vars( $taxonomy_object ) );
+		// // Catch any taxonomy which were registered before this class came along
+		// // and hooked the registered_post_type action.
+		// $existing_taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
+		// // var_dump( $existing_taxonomies );
+		// // exit;
+		// foreach ( $existing_taxonomies as $taxonomy_object )
+		// 	$this->registered_taxonomy( $taxonomy_object->name, $taxonomy_object->object_type, get_object_vars( $taxonomy_object ) );
 	}
 	
 	/**
@@ -98,13 +98,19 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function registered_taxonomy( $taxonomy, $object_type, $args ) {
+		bbl_log( "Taxonomy $taxonomy" );
 		// Don't bother with non-public taxonomies for now
 		// If we remove this, we need to avoid dealing with post_translation and term_translation
-		if ( ! $args[ 'public' ] || 'post_translation' == $taxonomy || 'term_translation' == $taxonomy )
+		if ( ! $args[ 'public' ] || 'post_translation' == $taxonomy || 'term_translation' == $taxonomy ) {
+			bbl_log( "Returning for $taxonomy" );
 			return;
+		}
 
-		if ( $this->no_recursion )
+		if ( $this->no_recursion ) {
+			bbl_log( "No recursion on $taxonomy" );
 			return;
+		}
+
 		$this->no_recursion = true;
 
 		if ( ! is_array( $object_type ) )
@@ -409,7 +415,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			);
 		
 		}
-		bbl_log( "QVs 1: " . print_r( $wp->query_vars, true ) );
 	}
 
 	/**
