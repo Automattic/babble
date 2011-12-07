@@ -48,6 +48,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
+		$this->add_action( 'pre_get_posts' );
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
@@ -220,6 +221,26 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
+	 * Hooks the WP pre_get_posts ref action in the WP_Query,
+	 * for the main query it does nothing, for other queries
+	 * if switches the post types to our shadow post types.
+	 *
+	 * @param object $wp_query A WP_Query object, passed by reference
+	 * @return void (param passed by reference)
+	 **/
+	public function pre_get_posts( $query ) {
+		if ( ! bbl_translating() ) {
+			return;
+		}
+		if ( $query->is_main_query() ) {
+			error_log( "This is the main query" );
+			return;
+		}
+		
+		$query->query_vars = $this->translate_query_vars( $query->query_vars );
+	}
+
+	/**
 	 * Hooks the WP parse_request action 
 	 *
 	 * FIXME: Should I be extending and replacing the WP class?
@@ -228,56 +249,15 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function parse_request( $wp ) {
+		if ( ! bbl_translating() ) {
+			return;
+		}
 		global $bbl_locale, $bbl_languages;
 
 		if ( is_admin() )
 			return;
 
-		// Sequester the original query, in case we need it to get the default content later
-		$wp->query_vars[ 'sil_original_query' ] = $wp->query_vars;
-
-		// Detect language specific homepages
-		if ( $wp->request == $wp->query_vars[ 'lang_url_prefix' ] ) {
-			unset( $wp->query_vars[ 'error' ] );
-
-			// @FIXME: Cater for front pages which don't list the posts
-			if ( 'page' == get_option('show_on_front') && get_option('page_on_front') ) {
-				// @TODO: Get translated page ID
-				$wp->query_vars[ 'p' ] = $this->get_post_in_lang( get_option('page_on_front'), bbl_get_current_lang_code() )->ID;
-				$wp->query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
-				return;
-			}
-
-			// Trigger the archive listing for the relevant shadow post type
-			// for this language.
-			if ( bbl_get_default_lang_code() != $wp->query_vars[ 'lang' ] ) {
-				$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', $wp->query_vars[ 'lang' ] );
-			}
-			return;
-		}
-
-		// If we're asking for the default content, it's fine
-		if ( bbl_get_default_lang_code() == $wp->query_vars[ 'lang' ] ) {
-			return;
-		}
-
-		// Now swap the query vars so we get the content in the right language post_type
-
-		// @FIXME: Do I need to change $wp->matched query? I think $wp->matched_rule is fine?
-		// @FIXME: Danger of post type slugs clashing??
-		if ( isset( $wp->query_vars[ 'pagename' ] ) && $wp->query_vars[ 'pagename' ] ) {
-			// Substitute post_type for 
-			$wp->query_vars[ 'name' ] = $wp->query_vars[ 'pagename' ];
-			$wp->query_vars[ bbl_get_post_type_in_lang( 'page', $wp->query_vars[ 'lang' ] ) ] = $wp->query_vars[ 'pagename' ];
-			$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'page', $wp->query_vars[ 'lang' ] );
-			unset( $wp->query_vars[ 'page' ] );
-			unset( $wp->query_vars[ 'pagename' ] );
-		} elseif ( isset( $wp->query_vars[ 'year' ] ) ) { 
-			// @FIXME: This is not a reliable way to detect queries for the 'post' post_type.
-			$wp->query_vars[ 'post_type' ] =  bbl_get_post_type_in_lang( 'post', $wp->query_vars[ 'lang' ] );
-		} elseif ( isset( $wp->query_vars[ 'post_type' ] ) ) { 
-			$wp->query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $wp->query_vars[ 'post_type' ], $wp->query_vars[ 'lang' ] );
-		}
+		$wp->query_vars = $this->translate_query_vars( $wp->query_vars, $wp->request );
 	}
 
 	/**
@@ -287,7 +267,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function posts_request( $query ) {
-		// bbl_log( "Query: $query" );
+		error_log( "Query: $query" );
 		return $query;
 	}
 
@@ -531,7 +511,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			$front_page_transid = $this->get_transid( get_option( 'page_on_front' ) );
 			$this_transid = $this->get_transid( get_the_ID() );
 			if ( $front_page_transid == $this_transid ) {
-				error_log( "SW: is front page" );
 				$post = get_post( get_the_ID() );
 				// global $wp_query, $wp;
 				if ( 'page' == $this->get_base_post_type( $post->post_type ) ) {
@@ -539,12 +518,9 @@ class Babble_Post_Public extends Babble_Plugin {
 						$templates = array( $custom_page_template );
 					else
 						$templates = array( 'page.php' );
-					error_log( "SW: Templat s ".print_r( $templates, true ) );
 					if ( $_template = locate_template( $templates ) ) {
-						error_log( "SW: $_template" );
 						return $_template;
 					}
-					error_log( "SW: WRONG $_template" );
 				}
 			}
 		}
@@ -553,6 +529,73 @@ class Babble_Post_Public extends Babble_Plugin {
 	
 	// PUBLIC METHODS
 	// ==============
+
+	/**
+	 * Takes a set of query vars and amends them to show the content
+	 * in the current language.
+	 *
+	 * @param array $query_vars A set of WordPress query vars (sometimes called query arguments)
+	 * @param string|boolean $request If this is called on the parse_request hook, $request contains the root relative URL
+	 * @return array $query_vars A set of WordPress query vars
+	 **/
+	protected function translate_query_vars( $query_vars, $request = false ) {
+
+		// Sequester the original query, in case we need it to get the default content later
+		$query_vars[ 'sil_original_query' ] = $query_vars;
+
+		// We were here (avoid doing this again)
+		if ( isset( $query_vars[ 'sil_done_translation' ] ) && $query_vars[ 'sil_done_translation' ] )
+			return $query_vars;
+		$query_vars[ 'sil_done_translation' ] = true;
+
+		$lang_url_prefix = isset( $query_vars[ 'lang_url_prefix' ] ) ? $query_vars[ 'lang_url_prefix' ] : get_query_var( 'lang_url_prefix' );
+		$lang = isset( $query_vars[ 'lang' ] ) ? $query_vars[ 'lang' ] : get_query_var( 'lang' );
+
+		// Detect language specific homepages
+		if ( $request == $lang_url_prefix ) {
+			unset( $query_vars[ 'error' ] );
+
+			// @FIXME: Cater for front pages which don't list the posts
+			if ( 'page' == get_option('show_on_front') && get_option('page_on_front') ) {
+				// @TODO: Get translated page ID
+				$query_vars[ 'p' ] = $this->get_post_in_lang( get_option('page_on_front'), bbl_get_current_lang_code() )->ID;
+				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
+				return $query_vars;
+			}
+
+			// Trigger the archive listing for the relevant shadow post type
+			// for this language.
+			if ( bbl_get_default_lang_code() != $lang ) {
+				$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
+			}
+			return $query_vars;
+		}
+
+		// If we're asking for the default content, it's fine
+		if ( bbl_get_default_lang_code() == $lang ) {
+			return $query_vars;
+		}
+
+		// Now swap the query vars so we get the content in the right language post_type
+
+		// @FIXME: Do I need to change $wp->matched query? I think $wp->matched_rule is fine?
+		// @FIXME: Danger of post type slugs clashing??
+		if ( isset( $query_vars[ 'pagename' ] ) && $query_vars[ 'pagename' ] ) {
+			// Substitute post_type for 
+			$query_vars[ 'name' ] = $wp->query_vars[ 'pagename' ];
+			$query_vars[ bbl_get_post_type_in_lang( 'page', $query_vars[ 'lang' ] ) ] = $query_vars[ 'pagename' ];
+			$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
+			unset( $query_vars[ 'page' ] );
+			unset( $query_vars[ 'pagename' ] );
+		} elseif ( isset( $query_vars[ 'year' ] ) ) { 
+			// @FIXME: This is not a reliable way to detect queries for the 'post' post_type.
+			$query_vars[ 'post_type' ] =  bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
+		} elseif ( isset( $query_vars[ 'post_type' ] ) ) { 
+			$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $query_vars[ 'post_type' ], bbl_get_current_lang_code() );
+		}
+
+		return $query_vars;
+	}
 
 	/**
 	 * Discover whether a post is set as the front page
