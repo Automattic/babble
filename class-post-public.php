@@ -207,7 +207,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function added_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
-		error_log( "SW: Added post meta PID $post_id | $meta_key | $meta_value " );
 		// Some metadata shouldn't be synced
 		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
 			return;
@@ -218,7 +217,6 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
-			error_log( "SW: Added post meta for translation PID $translation->ID | $meta_key | $meta_value" );
 			if ( $this->get_post_lang_code( $translation->ID ) == $lang_code )
 				continue;
 			add_post_meta( $translation->ID, $meta_key, $meta_value );
@@ -238,7 +236,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function updated_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
-		error_log( "SW: Updated post meta PID $post_id | $meta_key | $meta_value " );
 		// Some metadata shouldn't be synced
 		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
 			return;
@@ -249,7 +246,6 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
-			error_log( "SW: Updated post meta for translation PID $translation->ID | $meta_key | $meta_value" );
 			if ( $this->get_post_lang_code( $translation->ID ) == $lang_code )
 				continue;
 			update_post_meta( $translation->ID, $meta_key, $meta_value );
@@ -269,7 +265,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function deleted_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
-		error_log( "SW: deleted post meta PID $post_id | $meta_key | $meta_value " );
 		// Some metadata shouldn't be synced
 		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
 			return;
@@ -280,7 +275,6 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
-			error_log( "SW: Deleted post meta for translation PID $translation->ID | $meta_key | $meta_value" );
 			if ( $this->get_post_lang_code( $translation->ID ) == $lang_code )
 				continue;
 			delete_post_meta( $translation->ID, $meta_key, $meta_value );
