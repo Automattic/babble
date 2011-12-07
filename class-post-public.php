@@ -756,7 +756,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( is_wp_error( $transid ) )
 			bbl_log( "Error getting transid: " . print_r( $transid, true ) );
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
-		error_log( "Post IDs for translations ($transid): " . print_r( $post_ids, true ) );
 		// Get all the translations in one cached DB query
 		$args = array(
 			'include' => $post_ids,
