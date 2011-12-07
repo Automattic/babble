@@ -110,6 +110,27 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( ! is_array( $object_type ) )
 			$object_type = array_unique( (array) $object_type );
 
+		// Untranslated taxonomies do not have shadow equivalents in each language,
+		// but do apply to the bast post_type and all it's shadow post_types.
+		bbl_log( "Check tax $taxonomy is translated: $taxonomy" );
+		if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+			bbl_log( "Tax $taxonomy IS translated: $taxonomy" );
+			// Apply this taxonomy to all the shadow post types
+			// of all of the base post_types it applies to.
+			foreach ( $object_type as $ot ) {
+				if ( ! ( $base_post_type = bbl_get_base_post_type( $ot ) ) ) {
+					bbl_log( "Base post type: $base_post_type" );
+					continue;
+				}
+				$shadow_post_types = bbl_get_shadow_post_types( $base_post_type );
+				bbl_log( "Shadow post types for $taxonomy: " . implode( ', ', $shadow_post_types ) );
+				foreach ( $shadow_post_types as $shadow_post_type )
+					register_taxonomy_for_object_type( $taxonomy, $shadow_post_type );
+			}
+			$this->no_recursion = false;
+			return;
+		}
+
 		// @FIXME: Not sure this is the best way to specify languages
 		$langs = bbl_get_active_langs();
 
