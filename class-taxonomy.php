@@ -51,6 +51,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
+		$this->add_action( 'set_object_terms', null, null, 5 );
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
 		// $this->add_filter( 'term_link', null, null, 3 );
@@ -415,6 +416,39 @@ class Babble_Taxonomies extends Babble_Plugin {
 			);
 		
 		}
+	}
+
+	/**
+	 * Hooks the WP set_object_terms action to sync any untranslated
+	 * taxonomies across to the translations.
+	 *
+	 * @param int $object_id The object to relate to.
+	 * @param array $terms The slugs or ids of the terms
+	 * @param array $tt_ids The term_taxonomy_ids.
+	 * @param array|string $taxonomy The context in which to relate the term to the object.
+	 * @param bool $append If false will delete difference of terms.
+	 * @return void
+	 **/
+	public function set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append ) {
+		if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+			return;
+		}
+
+		if ( $this->no_recursion )
+			return;
+		$this->no_recursion = true;
+
+		// Here we assume that this taxonomy is on a post type
+		$translations = bbl_get_post_translations( $object_id );
+		foreach ( $translations as $lang_code => & $translation ) {
+			if ( bbl_get_post_lang_code( $object_id ) == $lang_code )
+				continue;
+			bbl_stop_translating();
+			wp_set_object_terms( $translation->ID, $terms, $taxonomy, $append );
+			bbl_start_translating();
+		}
+
+		$this->no_recursion = false;
 	}
 
 	/**
