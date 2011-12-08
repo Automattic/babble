@@ -153,6 +153,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$args[ 'show_ui' ] = true;
 		$slug = ( $args[ 'rewrite' ][ 'slug' ] ) ? $args[ 'rewrite' ][ 'slug' ] : $post_type;
 
+		// if ( 'page' == $post_type )
+		// var_dump( $args );
+
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
 
@@ -320,6 +323,12 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		$base_page = $base_screen->id;
 
+		$post = get_post( get_the_ID() );
+		do_action( 'add_meta_boxes_' . $base_page, $post );
+
+		if ( ! isset( $wp_meta_boxes[$base_page] ) )
+			return;
+		
 		$hidden = get_hidden_meta_boxes( $screen );
 		foreach ( $wp_meta_boxes[$base_page] as $context => $contexts ) {
 			foreach ( $contexts as $priority => $priorities ) {
@@ -990,9 +999,15 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! ( $origin_post = get_post( $origin_id ) ) )
 			return;
 
-		$parent_post = false;
-		if ( $origin_post->post_parent )
-			$parent_post = $this->get_post_in_lang( $origin_post->post_parent, bbl_get_current_lang_code() );
+		$origin_lang_code = bbl_get_post_lang_code( $origin_id );
+
+		$new_lang_code = bbl_get_post_lang_code( $new_post_id );
+
+		$new_parent_post = false;
+		if ( $origin_post->post_parent ) {
+			$origin_parent_post = $this->get_post_in_lang( $origin_post->post_parent, $origin_lang_code );
+			$new_parent_post = $this->get_post_in_lang( $origin_parent_post, $new_lang_code );
+		}
 
 		$postdata = array(
 			'ID' => $new_post_id,
@@ -1005,8 +1020,9 @@ class Babble_Post_Public extends Babble_Plugin {
 			'menu_order' => $origin_post->menu_order,
 			'post_mime_type' => $origin_post->post_mime_type,
 		);
-		if ( $parent_post )
-			$postdata[ 'post_parent' ] = $parent_post->ID;
+		if ( $new_parent_post )
+			$postdata[ 'post_parent' ] = $new_parent_post->ID;
+
 		wp_update_post( $postdata );	
 	}
 
