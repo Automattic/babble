@@ -50,6 +50,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
+		$this->add_action( 'post_updated' );
 		$this->add_action( 'pre_get_posts' );
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
@@ -60,7 +61,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
-		$this->add_action( 'post_updated' );
 		
 		$this->post_types = array();
 		$this->lang_map = array();
