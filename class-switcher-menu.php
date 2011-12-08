@@ -243,11 +243,15 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-post';
 		} else { // Translation does not exist
-			$default_post = $this->translations[ bbl_get_default_lang_code() ];
-			$href = bbl_get_new_post_translation_url( $default_post, $lang->code );
-			$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
-			$classes[] = 'bbl-add';
-			$classes[] = 'bbl-add-post';
+			if ( isset( $this->translations[ bbl_get_default_lang_code() ] ) ) {
+				$default_post = $this->translations[ bbl_get_default_lang_code() ];
+				$href = bbl_get_new_post_translation_url( $default_post, $lang->code );
+				$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
+				$classes[] = 'bbl-add';
+				$classes[] = 'bbl-add-post';
+			} else {
+				return; // Don't create the switcher menu items yet
+			}
 		}
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
