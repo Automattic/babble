@@ -310,6 +310,9 @@ class Babble_Post_Public extends Babble_Plugin {
 			$screen = convert_to_screen( $screen );
 
 		$page = $screen->id;
+
+		if ( 'post' != $screen->base )
+			return;
 		
 		if ( ! ( $base_screen = $this->get_base_post_type( $page ) ) ) {
 			error_log( "SW: No base post type to get metaboxes for" );
