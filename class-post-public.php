@@ -926,7 +926,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	protected function sync_properties( $origin_id, $new_post_id ) {
-		$origin_post = get_post( $origin_id );
+		if ( ! ( $origin_post = get_post( $origin_id ) ) )
+			return;
 
 		$parent_post = false;
 		if ( $origin_post->post_parent )

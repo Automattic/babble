@@ -236,7 +236,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function created_new_shadow_post( $new_post_id, $origin_post_id ) {
 		$new_post = get_post( $new_post_id );
-		$origin_post = get_post( $origin_post_id );
+		if ( ! ( $origin_post = get_post( $origin_post_id ) ) )
+			return;
 		
 		if ( $this->no_recursion ) {
 			return;
