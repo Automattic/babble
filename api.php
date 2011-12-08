@@ -334,7 +334,7 @@ function bbl_get_active_langs() {
  **/
 function bbl_get_lang( $lang_code ) {
 	global $bbl_languages;
-	return $bbl_languages->get_lang();
+	return $bbl_languages->get_lang( $lang_code );
 }
 
 /**
