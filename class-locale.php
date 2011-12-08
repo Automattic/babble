@@ -66,6 +66,7 @@ class Babble_Locale {
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
 		add_filter( 'body_class', array( & $this, 'body_class' ) );
+		// add_filter( 'post_class', array( & $this, 'post_class' ), null, 3 );
 	}
 
 	/**
@@ -239,16 +240,34 @@ class Babble_Locale {
 	 * @return array The body classes 
 	 **/
 	public function body_class( $classes ) {
-		error_log( "SW: Classes: " . print_r( $classes, true ) );
-		error_log( "SW: Lang: " . print_r( $this->lang, true ) );
 		$lang = bbl_get_current_lang();
-		error_log( "SW: Lang: " . print_r( $lang, true ) );
-		$classes[] = $lang->text_direction;
-		$classes[] = 'bbl-lang-' . $lang->text_direction;
-		$classes[] = 'bbl-lang-' . sanitize_title( $lang->names );
-		$classes[] = 'bbl-lang-' . sanitize_title( $lang->url_prefix );
-		$classes[] = 'bbl-lang-' . sanitize_title( $lang->code );
-		$classes[] = 'bbl-lang-' . sanitize_title( $lang->display_name );
+		$classes[] = 'bbl-' . $lang->text_direction;
+		$classes[] = 'bbl-' . $lang->text_direction;
+		$classes[] = 'bbl-' . sanitize_title( $lang->names );
+		$classes[] = 'bbl-' . sanitize_title( $lang->url_prefix );
+		$classes[] = 'bbl-' . sanitize_title( $lang->code );
+		$classes[] = 'bbl-' . sanitize_title( $lang->display_name );
+		return $classes;
+	}
+
+	/**
+	 * Hooks the WP post_class filter to add some language specific classes.
+	 *
+	 * @param array $classes The post classes 
+	 * @param array $class One or more classes which have been added to the class list.
+	 * @param int $post_id The ID of the post we're providing classes for 
+	 * @return array The body classes 
+	 **/
+	public function post_class( $classes, $class, $post_id ) {
+		return $classes;
+		$post = get_post( $post_id );
+		$post_lang_code = bbl_get_post_lang_code( $post );
+		$lang = bbl_get_lang( $post_lang_code );
+		$classes[] = 'bbl-post-' . $lang->text_direction;
+		$classes[] = 'bbl-post-' . sanitize_title( $lang->names );
+		$classes[] = 'bbl-post-' . sanitize_title( $lang->url_prefix );
+		$classes[] = 'bbl-post-' . sanitize_title( $lang->code );
+		$classes[] = 'bbl-post-' . sanitize_title( $lang->display_name );
 		return $classes;
 	}
 
