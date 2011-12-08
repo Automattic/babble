@@ -36,6 +36,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected $lang_map2;
 
+	/**
+	 * A flag to record that we've done the metabox juggling.
+	 *
+	 * @var boolean
+	 **/
+	protected $done_metaboxes;
+
 	// /**
 	//  * Regex for detecting the language from a URL
 	//  *
@@ -47,6 +54,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->setup( 'babble-post-public', 'plugin' );
 
 		$this->add_action( 'added_post_meta', null, null, 4 );
+		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
@@ -62,8 +70,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
 		
-		$this->post_types = array();
+		$this->done_metaboxes = false;
 		$this->lang_map = array();
+		$this->post_types = array();
 	}
 
 	/**
@@ -270,6 +279,58 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		
 		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP do_meta_boxes_early marginally before the core
+	 * WordPress functions get involved to try and ensure that a
+	 * shadow post type has all the relevant metaboxes.
+	 *
+	 * Note that no translation can be done at this stage, as we
+	 * don't know the textdomains the strings are in, therefore
+	 * the more elegant way of doing this is to be Babble compliant
+	 * within the code adding the metabox in the first place.
+	 *
+	 * @param string|object $screen Screen identifier we are checking metaboxes for (occasionally equivalent to a post type)
+	 * @return void
+	 **/
+	public function do_meta_boxes_early( $screen ) {
+		global $wp_meta_boxes;
+
+		if ( $this->done_metaboxes )
+			return;
+		$this->done_metaboxes = true;
+
+		if ( empty( $screen ) )
+			$screen = get_current_screen();
+		elseif ( is_string( $screen ) )
+			$screen = convert_to_screen( $screen );
+
+		$page = $screen->id;
+		
+		if ( ! ( $base_screen = $this->get_base_post_type( $page ) ) ) {
+			error_log( "SW: No base post type to get metaboxes for" );
+			return;
+		}
+
+		if ( empty( $base_screen ) )
+			$base_screen = get_current_screen();
+		elseif ( is_string( $base_screen ) )
+			$base_screen = convert_to_screen( $base_screen );
+
+		$base_page = $base_screen->id;
+
+		$hidden = get_hidden_meta_boxes( $screen );
+		foreach ( $wp_meta_boxes[$base_page] as $context => $contexts ) {
+			foreach ( $contexts as $priority => $priorities ) {
+				foreach ( $priorities as $meta_box ) {
+					// This is crude; we're going to add all the metaboxes
+					// to the shadow post type, WordPress' add_meta_box 
+					// function will ignore existing boxes.
+					add_meta_box( $meta_box[ 'id' ], $meta_box[ 'title' ], $meta_box[ 'callback' ], $page, $context, $priority, $meta_box[ 'args' ] );
+				}
+			}
+		}
 	}
 
 	/**
