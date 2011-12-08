@@ -173,6 +173,19 @@ class Babble_Languages extends Babble_Plugin {
 	}
 
 	/**
+ 	 * Returns the requested language object.
+	 *
+	 * @param string $code A language code, e.g. "fr_BE" 
+	 * @return object|boolean A Babble language object
+	 **/
+	public function get_lang( $lang_code ) {
+		global $bbl_locale;
+		if ( ! isset( $this->langs[ $lang_code ] ) )
+			return false;
+		return $this->langs[ $lang_code ];
+	}
+
+	/**
 	 * Returns the current language object, respecting any
 	 * language switches; i.e. if your request was for
 	 * Arabic, but the language is currently switched to
@@ -182,9 +195,7 @@ class Babble_Languages extends Babble_Plugin {
 	 **/
 	public function get_current_lang() {
 		global $bbl_locale;
-		if ( ! isset( $this->langs[ $bbl_locale->get_lang() ] ) )
-			return false;
-		return $this->langs[ $bbl_locale->get_lang() ];
+		return $this->get_lang( $bbl_locale->get_lang() );
 	}
 
 	/**

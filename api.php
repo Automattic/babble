@@ -327,6 +327,17 @@ function bbl_get_active_langs() {
 }
 
 /**
+ * Returns the requested language object.
+ *
+ * @param string $code A language code, e.g. "fr_BE" 
+ * @return object|boolean A Babble language object
+ **/
+function bbl_get_lang( $lang_code ) {
+	global $bbl_languages;
+	return $bbl_languages->get_lang();
+}
+
+/**
  * Returns the current language object, respecting any
  * language switches; i.e. if your request was for
  * Arabic, but the language is currently switched to
