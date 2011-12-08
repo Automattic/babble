@@ -728,7 +728,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			// Trigger the archive listing for the relevant shadow post type
 			// for this language.
 			if ( bbl_get_default_lang_code() != $lang ) {
-				$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
+				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
 			}
 			return $query_vars;
 		}
@@ -905,8 +905,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$base_post_type = $this->get_base_post_type( $post_type );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_post_type;
-		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) )
+		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
 			return false;
+		}
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];
 	}
 

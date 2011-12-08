@@ -244,7 +244,7 @@ function bbl_get_the_title_in_lang( $post = null, $lang_code = null, $fallback =
 
 	// Hopefully we find the post in the right language
 	if ( $lang_post = bbl_get_post_in_lang( $post, $lang_code, $fallback ) )
-		return apply_filters( 'the_title_in_lang', get_the_title( $lang_post->ID ), $lang_code );
+		return apply_filters( 'bbl_the_title_in_lang', get_the_title( $lang_post->ID ), $lang_code );
 
 	// We have failed…
 	return '';
@@ -277,10 +277,32 @@ function bbl_get_the_permalink_in_lang( $post = null, $lang_code = null, $fallba
 
 	// Hopefully we find the post in the right language
 	if ( $lang_post = bbl_get_post_in_lang( $post, $lang_code, $fallback ) )
-		return apply_filters( 'permalink_in_lang', get_permalink( $lang_post->ID ), $lang_code );
+		return apply_filters( 'bbl_permalink_in_lang', get_permalink( $lang_post->ID ), $lang_code );
 
 	// We have failed…
 	return '';
+}
+
+/**
+ * Returns the link to a post type in a particular language.
+ *
+ * @param string $post_type A post type for which you want a translated archive link
+ * @param string $lang_code The code for the language the link is requested in
+ * @return void
+ **/
+function bbl_get_post_type_archive_link_in_lang( $post_type, $lang_code = null ) {
+	if ( is_null( $lang_code ) )
+		$lang_code = bbl_get_current_lang_code();
+	bbl_switch_to_lang( $lang_code );
+	error_log( "SW: Switched to LC: $lang_code" );
+	error_log( "SW: PT: $post_type" );
+	bbl_start_logging();
+	$lang_post_type = bbl_get_post_type_in_lang( $post_type, $lang_code );
+	bbl_stop_logging();
+	error_log( "SW: LPT: $lang_post_type" );
+	$link = get_post_type_archive_link( $lang_post_type );
+	bbl_restore_lang();
+	return apply_filters( 'bbl_post_type_archive_link_in_lang', $link );
 }
 
 /**
