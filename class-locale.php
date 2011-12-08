@@ -232,6 +232,26 @@ class Babble_Locale {
 		return $url;
 	}
 
+	/**
+	 * Hooks the WP body_class filter to add some language specific classes.
+	 *
+	 * @param array $classes The body classes 
+	 * @return array The body classes 
+	 **/
+	public function body_class( $classes ) {
+		error_log( "SW: Classes: " . print_r( $classes, true ) );
+		error_log( "SW: Lang: " . print_r( $this->lang, true ) );
+		$lang = bbl_get_current_lang();
+		error_log( "SW: Lang: " . print_r( $lang, true ) );
+		$classes[] = $lang->text_direction;
+		$classes[] = 'bbl-lang-' . $lang->text_direction;
+		$classes[] = 'bbl-lang-' . sanitize_title( $lang->names );
+		$classes[] = 'bbl-lang-' . sanitize_title( $lang->url_prefix );
+		$classes[] = 'bbl-lang-' . sanitize_title( $lang->code );
+		$classes[] = 'bbl-lang-' . sanitize_title( $lang->display_name );
+		return $classes;
+	}
+
 	// Public Methods
 	// --------------
 
