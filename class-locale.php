@@ -65,6 +65,7 @@ class Babble_Locale {
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
+		add_filter( 'body_class', array( & $this, 'body_class' ) );
 	}
 
 	/**
