@@ -259,7 +259,6 @@ class Babble_Locale {
 	 * @return array The body classes 
 	 **/
 	public function post_class( $classes, $class, $post_id ) {
-		return $classes;
 		$post = get_post( $post_id );
 		$post_lang_code = bbl_get_post_lang_code( $post );
 		$lang = bbl_get_lang( $post_lang_code );
