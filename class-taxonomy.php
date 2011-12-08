@@ -332,7 +332,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function add_term_form_fields( $taxonomy ) {
-		$transid = (int) $_REQUEST[ 'bbl_transid' ];
+		$transid = isset( $_REQUEST[ 'bbl_transid' ] ) ? (int) $_REQUEST[ 'bbl_transid' ] : '';
 		wp_nonce_field( 'bbl_add_tag_' . $transid, '_bbl_nonce' );
 		?>
 			<input type="text" name="bbl_transid" value="<?php echo esc_attr( $transid ); ?>" id="bbl_transid" />
