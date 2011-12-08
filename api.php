@@ -322,6 +322,19 @@ function bbl_get_prefix_from_lang_code( $lang_code ) {
 	return $bbl_languages->get_url_prefix_from_code( $lang_code );
 }
 
+/**
+ * Returns the switch links for the current content.
+ *
+ * @param string $id_prefix A prefix to the ID for each item
+ * @return array An array of admin menu nodes
+ **/
+function bbl_get_switcher_links( $id_prefix = '' ) {
+	global $bbl_switcher_menu;
+	return $bbl_switcher_menu->get_switcher_links( $id_prefix );
+}
+
+// @TODO: EUGH. GLOBALS. UGLY. Get rid of the $bbl_translating global, perhaps replace with mini class?
+
 global $bbl_translating;
 $bbl_translating = true;
 
