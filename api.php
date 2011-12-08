@@ -205,6 +205,85 @@ function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
 }
 
 /**
+ * Returns the post in a particular language
+ *
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @param string $lang_code The language code for the required language 
+ * @param boolean $fallback If true: if a post is not available, fallback to the default language content (defaults to true)
+ * @return object|boolean The WP Post object, or if $fallback was false and no post then returns false
+ **/
+function bbl_get_post_in_lang( $post, $lang_code, $fallback = true ) {
+	global $bbl_post_public;
+	return $bbl_post_public->get_post_in_lang( $post, $lang_code, $fallback );
+}
+
+/**
+ * Echoes the title of a post, in the requested language (if available).
+ *
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @param string $lang_code The code for the language the title is requested in
+ * @param bool $fallback Whether to provide a fallback title in the default language if the requested language is unavailable (defaults to false)
+ * @return void
+ **/
+function bbl_the_title_in_lang( $post = null, $lang_code = null, $fallback = false ) {
+	echo bbl_get_the_title_in_lang( $post, $lang_code, $fallback );
+}
+
+/**
+ * Returns the title of a post, in the requested language (if available).
+ *
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @param string $lang_code The code for the language the title is requested in
+ * @param bool $fallback Whether to provide a fallback title in the default language if the requested language is unavailable (defaults to false)
+ * @return void
+ **/
+function bbl_get_the_title_in_lang( $post = null, $lang_code = null, $fallback = false ) {
+	$post = get_post( $post );
+	if ( is_null( $lang_code ) )
+		$lang_code = bbl_get_current_lang_code();
+
+	// Hopefully we find the post in the right language
+	if ( $lang_post = bbl_get_post_in_lang( $post, $lang_code, $fallback ) )
+		return apply_filters( 'the_title_in_lang', get_the_title( $lang_post->ID ), $lang_code );
+
+	// We have failed…
+	return '';
+}
+
+/**
+ * Echoes the permalink of a post, in the requested language (if available).
+ *
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @param string $lang_code The code for the language the title is requested in
+ * @param bool $fallback Whether to provide a fallback title in the default language if the requested language is unavailable (defaults to false)
+ * @return void
+ **/
+function bbl_the_permalink_in_lang( $post = null, $lang_code = null, $fallback = false ) {
+	echo bbl_get_the_permalink_in_lang( $post, $lang_code, $fallback );
+}
+
+/**
+ * Returns the permalink of a post, in the requested language (if available).
+ *
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @param string $lang_code The code for the language the title is requested in
+ * @param bool $fallback Whether to provide a fallback title in the default language if the requested language is unavailable (defaults to false)
+ * @return void
+ **/
+function bbl_get_the_permalink_in_lang( $post = null, $lang_code = null, $fallback = false ) {
+	$post = get_post( $post );
+	if ( is_null( $lang_code ) )
+		$lang_code = bbl_get_current_lang_code();
+
+	// Hopefully we find the post in the right language
+	if ( $lang_post = bbl_get_post_in_lang( $post, $lang_code, $fallback ) )
+		return apply_filters( 'permalink_in_lang', get_permalink( $lang_post->ID ), $lang_code );
+
+	// We have failed…
+	return '';
+}
+
+/**
  * Return the base post type (in the default language) for a 
  * provided post type.
  *
