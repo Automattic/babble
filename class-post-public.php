@@ -117,7 +117,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$this->no_recursion = true;
 
-		// @FIXME: Not sure this is the best way to specify languages
 		$langs = bbl_get_active_langs();
 
 		// Lose the default language as any existing post types are in that language
@@ -134,18 +133,10 @@ class Babble_Post_Public extends Babble_Plugin {
 				unset( $args[ $key ] );
 		}
 
-		$args[ 'supports' ] = array(
-			'title',
-			'editor',
-			'comments',
-			'revisions',
-			'trackbacks',
-			'author',
-			'excerpt',
-			'page-attributes',
-			'thumbnail',
-			'custom-fields'
-		);
+		$features = $this->get_features_supported_by_post_type( $post_type );
+		$args[ 'supports' ] = array();
+		foreach ( $features as $feature => $true )
+			$args[ 'supports' ][] = $feature;
 
 		// I am a little concerned that this argument may make things
 		// brittle, e.g. the UI might stop showing up in the shadow
@@ -914,7 +905,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * clone a post, including postmeta and there is no built-in
 	 * meta API function to get all the postmeta entries for
 	 * a given post. Hope we can agree that this is OK, unless
-	 * I'm missing something?
+	 * I'm missing a better way of doing this?
+	 * 
+	 * @TODO: Raise a Trac ticket for adding this functionality to the (post) meta API
 	 *
 	 * @param int $post A WordPress post ID
 	 * @return array An array of postmeta values
@@ -1000,6 +993,26 @@ class Babble_Post_Public extends Babble_Plugin {
 			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
 		
 		return $transid;
+	}
+
+	/**
+	 * Return a list of features supported by a post_type.
+	 *
+	 * Hello there, VIP code reviewer. I imagine you're wondering
+	 * why I'm accessing a global prefixed by an underscore? I realise
+	 * these are nominally private variables, prone to change, but
+	 * I need to access a list of all features supported by a post
+	 * type, in order to shadow it for the various translations,
+	 * and there's no core function to allow me to do this.
+	 * 
+	 * @TODO: Raise a Trac ticket for adding this functionality to the post type API
+	 *
+	 * @param string $post_type The name of the post type for which to get the features supported
+	 * @return array An array of features supported by this post type
+	 **/
+	protected function get_features_supported_by_post_type( $post_type ) {
+		global $_wp_post_type_features;
+		return (array) $_wp_post_type_features[$post_type];
 	}
 
 }
