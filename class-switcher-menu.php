@@ -143,7 +143,7 @@ class Babble_Switcher_Menu {
 		$classes[] = 'bbl-admin';
 		$classes[] = 'bbl-admin-generic';
 		$classes[] = 'bbl-lang';
-		if ( $lang == bbl_get_current_lang_code() )
+		if ( $lang->code == bbl_get_current_lang_code() )
 			$classes[] = 'bbl-active';
 		$this->links[ $lang->code ] = array(
 			'classes' => $classes,
@@ -185,7 +185,7 @@ class Babble_Switcher_Menu {
 		$classes[] = 'bbl-admin-taxonomy';
 		$classes[] = 'bbl-admin-edit-term';
 		$classes[] = 'bbl-lang';
-		if ( $lang == bbl_get_current_lang_code() )
+		if ( $lang->code == bbl_get_current_lang_code() )
 			$classes[] = 'bbl-active';
 		$this->links[ $lang->code ] = array(
 			'classes' => $classes,
@@ -216,7 +216,7 @@ class Babble_Switcher_Menu {
 		$classes[] = 'bbl-admin-taxonomy';
 		$classes[] = 'bbl-admin-list-terms';
 		$classes[] = 'bbl-lang';
-		if ( $lang == bbl_get_current_lang_code() )
+		if ( $lang->code == bbl_get_current_lang_code() )
 			$classes[] = 'bbl-active';
 
 		$this->links[ $lang->code ] = array(
@@ -259,7 +259,7 @@ class Babble_Switcher_Menu {
 		$classes[] = 'bbl-admin-post-type';
 		$classes[] = 'bbl-lang';
 		$classes[] = 'bbl-post';
-		if ( $lang == bbl_get_current_lang_code() )
+		if ( $lang->code == bbl_get_current_lang_code() )
 			$classes[] = 'bbl-active';
 		$this->links[ $lang->code ] = array(
 			'classes' => $classes,
@@ -290,7 +290,7 @@ class Babble_Switcher_Menu {
 		$classes[] = 'bbl-admin-edit-post';
 		$classes[] = 'bbl-admin-post-type';
 		$classes[] = 'bbl-lang';
-		if ( $lang == bbl_get_current_lang_code() )
+		if ( $lang->code == bbl_get_current_lang_code() )
 			$classes[] = 'bbl-active';
 
 		$this->links[ $lang->code ] = array(
@@ -329,7 +329,7 @@ class Babble_Switcher_Menu {
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-lang';
 		$classes[] = 'bbl-post';
-		if ( $lang == bbl_get_current_lang_code() )
+		if ( $lang->code == bbl_get_current_lang_code() )
 			$classes[] = 'bbl-active';
 		$this->links[ $lang->code ] = array(
 			'classes' => $classes,
