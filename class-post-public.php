@@ -889,6 +889,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return string The name of the base post type
 	 **/
 	public function get_base_post_type( $post_type ) {
+		if ( ! $post_type )
+			return false;
 		if ( ! isset( $this->post_types[ $post_type ] ) )
 			return $post_type;
 		return $this->post_types[ $post_type ];
