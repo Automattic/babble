@@ -129,7 +129,7 @@ class Babble_Languages extends Babble_Plugin {
 			$lang->url_prefix = ( @ isset( $_POST[ 'url_prefix_' . $code ] ) ) ? $_POST[ "url_prefix_$code" ] : @ $lang->url_prefix;
 			if ( ! $lang->url_prefix )
 				$lang->url_prefix = $lang->url_prefix;
-			$lang->text_direction = ( @ isset( $_POST[ "text_direction_$code" ] ) ) ? $_POST[ "text_direction_$code" ] : @ $lang->text_direction;
+			$lang->text_direction = $lang->text_direction;
 			// This line must come after the text direction value is set
 			$lang->input_lang_class = ( 'rtl' == $lang->text_direction ) ? 'lang-rtl' : 'lang-ltr' ;
 			$lang->display_name = ( @ isset( $_POST[ "display_name_$code" ] ) ) ? $_POST[ "display_name_$code" ] : @ $lang->display_name;
@@ -275,7 +275,7 @@ class Babble_Languages extends Babble_Plugin {
 			return;
 		check_admin_referer( 'babble_lang_prefs', '_babble_nonce' );
 
-		// Now save the language preferences
+		// Now save the language preferences for all languages
 
 		$lang_prefs = array();
 		$url_prefixes = array();
@@ -283,9 +283,6 @@ class Babble_Languages extends Babble_Plugin {
 			$lang_pref = new stdClass;
 			$lang_pref->display_name = @ $_POST[ 'display_name_' . $code ];
 			$lang_pref->url_prefix = @ $_POST[ 'url_prefix_' . $code ];
-			$lang_pref->text_direction = @ $_POST[ 'text_direction_' . $code ];
-			// Ensure text_direction is only 'ltr' or 'rtl'
-			$lang_pref->text_direction = ( 'rtl' == $lang_pref->text_direction ) ? 'rtl' : 'ltr';
 			// Check we don't have more than one language using the same url prefix
 			if ( array_key_exists( $lang_pref->url_prefix, $url_prefixes ) ) {
 				$lang_1 = $this->format_code_lang( $code );
@@ -300,7 +297,10 @@ class Babble_Languages extends Babble_Plugin {
 			$lang_prefs[ $code ] = $lang_pref;
 		}
 		
-		// Now save the active languages
+		error_log( "SW: Available langs: " . print_r( $this->available_langs, true ) );
+		error_log( "SW: Lang prefs: " . print_r( $lang_prefs, true ) );
+		
+		// Now save the active languages, i.e. the selected languages
 		
 		if ( ! $this->errors ) {
 			$langs = $this->merge_lang_sets( $this->available_langs, $this->lang_prefs );
@@ -317,6 +317,9 @@ class Babble_Languages extends Babble_Plugin {
 				$this->update_option( 'langs', $this->langs );
 			}
 		}
+		
+		error_log( "SW: Active langs: " . print_r( $this->active_langs, true ) );
+		error_log( "SW: Langs: " . print_r( $this->langs, true ) );
 		
 		// Finish up, redirecting if we're all OK
 		if ( ! $this->errors ) {

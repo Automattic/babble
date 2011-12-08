@@ -87,13 +87,11 @@
 				<input type="text" name="url_prefix_<?php echo esc_attr( $lang->code ); ?>" value="<?php echo esc_attr( $lang->url_prefix ); ?>" id="url_prefix_<?php echo esc_attr( $lang->code ); ?>" class="small-text <?php echo esc_attr( $lang->url_prefix_error ); ?>">
 			</td>
 			<td scope="col" class="manage-column column-text_direction">
-				<label class="screen-reader-text" for="text_direction_<?php echo esc_attr( $lang->code ); ?>">
-					<?php echo esc_html( sprintf( __( 'Text direction for %s', 'babble' ), $lang->code ) ); ?>
-				</label>
-				<select name="text_direction_<?php echo esc_attr( $lang->code ); ?>" id="text_direction_<?php echo esc_attr( $lang->code ); ?>">
-					<option value="ltr" <?php selected( $lang->text_direction, 'ltr' ); ?>><?php _e( 'Left to right', 'babble' ); ?></option>
-					<option value="rtl" <?php selected( $lang->text_direction, 'rtl' ); ?>><?php _e( 'Right to left', 'babble' ); ?></option>
-				</select>
+				<?php if ( 'ltr' == $lang->text_direction ) : ?>
+					<?php _e( '<strong>Left</strong> to right', 'babble' ); ?>
+				<?php else : ?>
+					<?php _e( '<strong>Right</strong> to left', 'babble' ); ?>
+				<?php endif; ?>
 			</td>
 		</tr>
 		<?php endforeach; ?>
