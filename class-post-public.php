@@ -209,7 +209,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function added_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
 		// Some metadata shouldn't be synced
-		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
+		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
 		if ( $this->no_recursion )
@@ -238,7 +238,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function updated_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
 		// Some metadata shouldn't be synced
-		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
+		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
 		if ( $this->no_recursion )
@@ -267,7 +267,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function deleted_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
 		// Some metadata shouldn't be synced
-		if ( in_array( $meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
+		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
 		if ( $this->no_recursion )
@@ -604,7 +604,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$metas = $this->get_all_post_meta( $origin_id );
 		foreach ( $metas as $meta ) {
 			// Some metadata shouldn't be synced
-			if ( in_array( $meta->meta_key, apply_filters( 'bbl_unsynced_meta_keys', array() )  ) )
+			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 				continue;
 			add_post_meta( $new_post_id, $meta->meta_key, $meta->meta_value );
 		}
