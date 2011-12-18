@@ -230,6 +230,7 @@ class Babble_Locale {
 			$base_url = '';
 		$path = ltrim( $path, '/' );
 		$url = trailingslashit( $base_url ) . $this->url_prefix . '/' . $path;
+		$url = rtrim( $url, '/' );
 		return $url;
 	}
 
