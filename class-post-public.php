@@ -898,6 +898,18 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
+ 	 * Return all the base post types (in the default language).
+ 	 *
+ 	 * @return array An array of post_type objects
+	 **/
+	public function get_base_post_types() {
+		$post_types = array();
+		foreach ( $this->post_types as $post_type )
+			$post_types[ $post_type ] = get_post_type_object( $post_type );
+		return $post_types;
+	}
+
+	/**
 	 * Returns the equivalent post_type in the specified language.
 	 *
 	 * @param string $taxonomy A post_type to return in a given language

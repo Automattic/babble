@@ -318,6 +318,16 @@ function bbl_get_base_post_type( $post_type ) {
 }
 
 /**
+ * Return all the base post types (in the default language).
+ *
+ * @return array An array of post_type objects
+ **/
+function bbl_get_base_post_types() {
+	global $bbl_post_public;
+	return $bbl_post_public->get_base_post_types();
+}
+
+/**
  * Returns an array of all the shadow post types associated with
  * this post type.
  *
