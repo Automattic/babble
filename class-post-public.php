@@ -537,7 +537,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return get_page_link( $post->ID, $leavename );
 		}
 	
-		return $post_link;
+		return user_trailingslashit( $post_link );
 	}
 
 	/**
