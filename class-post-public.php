@@ -453,7 +453,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return $post_link;
 	
 		// Deal with our shadow post types
-		if ( ! ( $base_post_type = $this->post_types[ $post->post_type ] ) ) 
+		if ( ! ( $base_post_type = $this->get_base_post_type( $post->post_type ) ) ) 
 			return $post_link;
 	
 		// Deal with post_types shadowing the post post_type

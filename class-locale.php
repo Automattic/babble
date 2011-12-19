@@ -61,12 +61,13 @@ class Babble_Locale {
 		add_action( 'admin_init', array( & $this, 'admin_init' ) );
 		add_action( 'admin_notices', array( & $this, 'admin_notices' ) );
 		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
+		add_action( 'pre_comment_on_post', array( & $this, 'pre_comment_on_post' ) );
+		add_filter( 'body_class', array( & $this, 'body_class' ) );
 		add_filter( 'locale', array( & $this, 'set_locale' ) );
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
+		add_filter( 'post_class', array( & $this, 'post_class' ), null, 3 );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
-		add_filter( 'body_class', array( & $this, 'body_class' ) );
-		add_filter( 'post_class', array( & $this, 'post_class' ), null, 3 );
 	}
 
 	/**
@@ -138,6 +139,14 @@ class Babble_Locale {
 	public function set_locale( $locale ) {
 		global $wp_rewrite, $bbl_languages;
 		
+		// Deal with the special case of wp-comments-post.php
+		if ( false !== stristr( $_SERVER[ 'REQUEST_URI' ], 'wp-comments-post.php' ) ) {
+			if ( $comment_post_ID = ( isset( $_POST[ 'comment_post_ID' ] ) ) ? (int) $_POST[ 'comment_post_ID' ] : false ) {
+				$this->set_lang( bbl_get_post_lang_code( $comment_post_ID ) );
+				return $this->lang;
+			}
+		}
+		
 		if ( isset( $this->lang ) )
 			return $this->lang;
 		if ( is_admin() ) {
@@ -197,8 +206,7 @@ class Babble_Locale {
 	}
 
 	/**
-	 * Hooks the WP query_vars filter to add various of our geo
-	 * search specific query_vars.
+	 * Hooks the WP query_vars filter to add the home_url filter.
 	 *
 	 * @param array $query_vars An array of the public query vars 
 	 * @return array An array of the public query vars
@@ -209,10 +217,21 @@ class Babble_Locale {
 	}
 
 	/**
+	 * Hooks the WP pre_comment_on_post action to add the 
+	 * home_url filter.
+	 *
+	 * @return void
+	 **/
+	public function pre_comment_on_post() {
+		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
+	}
+
+	/**
 	 * Hooks the WP home_url action 
 	 * 
 	 * Hackity hack: this function is attached with add_filter within
-	 * the query_vars filter.
+	 * the query_vars filter and the pre_comment_on_post action.
+	 * @TODO: Can't remember why this is attached like this… investigate.
 	 *
 	 * @param string $url The URL 
 	 * @param string $path The path 
