@@ -450,11 +450,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	
 		// Regular ol' post types, and other types added by other plugins, etc
 		if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $this->post_types[ $post->post_type ] ) )
-			return $post_link;
+			return user_trailingslashit( $post_link );
 	
 		// Deal with our shadow post types
 		if ( ! ( $base_post_type = $this->get_base_post_type( $post->post_type ) ) ) 
-			return $post_link;
+			return user_trailingslashit( $post_link );
 	
 		// Deal with post_types shadowing the post post_type
 		if ( 'post' == $base_post_type ) {
