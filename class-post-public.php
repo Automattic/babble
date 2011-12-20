@@ -604,7 +604,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$metas = $this->get_all_post_meta( $origin_id );
 		foreach ( $metas as $meta ) {
 			// Some metadata shouldn't be synced
-			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
+			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta->meta_key ) )
 				continue;
 			add_post_meta( $new_post_id, $meta->meta_key, $meta->meta_value );
 		}
