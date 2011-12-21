@@ -115,7 +115,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function registered_post_type( $post_type, $args ) {
 		// Don't bother with non-public post_types for now
 		// @FIXME: This may need to change for menus?
-		if ( ! $args->public )
+		if ( false === $args->query_var )
 			return;
 
 		// Don't shadow shadow post types, it's going to get silly
