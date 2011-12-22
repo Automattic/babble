@@ -43,6 +43,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected $done_metaboxes;
 
+	/**
+	 * A version number to use for cache busting, database updates, etc
+	 *
+	 * @var int
+	 **/
+	protected $version;
+
 	// /**
 	//  * Regex for detecting the language from a URL
 	//  *
@@ -54,6 +61,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->setup( 'babble-post-public', 'plugin' );
 
 		$this->add_action( 'added_post_meta', null, null, 4 );
+		$this->add_action( 'admin_init' );
 		$this->add_action( 'deleted_post' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
@@ -75,6 +83,39 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->done_metaboxes = false;
 		$this->lang_map = array();
 		$this->post_types = array();
+	}
+
+	/**
+	 * Hooks the WP admin_init action to 
+	 *
+	 * @return void
+	 **/
+	public function admin_init() {
+		error_log( "SW: Post types: "  . print_r( $this->post_types, true ) );
+		error_log( "SW: Post types: "  . print_r( $this->lang_map2, true ) );
+		// exit;
+		$post_type = false;
+		if ( isset( $_GET[ 'post_type' ] ) ) {
+			$post_type = $_GET[ 'post_type' ];
+		} else if ( isset( $_GET[ 'post' ] ) ) {
+			$post = (int) $_GET[ 'post' ];
+			$post = get_post( $post );
+			$post_type = $post->post_type;
+		}
+		$menu_id = false;
+		if ( in_array( $post_type, $this->post_types ) )
+			return; // Core post types, in default language, so should be fine
+		else if ( isset( $this->post_types[ $post_type ] ) )
+			$menu_id = '#menu-posts-' . $this->post_types[ $post_type ];
+		if ( ! $menu_id )
+			return;
+
+		$data = array(
+			'menu_id' => $menu_id,
+		);
+		wp_enqueue_script( 'post-public-admin', $this->url( '/js/post-public-admin.js' ), array( 'jquery' ), $this->version );
+		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
+		error_log( "SW: Data: " . print_r( $menu_id, true ) );
 	}
 
 	/**
