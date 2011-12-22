@@ -63,6 +63,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
+		$this->add_action( 'deleted_post' );
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
@@ -621,6 +622,16 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
+	 * Hooks the WP action deleted_post to keep our cache up to date.
+	 *
+	 * @param int $post_id The ID of the post which was deleted. 
+	 * @return void
+	 **/
+	public function deleted_post( $post_id ) {
+		wp_cache_delete( $post_id, 'bbl_translation_groups' );
+	}
+
+	/**
 	 * Hooks the WP post_updated action to ensure that the 
 	 * required properties are copied to the other posts in 
 	 * this translation group.
@@ -861,6 +872,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post = get_post( $post );
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
+
+		if ( $translations = wp_cache_get( $transid, 'bbl_translation_groups' ) )
+			return $translations;
+
 		if ( is_wp_error( $transid ) )
 			error_log( "Error getting transid: " . print_r( $transid, true ) );
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
@@ -881,6 +896,9 @@ class Babble_Post_Public extends Babble_Plugin {
 			else
 				$translations[ bbl_get_default_lang_code() ] = $post;
 		}
+
+		wp_cache_add( $transid, $translations, 'bbl_translation_groups' );
+
 		return $translations;
 	}
 
@@ -1055,12 +1073,20 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	function get_transid( $post ) {
 		$post = get_post( $post );
+
+		if ( $transid = wp_cache_get( $post->ID, 'bbl_transids' ) )
+			return $transid;
+
 		$transids = (array) wp_get_object_terms( $post->ID, 'post_translation', array( 'fields' => 'ids' ) );
 		// "There can be only one" (so we'll just drop the others)
 		if ( isset( $transids[ 0 ] ) )
-			return $transids[ 0 ];
-		
-		return $this->set_transid( $post );
+			$transid = $transids[ 0 ];
+		else
+			$transid = $this->set_transid( $post );
+
+		wp_cache_add( $post->ID, $transid, 'bbl_transids' );
+
+		return $transid;
 	}
 
 	/**
@@ -1085,6 +1111,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
 		if ( is_wp_error( $result ) )
 			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+
+		wp_cache_delete( $post->ID, 'bbl_transids' );
 		
 		return $transid;
 	}
