@@ -294,12 +294,7 @@ function bbl_get_post_type_archive_link_in_lang( $post_type, $lang_code = null )
 	if ( is_null( $lang_code ) )
 		$lang_code = bbl_get_current_lang_code();
 	bbl_switch_to_lang( $lang_code );
-	error_log( "SW: Switched to LC: $lang_code" );
-	error_log( "SW: PT: $post_type" );
-	bbl_start_logging();
 	$lang_post_type = bbl_get_post_type_in_lang( $post_type, $lang_code );
-	bbl_stop_logging();
-	error_log( "SW: LPT: $lang_post_type" );
 	$link = get_post_type_archive_link( $lang_post_type );
 	bbl_restore_lang();
 	return apply_filters( 'bbl_post_type_archive_link_in_lang', $link );
