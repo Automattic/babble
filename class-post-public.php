@@ -91,10 +91,12 @@ class Babble_Post_Public extends Babble_Plugin {
 		) );
 
 		// Ensure we catch any existing language shadow post_types already registered
+		$core_post_types = array( 'post', 'page' );
 		if ( is_array( $this->post_types ) )
-			$post_types = array_merge( array( 'post', 'page' ), array_keys( $this->post_types ) );
+			$post_types = array_merge( $core_post_types, array_keys( $this->post_types ) );
 		else
-			$post_types = array( 'post', 'page' );
+			$post_types = $core_post_types;
+
 		register_taxonomy( 'post_translation', $post_types, array(
 			'rewrite' => false,
 			'public' => false,
