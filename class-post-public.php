@@ -54,8 +54,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->setup( 'babble-post-public', 'plugin' );
 
 		$this->add_action( 'added_post_meta', null, null, 4 );
-		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
+		$this->add_action( 'deleted_post' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
+		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'post_updated' );
@@ -63,7 +64,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
-		$this->add_action( 'deleted_post' );
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
