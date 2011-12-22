@@ -63,6 +63,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'pre_get_posts' );
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
+		$this->add_action( 'wp_before_admin_bar_render' );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'page_link', null, null, 2 );
@@ -104,6 +105,40 @@ class Babble_Post_Public extends Babble_Plugin {
 			'show_in_nav_menus' => false,
 			'label' => __( 'Post Translation ID', 'sil' ),
 		) );
+	}
+
+	/**
+	 * Hooks the WP wp_before_admin_bar_render action
+	 * to prune out unneeded post type add controls from
+	 * the add menu.
+	 *
+	 * @return void
+	 **/
+	public function wp_before_admin_bar_render() {
+		global $wp_admin_bar;
+		$nodes = $wp_admin_bar->get_nodes();
+		foreach ( $nodes as & $node ) {
+			if ( 'new-content' == $node->parent ) {
+				$url_bits = parse_url( $node->href );
+				if ( ! isset( $url_bits[ 'query' ] ) )
+					continue;
+				parse_str( $url_bits[ 'query' ], $vars );
+				$post_type = false;
+				if ( isset( $vars[ 'post_type' ] ) )
+					$post_type = $vars[ 'post_type' ];
+				else if ( stristr( $vars[ 'path' ], 'post-new.php' ) )
+					$post_type = 'post';
+				if ( ! $post_type )
+					continue;
+				if ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ) {
+					if ( ! in_array( $post_type, $this->post_types ) )
+						$wp_admin_bar->remove_node( $node->id );
+				} else {
+					if ( ! in_array( $post_type, $this->lang_map2[ bbl_get_current_lang_code() ] ) )
+						$wp_admin_bar->remove_node( $node->id );
+				}
+			}
+		}
 	}
 
 	/**
