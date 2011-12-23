@@ -49,6 +49,15 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @var int
 	 **/
 	protected $version;
+	
+	/**
+	 * An array of query_vars and slugs for our shadow post types,
+	 * we use changes to this to determine if rewrite rules 
+	 * need flushing.
+	 *
+	 * @var array
+	 **/
+	protected $slugs_and_vars;
 
 	// /**
 	//  * Regex for detecting the language from a URL
@@ -66,6 +75,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
 		$this->add_action( 'init', 'init_early', 0 );
+		$this->add_action( 'init', 'init_late', 9999 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'post_updated' );
 		$this->add_action( 'pre_get_posts' );
@@ -83,6 +93,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->done_metaboxes = false;
 		$this->lang_map = array();
 		$this->post_types = array();
+		$this->slugs_and_vars = array();
 	}
 
 	/**
@@ -91,8 +102,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function admin_init() {
-		error_log( "SW: Post types: "  . print_r( $this->post_types, true ) );
-		error_log( "SW: Post types: "  . print_r( $this->lang_map2, true ) );
 		// exit;
 		$post_type = false;
 		if ( isset( $_GET[ 'post_type' ] ) ) {
@@ -115,7 +124,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		);
 		wp_enqueue_script( 'post-public-admin', $this->url( '/js/post-public-admin.js' ), array( 'jquery' ), $this->version );
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
-		error_log( "SW: Data: " . print_r( $menu_id, true ) );
 	}
 
 	/**
@@ -146,6 +154,20 @@ class Babble_Post_Public extends Babble_Plugin {
 			'show_in_nav_menus' => false,
 			'label' => __( 'Post Translation ID', 'sil' ),
 		) );
+	}
+
+	/**
+	 * Hooks the WP init action really really late.
+	 *
+	 * @return void
+	 **/
+	public function init_late() {
+		$old_serialised = serialize( get_option( 'bbl_rewrites', 'NOTHING' ) );
+		$new_serialised = serialize( $this->slugs_and_vars );
+		if ( $old_serialised != $new_serialised ) {
+			flush_rewrite_rules();
+			update_option( 'bbl_rewrites', unserialize( $new_serialised ) );
+		}
 	}
 
 	/**
@@ -230,13 +252,22 @@ class Babble_Post_Public extends Babble_Plugin {
 		// brittle, e.g. the UI might stop showing up in the shadow
 		// post type edit screens, p'raps.
 		$args[ 'show_ui' ] = true;
+
 		$slug = ( $args[ 'rewrite' ][ 'slug' ] ) ? $args[ 'rewrite' ][ 'slug' ] : $post_type;
+		$archive_slug = false;
+		if ( $archive_slug = $args[ 'has_archive' ] )
+			if ( ! is_string( $args[ 'has_archive' ] ) )
+				$archive_slug = $slug;
+
+		// error_log( "SW: =============================================================" );
+		// error_log( "SW: ORIGINAL Args for $post_type: " . print_r( $args, true ) );
 
 		// if ( 'page' == $post_type )
 		// var_dump( $args );
 
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
+				
 
 			// @FIXME: We are in danger of a post_type name being longer than 20 chars
 			// I would prefer to keep the post_type human readable, as human devs and sysadmins always 
@@ -250,8 +281,13 @@ class Babble_Post_Public extends Babble_Plugin {
 				if ( ! is_array( $new_args[ 'rewrite' ] ) )
 					$new_args[ 'rewrite' ] = array();
 				// Do I not need to add this query_var into the query_vars filter? It seems not.
-				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
+				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang, $args );
+				$new_args[ 'has_archive' ] = $this->get_translated_archive_slug( $archive_slug, $lang, $args );
 			}
+			$this->slugs_and_vars[ $lang->code . '_' . $post_type ] = array( 
+				'query_var' => $new_args[ 'query_var' ],
+				'has_archive' => $new_args[ 'has_archive' ],
+			);
 
 			$result = register_post_type( $new_post_type, $new_args );
 			if ( is_wp_error( $result ) ) {
@@ -1062,17 +1098,31 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns a slug translated into a particular language.
 	 *
 	 * @param string $slug The slug to translate
-	 * @param string $lang_code The language code for the required language (optional, defaults to current)
+	 * @param string $lang A Babble language code
+	 * @param array $post_type_args The args for the post type associated with this post type
 	 * @return void
 	 **/
-	public function get_translated_slug( $slug, $lang_code = null ) {
-		if ( is_null( $lang_code ) )
-			$lang_code = bbl_get_current_lang_code();
-		$_slug = strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug ) );
+	public function get_translated_slug( $slug, $lang, $post_type_args, $archive_slug = false ) {
+		if ( $archive_slug )
+			$_slug = strtolower( apply_filters( 'bbl_translate_post_type_archive_slug', $slug, $lang->code, $post_type_args ) );
+		else
+			$_slug = strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug, $lang->code, $post_type_args ) );
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
-		// Do we need to check that the slug is unique at this point?
-		return strtolower( "{$_slug}_{$lang_code}" );
+		// FIXME: Do we need to check that the slug is unique at this point?
+		return strtolower( "{$_slug}_{$lang->code}" );
+	}
+
+	/**
+	 * Returns an archive slug translated into a particular language.
+	 *
+	 * @param string $slug The slug to translate
+	 * @param string $lang A Babble language object
+	 * @param array $post_type_args The args for the post type associated with this post type
+	 * @return void
+	 **/
+	public function get_translated_archive_slug( $slug, $lang, $post_type_args ) {
+		return $this->get_translated_slug( $slug, $lang, $post_type_args, true );
 	}
 	
 	// PRIVATE/PROTECTED METHODS
