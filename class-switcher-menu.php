@@ -117,6 +117,8 @@ class Babble_Switcher_Menu {
 			} else if ( is_front_page() ) { 				// Language homepage
 				// is_front_page works for language homepages, phew
 				$this->add_front_page_link( $alt_lang );
+			} else if ( is_post_type_archive() ) {			// Post type archives
+				$this->add_post_type_archive_link( $alt_lang );
 			} else if ( is_tax() || is_category() ) { 		// Category or taxonomy archive
 				// is_front_page works for language homepages, phew
 				$this->add_taxonomy_archive_link( $alt_lang );
@@ -359,6 +361,35 @@ class Babble_Switcher_Menu {
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-existing';
 		$classes[] = 'bbl-front-page';
+		$classes[] = 'bbl-lang';
+		if ( $lang->code == bbl_get_current_lang_code() )
+			$classes[] = 'bbl-active';
+		$this->links[ $lang->code ] = array(
+			'classes' => $classes,
+			'id' => $lang->url_prefix,
+			'href' => $href,
+			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
+			'title' => $title,
+			'lang_display_name' => $lang->display_name,
+		);
+	}
+
+	/**
+	 * Add a link to a post_type archive.
+	 *
+	 * @param object $lang A Babble language object for this link
+	 * @return void
+	 **/
+	protected function add_post_type_archive_link( $lang ) {
+		global $bbl_locale;
+		$classes = array();
+		bbl_switch_to_lang( $lang->code );
+		$href = get_post_type_archive_link( get_query_var( 'post_type' ) );
+		bbl_restore_lang();
+		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
+		$classes[] = 'bbl-existing';
+		$classes[] = 'bbl-post-type-archive';
 		$classes[] = 'bbl-lang';
 		if ( $lang->code == bbl_get_current_lang_code() )
 			$classes[] = 'bbl-active';
