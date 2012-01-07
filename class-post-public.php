@@ -905,12 +905,15 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: This is not a reliable way to detect queries for the 'post' post_type.
 			$query_vars[ 'post_type' ] =  bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
 		} elseif ( isset( $query_vars[ 'post_type' ] ) ) {
-			$query_vars[ 'post_type' ] = (array) $query_vars[ 'post_type' ];
-			$new_post_types = array();
-			foreach ( $query_vars[ 'post_type' ] as $post_type ) {
-				$new_post_types[] = bbl_get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
+			if ( is_array( $query_vars[ 'post_type' ] ) ) {
+				$new_post_types = array();
+				foreach ( $query_vars[ 'post_type' ] as $post_type ) {
+					$new_post_types[] = bbl_get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
+				}
+				$query_vars[ 'post_type' ] = $new_post_types;
+			} else {
+				$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $query_vars[ 'post_type' ], bbl_get_current_lang_code() );
 			}
-			$query_vars[ 'post_type' ] = $new_post_types;
 		}
 
 		return $query_vars;
