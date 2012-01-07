@@ -858,6 +858,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$query_vars[ 'sil_original_query' ] = $query_vars;
 
 		// We were here (avoid doing this again)
+		// We've done this already (avoid re-translating the vars)
 		if ( isset( $query_vars[ 'sil_done_translation' ] ) && $query_vars[ 'sil_done_translation' ] )
 			return $query_vars;
 		$query_vars[ 'sil_done_translation' ] = true;
