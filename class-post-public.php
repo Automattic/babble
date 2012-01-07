@@ -87,6 +87,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
+		$this->add_filter( 'post_type_archive_link', null, null, 2 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
 		
@@ -685,6 +686,29 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_restore_lang();
 		$this->no_recursion = false;
 		return $link;
+	}
+
+	/**
+	 * Hooks the WP post_type_archive_link filter to return the correct
+	 * post type archive link for the current language.
+	 *
+	 * @param string $link The link to the post type archive (probably wrong for this language) 
+	 * @param string $post_type The post_type we need an archive for (though we'll probably need to use a translated (shadow) post_type)
+	 * @return string A URL for the translated (shadow) post_type archive
+	 **/
+	public function post_type_archive_link( $link, $post_type ) {
+		if ( $this->no_recursion )
+			return $link;
+		$this->no_recursion = true;
+
+		$lang_post_type = $this->get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
+
+		bbl_switch_to_lang( bbl_get_current_lang_code() );
+		$return = get_post_type_archive_link( $lang_post_type );
+		bbl_restore_lang();
+		
+		$this->no_recursion = false;
+		return $return;
 	}
 
 	/**
