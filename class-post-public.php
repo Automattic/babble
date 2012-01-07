@@ -71,6 +71,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		$this->add_action( 'added_post_meta', null, null, 4 );
 		$this->add_action( 'admin_init' );
+		$this->add_action( 'body_class', null, null, 2 );
 		$this->add_action( 'deleted_post' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
@@ -552,6 +553,22 @@ class Babble_Post_Public extends Babble_Plugin {
 				$post->post_content = "Fallback content\n\n" . $default_post->post_content;
 		}
 		return $posts;
+	}
+
+	/**
+	 * Hooks the WP body_class filter to add classes to the
+	 * body element.
+	 *
+	 * @param array $classes An array of class strings, poss with some indexes containing more than one space separated class 
+	 * @param string|array $class One or more classes which have been added to the class list.
+	 * @return array An array of class strings, poss with some indexes containing more than one space separated class 
+	 **/
+	public function body_class( $classes, $class ) {
+		// Shadow post_type archives also get the post_type class for
+		// the default language
+		if ( is_post_type_archive() && ! bbl_is_default_lang() )
+			$classes[] = 'post-type-archive-' . bbl_get_post_type_in_lang( get_query_var( 'post_type' ), bbl_get_default_lang_code() );
+		return $classes;
 	}
 
 	/**
