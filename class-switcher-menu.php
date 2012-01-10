@@ -90,6 +90,8 @@ class Babble_Switcher_Menu {
 
 		if ( is_singular() || is_single() || $editing_post ) {
 			$this->translations = bbl_get_post_translations( get_the_ID() );
+		} else if ( 'page' == get_option( 'show_on_front' ) && is_home() ) {
+			$this->translations = bbl_get_post_translations( get_option( 'page_for_posts' ) );
 		} else if ( is_tax() || is_category() || $editing_term ) {
 			if ( is_admin() )
 				$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
@@ -112,7 +114,10 @@ class Babble_Switcher_Menu {
 				} else {						// Admin: Generic link link
 					$this->add_admin_generic_link( $alt_lang );
 				}
-			} else if ( is_singular() || is_single() ) {	// Single posts and pages
+			} else if ( 
+				is_singular() || is_single() ||
+				( 'page' == get_option( 'show_on_front' ) && is_home() )
+			) {	// Single posts, pages, blog homepage
 				$this->add_post_link( $alt_lang );
 			} else if ( is_front_page() ) { 				// Language homepage
 				// is_front_page works for language homepages, phew
@@ -121,7 +126,6 @@ class Babble_Switcher_Menu {
 				$this->add_post_type_archive_link( $alt_lang );
 			} else if ( is_tax() || is_category() ) { 		// Category or taxonomy archive
 				$this->add_taxonomy_archive_link( $alt_lang );
-			} else if ( is_404() ) {
 				$this->add_arbitrary_link( $alt_lang );
 			}
 		}
