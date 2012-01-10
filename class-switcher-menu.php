@@ -120,7 +120,6 @@ class Babble_Switcher_Menu {
 			} else if ( is_post_type_archive() ) {			// Post type archives
 				$this->add_post_type_archive_link( $alt_lang );
 			} else if ( is_tax() || is_category() ) { 		// Category or taxonomy archive
-				// is_front_page works for language homepages, phew
 				$this->add_taxonomy_archive_link( $alt_lang );
 			}
 		}
