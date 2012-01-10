@@ -685,8 +685,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			return $link;
 
 		// Deal with the language front pages
-		if ( 'page' == get_option('show_on_front') ) {
-			$front_page_transid = $this->get_transid( get_option( 'page_on_front' ) );
+		if ( 'page' == get_option('show_on_front') && $page_on_front = get_option( 'page_on_front' ) ) {
+			$front_page_transid = $this->get_transid( $page_on_front );
 			$this_transid = $this->get_transid( $post_id );
 			if ( $front_page_transid == $this_transid ) {
 				bbl_switch_to_lang( bbl_get_post_lang_code( $post_id ) );
