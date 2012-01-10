@@ -914,9 +914,22 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Danger of post type slugs clashing??
 		if ( isset( $query_vars[ 'pagename' ] ) && $query_vars[ 'pagename' ] ) {
 			// Substitute post_type for 
-			$query_vars[ 'name' ] = $wp->query_vars[ 'pagename' ];
+			$query_vars[ 'name' ] = $query_vars[ 'pagename' ];
 			$query_vars[ bbl_get_post_type_in_lang( 'page', $query_vars[ 'lang' ] ) ] = $query_vars[ 'pagename' ];
 			$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
+			// Trigger a listing of translated posts if this is meant to
+			// be the blog page.
+			if ( 'page' == get_option( 'show_on_front' ) ) {
+				// Test if the current page is in the same translation group as
+				// the 'page_for_posts.
+				$current_post = get_page_by_path( $query_vars[ 'pagename' ], null, $query_vars[ 'post_type' ] );
+				if ( $this->get_transid( get_option( 'page_for_posts' ) ) == $this->get_transid( $current_post ) ) {
+					bbl_log( "Language homepage" );
+					$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
+				}
+				// $current_transid = $this->get
+				unset( $query_vars[ 'name' ] );
+			}
 			unset( $query_vars[ 'page' ] );
 			unset( $query_vars[ 'pagename' ] );
 		} elseif ( isset( $query_vars[ 'year' ] ) && $query_vars[ 'year' ] ) { 
