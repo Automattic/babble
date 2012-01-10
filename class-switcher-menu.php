@@ -121,6 +121,8 @@ class Babble_Switcher_Menu {
 				$this->add_post_type_archive_link( $alt_lang );
 			} else if ( is_tax() || is_category() ) { 		// Category or taxonomy archive
 				$this->add_taxonomy_archive_link( $alt_lang );
+			} else if ( is_404() ) {
+				$this->add_arbitrary_link( $alt_lang );
 			}
 		}
 		
@@ -425,6 +427,37 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
 		}
+		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
+		$classes[] = 'bbl-lang';
+		$classes[] = 'bbl-term';
+		if ( $lang == bbl_get_current_lang_code() )
+			$classes[] = 'bbl-active';
+		$this->links[ $lang->code ] = array(
+			'classes' => $classes,
+			'href' => $href,
+			'id' => $lang->url_prefix,
+			'lang_display_name' => $lang->display_name,
+			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
+			'title' => $title,
+		);
+	}
+
+	/**
+	 * Add a link to an arbitrary link, e.g. 404, within the site.
+	 *
+	 * @param object $lang A Babble language object for this link
+	 * @return void
+	 **/
+	protected function add_arbitrary_link( $lang ) {
+		$classes = array();
+		if ( ! preg_match( '|^/[^/]+/(.*)?|', $_SERVER[ 'REQUEST_URI' ], $matches ) )
+			return;
+		bbl_switch_to_lang( $lang->code );
+		$href = home_url( $matches[ 1 ] );
+		bbl_restore_lang();
+		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$classes[] = 'bbl-existing';
+		$classes[] = 'bbl-existing-term';
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-lang';
 		$classes[] = 'bbl-term';
