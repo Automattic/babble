@@ -126,6 +126,7 @@ class Babble_Switcher_Menu {
 				$this->add_post_type_archive_link( $alt_lang );
 			} else if ( is_tax() || is_category() ) { 		// Category or taxonomy archive
 				$this->add_taxonomy_archive_link( $alt_lang );
+			} else { // 404's, amongst other things
 				$this->add_arbitrary_link( $alt_lang );
 			}
 		}
