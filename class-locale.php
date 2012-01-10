@@ -200,7 +200,7 @@ class Babble_Locale {
 	 *
 	 * FIXME: Should I be extending and replacing the WP class?
 	 *
-	 * @param object $wp WP object, passed by reference (so no need to return)
+	 * @param object $… WP object, passed by reference (so no need to return)
 	 * @return void
 	 **/
 	public function parse_request_early( $wp ) {
