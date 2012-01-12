@@ -326,13 +326,19 @@ class Babble_Switcher_Menu {
 			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-existing';
 			$classes[] = 'bbl-existing-post';
-		} else { // Translation does not exist
+		} else if ( current_user_can( 'edit_post', $this->translations[ bbl_get_default_lang_code() ]->ID ) ) {
 			// Generate a URL to create the translation
 			$default_post = $this->translations[ bbl_get_default_lang_code() ];
 			$href = bbl_get_new_post_translation_url( $default_post, $lang->code );
 			$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-post';
+		} else {
+			// Generate a URL to create the translation
+			// $default_post = $this->translations[ bbl_get_default_lang_code() ];
+			$href = false;
+			$title = sprintf( __( 'This content is unavailable in %s', 'bbl' ), $lang->names );
+			$classes[] = 'bbl-unavailable';
 		}
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-lang';
