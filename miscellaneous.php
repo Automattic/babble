@@ -22,12 +22,31 @@ function bbl_admin_init() {
 
 	$taxonomy = isset( $_GET[ 'taxonomy' ] ) ? $_GET[ 'taxonomy' ] : false;
 	$post_type = isset( $_GET[ 'post_type' ] ) ? $_GET[ 'post_type' ] : false;
+	$post_id = isset( $_GET[ 'post' ] ) ? $_GET[ 'post' ] : false;
 
 	// Deal with the special URL case of the listing screens for vanilla posts
 	if ( ! $post_type && 'edit.php' == $pagenow )
 		$post_type = 'post';
 
 	$cur_lang_code = bbl_get_current_lang_code();
+		
+	if ( $post_id ) {
+		$post_in_lang = bbl_get_post_in_lang( $post_id, $cur_lang_code, false );
+		if ( $post_in_lang ) {
+			if ( $post_id != $post_in_lang->ID ) {
+				$url = add_query_arg( array( 'post' => $post_in_lang->ID ) );
+				wp_redirect( $url );
+				exit;
+			}
+		} else {
+			$post_lang_code = bbl_get_post_lang_code( $post_id );
+			if ( $post_lang_code != $cur_lang_code ) {
+				$url = add_query_arg( array( 'lang' => $post_lang_code ) );
+				wp_redirect( $url );
+				exit;
+			}
+		}
+	}
 	if ( $taxonomy ) {
 		$new_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, $cur_lang_code );
 		if ( $taxonomy != $new_taxonomy ) {
