@@ -34,13 +34,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * @access public
  **/
 function bbl_get_current_lang_code() {
-	if ( ! is_admin() ) {
-		global $bbl_locale;
-		return $bbl_locale->get_lang();
-	}
-	// In the admin area, it's a GET param
-	$current_user = wp_get_current_user();
-	return get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) ? get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) : bbl_get_default_lang_code();
+	global $bbl_locale;
+	return $bbl_locale->get_lang();
 }
 
 /**
