@@ -342,7 +342,6 @@ class Bbl_Comment_Query {
 			$$piece = isset( $clauses[ $piece ] ) ? $clauses[ $piece ] : '';
 
 		$query = "SELECT $fields FROM $wpdb->comments $join WHERE $where ORDER BY $orderby $order $limits";
-		error_log( "SW: Comment Query: $query" );
 
 		if ( $count )
 			return $wpdb->get_var( $query );
