@@ -58,6 +58,7 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	function __construct() {
+		global $wpdb;
 		add_action( 'admin_init', array( & $this, 'admin_init' ) );
 		add_action( 'admin_notices', array( & $this, 'admin_notices' ) );
 		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
@@ -68,6 +69,8 @@ class Babble_Locale {
 		add_filter( 'post_class', array( & $this, 'post_class' ), null, 3 );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
+
+		$this->admin_lang_cookie = $wpdb->prefix . '_bbl_admin_lang_' . COOKIEHASH;
 	}
 
 	/**
@@ -78,6 +81,7 @@ class Babble_Locale {
 	public function admin_init(  ) {
 		add_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
 		$this->maybe_update();
+		$this->maybe_set_cookie_lang();
 	}
 
 	/**
@@ -150,14 +154,13 @@ class Babble_Locale {
 		if ( isset( $this->lang ) )
 			return $this->lang;
 		if ( is_admin() ) {
-			$current_user = wp_get_current_user();
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 			if ( isset( $_GET[ 'lang' ] ) ) {
 				$this->set_lang( $_GET[ 'lang' ] );
 			} else {
-				if ( $lang = get_user_meta( $current_user->ID, 'bbl_admin_lang', true ) ) {
+				// $current_user = wp_get_current_user();
+				if ( $lang = $this->get_cookie_lang() )
 					$this->set_lang( $lang );
-				}
 			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
@@ -179,19 +182,9 @@ class Babble_Locale {
 				bbl_restore_lang();
 				// Non-permanent redirect as we might add this language in the 
 				// future, so don't want agents storing the redirect.
-				error_log( "SW: Redirect to $location" );
 				wp_redirect( $location, 302 );
 				exit; // You shall not pass (redirection just above, so shouldn't be reached)
 			}
-		}
-		// Save for logged in users
-		// @FIXME: Possible additional DB queries here?
-		if ( is_user_logged_in() && $current_user = wp_get_current_user() ) {
-			// @TODO: Don't set languages off of 404 requests, if the request comes
-			// from a logged in admin, it'll reset their language (which 
-			// is annoying). The problem is that we are so early at this point
-			// that we can't tell if it's a 404. :(
-			update_user_meta( $current_user->ID, 'bbl_admin_lang', $this->lang );
 		}
 		if ( ! isset( $this->lang ) )
 			$this->set_lang( bbl_get_default_lang_code() );
@@ -356,6 +349,7 @@ class Babble_Locale {
 	 **/
 	protected function set_lang( $code ) {
 		global $bbl_languages;
+		// Set the language in the application
 		$this->lang = $code;
 		$this->url_prefix = $bbl_languages->get_url_prefix_from_code( $this->lang );
 	}
@@ -419,12 +413,37 @@ class Babble_Locale {
 			$request = $pathinfo;
 		} else {
 			// If the request uri is the index, blank it out so that we don't try to match it against a rule.
-			if ( $req_uri == $wp_rewrite->index )
+			if ( is_object( $wp_rewrite ) && $req_uri == $wp_rewrite->index )
 				$req_uri = '';
 			$request = $req_uri;
 		}
 		// END: Huge hunk of WP->parse_request
 		return $request;
+	}
+
+	/**
+	 * Sets the admin language cookie where necessary. We are using cookies
+	 * as we cannot get userdata at the set_locale action, which is where 
+	 * we need to read the user's language.
+	 *
+	 * @return void
+	 **/
+	protected function maybe_set_cookie_lang() {
+		// $current_lang = $this->get_lang();
+		// $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : '';
+		// $cookie_lang = $this->get_cookie_lang();
+		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : false )
+			setcookie( $this->admin_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+	}
+
+	/**
+	 * Gets the language code from the admin language cookie.
+	 *
+	 * @return string A language code
+	 **/
+	protected function get_cookie_lang() {
+		global $wpdb;
+		return ( isset( $_COOKIE[ $wpdb->prefix . '_bbl_admin_lang_' . COOKIEHASH ] ) ) ? $_COOKIE[ $wpdb->prefix . '_bbl_admin_lang_' . COOKIEHASH ] : '';
 	}
 
 	/**
