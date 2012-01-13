@@ -334,8 +334,7 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-post';
 		} else {
-			// Generate a URL to create the translation
-			// $default_post = $this->translations[ bbl_get_default_lang_code() ];
+			// Show a blank link for unavailable translations
 			$href = false;
 			$title = sprintf( __( 'This content is unavailable in %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-unavailable';
