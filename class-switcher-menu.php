@@ -258,6 +258,7 @@ class Babble_Switcher_Menu {
 		$classes = array();
 		if ( isset( $this->translations[ $lang->code ]->ID ) ) { // Translation exists
 			$href = add_query_arg( array( 'lang' => $lang->code, 'post' => $this->translations[ $lang->code ]->ID ) );
+			$href = remove_query_arg( 'message', $href );
 			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-post';
