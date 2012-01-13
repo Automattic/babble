@@ -25,11 +25,24 @@ class Babble_Languages extends Babble_Plugin {
 	
 	/**
 	 * An array of language codes, keyed by language prefix
-	 * for all the languages selected as active for this site.
+	 * for all the languages selected as ACTIVE for this site.
+	 *
+	 * Active languages are available to admins to add content.
 	 *
 	 * @var array
 	 **/
 	protected $active_langs;
+	
+	/**
+	 * An array of language codes, keyed by language prefix
+	 * for all the languages selected as PUBLIC for this site.
+	 *
+	 * Public languages are available to readers of the site
+	 * to read.
+	 *
+	 * @var array
+	 **/
+	protected $public_langs;
 
 	/**
 	 * The language code for the default language.
@@ -71,6 +84,7 @@ class Babble_Languages extends Babble_Plugin {
 		$this->langs = $this->get_option( 'langs', array() );
 		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
 		$this->default_lang = $this->get_option( 'default_lang', 'en_US' );
+		$this->public_langs = $this->get_option( 'public_langs', array( $this->default_lang ) );
 		// @FIXME: Add something in so the user gets setup with the single language they are currently using
 		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) )
 			$this->set_defaults();
@@ -316,6 +330,13 @@ class Babble_Languages extends Babble_Plugin {
 				$this->langs = $langs;
 				$this->update_option( 'langs', $this->langs );
 			}
+			if ( ! isset( $_POST[ 'public_langs' ] ) ) {
+				$this->set_admin_error( __( 'You must set at least your default language as active.', 'babble' ) );
+			} else {
+				$public_langs = (array) $_POST[ 'public_langs' ];
+				if ( ! in_array( @ $_POST[ 'default_lang' ], $public_langs ) )
+					$this->set_admin_error( __( 'You must set your default language as active.', 'babble' ) );
+			}
 		}
 		
 		error_log( "SW: Active langs: " . print_r( $this->active_langs, true ) );
@@ -323,6 +344,9 @@ class Babble_Languages extends Babble_Plugin {
 		
 		// Finish up, redirecting if we're all OK
 		if ( ! $this->errors ) {
+			// Save the public languages
+			$this->update_option( 'public_langs', $public_langs );
+			
 			// First the default language
 			$default_lang = @ $_POST[ 'default_lang' ];
 			$this->update_option( 'default_lang', $default_lang );
@@ -458,6 +482,7 @@ class Babble_Languages extends Babble_Plugin {
 		$this->langs[ $locale ]->url_prefix = $url_prefix;
 		$this->langs[ $locale ]->display_name = $this->langs[ $locale ]->names;
 		$this->default_lang = $locale;
+		$this->public_langs = array( $locale );
 	}
 }
 

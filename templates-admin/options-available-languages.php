@@ -37,7 +37,8 @@
 			</label>
 			<input type="checkbox" id="header_check_all">
 		</th>
-		<th scope="col" id="language" class="manage-column column-language-code"><?php _e( 'Code', 'babble' ); ?></th>
+		<th scope="col" id="public" class="manage-column column-public"><?php _e( 'Public', 'babble' ); ?></th>
+		<th scope="col" id="lang_code" class="manage-column column-language-code"><?php _e( 'Code', 'babble' ); ?></th>
 		<th scope="col" id="language" class="manage-column column-language"><?php _e( 'Name(s)', 'babble' ); ?></th>
 		<th scope="col" id="display_name" class="manage-column column-display_name"><?php _e( 'Display Name', 'babble' ); ?></th>
 		<th scope="col" id="url_prefix" class="manage-column column-url_prefix"><?php _e( 'URL Prefix', 'babble' ); ?></th>
@@ -52,6 +53,7 @@
 			</label>
 			<input type="checkbox" id="header_check_all">
 		</th>
+		<th scope="col" class="manage-column column-public"><?php _e( 'Public', 'babble' ); ?></th>
 		<th scope="col" class="manage-column column-language-code"><?php _e( 'Code', 'babble' ); ?></th>
 		<th scope="col" class="manage-column column-language"><?php _e( 'Name(s)', 'babble' ); ?></th>
 		<th scope="col" class="manage-column column-display_name"><?php _e( 'Display Name', 'babble' ); ?></th>
@@ -64,6 +66,11 @@
 		<?php foreach ( $langs as $lang ) : ?>
 		<tr id="language-<?php echo esc_attr( $lang->code ); ?>">
 			<th scope="row" class="manage-column column-cb check-column"><input type="checkbox" name="active_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="enable_<?php echo esc_attr( $lang->code ); ?>" <?php checked( $lang->active ); ?>></th>
+			<td scope="col" class="manage-column column-public">
+				<label for="public_<?php echo esc_attr( $lang->code ); ?>" title="<?php echo esc_attr( sprintf( __( 'Show "%s" on this site', 'babble' ), $lang->names ) ); ?>">
+					<input type="checkbox" name="public_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="public_<?php echo esc_attr( $lang->code ); ?>" <?php checked( in_array( $lang->code, $this->public_langs ) ); ?>>
+				</label>
+			</td>
 			<td scope="col" class="manage-column column-language-code">
 				<label for="enable_<?php echo esc_attr( $lang->code ); ?>" title="<?php echo esc_attr( sprintf( __( 'Enable "%s" on this site', 'babble' ), $lang->names ) ); ?>">
 					<?php echo esc_html( $lang->code ); ?>
