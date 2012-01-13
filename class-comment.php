@@ -49,7 +49,7 @@ class Babble_Comment extends Babble_Plugin {
 		$parent_comment = get_comment( $comment_data[ 'comment_parent' ] );
 		// If comment_post_ID exists in the data, the only acceptable
 		// value is the same as the parent comment's comment_post_ID
-		if ( $comment_data[ 'comment_post_ID' ] )
+		if ( $parent_comment && $comment_data[ 'comment_post_ID' ] )
 			$comment_data[ 'comment_post_ID' ] = $parent_comment->comment_post_ID;
 		return $comment_data;
 	}
