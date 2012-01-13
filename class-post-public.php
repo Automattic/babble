@@ -85,6 +85,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'wp_before_admin_bar_render' );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
+		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
@@ -856,6 +857,23 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 		return $template;
+	}
+
+	/**
+	 * Hooks the bbl_sync_meta_key filter from this class which checks 
+	 * if a meta_key should be synced. If we return false, it won't be.
+	 *
+	 * @param array $meta_keys The meta_keys which should be unsynced
+	 * @return array The meta_keys which should be unsynced
+	 **/
+	function sync_meta_key( $sync, $meta_key ) {
+		$sync_not = array(
+			'_edit_last', // Related to edit lock, should be individual to translations
+			'_edit_lock', // The edit lock, should be individual to translations
+		);
+		if ( in_array( $meta_key, $sync_not ) )
+			$sync = false;
+		return $sync;
 	}
 	
 	// PUBLIC METHODS
