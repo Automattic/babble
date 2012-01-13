@@ -88,6 +88,7 @@ class Babble_Languages extends Babble_Plugin {
 		// @FIXME: Add something in so the user gets setup with the single language they are currently using
 		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) )
 			$this->set_defaults();
+			
 	}
 	
 	// WP HOOKS
@@ -184,6 +185,19 @@ class Babble_Languages extends Babble_Plugin {
 		foreach ( $this->active_langs as $url_prefix => $code )
 			$langs[ $url_prefix ] = $this->langs[ $code ];
 		return $langs;
+	}
+
+	/**
+	 * Given a lang object or lang code, this checks whether the
+	 * language is public or not.
+	 * 
+	 * @param string $lang_code A language code
+	 * @return boolean True if public
+	 **/
+	public function is_public_lang( $lang_code ) {
+		if ( ! is_string( $lang_code ) )
+			throw new exception( 'Please provide a lang_code for the is_public_lang method.' );
+		return in_array( $lang_code, $this->public_langs );
 	}
 
 	/**

@@ -39,6 +39,19 @@ function bbl_get_current_lang_code() {
 }
 
 /**
+ * Given a lang object or lang code, this checks whether the
+ * language is public or not.
+ *
+ * @param string $lang_code A language code
+ * @return boolean True if public
+ * @access public
+ **/
+function bbl_is_public_lang( $lang_code ) {
+	global $bbl_languages;
+	return $bbl_languages->is_public_lang( $lang_code );
+}
+
+/**
  * Set the current lang.
  * 
  * @uses Babble_Locale::switch_lang to do the actual work
