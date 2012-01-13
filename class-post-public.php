@@ -1262,6 +1262,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		);
 		if ( $new_parent_post )
 			$postdata[ 'post_parent' ] = $new_parent_post->ID;
+		else
+			$postdata[ 'post_parent' ] = 0;
 
 		wp_update_post( $postdata );	
 	}
