@@ -97,6 +97,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->lang_map = array();
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
+		
+		$this->version = 1;
 	}
 
 	/**
