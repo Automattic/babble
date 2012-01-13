@@ -114,12 +114,23 @@ class Babble_Switcher_Menu {
 				} else {						// Admin: Generic link link
 					$this->add_admin_generic_link( $alt_lang );
 				}
-			} else if ( 
+				continue;
+			}
+			
+			if ( 
 				is_singular() || is_single() ||
 				( 'page' == get_option( 'show_on_front' ) && is_home() )
 			) {	// Single posts, pages, blog homepage
 				$this->add_post_link( $alt_lang );
-			} else if ( is_front_page() ) { 				// Language homepage
+			}
+			
+			// Don't add a switcher link if the language is not public and
+			// the user cannot edit any posts (as a rough guide to whether 
+			// they are more than just a subscriber).
+			if ( ! bbl_is_public_lang( $alt_lang->code ) && ! current_user_can( 'edit_post' ) )
+				continue;
+			
+			if ( is_front_page() ) { 				// Language homepage
 				// is_front_page works for language homepages, phew
 				$this->add_front_page_link( $alt_lang );
 			} else if ( is_post_type_archive() ) {			// Post type archives
@@ -320,6 +331,15 @@ class Babble_Switcher_Menu {
 	protected function add_post_link( $lang ) {
 		$classes = array();
 		if ( isset( $this->translations[ $lang->code ]->ID ) ) { // Translation exists
+			// Don't add this link if the user cannot edit THIS post and
+			// the language is not public.
+			if ( 
+				! bbl_is_public_lang( $lang->code ) && 
+				! current_user_can( 'edit_post', $this->translations[ $lang->code ]->ID ) 
+			) {
+				return;
+			}
+
 			bbl_switch_to_lang( $lang->code );
 			$href = get_permalink( $this->translations[ $lang->code ]->ID );
 			bbl_restore_lang();
