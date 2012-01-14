@@ -137,13 +137,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function init_early() {
-		register_taxonomy( 'term_translation', 'term', array(
-			'rewrite' => false,
-			'public' => true,
-			'show_ui' => true,
-			'show_in_nav_menus' => false,
-			'label' => __( 'Term Translation ID', 'sil' ),
-		) );
 
 		// Ensure we catch any existing language shadow post_types already registered
 		$core_post_types = array( 'post', 'page', 'attachment' );
