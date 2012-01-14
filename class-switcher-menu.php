@@ -355,6 +355,10 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-post';
 		} else {
+			// Don't show links to non-public languages
+			if ( ! bbl_is_public_lang( $lang->code ) )
+				return;
+
 			// Show a blank link for unavailable translations
 			$href = false;
 			$title = sprintf( __( 'This content is unavailable in %s', 'bbl' ), $lang->names );
