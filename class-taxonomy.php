@@ -484,20 +484,24 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * Hooks the WP set_object_terms action to sync any untranslated
 	 * taxonomies across to the translations.
 	 *
-	 * @param int $object_id The object to relate to.
+	 * @param int $object_id The object to relate to
 	 * @param array $terms The slugs or ids of the terms
-	 * @param array $tt_ids The term_taxonomy_ids.
-	 * @param array|string $taxonomy The context in which to relate the term to the object.
-	 * @param bool $append If false will delete difference of terms.
+	 * @param array $tt_ids The term_taxonomy_ids
+	 * @param string $taxonomy The name of the taxonomy for which terms are being set
+	 * @param bool $append If false will delete difference of terms
 	 * @return void
 	 **/
 	public function set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append ) {
-		if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+		if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) )
 			return;
-		}
 
 		if ( $this->no_recursion )
 			return;
+
+		// Only sync properties FROM the default lang TO the other languages
+		if ( bbl_get_default_lang_code() != bbl_get_post_lang_code( $object_id ) )
+			return;
+
 		$this->no_recursion = true;
 
 		// Here we assume that this taxonomy is on a post type
