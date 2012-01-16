@@ -403,13 +403,11 @@ class Babble_Post_Public extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP do_meta_boxes_early marginally before the core
-	 * WordPress functions get involved to try and ensure that a
-	 * shadow post type has all the relevant metaboxes.
-	 *
-	 * Note that no translation can be done at this stage, as we
-	 * don't know the textdomains the strings are in, therefore
-	 * the more elegant way of doing this is to be Babble compliant
-	 * within the code adding the metabox in the first place.
+	 * WordPress functions get involved, to only show the metaboxes
+	 * required for translatable content.
+	 * 
+	 * Plugin devs can use the bbl_metaboxes_for_translators filter
+	 * to add the ID of a metabox they want shown to translators.
 	 *
 	 * @param string|object $screen Screen identifier we are checking metaboxes for (occasionally equivalent to a post type)
 	 * @return void
@@ -425,38 +423,48 @@ class Babble_Post_Public extends Babble_Plugin {
 			$screen = get_current_screen();
 		elseif ( is_string( $screen ) )
 			$screen = convert_to_screen( $screen );
-
-		$page = $screen->id;
-
+		
 		if ( 'post' != $screen->base )
 			return;
-		
-		if ( ! ( $base_screen = $this->get_base_post_type( $page ) ) ) {
-			error_log( "SW: No base post type to get metaboxes for" );
+
+		$base_post_type = bbl_get_post_type_in_lang( $screen->post_type, bbl_get_default_lang_code() );
+		if ( $base_post_type == $screen->post_type )
 			return;
-		}
+
+		// $page = $screen->id;
 
 		if ( empty( $base_screen ) )
 			$base_screen = get_current_screen();
 		elseif ( is_string( $base_screen ) )
 			$base_screen = convert_to_screen( $base_screen );
-
-		$base_page = $base_screen->id;
-
-		$post = get_post( get_the_ID() );
-		do_action( 'add_meta_boxes_' . $base_page, $post );
-
-		if ( ! isset( $wp_meta_boxes[$base_page] ) )
-			return;
 		
-		$hidden = get_hidden_meta_boxes( $screen );
-		foreach ( $wp_meta_boxes[$base_page] as $context => $contexts ) {
-			foreach ( $contexts as $priority => $priorities ) {
-				foreach ( $priorities as $meta_box ) {
-					// This is crude; we're going to add all the metaboxes
-					// to the shadow post type, WordPress' add_meta_box 
-					// function will ignore existing boxes.
-					add_meta_box( $meta_box[ 'id' ], $meta_box[ 'title' ], $meta_box[ 'callback' ], $page, $context, $priority, $meta_box[ 'args' ] );
+		$post = get_post( get_the_ID() );
+		do_action( 'add_meta_boxes_' . $base_post_type, $post );
+		
+		// error_log( "SW: Metaboxes for $base_post_type" );
+		// var_dump( $wp_meta_boxes );
+		// exit;
+		if ( isset( $wp_meta_boxes[ $base_post_type ] ) ) {
+			foreach (  $wp_meta_boxes[ $base_post_type ] as $context => $boxes_in_context ) {
+				foreach ( $boxes_in_context as $priority => $boxes_at_priority ) {
+					foreach ( $boxes_at_priority as $id => $meta_box ) {
+						// This is crude; we're going to add all the metaboxes
+						// to the shadow post type, WordPress' add_meta_box 
+						// function will ignore existing boxes.
+						add_meta_box( $id, $meta_box[ 'title' ], $meta_box[ 'callback' ], $screen->post_type, $context, $priority, $meta_box[ 'args' ] );
+					}
+				}
+			}
+		}
+
+		$retain = apply_filters( 'bbl_metaboxes_for_translators', array( 'submitdiv', 'postexcerpt' ), $screen->post_type );
+		
+		foreach (  $wp_meta_boxes[ $screen->post_type ] as $context => $boxes_in_context ) {
+			foreach ( $boxes_in_context as $priority => $boxes_at_priority ) {
+				foreach ( $boxes_at_priority as $id => $meta_box ) {
+					if ( in_array( $id, $retain ) )
+						continue;
+					remove_meta_box( $id, $screen->post_type, $context );
 				}
 			}
 		}
