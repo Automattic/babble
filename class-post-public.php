@@ -916,6 +916,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
+		$edit_link = add_query_arg( array( 'lang' => bbl_get_default_lang_code() ), $edit_link );
 		bbl_switch_to_lang( bbl_get_default_lang_code() );
 		$view_link = get_permalink( $default_post->ID );
 		bbl_restore_lang();
