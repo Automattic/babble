@@ -122,6 +122,7 @@ class Babble_Switcher_Menu {
 				( 'page' == get_option( 'show_on_front' ) && is_home() )
 			) {	// Single posts, pages, blog homepage
 				$this->add_post_link( $alt_lang );
+				continue;
 			}
 			
 			// Don't add a switcher link if the language is not public and
@@ -331,7 +332,7 @@ class Babble_Switcher_Menu {
 	 **/
 	protected function add_post_link( $lang ) {
 		$classes = array();
-		if ( isset( $this->translations[ $lang->code ]->ID ) ) { // Translation exists
+		if ( isset( $this->translations[ $lang->code ] ) ) { // Translation exists
 			// Don't add this link if the user cannot edit THIS post and
 			// the language is not public.
 			if ( 
