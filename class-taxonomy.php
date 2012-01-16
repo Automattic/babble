@@ -498,10 +498,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( $this->no_recursion )
 			return;
 
-		// Only sync properties FROM the default lang TO the other languages
-		if ( bbl_get_default_lang_code() != bbl_get_post_lang_code( $object_id ) )
-			return;
-
 		$this->no_recursion = true;
 
 		// Here we assume that this taxonomy is on a post type
