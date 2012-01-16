@@ -92,6 +92,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_type_archive_link', null, null, 2 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
+		$this->add_filter( 'manage_posts_columns', 'manage_posts_columns', null, 2 );
+		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
+		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
 		
 		$this->done_metaboxes = false;
 		$this->lang_map = array();
@@ -149,6 +152,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			'rewrite' => false,
 			'public' => false,
 			'show_ui' => false,
+			'show_in_nav_menus' => false,
 			'show_in_nav_menus' => false,
 			'label' => __( 'Post Translation ID', 'sil' ),
 		) );
@@ -869,6 +873,55 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( in_array( $meta_key, $sync_not ) )
 			$sync = false;
 		return $sync;
+	}
+
+	/**
+	 * Hooks the WP manage_posts_columns filter to add our “link” column.
+	 *
+	 * @param array $cols The columns for this post type lists table
+	 * @param string $post_type The post type for this lists table 
+	 * @return array The columns
+	 **/
+	public function manage_posts_columns( $columns, $post_type ) {
+		// Insert our cols just before comments, or date.
+		if ( $post_type == bbl_get_post_type_in_lang( $post_type, bbl_get_default_lang_code() ) )
+			return $columns;
+		$new_cols = array();
+		foreach ( $columns as $col_name => $col ) {
+			if ( 'comments' == $col_name || 'date' == $col_name ) {
+				$new_cols[ 'bbl_link' ] = __( 'Translation of', 'babble' );
+				$new_cols = array_merge( $new_cols, $columns );
+				break;
+			} else {
+				$new_cols[ $col_name ] = $col;
+				unset( $columns[ $col_name ] );
+			}
+		}
+		return $new_cols;
+	}
+
+	/**
+	 * Hooks the WP manage_posts_custom_column action to add our “link” content.
+	 *
+	 * @param string $column_name The name of this column
+	 * @param int $post_id The ID for the post for the row which parents this column
+	 * @return void
+	 **/
+	public function manage_posts_custom_column( $column_name, $post_id ) {
+		if ( 'bbl_link' != $column_name )
+			return;
+		$default_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		if ( ! $default_post ) {
+			echo '<em style="color: #bc0b0b">' . __( 'no link', 'babble' ) . '</em>';
+			return;
+		}
+		$edit_link = get_edit_post_link( $default_post->ID );
+		bbl_switch_to_lang( bbl_get_default_lang_code() );
+		$view_link = get_permalink( $default_post->ID );
+		bbl_restore_lang();
+		$edit_title = esc_attr( sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
+		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
+		echo "<a href='$view_link' title='$view_title'>" . __( 'view', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'edit', 'babble' ) . "</a>";
 	}
 	
 	// PUBLIC METHODS
