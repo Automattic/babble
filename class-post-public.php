@@ -77,6 +77,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'init', 'init_late', 9999 );
+		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
+		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'post_updated' );
 		$this->add_action( 'pre_get_posts' );
@@ -86,15 +88,13 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
+		$this->add_filter( 'manage_posts_columns', 'manage_posts_columns', null, 2 );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
 		$this->add_filter( 'post_type_archive_link', null, null, 2 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
-		$this->add_filter( 'manage_posts_columns', 'manage_posts_columns', null, 2 );
-		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
-		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
 		
 		$this->done_metaboxes = false;
 		$this->lang_map = array();
