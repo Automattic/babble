@@ -1211,7 +1211,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Returns the post in a particular language, or 
+	 * Returns the post in a particular language, or the fallback content
+	 * if there's no post available.
 	 *
 	 * @param int|object $post Either a WP Post object, or a post ID 
 	 * @param string $lang_code The language code for the required language 
