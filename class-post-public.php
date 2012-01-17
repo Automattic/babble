@@ -1000,7 +1000,6 @@ class Babble_Post_Public extends Babble_Plugin {
 				// the 'page_for_posts.
 				$current_post = get_page_by_path( $query_vars[ 'pagename' ], null, $query_vars[ 'post_type' ] );
 				if ( $this->get_transid( get_option( 'page_for_posts' ) ) == $this->get_transid( $current_post ) ) {
-					bbl_log( "Language homepage" );
 					$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
 				}
 				// $current_transid = $this->get
