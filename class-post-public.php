@@ -1020,6 +1020,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			} else {
 				$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $query_vars[ 'post_type' ], bbl_get_current_lang_code() );
 			}
+		} else {
+			$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
 		}
 
 		return $query_vars;
