@@ -1339,7 +1339,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	function get_transid( $post ) {
 		$post = get_post( $post );
 
-		if ( $transid = wp_cache_get( $post->ID, 'bbl_transids' ) )
+		if ( $transid = wp_cache_get( $post->ID, 'bbl_post_transids' ) )
 			return $transid;
 
 		$transids = (array) wp_get_object_terms( $post->ID, 'post_translation', array( 'fields' => 'ids' ) );
@@ -1349,7 +1349,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		else
 			$transid = $this->set_transid( $post );
 
-		wp_cache_add( $post->ID, $transid, 'bbl_transids' );
+		wp_cache_add( $post->ID, $transid, 'bbl_post_transids' );
 
 		return $transid;
 	}
@@ -1377,7 +1377,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( is_wp_error( $result ) )
 			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
 
-		wp_cache_delete( $post->ID, 'bbl_transids' );
+		wp_cache_delete( $post->ID, 'bbl_post_transids' );
 		
 		return $transid;
 	}
