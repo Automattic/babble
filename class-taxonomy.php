@@ -48,6 +48,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
 		}
 		$this->add_action( 'created_term', null, null, 3 );
+		$this->add_action( 'admin_notices' );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
@@ -314,6 +315,22 @@ class Babble_Taxonomies extends Babble_Plugin {
 		<?php wp_nonce_field( 'bbl_edit_' . $term->term_id, '_bbl_nonce' ); ?>
 		<input type="hidden" name="bbl_term_translation" value="<?php echo esc_attr( $transid ); ?>" id="bbl_term_translation">
 		<?php
+	}
+	
+	/**
+	 * Hooks the WP $taxonomy . '_pre_edit_form' action to
+	 * add a notice above the form.
+	 *
+	 * @return void
+	 **/
+	public function admin_notices() {
+		$bbl_transid = ( isset( $_GET[ 'bbl_transid' ] ) ) ? (int) $_GET[ 'bbl_transid' ] : false;
+		$bbl_default_term = ( isset( $_GET[ 'bbl_default_term' ] ) ) ? (int) $_GET[ 'bbl_default_term' ] : false;
+		$taxonomy = ( isset( $_GET[ 'taxonomy' ] ) ) ? $_GET[ 'taxonomy' ] : false;
+		if ( ! $bbl_transid || ! $bbl_default_term )
+			return;
+		$default_term = get_term( $bbl_default_term, bbl_get_taxonomy_in_lang( $taxonomy, bbl_get_default_lang_code() ) );
+		echo '<div class="updated"><p>' . sprintf( __( 'Creating a translation of the term "%s".', 'babble' ), $default_term->name ) . '</p></div>';
 	}
 
 	/**
@@ -596,7 +613,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 		bbl_switch_to_lang( $lang_code );
 		$transid = $this->get_transid( $default_term->term_id );
 		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
-		$url = add_query_arg( array( 'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 'bbl_transid' => $transid, 'lang' => $lang_code ), $url );
+		$args = array( 
+			'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 
+			'bbl_transid' => $transid, 
+			'bbl_default_term' => $default_term->term_id, 
+			'lang' => $lang_code,
+		);
+		$url = add_query_arg( $args, $url );
 		bbl_restore_lang();
 		return $url;
 	}
@@ -682,6 +705,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	protected function add_taxonomy_hooks( $taxonomy ) {
 		$this->add_action( $taxonomy . '_edit_form_fields', 'edit_term_form_fields' );
+		// $this->add_action( $taxonomy . '_pre_add_form', 'taxonomy_pre_add_form' );
 		$this->add_action( $taxonomy . '_add_form_fields', 'add_term_form_fields' );
 	}
 
