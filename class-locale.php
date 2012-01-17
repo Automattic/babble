@@ -205,7 +205,6 @@ class Babble_Locale {
 		if ( ! $wp->request ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 			wp_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
-			add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 			exit;
 		}
 		// Otherwise, simply set the lang for this request
