@@ -95,6 +95,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_type_archive_link', null, null, 2 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
+		$this->add_filter( 'the_posts', null, null, 2 );
 		
 		$this->done_metaboxes = false;
 		$this->lang_map = array();
@@ -532,10 +533,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return array The posts
 	 **/
 	public function the_posts( $posts, $wp_query ) {
+		return $posts;
 		if ( is_admin() )
 			return $posts;
 		
-		// Get fallback content
+		// Get fallback content in the default language
 		$subs_index = array();
 		foreach ( $posts as & $post ) {
 			if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
@@ -554,11 +556,11 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: I'm assuming this get_post call is cached, which it seems to be
 			$default_post = get_post( $subs_index[ $post->ID ] );
 			if ( empty( $post->post_title ) )
-				$post->post_title = 'Fallback: ' . $default_post->post_title;
+				$post->post_title = $default_post->post_title;
 			if ( empty( $post->post_excerpt ) )
-				$post->post_excerpt = "Fallback excerpt\n\n" . $default_post->post_excerpt;
+				$post->post_excerpt = $default_post->post_excerpt;
 			if ( empty( $post->post_content ) )
-				$post->post_content = "Fallback content\n\n" . $default_post->post_content;
+				$post->post_content = $default_post->post_content;
 		}
 		return $posts;
 	}
