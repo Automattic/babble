@@ -650,7 +650,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_new_term_translation_url( $default_term, $lang_code, $taxonomy = null ) {
 		if ( ! is_int( $default_term ) && is_null( $taxonomy ) )
 			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
-		else if ( is_int( $default_term ) )
+		if ( ! is_null( $taxonomy ) )
 			$default_term = get_term( $default_term, $taxonomy );
 		if ( is_wp_error( $default_term ) )
 			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
