@@ -57,7 +57,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
 		$this->add_action( 'bbl_created_new_shadow_post', 'created_new_shadow_post', null, 2 );
-		// $this->add_filter( 'term_link', null, null, 3 );
+		$this->add_filter( 'term_link', null, null, 3 );
 	}
 	
 	// WP HOOKS
