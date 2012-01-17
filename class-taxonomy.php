@@ -594,6 +594,26 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
+	 * Returns the term in a particular language, or the fallback content
+	 * if there's no term available.
+	 *
+	 * @param int|object $term Either a WP Term object, or a term_id 
+	 * @param string $lang_code The language code for the required language 
+	 * @param boolean $fallback If true: if a term is not available, fallback to the default language content (defaults to true)
+	 * @return object|boolean The WP Term object, or if $fallback was false and no post then returns false
+	 **/
+	public function get_term_in_lang( $term, $taxonomy, $lang_code, $fallback = true  ) {
+		$translations = $this->get_term_translations( $term, $taxonomy );
+		if ( isset( $translations[ $lang_code ] ) ) {
+			return $translations[ $lang_code ];
+		}
+		if ( ! $fallback ) {
+			return false;
+		}
+		return $translations[ bbl_get_default_lang_code() ];
+	}
+
+	/**
 	 * Return the admin URL to create a new translation for a term in a
 	 * particular language.
 	 *
