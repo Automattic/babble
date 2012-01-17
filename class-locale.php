@@ -183,27 +183,9 @@ class Babble_Locale {
 			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
-			// @FIXME: Deal with converting /de/ to retrieve the de_DE.mo, this may mean holding $locale (e.g. "de_DE") and $lang (e.g. "de") separately
 
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
 				$this->set_lang_from_prefix( $matches[ 0 ] );
-		}
-		// So we haven't recognised this language, redirect to the request URI
-		// in the default language.
-		if ( ! $this->lang ) {
-			if ( ! is_admin() ) {
-				if ( ! preg_match( '|^/[^/]+/(.*)?|', $_SERVER[ 'REQUEST_URI' ], $matches ) )
-					return;
-				bbl_switch_to_lang( bbl_get_default_lang_code() );
-				// Annoyingly, the home_url filter may not be set here…
-				add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
-				$location = trailingslashit( home_url( $matches[ 1 ] ) );
-				bbl_restore_lang();
-				// Non-permanent redirect as we might add this language in the 
-				// future, so don't want agents storing the redirect.
-				wp_redirect( $location, 302 );
-				exit; // You shall not pass (redirection just above, so shouldn't be reached)
-			}
 		}
 		if ( ! isset( $this->lang ) )
 			$this->set_lang( bbl_get_default_lang_code() );
