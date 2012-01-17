@@ -571,7 +571,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// translation group.
 		$terms = array();
 		$terms[ bbl_get_current_lang()->code ] = $term;
-		// var_dump( $translations );
 		foreach ( $existing_terms as $t )
 			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = $t;
 		return $terms;
@@ -594,10 +593,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( is_wp_error( $default_term ) )
 			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
 		
-		// var_dump( $default_term );
-		// $default_term = 
 		bbl_switch_to_lang( $lang_code );
-		// var_dump( $default_term );
 		$transid = $this->get_transid( $default_term->term_id );
 		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
 		$url = add_query_arg( array( 'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 'bbl_transid' => $transid, 'lang' => $lang_code ), $url );
@@ -614,12 +610,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_taxonomy_lang_code( $taxonomy ) {
 		if ( ! isset( $this->taxonomies[ $taxonomy ] ) )
 			return bbl_get_default_lang_code();
-		// var_dump( $this->lang_map );
 		foreach ( $this->lang_map as $lang => $data )
 			foreach ( $data as $trans_tax )
 				if ( $taxonomy == $trans_tax )
 					return $lang;
-		// error_log( "Found nothing." );
 		return false;
 	}
 
