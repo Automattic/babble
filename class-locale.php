@@ -183,11 +183,10 @@ class Babble_Locale {
 			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
-
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
 				$this->set_lang_from_prefix( $matches[ 0 ] );
 		}
-		if ( ! isset( $this->lang ) )
+		if ( ! isset( $this->lang ) || ! $this->lang )
 			$this->set_lang( bbl_get_default_lang_code() );
 		return $this->lang;
 	}
