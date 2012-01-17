@@ -118,19 +118,38 @@ class Babble_Locale {
 	}
 	
 	/**
-	 * Hooks the WP pre_update_option_rewrite_rules filter to add
-	 * the prefix to the rewrite rule regexes to deal with the
-	 * virtual language dir.
+	 * Hooks the WP pre_update_option_rewrite_rules filter to add 
+	 * a prefix to the URL to pick up the virtual sub-dir specifying
+	 * the language. The redirect portion can and should remain perfectly
+	 * ignorant of it though, as we change it in parse_request.
 	 * 
 	 * @param array $langs The language codes
 	 * @return array An array of language codes utilised for this site. 
 	 **/
 	public function internal_rewrite_rules_filter( $rules ){
-		// Add a prefix to the URL to pick up the virtual sub-dir specifying
-		// the language. The redirect portion can and should remain perfectly
-		// ignorant of it though, as we change it in parse_request.
-	    foreach( (array) $rules as $regex => $query )
+		global $wp_rewrite;
+		// Some rules need to be at the root of the site, without a
+		// language prefix, e.g. http://www.example.com/humans.txt. 
+		// The following filter allows plugin and theme devs to add 
+		// to this list of site root level URLs which are untranslated.
+		$non_translated_rewrite_rules = apply_filters( 'bbl_non_translated_queries', array(
+			'humans\.txt$',
+			'robots\.txt$',
+		) );
+	    foreach( (array) $rules as $regex => $query ) {
+			if ( in_array( $regex, $non_translated_rewrite_rules ) ) {
+				$new_rules[ $regex ] = $query;
+				continue;
+			}
 			$new_rules[ '[a-zA-Z_]+/' . $regex ] = $query;
+		}
+		// The WP robots.txt rewrite rule will not have worked, as the
+		// code objects to the language prefix. Here we add it in again.
+		remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
+		$home_path = parse_url( home_url() );
+		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
+		if ( empty( $home_path['path'] ) || '/' == $home_path['path'] )
+			$new_rules[ 'robots\.txt$' ] = $wp_rewrite->index . '?robots=1';
 	    return $new_rules;
 	}
 
