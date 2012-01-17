@@ -693,8 +693,22 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return int The transID the target term belongs to
 	 **/
 	protected function get_transid( $target_term_id ) {
+		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) )
+			return $transid;
+
+		if ( ! $target_term_id )
+			throw new exception( "Please specify a target term_id" );
+
 		$transids = wp_get_object_terms( $target_term_id, 'term_translation', array( 'fields' => 'ids' ) );
-		return (int) array_pop( $transids );
+		// "There can be only one" (so we'll just drop the others)
+		if ( isset( $transids[ 0 ] ) )
+			$transid = $transids[ 0 ];
+		else
+			$transid = $this->set_transid( $target_term_id );
+
+		wp_cache_add( $target_term_id, $transid, 'bbl_term_transids' );
+
+		return $transid;
 	}
 
 	/**
@@ -706,6 +720,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return int The transID the target term belongs to
 	 **/
 	protected function set_transid( $target_term_id, $transid = null ) {
+		if ( ! $target_term_id )
+			throw new exception( "Please specify a target term_id" );
+
 		if ( ! $transid ) {
 			$transid_name = 'term_transid_' . uniqid();
 			$result = wp_insert_term( $transid_name, 'term_translation', array() );
@@ -714,7 +731,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 			else
 				$transid = $result[ 'term_id' ];
 		}
-		return wp_set_object_terms( $target_term_id, absint( $transid ), 'term_translation' );
+
+		$result = wp_set_object_terms( $target_term_id, absint( $transid ), 'term_translation' );
+		if ( is_wp_error( $result ) )
+			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+
+		wp_cache_delete( $target_term_id, 'bbl_term_transids' );
+		
+		return $transid;
 	}
 
 }
