@@ -586,7 +586,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @param int|object $term Either a WP Term object, or a term_id 
 	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Term object
 	 **/
-	public function get_term_translations( $term, $taxonomy = null ) {
+	public function get_term_translations( $term, $taxonomy ) {
 		$term = get_term( $term, $taxonomy );
 
 		$langs = bbl_get_active_langs();
