@@ -311,16 +311,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$taxonomy = $screen->taxonomy;
 		$transid = $this->get_transid( $term->term_id );
 		?>
-			<tr>
-				<th>
-					<label for="bbl_term_translation">Translation ID</label>
-				</th>
-				<td>
-					<?php wp_nonce_field( 'bbl_edit_' . $term->term_id, '_bbl_nonce' ); ?>
-					<input type="text" name="bbl_term_translation" value="<?php echo esc_attr( $transid ); ?>" id="bbl_term_translation">
-					<?php var_dump( $transid ); ?>
-				</td>
-			</tr>
+		<?php wp_nonce_field( 'bbl_edit_' . $term->term_id, '_bbl_nonce' ); ?>
+		<input type="hidden" name="bbl_term_translation" value="<?php echo esc_attr( $transid ); ?>" id="bbl_term_translation">
 		<?php
 	}
 
@@ -335,7 +327,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$transid = isset( $_REQUEST[ 'bbl_transid' ] ) ? (int) $_REQUEST[ 'bbl_transid' ] : '';
 		wp_nonce_field( 'bbl_add_tag_' . $transid, '_bbl_nonce' );
 		?>
-			<input type="text" name="bbl_transid" value="<?php echo esc_attr( $transid ); ?>" id="bbl_transid" />
+			<input type="hidden" name="bbl_transid" value="<?php echo esc_attr( $transid ); ?>" id="bbl_transid" />
 		<?php
 	}
 
