@@ -533,7 +533,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return array The posts
 	 **/
 	public function the_posts( $posts, $wp_query ) {
-		return $posts;
 		if ( is_admin() )
 			return $posts;
 		
