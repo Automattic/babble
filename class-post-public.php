@@ -843,7 +843,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		foreach ( $submenu as $parent => $items ) {
 			foreach ( $items as $key => $item ) {
 				if ( bbl_get_current_lang_code() != bbl_get_default_lang_code() ) {
-					if ( 'post-new.php' == substr( $item[ 2 ], 0, 12 ) )
+					if ( 'post-new.php' == substr( $item[ 2 ], 0, 12 ) ) {
 						unset( $submenu[ $parent ][ $key ] );
 					}
 				}
