@@ -234,6 +234,15 @@ class Babble_Languages extends Babble_Plugin {
 	public function get_default_lang_code() {
 		return $this->default_lang;
 	}
+
+	/**
+	 * Returns the default language for this site.
+	 *
+	 * @return string The language object for the default language
+	 **/
+	public function get_default_lang() {
+		return bbl_get_lang( $this->default_lang );
+	}
 	
 	/**
 	 * Given a language code, return the URL prefix.

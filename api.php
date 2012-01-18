@@ -396,6 +396,16 @@ function bbl_get_default_lang_code() {
 }
 
 /**
+ * Returns the default language code for this site.
+ *
+ * @return string A language code, e.g. "he_IL"
+ **/
+function bbl_get_default_lang() {
+	global $bbl_languages;
+	return $bbl_languages->get_default_lang();
+}
+
+/**
  * Checks whether either the provided language code, 
  * if provided, or the current language code are
  * the default language.
