@@ -10,7 +10,5 @@ jQuery( document ).ready( function( $ ) {
 		}
 		// Remove the add button next to the title for non-default languages
 		$( 'h2 .add-new-h2' ).remove();
-		// Remove the add link from the side admin menu
-		$( '#adminmenu li li a[href^="post-new"]' ).remove();
 	}
 } );

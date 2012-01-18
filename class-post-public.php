@@ -831,13 +831,25 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP add_menu_classes filter to try and remove the
-	 * links to shadow post types.
+	 * Hooks the WP add_menu_classes filter to fixup the side
+	 * admin menu.
 	 *
 	 * @param array $menu The WP admin menu 
 	 * @return array The WP admin menu
 	 **/
 	public function add_menu_classes( $menu ) {
+		global $submenu;
+		// Remove "new post" links from submenu(s) for non-default languages
+		foreach ( $submenu as $parent => $items ) {
+			foreach ( $items as $key => $item ) {
+				if ( bbl_get_current_lang_code() != bbl_get_default_lang_code() ) {
+					if ( 'post-new.php' == substr( $item[ 2 ], 0, 12 ) )
+						unset( $submenu[ $parent ][ $key ] );
+					}
+				}
+			}
+		}
+		// Remove links to shadow post types
 		foreach ( $menu as $key => $item ) {
 			$vars = array();
 			$url_info = parse_url( $item[ 2 ] );
