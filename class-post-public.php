@@ -77,6 +77,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'init', 'init_late', 9999 );
+		$this->add_action( 'load-post-new.php', 'load_post_new' );
 		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'parse_request' );
@@ -171,6 +172,22 @@ class Babble_Post_Public extends Babble_Plugin {
 			flush_rewrite_rules();
 			update_option( 'bbl_rewrites', unserialize( $new_serialised ) );
 		}
+	}
+
+	/**
+	 * Hooks the WP load-post-new.php action to stop translators
+	 * creating new posts in languages other than the default. 
+	 *
+	 * @return void
+	 **/
+	public function load_post_new() {
+		$screen = get_current_screen();
+		if ( 'post' != $screen->base || 'add' != $screen->action )
+			return;
+		if ( bbl_get_current_lang_code() == bbl_get_default_lang_code() )
+			return;
+		$default_lang = bbl_get_default_lang();
+		wp_die( sprintf( _x( 'You can only create content in %s, please consult your editorial team. Use the back button to return.', '%s will be the name of the default language, e.g. "English".', 'fsd' ), $default_lang->display_name ) );
 	}
 
 	/**
