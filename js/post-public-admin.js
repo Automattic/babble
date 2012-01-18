@@ -10,5 +10,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 		// Remove the add button next to the title for non-default languages
 		$( 'h2 .add-new-h2' ).remove();
+		// Remove Bulk Edit and Quick Edit options
+		$( '#posts-filter option[value="edit"], #posts-filter td.column-title span.inline' ).remove();
 	}
 } );
