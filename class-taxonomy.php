@@ -168,7 +168,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				if ( ! is_array( $new_args[ 'rewrite' ] ) )
 					$new_args[ 'rewrite' ] = array();
 				// Do I not need to add this query_var into the query_vars filter? It seems not.
-				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang->code );
+				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_slug_in_lang( $slug, $lang->code );
 			}
 
 			// @FIXME: Note currently we are in danger of a taxonomy name being longer than 32 chars
@@ -367,7 +367,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	
 		// Deal with our shadow taxonomies
 		if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) 
-			return $post_link;
+			return $termlink;
 	
 		// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
 		global $wp_rewrite;
@@ -459,8 +459,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		// Sequester the original query, in case we need it to get the default content later
-		if ( ! isset( $wp->query_vars[ 'bbl_original_query' ] ) )
-			$wp->query_vars[ 'bbl_original_query' ] = $wp->query_vars;
+		if ( ! isset( $wp->query_vars[ 'bbl_tax_original_query' ] ) )
+			$wp->query_vars[ 'bbl_tax_original_query' ] = $wp->query_vars;
 
 		$taxonomy 	= false;
 		$terms 		= false;
@@ -727,12 +727,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 *
 	 * @param string $slug The slug to translate
 	 * @param string $lang_code The language code for the required language (optional, defaults to current)
-	 * @return void
+	 * @return string A translated slug
 	 **/
-	public function get_translated_slug( $slug, $lang_code = null ) {
+	public function get_slug_in_lang( $slug, $lang_code = null ) {
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
-		$_slug = strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug ) );
+		$_slug = strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug, $lang_code ) );
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
 		// Do we need to check that the slug is unique at this point?

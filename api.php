@@ -145,6 +145,18 @@ function bbl_get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
 }
 
 /**
+ * Returns a taxonomy slug translated into a particular language.
+ *
+ * @param string $slug The slug to translate
+ * @param string $lang_code The language code for the required language (optional, defaults to current)
+ * @return string A translated slug
+ **/
+function bbl_get_taxonomy_slug_in_lang( $slug, $lang_code = null ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_slug_in_lang( $slug, $lang_code );
+}
+
+/**
  * Get the posts which are the translations for the provided 
  * post ID. N.B. The returned array of post objects (and false 
  * values) will include the post for the post ID passed.
@@ -223,6 +235,19 @@ function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
 function bbl_get_post_in_lang( $post, $lang_code, $fallback = true ) {
 	global $bbl_post_public;
 	return $bbl_post_public->get_post_in_lang( $post, $lang_code, $fallback );
+}
+
+/**
+ * Returns a post_type slug translated into a particular language.
+ *
+ * @param string $slug The slug to translate
+ * @param string $lang_code The language code for the required language (optional, defaults to current)
+ * @return string A translated slug
+ **/
+function bbl_get_post_type_slug_in_lang( $slug, $lang_code = null ) {
+	global $bbl_post_public;
+	$lang = bbl_get_lang( $lang_code );
+	return $bbl_post_public->get_slug_in_lang( $slug, $lang );
 }
 
 /**
@@ -420,8 +445,10 @@ function bbl_get_default_lang() {
  **/
 function bbl_is_default_lang( $lang_code = null ) {
 	if ( is_null( $lang_code ) )
-		$lang_code = bbl_get_current_lang();
-	return ( bbl_get_default_lang_code() == $lang_code->code );
+		$lang = bbl_get_current_lang();
+	else if ( is_string( $lang_code ) ) // In case someone passes a lang object
+		$lang = bbl_get_lang( $lang_code );
+	return ( bbl_get_default_lang_code() == $lang->code );
 }
 
 /**

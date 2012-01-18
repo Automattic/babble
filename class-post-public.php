@@ -182,6 +182,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		if ( bbl_get_current_lang_code() == bbl_get_default_lang_code() )
 			return;
+		if ( isset( $_GET[ 'bbl_origin_id' ] ) )
+			return;
 		$default_lang = bbl_get_default_lang();
 		wp_die( sprintf( _x( 'You can only create content in %s, please consult your editorial team. Use the back button to return.', '%s will be the name of the default language, e.g. "English".', 'fsd' ), $default_lang->display_name ) );
 	}
@@ -297,8 +299,8 @@ class Babble_Post_Public extends Babble_Plugin {
 				if ( ! is_array( $new_args[ 'rewrite' ] ) )
 					$new_args[ 'rewrite' ] = array();
 				// Do I not need to add this query_var into the query_vars filter? It seems not.
-				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_translated_slug( $slug, $lang, $args );
-				$new_args[ 'has_archive' ] = $this->get_translated_archive_slug( $archive_slug, $lang, $args );
+				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_slug_in_lang( $slug, $lang, $args );
+				$new_args[ 'has_archive' ] = $this->get_slug_in_lang( $archive_slug, $lang );
 			}
 			$this->slugs_and_vars[ $lang->code . '_' . $post_type ] = array( 
 				'query_var' => $new_args[ 'query_var' ],
@@ -1259,31 +1261,16 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns a slug translated into a particular language.
 	 *
 	 * @param string $slug The slug to translate
-	 * @param string $lang A Babble language code
-	 * @param array $post_type_args The args for the post type associated with this post type
-	 * @return void
-	 **/
-	public function get_translated_slug( $slug, $lang, $post_type_args, $archive_slug = false ) {
-		if ( $archive_slug )
-			$_slug = strtolower( apply_filters( 'bbl_translate_post_type_archive_slug', $slug, $lang->code, $post_type_args ) );
-		else
-			$_slug = strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug, $lang->code, $post_type_args ) );
-		if ( $_slug &&  $_slug != $slug )
-			return $_slug;
-		// FIXME: Do we need to check that the slug is unique at this point?
-		return strtolower( "{$_slug}_{$lang->code}" );
-	}
-
-	/**
-	 * Returns an archive slug translated into a particular language.
-	 *
-	 * @param string $slug The slug to translate
 	 * @param string $lang A Babble language object
 	 * @param array $post_type_args The args for the post type associated with this post type
 	 * @return void
 	 **/
-	public function get_translated_archive_slug( $slug, $lang, $post_type_args ) {
-		return $this->get_translated_slug( $slug, $lang, $post_type_args, true );
+	public function get_slug_in_lang( $slug, $lang ) {
+		$_slug = strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug, $lang->code ) );
+		if ( $_slug &&  $_slug != $slug )
+			return $_slug;
+		// FIXME: Do we need to check that the slug is unique at this point?
+		return strtolower( "{$_slug}_{$lang->code}" );
 	}
 	
 	// PRIVATE/PROTECTED METHODS
