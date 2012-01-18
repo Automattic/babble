@@ -158,6 +158,7 @@ class Babble_Switcher_Menu {
 	protected function add_admin_generic_link( $lang ) {
 		$classes = array();
 		$href = add_query_arg( array( 'lang' => $lang->code ) );
+		$href = apply_filters( 'bbl_switch_admin_generic_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
@@ -200,6 +201,7 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
 		}
+		$href = apply_filters( 'bbl_switch_admin_term_link', $href, $lang, $this->translations );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
 		$classes[] = 'bbl-admin-taxonomy';
@@ -230,6 +232,7 @@ class Babble_Switcher_Menu {
 			'taxonomy' => bbl_get_taxonomy_in_lang( $this->screen->taxonomy, $lang->code ),
 		);
 		$href = add_query_arg( $args );
+		$href = apply_filters( 'bbl_switch_admin_list_terms_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
@@ -274,6 +277,7 @@ class Babble_Switcher_Menu {
 				return; // Don't create the switcher menu items yet
 			}
 		}
+		$href = apply_filters( 'bbl_switch_admin_post_link', $href, $lang, $this->translations );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
 		$classes[] = 'bbl-admin-edit-post';
@@ -305,6 +309,7 @@ class Babble_Switcher_Menu {
 			'post_type' => bbl_get_post_type_in_lang( $this->screen->post_type, $lang->code ),
 		);
 		$href = add_query_arg( $args );
+		$href = apply_filters( 'bbl_switch_admin_list_posts_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
@@ -365,6 +370,7 @@ class Babble_Switcher_Menu {
 			$title = sprintf( __( 'This content is unavailable in %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-unavailable';
 		}
+		$href = apply_filters( 'bbl_switch_post_link', $href, $lang, $this->translations );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-lang';
 		$classes[] = 'bbl-post';
@@ -394,6 +400,7 @@ class Babble_Switcher_Menu {
 		remove_filter( 'home_url', array( $bbl_locale, 'home_url'), null, 2 );
 		$href = home_url( "$lang->url_prefix/" );
 		add_filter( 'home_url', array( $bbl_locale, 'home_url'), null, 2 );
+		$href = apply_filters( 'bbl_switch_front_page_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-existing';
@@ -423,6 +430,7 @@ class Babble_Switcher_Menu {
 		bbl_switch_to_lang( $lang->code );
 		$href = get_post_type_archive_link( get_query_var( 'post_type' ) );
 		bbl_restore_lang();
+		$href = apply_filters( 'bbl_switch_post_type_archive_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-existing';
@@ -463,6 +471,7 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
 		}
+		$href = apply_filters( 'bbl_switch_taxonomy_archive_link', $href, $lang, $this->translations );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-lang';
 		$classes[] = 'bbl-term';
@@ -491,6 +500,7 @@ class Babble_Switcher_Menu {
 		bbl_switch_to_lang( $lang->code );
 		$href = home_url( $matches[ 1 ] );
 		bbl_restore_lang();
+		$href = apply_filters( 'bbl_switch_arbitrary_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 		$classes[] = 'bbl-existing';
 		$classes[] = 'bbl-existing-term';
