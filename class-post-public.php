@@ -112,7 +112,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function admin_init() {
-		// exit;
 		$post_type = false;
 		if ( isset( $_GET[ 'post_type' ] ) ) {
 			$post_type = $_GET[ 'post_type' ];
@@ -122,15 +121,12 @@ class Babble_Post_Public extends Babble_Plugin {
 			$post_type = $post->post_type;
 		}
 		$menu_id = false;
-		if ( in_array( $post_type, $this->post_types ) )
-			return; // Core post types, in default language, so should be fine
-		else if ( isset( $this->post_types[ $post_type ] ) )
+		if ( isset( $this->post_types[ $post_type ] ) )
 			$menu_id = '#menu-posts-' . $this->post_types[ $post_type ];
-		if ( ! $menu_id )
-			return;
 
 		$data = array(
 			'menu_id' => $menu_id,
+			'is_default_lang' => (bool) ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ),
 		);
 		wp_enqueue_script( 'post-public-admin', $this->url( '/js/post-public-admin.js' ), array( 'jquery' ), $this->version );
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
