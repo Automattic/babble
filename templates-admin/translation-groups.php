@@ -2,6 +2,31 @@
 	<?php screen_icon(); ?>
 	<h2>Translation Groups</h2>
 
+	<script type="text/javascript" charset="utf-8">
+		jQuery( document ).ready( function( $ ) {
+			// Check for duplicate post IDs in translation groups
+			var dupes = new Object();
+			$( '#translation-groups .post-id' ).each( function () {
+				var post_id = $( this ).text();
+				if ( $( '#translation-groups .post-id-' + post_id ).length > 1 ) {
+					$( '#translation-groups .post-id-' + post_id ).css( 'color', 'red' ). css( 'font-weight', 'bold' );
+					dupes[ 'post-id-' + post_id ] = post_id;
+				}
+			} );
+			if ( ! $.isEmptyObject( dupes ) ) {
+				var msg = '';
+				var counter = 0;
+				var dupe_ids = new Array();
+				for ( i in dupes ) {
+					counter++;
+					dupe_ids.push( dupes[ i ] );
+				}
+				msg += 'Got ' + counter + ' dplicate post IDs, look for the red: ' + dupe_ids.join( ', ' );
+				alert( msg );
+			}
+		} );
+	</script>
+
 	<div>
 		<form action="" method="get">
 			<input type="hidden" name="page" value="btgt" />
@@ -21,7 +46,7 @@
 		$terms = get_terms( 'post_translation' );
 	
 		if ( $terms ) : ?>
-			<table class="wp-list-table widefat fixed translation-groups" cellspacing="0">
+			<table class="wp-list-table widefat fixed translation-groups" cellspacing="0" id="translation-groups">
 				<thead>
 					<tr>
 						<th scope="col" id="id" class="manage-column column-id" style=""><span>ID</span></th>
@@ -52,24 +77,26 @@
 						if ( $posts ) : 
 					?>
 					<?php foreach ( $posts as $post ) : if ( ! in_array( $post->post_status, $selected_stati ) ) continue; ?>
-				<tr>
-					<?php if ( ! $post ) : ?>
-						<th colspan="4">
-							<span class="error"><strong>WARNING:</strong> Post <?php echo $post_id ?> does not exist</span> –
-							<a href="<?php echo $this->get_action_link( $post_id, 'delete_from_groups' ); ?>">remove from all groups</a>
-						</th>
-					<?php else : ?>
-						<th scope="row" class="manage-column column-id">
-							<?php echo $post->ID ?><br /> 
-							<a href="<?php echo add_query_arg( array( 'lang' => bbl_get_post_lang_code( $post->ID ) ), get_edit_post_link( $post->ID ) ); ?>">edit</a> |
-							<a href="<?php echo $this->get_action_link( $post->ID, 'delete_post', "tg-$term->term_id" ); ?>">delete</a> |
-							<a href="<?php echo $this->get_action_link( $post->ID, 'trash_post', "tg-$term->term_id" ); ?>">trash</a>
-						</th>
-						<td class="manage-column column-type"><?php echo $post->post_type ?></td>
-						<td class="manage-column column-status"><?php echo $post->post_status ?></td>
-						<td class="manage-column column-lang"><?php echo bbl_get_post_lang_code( $post->ID ) ?></td>
+						<?php if ( ! $post ) : ?>
+							<tr>
+								<th colspan="4">
+									<span class="error"><strong>WARNING:</strong> Post <?php echo $post_id ?> does not exist</span> –
+									<a href="<?php echo $this->get_action_link( $post_id, 'delete_from_groups' ); ?>">remove from all groups</a>
+								</th>
+							</tr>
+						<?php else : ?>
+							<tr class="post-id-<?php echo esc_attr( $post->ID ); ?>">
+								<th scope="row" class="manage-column column-id">
+									<span class="post-id"><?php echo $post->ID ?></span><br /> 
+									<a href="<?php echo add_query_arg( array( 'lang' => bbl_get_post_lang_code( $post->ID ) ), get_edit_post_link( $post->ID ) ); ?>">edit</a> |
+									<a href="<?php echo $this->get_action_link( $post->ID, 'delete_post', "tg-$term->term_id" ); ?>">delete</a> |
+									<a href="<?php echo $this->get_action_link( $post->ID, 'trash_post', "tg-$term->term_id" ); ?>">trash</a>
+								</th>
+								<td class="manage-column column-type"><?php echo $post->post_type ?></td>
+								<td class="manage-column column-status"><?php echo $post->post_status ?></td>
+								<td class="manage-column column-lang"><?php echo bbl_get_post_lang_code( $post->ID ) ?></td>
+							</tr>
 					<?php endif; ?>
-				</tr>
 							
 						<?php endforeach; ?>
 						<?php else : ?>
