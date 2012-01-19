@@ -90,7 +90,6 @@ class Babble_Switcher_Menu {
 
 		if ( is_singular() || is_single() || $editing_post ) {
 			$this->translations = bbl_get_post_translations( get_the_ID() );
-			// bbl_log( "SW: Translations: " . print_r( $this->translations, true ) );
 		} else if ( 'page' == get_option( 'show_on_front' ) && is_home() ) {
 			$this->translations = bbl_get_post_translations( get_option( 'page_for_posts' ) );
 		} else if ( is_tax() || is_category() || $editing_term ) {
@@ -101,10 +100,7 @@ class Babble_Switcher_Menu {
 			$this->translations = bbl_get_term_translations( $term->term_id, $term->taxonomy );
 		}
 
-		var_dump( $this->translations );
-
 		foreach ( $alt_langs as $i => & $alt_lang ) {
-			// error_log( "SW: Alt lang: $alt_lang->code" );
 			// @TODO: Convert to a switch statement, convert all the vars to a single property on the class
 			if ( is_admin() ) {
 				if ( $editing_post ) {			// Admin: Editing post link
@@ -278,7 +274,6 @@ class Babble_Switcher_Menu {
 				$classes[] = 'bbl-add';
 				$classes[] = 'bbl-add-post';
 			} else {
-				bbl_log( "SW: Don't create for $lang->code" );
 				return; // Don't create the switcher menu items yet
 			}
 		}
