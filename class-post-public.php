@@ -198,25 +198,32 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function wp_before_admin_bar_render() {
 		global $wp_admin_bar;
 		$nodes = $wp_admin_bar->get_nodes();
+		if ( ! bbl_is_default_lang() )
+			$wp_admin_bar->remove_node( 'new-content' );
 		foreach ( $nodes as & $node ) {
-			if ( 'new-content' == $node->parent ) {
-				$url_bits = parse_url( $node->href );
-				if ( ! isset( $url_bits[ 'query' ] ) )
-					continue;
-				parse_str( $url_bits[ 'query' ], $vars );
-				$post_type = false;
-				if ( isset( $vars[ 'post_type' ] ) )
-					$post_type = $vars[ 'post_type' ];
-				else if ( stristr( $vars[ 'path' ], 'post-new.php' ) )
-					$post_type = 'post';
-				if ( ! $post_type )
-					continue;
-				if ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ) {
-					if ( ! in_array( $post_type, $this->post_types ) )
-						$wp_admin_bar->remove_node( $node->id );
-				} else {
-					if ( ! in_array( $post_type, $this->lang_map2[ bbl_get_current_lang_code() ] ) )
-						$wp_admin_bar->remove_node( $node->id );
+			if ( ! bbl_is_default_lang() ) {
+				if ( 'new-content' == $node->parent )
+					$wp_admin_bar->remove_node( $node->id );
+			} else {
+				if ( 'new-content' == $node->parent ) {
+					$url_bits = parse_url( $node->href );
+					if ( ! isset( $url_bits[ 'query' ] ) )
+						continue;
+					parse_str( $url_bits[ 'query' ], $vars );
+					$post_type = false;
+					if ( isset( $vars[ 'post_type' ] ) )
+						$post_type = $vars[ 'post_type' ];
+					else if ( stristr( $vars[ 'path' ], 'post-new.php' ) )
+						$post_type = 'post';
+					if ( ! $post_type )
+						continue;
+					if ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ) {
+						if ( ! in_array( $post_type, $this->post_types ) )
+							$wp_admin_bar->remove_node( $node->id );
+					} else {
+						if ( ! in_array( $post_type, $this->lang_map2[ bbl_get_current_lang_code() ] ) )
+							$wp_admin_bar->remove_node( $node->id );
+					}
 				}
 			}
 		}
