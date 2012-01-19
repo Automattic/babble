@@ -504,6 +504,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( $this->no_recursion )
 			return;
 		$this->no_recursion = true;
+		
+		// DO NOT SYNC THE TRANSID TAXONOMIES!!
+		if ( 'post_translation' == $taxonomy )
+			return;
+		if ( 'term_translation' == $taxonomy )
+			return;
 
 		if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
 
