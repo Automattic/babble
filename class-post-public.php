@@ -86,6 +86,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_before_admin_bar_render' );
+		$this->add_action( 'wp_insert_post' );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
@@ -808,12 +809,22 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP action deleted_post to keep our cache up to date.
+	 * Hooks the WP action save_post to keep our cache up to date.
 	 *
 	 * @param int $post_id The ID of the post which was deleted. 
 	 * @return void
 	 **/
 	public function deleted_post( $post_id ) {
+		wp_cache_delete( $post_id, 'bbl_translation_groups' );
+	}
+
+	/**
+	 * Hooks the WP action wp_insert_post to keep our cache up to date.
+	 *
+	 * @param int $post_id The ID of the post which was deleted. 
+	 * @return void
+	 **/
+	public function wp_insert_post( $post_id ) {
 		wp_cache_delete( $post_id, 'bbl_translation_groups' );
 	}
 
