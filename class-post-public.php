@@ -1336,6 +1336,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		else
 			$postdata[ 'post_parent' ] = 0;
 
+		$postdata = apply_filters( 'bbl_pre_sync_properties', $postdata, $origin_id );
+
 		wp_update_post( $postdata );	
 	}
 
