@@ -49,7 +49,6 @@ class Babble_Switcher_Menu {
 	 **/
 	public function get_switcher_links( $id_prefix ) {
 		$this->populate_links();
-		bbl_stop_logging();
 		return $this->links;
 	}
 
