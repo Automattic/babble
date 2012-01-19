@@ -47,6 +47,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		$this->setup( 'babble-tgt', 'plugin' );
 		$this->add_action( 'admin_menu' );
 		$this->add_action( 'load-tools_page_btgt', 'load_tools_page' );
+		$this->add_filter( 'bbl_pre_sync_properties', 'pre_sync_properties', null, 2 );
 	}
 	
 	// HOOKS AND ALL THAT
@@ -101,6 +102,30 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		$url .= '#' . $_GET[ 'anchor' ];
 		error_log( "SW: Redirect to $url" );
 		wp_redirect( $url );
+	}
+
+	/**
+	 * Hooks the Babble bbl_pre_sync_properties filter to
+	 * log any changes to parent. We're not making changes
+	 * to the data, just logging significant changes for
+	 * debug purposes.
+	 *
+	 * @param array $postdata The data which will be applied to the post as part of the sync
+	 * @param int $origin_id The ID of the post we are syncing from
+	 * @return array The data which will be applied to the post as part of the sync
+	 **/
+	public function pre_sync_properties( $postdata, $origin_id ) {
+		$current_post = get_post( $postdata[ 'ID' ] );
+		$origin_post = get_post( $origin_id );
+		if ( $current_post->post_parent != $postdata[ 'post_parent' ] ) {
+			$user = wp_get_current_user();
+			$remote_ip = $_SERVER[ 'REMOTE_ADDR' ];
+			$referer = $_SERVER[ 'HTTP_REFERER' ];
+			$lang = bbl_get_current_lang_code();
+			$origin_lang = bbl_get_post_lang_code( $origin_id );
+			error_log( "Babble: $user->user_login has changed {$postdata[ 'ID' ]} parent from $current_post->post_parent ($current_post->post_type) to {$postdata[ 'post_parent' ]}. \tOrigin: $origin_id. Origin lang: $origin_lang. IP $remote_ip. User lang: $lang. Referer $referer." );
+		}
+		return $postdata;
 	}
 
 	// CALLBACKS
