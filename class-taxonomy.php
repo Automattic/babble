@@ -733,6 +733,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
 		$_slug = strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug, $lang_code ) );
+		// @FIXME: For some languages the translation might be the same as the original
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
 		// Do we need to check that the slug is unique at this point?
