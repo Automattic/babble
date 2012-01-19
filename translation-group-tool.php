@@ -83,11 +83,24 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 				}
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
 				$this->set_admin_notice( "Deleted term relationships for $obj_id" );
+				break;
 			case 'delete_post':
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
+				wp_delete_post( $obj_id, true );
+				break;
 			case 'trash_post':
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
+				wp_trash_post( $obj_id );
+				break;
 		}
+		$args = array(
+			'page' => 'btgt',
+			'lang' => bbl_get_default_lang_code(),
+		);
+		$url = add_query_arg( $args, admin_url( 'tools.php' ) );
+		$url .= '#' . $_GET[ 'anchor' ];
+		error_log( "SW: Redirect to $url" );
+		wp_redirect( $url );
 	}
 
 	// CALLBACKS
@@ -99,6 +112,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function tools_page() {
+		require_once( 'translation-group-tool-sorter.php' );
 		$vars = array();
 		$this->render_admin( 'translation-groups.php', $vars );
 	}
@@ -113,15 +127,16 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @param string $action The action for this link
 	 * @return string A Nonced action URL
 	 **/
-	protected function get_action_link( $obj_id, $action ) {
+	protected function get_action_link( $obj_id, $action, $anchor = null ) {
 		$args = array( 
 			'btgt_action' => $action,
 			'obj_id' => $obj_id,
 			'lang' => bbl_get_default_lang_code(), 
 		);
+		if ( ! is_null( $anchor ) )
+			$args[ 'anchor' ] = $anchor;
 		return wp_nonce_url( add_query_arg( $args ), "btgt_{$action}_$obj_id" );
 	}
-
 
 
 } // END BabbleTranslationGroupTool class 
