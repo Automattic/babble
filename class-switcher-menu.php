@@ -195,7 +195,7 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-term';
 		} else { // Translation does not exist
-			$default_term = $this->translations[ bbl_get_default_lang_code() ];
+			$default_term = (int) $_GET[ 'tag_ID' ];
 			$href = bbl_get_new_term_translation_url( $default_term, $lang->code, $this->screen->taxonomy );
 			$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-add';
