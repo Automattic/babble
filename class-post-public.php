@@ -821,16 +821,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP action wp_insert_post to keep our cache up to date.
-	 *
-	 * @param int $post_id The ID of the post which was deleted. 
-	 * @return void
-	 **/
-	public function wp_insert_post( $post_id ) {
-		wp_cache_delete( $post_id, 'bbl_translation_groups' );
-	}
-
-	/**
 	 * Hooks the WP post_updated action to ensure that the 
 	 * required properties are copied to the other posts in 
 	 * this translation group.
