@@ -89,8 +89,11 @@
 								<th scope="row" class="manage-column column-id">
 									<span class="post-id"><?php echo $post->ID ?></span><br /> 
 									<a href="<?php echo add_query_arg( array( 'lang' => bbl_get_post_lang_code( $post->ID ) ), get_edit_post_link( $post->ID ) ); ?>">edit</a> |
-									<a href="<?php echo $this->get_action_link( $post->ID, 'delete_post', "tg-$term->term_id" ); ?>">delete</a> |
-									<a href="<?php echo $this->get_action_link( $post->ID, 'trash_post', "tg-$term->term_id" ); ?>">trash</a>
+									<a href="<?php echo $this->get_action_link( $post->ID, 'delete_post', "tg-$term->term_id" ); ?>">delete</a> | 
+									<a href="<?php echo $this->get_action_link( $post->ID, 'trash_post', "tg-$term->term_id" ); ?>">trash</a> | 
+									<?php if ( bbl_get_default_lang_code() == bbl_get_post_lang_code( $post->ID ) ) : ?>
+										<a href="<?php echo $this->get_action_link( $post->ID, 'delete_from_groups', "tg-$term->term_id" ); ?>">remove from group</a>
+									<?php endif; ?>
 								</th>
 								<td class="manage-column column-type"><?php echo $post->post_type ?></td>
 								<td class="manage-column column-status"><?php echo $post->post_status ?></td>

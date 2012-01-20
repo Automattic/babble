@@ -75,7 +75,6 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		
 		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? $_GET[ 'obj_id' ] : false;
 		$wp_nonce = ( isset( $_GET[ '_wpnonce' ] ) ) ? $_GET[ '_wpnonce' ] : false;
-		error_log( "SW: Action: $action" );
 		switch ( $action ) {
 			case 'delete_from_groups':
 				if ( ! wp_verify_nonce( $wp_nonce, "btgt_delete_from_groups_$obj_id" ) ) {
@@ -100,7 +99,6 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		);
 		$url = add_query_arg( $args, admin_url( 'tools.php' ) );
 		$url .= '#' . $_GET[ 'anchor' ];
-		error_log( "SW: Redirect to $url" );
 		wp_redirect( $url );
 	}
 
