@@ -1029,9 +1029,9 @@ class Babble_Post_Public extends Babble_Plugin {
 				$current_post = get_page_by_path( $query_vars[ 'pagename' ], null, $query_vars[ 'post_type' ] );
 				if ( $this->get_transid( get_option( 'page_for_posts' ) ) == $this->get_transid( $current_post ) ) {
 					$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
+					unset( $query_vars[ 'name' ] );
+					unset( $query_vars[ bbl_get_post_type_in_lang( 'page', $query_vars[ 'lang' ] ) ] );
 				}
-				// $current_transid = $this->get
-				unset( $query_vars[ 'name' ] );
 			}
 			unset( $query_vars[ 'page' ] );
 			unset( $query_vars[ 'pagename' ] );
