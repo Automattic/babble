@@ -976,12 +976,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected function translate_query_vars( $query_vars, $request = false ) {
 
 		// Sequester the original query, in case we need it to get the default content later
-		$query_vars[ 'sil_original_query' ] = $query_vars;
+		$query_vars[ 'bbl_original_query' ] = $query_vars;
 
 		// We've done this already (avoid re-translating the vars)
-		if ( isset( $query_vars[ 'sil_done_translation' ] ) && $query_vars[ 'sil_done_translation' ] )
+		if ( isset( $query_vars[ 'bbl_done_translation' ] ) && $query_vars[ 'bbl_done_translation' ] )
 			return $query_vars;
-		$query_vars[ 'sil_done_translation' ] = true;
+		$query_vars[ 'bbl_done_translation' ] = true;
 
 		$lang_url_prefix = isset( $query_vars[ 'lang_url_prefix' ] ) ? $query_vars[ 'lang_url_prefix' ] : get_query_var( 'lang_url_prefix' );
 		$lang = isset( $query_vars[ 'lang' ] ) ? $query_vars[ 'lang' ] : get_query_var( 'lang' );
