@@ -9,7 +9,16 @@
 class Babble_Post_Public extends Babble_Plugin {
 	
 	/**
-	 * A simple flag to stop infinite recursion in various places.
+	 * A simple flag to stop infinite recursion when syncing 
+	 * post meta places.
+	 *
+	 * @var boolean
+	 **/
+	protected $no_meta_recursion;
+	
+	/**
+	 * A simple flag to stop infinite recursion in various 
+	 * places (except for post meta).
 	 *
 	 * @var boolean
 	 **/
@@ -344,9 +353,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
-		if ( 'post_meta' == $this->no_recursion )
+		if ( $this->no_meta_recursion )
 			return;
-		$this->no_recursion = 'post_meta';
+		$this->no_meta_recursion = 'added_post_meta';
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
@@ -355,7 +364,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			add_post_meta( $translation->ID, $meta_key, $meta_value );
 		}
 		
-		$this->no_recursion = false;
+		$this->no_meta_recursion = false;
 	}
 
 	/**
@@ -373,9 +382,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
-		if ( 'post_meta' == $this->no_recursion )
+		if ( $this->no_meta_recursion )
 			return;
-		$this->no_recursion = 'post_meta';
+		$this->no_meta_recursion = 'updated_post_meta';
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
@@ -384,7 +393,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			update_post_meta( $translation->ID, $meta_key, $meta_value );
 		}
 		
-		$this->no_recursion = false;
+		$this->updated_post_meta = false;
 	}
 
 	/**
@@ -402,9 +411,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
-		if ( 'post_meta' == $this->no_recursion )
+		if ( $this->updated_post_meta )
 			return;
-		$this->no_recursion = 'post_meta';
+		$this->updated_post_meta = 'deleted_post_meta';
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
@@ -744,11 +753,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		$lang_post_type = $this->get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
 
 		bbl_switch_to_lang( bbl_get_current_lang_code() );
-		$return = get_post_type_archive_link( $lang_post_type );
+		$link = get_post_type_archive_link( $lang_post_type );
 		bbl_restore_lang();
 		
 		$this->no_recursion = false;
-		return $return;
+		return $link;
 	}
 
 	/**
