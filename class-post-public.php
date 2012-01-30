@@ -1156,10 +1156,17 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( is_wp_error( $transid ) )
 			error_log( "Error getting transid: " . print_r( $transid, true ) );
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
+
+		// Work out all the translated equivalent post types
+		$post_types = array();
+		$langs = bbl_get_active_langs();
+		foreach ( $langs as $lang )
+			$post_types[] = bbl_get_post_type_in_lang( $post->post_type, $lang->code );
+
 		// Get all the translations in one cached DB query
 		$args = array(
 			'include' => $post_ids,
-			'post_type' => 'any',
+			'post_type' => $post_types,
 			'post_status' => array( 'publish', 'pending', 'draft', 'future' ),
 		);
 		// We want a clean listing, without any particular language
