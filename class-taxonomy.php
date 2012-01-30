@@ -175,9 +175,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			// Perhaps we need to create some kind of map like (taxonomy) + (lang) => (shadow translated taxonomy)
 			$new_taxonomy = strtolower( "{$taxonomy}_{$lang->code}" );
 
-			foreach ( $new_args[ 'labels' ] as & $label )
-				$label = "$label ({$lang->code})";
-
 			$this->taxonomies[ $new_taxonomy ] = $taxonomy;
 			if ( ! isset( $this->lang_map[ $lang->code ] ) || ! is_array( $this->lang_map[ $lang->code ] ) )
 				$this->lang_map[ $lang->code ] = array();
