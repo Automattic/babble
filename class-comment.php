@@ -13,6 +13,7 @@ class Babble_Comment extends Babble_Plugin {
 
 		$this->add_filter( 'comments_template_args' );
 		$this->add_filter( 'preprocess_comment' );
+		$this->add_filter( 'get_comments_number', null, null, 2 );
 	}
 
 	/**
@@ -52,6 +53,26 @@ class Babble_Comment extends Babble_Plugin {
 		if ( $parent_comment && $comment_data[ 'comment_post_ID' ] )
 			$comment_data[ 'comment_post_ID' ] = $parent_comment->comment_post_ID;
 		return $comment_data;
+	}
+
+	/**
+	 * Hooks the WP get_comments_number filter to get the number of comments 
+	 * across all posts in the translation group.
+	 *
+	 * @param int $count The number of comments on the single translation
+	 * @param int $post_id The post ID of the single translation 
+	 * @return int The count of all comments on published posts in this translation group
+	 **/
+	public function get_comments_number( $count, $post_id ) {
+		$translations = bbl_get_post_translations( $post_id );
+		$count = 0;
+		foreach ( $translations as & $translation ) {
+			$post_status = get_post_status_object( $translation->post_status );
+			// FIXME: I'm not entirely sure about using publicly_queryable here… what I want to avoid is draft, private, etc statii.
+			if ( $post_status->publicly_queryable )
+				$count += $translation->comment_count;
+		}
+		return $count;
 	}
 	
 	// PUBLIC METHODS
