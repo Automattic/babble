@@ -344,7 +344,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
-		if ( $this->no_recursion )
+		if ( 'post_meta' == $this->no_recursion )
 			return;
 		$this->no_recursion = 'post_meta';
 
@@ -373,7 +373,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
-		if ( $this->no_recursion )
+		if ( 'post_meta' == $this->no_recursion )
 			return;
 		$this->no_recursion = 'post_meta';
 
@@ -402,7 +402,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
-		if ( $this->no_recursion )
+		if ( 'post_meta' == $this->no_recursion )
 			return;
 		$this->no_recursion = 'post_meta';
 
