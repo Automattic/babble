@@ -225,6 +225,32 @@ function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
 }
 
 /**
+ * Is the query for a single page or translation or a single page?
+ *
+ * If the $page parameter is specified, this function will additionally
+ * check if the query is for one of the pages specified.
+ *
+ * @see is_page()
+ *
+ * @param mixed $page Page ID, title, slug, or array of such.
+ * @return bool
+ */
+function bbl_is_page( $page = '' ) {
+	$base_page = bbl_get_post_in_lang( get_the_ID(), bbl_get_default_lang_code() );
+	if ( ! $page )
+		return 'page' == $base_page->post_type;
+	if ( is_int( $page ) )
+		return $page == $base_page->ID;
+	if ( $page == $base_page->post_name )
+		return true;
+	if ( $page == $base_page->post_title )
+		return true;
+	if ( $page == (string) $base_page->ID )
+		return true;
+	return false;
+}
+
+/**
  * Returns the post in a particular language
  *
  * @param int|object $post Either a WP Post object, or a post ID 
