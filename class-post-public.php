@@ -294,9 +294,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			// end up needing to read this kind of thing.
 			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
 
-			foreach ( $new_args[ 'labels' ] as & $label )
-				$label = "$label ({$lang->code})";
-				
 			if ( false !== $args[ 'rewrite' ] ) {
 				if ( ! is_array( $new_args[ 'rewrite' ] ) )
 					$new_args[ 'rewrite' ] = array();
