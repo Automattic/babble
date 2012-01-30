@@ -285,12 +285,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			if ( ! is_string( $args[ 'has_archive' ] ) )
 				$archive_slug = $slug;
 
-		// error_log( "SW: =============================================================" );
-		// error_log( "SW: ORIGINAL Args for $post_type: " . print_r( $args, true ) );
-
-		// if ( 'page' == $post_type )
-		// var_dump( $args );
-
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
 				
