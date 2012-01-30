@@ -251,7 +251,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		if ( $this->no_recursion )
 			return;
-		$this->no_recursion = true;
+		$this->no_recursion = 'registered_post_type';
 
 		$langs = bbl_get_active_langs();
 
@@ -346,7 +346,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		if ( $this->no_recursion )
 			return;
-		$this->no_recursion = true;
+		$this->no_recursion = 'post_meta';
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
@@ -375,7 +375,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		if ( $this->no_recursion )
 			return;
-		$this->no_recursion = true;
+		$this->no_recursion = 'post_meta';
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
@@ -404,7 +404,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		if ( $this->no_recursion )
 			return;
-		$this->no_recursion = true;
+		$this->no_recursion = 'post_meta';
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
@@ -719,7 +719,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 
-		$this->no_recursion = true;
+		$this->no_recursion = 'page_link';
 		$lang = bbl_get_post_lang_code( $post_id );
 		bbl_switch_to_lang( $lang );
 		$link = get_page_link( $post_id );
@@ -739,7 +739,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function post_type_archive_link( $link, $post_type ) {
 		if ( $this->no_recursion )
 			return $link;
-		$this->no_recursion = true;
+		$this->no_recursion = 'post_type_archive_link';
 
 		$lang_post_type = $this->get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
 
@@ -764,7 +764,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		if ( $this->no_recursion )
 			return;
-		$this->no_recursion = true;
+		$this->no_recursion = 'wp_insert_post';
 
 		wp_cache_delete( $post_id, 'bbl_translation_groups' );
 
@@ -822,7 +822,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function post_updated( $post_id ) {
 		if ( $this->no_recursion )
 			return;
-		$this->no_recursion = true;
+		$this->no_recursion = 'post_updated';
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
