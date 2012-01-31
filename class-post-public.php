@@ -1386,46 +1386,50 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Copy various properties from one post to another.
 	 *
-	 * @param int $origin_id The origin post, to copy FROM 
-	 * @param int $new_post_id The new post, to copy TO 
+	 * @param int $source_id The source post, to copy FROM 
+	 * @param int $target_id The target post, to copy TO 
 	 * @return void
 	 **/
-	protected function sync_properties( $origin_id, $new_post_id ) {
-		if ( ! ( $origin_post = get_post( $origin_id ) ) )
+	protected function sync_properties( $source_id, $target_id ) {
+		if ( ! ( $source_post = get_post( $source_id ) ) )
 			return;
 
-		$origin_lang_code = bbl_get_post_lang_code( $origin_id );
+		$source_lang_code = bbl_get_post_lang_code( $source_id );
 
-		$new_lang_code = bbl_get_post_lang_code( $new_post_id );
+		$target_lang_code = bbl_get_post_lang_code( $target_id );
 
-		$new_parent_post = false;
-		if ( $origin_post->post_parent ) {
-			$origin_parent_post = $this->get_post_in_lang( $origin_post->post_parent, $origin_lang_code );
-			$new_parent_post = $this->get_post_in_lang( $origin_parent_post, $new_lang_code );
+		$target_parent_post = false;
+		if ( $source_post->post_parent ) {
+			$source_parent_post = $this->get_post_in_lang( $source_post->post_parent, $source_lang_code );
+			$target_parent_post = $this->get_post_in_lang( $source_parent_post, $target_lang_code );
 		}
+
+		$target_post = get_post( $target_id );
 
 		$postdata = array(
 			'ID' => $new_post_id,
-			'post_author' => $origin_post->post_author,
-			'post_date' => $origin_post->post_date,
-			'post_date_gmt' => $origin_post->post_date_gmt,
-			'ping_status' => $origin_post->ping_status,
-			'post_password' => $origin_post->post_password,
-			'menu_order' => $origin_post->menu_order,
-			'post_mime_type' => $origin_post->post_mime_type,
+			'post_author' => $source_post->post_author,
+			'post_date' => $source_post->post_date,
+			'post_date_gmt' => $source_post->post_date_gmt,
+			'post_modified' => $target_post->post_modified,
+			'post_modified_gmt' => $target_post->post_modified_gmt,
+			'ping_status' => $source_post->ping_status,
+			'post_password' => $source_post->post_password,
+			'menu_order' => $source_post->menu_order,
+			'post_mime_type' => $source_post->post_mime_type,
 		);
-		if ( $new_parent_post )
-			$postdata[ 'post_parent' ] = $new_parent_post->ID;
+		if ( $target_parent_post )
+			$postdata[ 'post_parent' ] = $target_parent_post->ID;
 		else
 			$postdata[ 'post_parent' ] = 0;
 
-		// Comment status
-		if ( bbl_get_default_lang_code() == $origin_lang_code )
-			$postdata[ 'comment_status' ] = $origin_post->comment_status;
+		// Comment status only synced when going from the default lang code
+		if ( bbl_get_default_lang_code() == $source_lang_code )
+			$postdata[ 'comment_status' ] = $source_post->comment_status;
 
 		$postdata = apply_filters( 'bbl_pre_sync_properties', $postdata, $origin_id );
 
-		wp_update_post( $postdata );	
+		wp_update_post( $postdata );
 	}
 
 	/**
