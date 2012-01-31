@@ -1409,7 +1409,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			'post_author' => $origin_post->post_author,
 			'post_date' => $origin_post->post_date,
 			'post_date_gmt' => $origin_post->post_date_gmt,
-			'comment_status' => $origin_post->comment_status,
 			'ping_status' => $origin_post->ping_status,
 			'post_password' => $origin_post->post_password,
 			'menu_order' => $origin_post->menu_order,
@@ -1419,6 +1418,10 @@ class Babble_Post_Public extends Babble_Plugin {
 			$postdata[ 'post_parent' ] = $new_parent_post->ID;
 		else
 			$postdata[ 'post_parent' ] = 0;
+
+		// Comment status
+		if ( bbl_get_default_lang_code() == $origin_lang_code )
+			$postdata[ 'comment_status' ] = $origin_post->comment_status;
 
 		$postdata = apply_filters( 'bbl_pre_sync_properties', $postdata, $origin_id );
 
