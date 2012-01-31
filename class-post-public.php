@@ -860,10 +860,13 @@ class Babble_Post_Public extends Babble_Plugin {
 		// auto drafts.
 		$post_lang_code = bbl_get_post_lang_code( $post_id );
 		if ( bbl_get_default_lang_code() != $post_lang_code ) {
-			$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+			$source_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+			$target_post = get_post( $post_id );
 			$post_data = array(
 				'ID' => $post_id,
-				'comment_status' => $origin_post->comment_status,
+				'comment_status' => $source_post->comment_status,
+				'post_modified' => $target_post->post_modified,
+				'post_modified_gmt' => $target_post->post_modified_gmt,
 			);
 			wp_update_post( $post_data );
 		}
