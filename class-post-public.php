@@ -412,9 +412,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
 
-		if ( $this->updated_post_meta )
+		if ( $this->no_meta_recursion )
 			return;
-		$this->updated_post_meta = 'deleted_post_meta';
+		$this->no_meta_recursion = 'deleted_post_meta';
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
