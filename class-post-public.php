@@ -93,6 +93,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'post_updated' );
 		$this->add_action( 'pre_get_posts' );
 		$this->add_action( 'registered_post_type', null, null, 2 );
+		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_before_admin_bar_render' );
 		$this->add_action( 'wp_insert_post' );
@@ -492,6 +493,22 @@ class Babble_Post_Public extends Babble_Plugin {
 				}
 			}
 		}
+		
+		do_action( 'bbl_do_translation_metaboxes', $post );
+	}
+
+	/**
+	 * Hooks the WP save_post action to resync data
+	 * when requested.
+	 *
+	 * @param int $post_id The ID of the WP post
+	 * @param object $post The WP Post object 
+	 * @return void
+	 **/
+	public function save_post( $post_id, $post ) {
+		// We only need to resync the post meta, as
+		// properties are synced on every save.
+		$this->maybe_resync_meta_data( $post_id, $post );
 	}
 
 	/**
@@ -970,6 +987,44 @@ class Babble_Post_Public extends Babble_Plugin {
 		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
 		echo "<a href='$view_link' title='$view_title'>" . __( 'view', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'edit', 'babble' ) . "</a>";
 	}
+
+	// CALLBACKS
+	// =========
+	
+	/**
+	 * The callback function which provides HTML for the Babble 
+	 * Translation Resync metabox, which allows a translator to 
+	 * re-sync all the data from the original post.
+	 *
+	 * This metabox isn't shown by default, a dev must add it 
+	 * like so:
+	 * 
+	 * function fsd_bbl_do_translation_metaboxes( $post ) {
+	 * 	  global $bbl_post_public;
+	 * 	  add_meta_box( 'bbl_resync', 'Translation Resync', array( $bbl_post_public, 'metabox_resync' ), $post->post_type, 'side' );
+	 * }
+	 * add_action( 'bbl_do_translation_metaboxes', 'fsd_bbl_do_translation_metaboxes' );
+	 * 
+	 * @FIXME: This is handling both data and taxonomies, split it out into the class-taxonomy.php file?
+	 *
+	 * @param object $post The WP Post object being edited
+	 * @param array $metabox The args and params for this metabox
+	 * @return void (echoes HTML)
+	 **/
+	public function metabox_resync( $post, $metabox ) {
+		// Sometimes it's useful to have something theme 
+		// specific in this metabox.
+		do_action( 'bbl_metabox_resync_before', $post, $metabox );
+		wp_nonce_field( "bbl_resync_translation-$post->ID", '_bbl_metabox_resync' );
+		?>
+			<p>
+				<label for="bbl_resync_translation"><input type="checkbox" name="bbl_resync_translation" value="1" id="bbl_resync_translation" />
+					<?php _e( 'Synchronise data with original post', 'fsd' ); ?>
+				</label>
+			</p>
+		<?php
+		do_action( 'bbl_metabox_resync_after', $post, $metabox );
+	}
 	
 	// PUBLIC METHODS
 	// ==============
@@ -1356,6 +1411,58 @@ class Babble_Post_Public extends Babble_Plugin {
 		$postdata = apply_filters( 'bbl_pre_sync_properties', $postdata, $origin_id );
 
 		wp_update_post( $postdata );	
+	}
+
+	/**
+	 * Checks for the relevant POSTed field, then 
+	 * resyncs the meta data, etc.
+	 *
+	 * @param int $post_id The ID of the WP post
+	 * @param object $post The WP Post object 
+	 * @return void
+	 **/
+	protected function maybe_resync_meta_data( $post_id, $post ) {
+		// Check that the fields were included on the screen, we
+		// can do this by checking for the presence of the nonce.
+		$nonce = isset( $_POST[ '_bbl_metabox_resync' ] ) ? $_POST[ '_bbl_metabox_resync' ] : false;
+		
+		
+		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) )
+			return;
+		
+		if ( ! $nonce )
+			return;
+			
+		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
+		if ( $posted_id != $post_id )
+			return;
+		// While we're at it, let's check the nonce
+		check_admin_referer( "bbl_resync_translation-$post_id", '_bbl_metabox_resync' );
+		
+		if ( $this->no_meta_recursion )
+			return;
+		$this->no_meta_recursion = 'updated_post_meta';
+
+		// First delete all the synced meta from this post
+		$current_metas = $this->get_all_post_meta( $post_id );
+		$current_meta_keys = wp_filter_object_list( $current_metas, array(), null, 'meta_key' );
+		$current_meta_keys = array_unique( $current_meta_keys );
+		foreach ( $current_meta_keys as $current_meta_key ) {
+			// Some metadata shouldn't be synced
+			if ( ! apply_filters( 'bbl_sync_meta_key', true, $current_meta_key ) )
+				continue;
+			delete_post_meta( $post_id, $current_meta_key );
+		}
+
+		// Now add meta in again from the origin post
+		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		$metas = $this->get_all_post_meta( $origin_post->ID );
+		foreach ( $metas as $meta ) {
+			// Some metadata shouldn't be synced
+			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta->meta_key ) )
+				continue;
+			add_post_meta( $post_id, $meta->meta_key, $meta->meta_value );
+		}
 	}
 
 	/**
