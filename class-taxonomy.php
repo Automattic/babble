@@ -47,16 +47,16 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( is_admin() ) {
 			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
 		}
-		$this->add_action( 'created_term', null, null, 3 );
 		$this->add_action( 'admin_notices' );
+		$this->add_action( 'bbl_created_new_shadow_post', 'created_new_shadow_post', null, 2 );
+		$this->add_action( 'bbl_registered_shadow_post_types', 'registered_shadow_post_types' );
+		$this->add_action( 'created_term', null, null, 3 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
-		$this->add_action( 'bbl_registered_shadow_post_types', 'registered_shadow_post_types' );
 		$this->add_action( 'set_object_terms', null, null, 5 );
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
-		$this->add_action( 'bbl_created_new_shadow_post', 'created_new_shadow_post', null, 2 );
 		$this->add_filter( 'term_link', null, null, 3 );
 	}
 	
