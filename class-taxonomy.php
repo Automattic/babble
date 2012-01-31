@@ -54,6 +54,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
+		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_action( 'set_object_terms', null, null, 5 );
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
@@ -343,6 +344,18 @@ class Babble_Taxonomies extends Babble_Plugin {
 		?>
 			<input type="hidden" name="bbl_transid" value="<?php echo esc_attr( $transid ); ?>" id="bbl_transid" />
 		<?php
+	}
+
+	/**
+	 * Hooks the WP save_post action to resync data
+	 * when requested.
+	 *
+	 * @param int $post_id The ID of the WP post
+	 * @param object $post The WP Post object 
+	 * @return void
+	 **/
+	public function save_post( $post_id, $post ) {
+		$this->maybe_resync_terms( $post_id, $post );
 	}
 
 	/**
@@ -812,6 +825,55 @@ class Babble_Taxonomies extends Babble_Plugin {
 		wp_cache_delete( $target_term_id, 'bbl_term_transids' );
 		
 		return $transid;
+	}
+
+	/**
+	 * Checks for the relevant POSTed field, then 
+	 * resyncs the terms.
+	 *
+	 * @param int $post_id The ID of the WP post
+	 * @param object $post The WP Post object 
+	 * @return void
+	 **/
+	protected function maybe_resync_terms( $post_id, $post ) {
+		// Check that the fields were included on the screen, we
+		// can do this by checking for the presence of the nonce.
+		$nonce = isset( $_POST[ '_bbl_metabox_resync' ] ) ? $_POST[ '_bbl_metabox_resync' ] : false;
+		
+		
+		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) )
+			return;
+		
+		if ( ! $nonce )
+			return;
+			
+		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
+		if ( $posted_id != $post_id )
+			return;
+		// While we're at it, let's check the nonce
+		check_admin_referer( "bbl_resync_translation-$post_id", '_bbl_metabox_resync' );
+		
+		if ( $this->no_recursion )
+			return;
+		$this->no_recursion = true;
+
+		$taxonomies = get_object_taxonomies( $post->post_type );
+		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+
+		// First dissociate all the terms from synced taxonomies from this post
+		wp_delete_object_term_relationships( $post_id, $taxonomies );
+
+		// Now associate terms from synced taxonomies in from the origin post
+		foreach ( $taxonomies as $taxonomy ) {
+			$origin_taxonomy = $taxonomy;
+			if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) )
+				$origin_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, bbl_get_default_lang_code() );
+			$term_ids = wp_get_object_terms( $origin_post->ID, $origin_taxonomy, array( 'fields' => 'ids' ) );
+			$term_ids = array_map( 'absint', $term_ids );
+			$result = wp_set_object_terms( $post_id, $term_ids, $taxonomy );
+			if ( is_wp_error( $result, true ) )
+				throw new exception( "Problem syncing terms: " . print_r( $terms, true ), " Error: " . print_r( $result, true ) );
+		}
 	}
 
 }
