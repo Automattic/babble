@@ -855,6 +855,18 @@ class Babble_Post_Public extends Babble_Plugin {
 			// Copy the various core post properties across
 			$this->sync_properties( $post_id, $translation->ID );
 		}
+
+		// Revert comment status, which often gets turned off by
+		// auto drafts.
+		$post_lang_code = bbl_get_post_lang_code( $post_id );
+		if ( bbl_get_default_lang_code() != $post_lang_code ) {
+			$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+			$post_data = array(
+				'ID' => $post_id,
+				'comment_status' => $origin_post->comment_status,
+			);
+			wp_update_post( $post_data );
+		}
 		
 		$this->no_recursion = false;
 	}
