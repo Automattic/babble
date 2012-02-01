@@ -466,9 +466,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post = get_post( get_the_ID() );
 		do_action( 'add_meta_boxes_' . $base_post_type, $post );
 		
-		// error_log( "SW: Metaboxes for $base_post_type" );
-		// var_dump( $wp_meta_boxes );
-		// exit;
 		if ( isset( $wp_meta_boxes[ $base_post_type ] ) ) {
 			foreach (  $wp_meta_boxes[ $base_post_type ] as $context => $boxes_in_context ) {
 				foreach ( $boxes_in_context as $priority => $boxes_at_priority ) {
