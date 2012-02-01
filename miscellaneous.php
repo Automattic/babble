@@ -29,6 +29,9 @@ function bbl_admin_init() {
 		$post_type = 'post';
 
 	$cur_lang_code = bbl_get_current_lang_code();
+
+	if ( is_array( $post_id ) )
+		return;
 		
 	if ( $post_id ) {
 		$post_in_lang = bbl_get_post_in_lang( $post_id, $cur_lang_code, false );
