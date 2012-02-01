@@ -849,6 +849,8 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
+			if ( $translation->ID == $post_id )
+				continue;
 			// Copy the various core post properties across
 			$this->sync_properties( $post_id, $translation->ID );
 		}
