@@ -246,16 +246,9 @@ class Babble_Locale {
 	 * @return string The URL
 	 **/
 	public function home_url( $url, $path ) {
-		$orig_url = $url;
-		// @FIXME: The way I'm working out the home_url, by replacing the path with an empty string; it feels hacky… is it?
-		// @FIXME: Do I need to use something multibyte string safe, rather than str_replace?
-		if ( '/' != $path && ':' != $path )
-			$base_url = str_replace( $path, '', $url );
-		else
-			$base_url = '';
+		$base_url = get_option( 'home' );
 		$path = ltrim( $path, '/' );
 		$url = trailingslashit( $base_url ) . $this->url_prefix . '/' . $path;
-		$url = rtrim( $url, '/' );
 		return $url;
 	}
 
