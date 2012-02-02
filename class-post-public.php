@@ -789,7 +789,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$this->no_recursion = 'wp_insert_post';
 
-		wp_cache_delete( $post_id, 'bbl_translation_groups' );
+		wp_cache_delete( $new_post_id, 'bbl_translation_groups' );
 
 		// Get any approved term ID for the transid for any new translation
 		$transid = isset( $_GET[ 'bbl_transid' ] ) ? (int) $_GET[ 'bbl_transid' ] : false;
