@@ -248,7 +248,10 @@ class Babble_Locale {
 	public function home_url( $url, $path ) {
 		$base_url = get_option( 'home' );
 		$path = ltrim( $path, '/' );
-		$url = trailingslashit( $base_url ) . $this->url_prefix . '/' . $path;
+		$url = trailingslashit( $base_url ) . $this->url_prefix;
+		if ( !empty( $path ) and ( '/' != $path ) )
+			$url .= '/';
+		$url .= $path;
 		return $url;
 	}
 
