@@ -150,7 +150,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				unset( $args[ $key ] );
 		}
 
-		$args[ 'rewrite' ] = false;
+		#$args[ 'rewrite' ] = false;
 		unset( $args[ 'name' ] );
 		unset( $args[ 'object_type' ] );
 

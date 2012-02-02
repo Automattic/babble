@@ -536,6 +536,10 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function parse_request( $wp ) {
+
+		if ( bbl_is_default_lang() ) {
+			return;
+		}
 		if ( ! bbl_translating() ) {
 			return;
 		}

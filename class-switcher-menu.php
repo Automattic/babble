@@ -93,7 +93,7 @@ class Babble_Switcher_Menu {
 		} else if ( 'page' == get_option( 'show_on_front' ) && is_home() ) {
 			$this->translations = bbl_get_post_translations( get_option( 'page_for_posts' ) );
 		} else if ( is_tax() || is_category() || $editing_term ) {
-			if ( is_admin() )
+			if ( isset( $_REQUEST[ 'tag_ID' ] ) )
 				$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
 			else
 				$term = get_queried_object();
