@@ -1408,7 +1408,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$target_post = get_post( $target_id );
 
 		$postdata = array(
-			'ID' => $new_post_id,
+			'ID' => $target_id,
 			'post_author' => $source_post->post_author,
 			'post_date' => $source_post->post_date,
 			'post_date_gmt' => $source_post->post_date_gmt,
