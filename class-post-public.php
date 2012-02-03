@@ -96,7 +96,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_before_admin_bar_render' );
-		$this->add_action( 'wp_insert_post' );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
