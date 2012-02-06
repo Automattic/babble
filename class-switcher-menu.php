@@ -337,7 +337,8 @@ class Babble_Switcher_Menu {
 	 **/
 	protected function add_post_link( $lang ) {
 		$classes = array();
-		if ( isset( $this->translations[ $lang->code ] ) ) { // Translation exists
+		if ( isset( $this->translations[ $lang->code ] ) && 'publish' == $this->translations[ $lang->code ]->post_status ) { 
+			// Translation exists AND is published
 			// Don't add this link if the user cannot edit THIS post and
 			// the language is not public.
 			if ( 
@@ -351,6 +352,24 @@ class Babble_Switcher_Menu {
 			$href = get_permalink( $this->translations[ $lang->code ]->ID );
 			bbl_restore_lang();
 			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+			$classes[] = 'bbl-existing';
+			$classes[] = 'bbl-existing-post';
+		} else if ( 'publish' != $this->translations[ $lang->code ]->post_status ) {
+			// Translation exists AND is published
+			// Don't add this link if the user cannot edit THIS post and
+			// the language is not public.
+			if ( 
+				! bbl_is_public_lang( $lang->code ) && 
+				! current_user_can( 'edit_post', $this->translations[ $lang->code ]->ID ) 
+			) {
+				return;
+			}
+			bbl_switch_to_lang( $lang->code );
+			$href = get_edit_post_link( $this->translations[ $lang->code ]->ID );
+			bbl_restore_lang();
+			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+			$classes[] = 'bbl-edit';
+			$classes[] = 'bbl-edit-post';
 			$classes[] = 'bbl-existing';
 			$classes[] = 'bbl-existing-post';
 		} else if ( current_user_can( 'edit_post', $this->translations[ bbl_get_default_lang_code() ]->ID ) ) {
