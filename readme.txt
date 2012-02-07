@@ -12,7 +12,7 @@ A plugin to handle translating content into a variety of languages.
 This plugin is at a proof of concept stage for translating post type content for the built
 in types of `post` and `page`.
 
-The plugin is built with the Automattic VIP Hosting Environment in mind, and, hopefully, to
+The plugin was built with the Automattic VIP Hosting Environment in mind, and, hopefully, to
 WordPress development best practices.
 
 There are a **lot** of `@FIXME` comments, expressing doubts, fears, uncertainties and 
