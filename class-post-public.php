@@ -789,11 +789,11 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$this->no_recursion = 'wp_insert_post';
 
-		wp_cache_delete( $new_post_id, 'bbl_translation_groups' );
-
 		// Get any approved term ID for the transid for any new translation
 		$transid = isset( $_GET[ 'bbl_transid' ] ) ? (int) $_GET[ 'bbl_transid' ] : false;
 		$this->set_transid( $new_post, $transid );
+
+		wp_cache_delete( $transid, 'bbl_translation_groups' );
 
 		$origin_id = isset( $_GET[ 'bbl_origin_id' ] ) ? (int) $_GET[ 'bbl_origin_id' ] : false;
 		$origin_post = get_post( $origin_id );
@@ -831,7 +831,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function deleted_post( $post_id ) {
-		wp_cache_delete( $post_id, 'bbl_translation_groups' );
+		$transid = $this->get_transid( $post_id );
+		wp_cache_delete( $transid, 'bbl_translation_groups' );
 	}
 
 	/**
