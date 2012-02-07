@@ -793,7 +793,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$transid = isset( $_GET[ 'bbl_transid' ] ) ? (int) $_GET[ 'bbl_transid' ] : false;
 		$this->set_transid( $new_post, $transid );
 
-		wp_cache_delete( $transid, 'bbl_translation_groups' );
+		wp_cache_delete( $transid, 'bbl_post_translation_groups' );
 
 		$origin_id = isset( $_GET[ 'bbl_origin_id' ] ) ? (int) $_GET[ 'bbl_origin_id' ] : false;
 		$origin_post = get_post( $origin_id );
@@ -832,7 +832,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function deleted_post( $post_id ) {
 		$transid = $this->get_transid( $post_id );
-		wp_cache_delete( $transid, 'bbl_translation_groups' );
+		wp_cache_delete( $transid, 'bbl_post_translation_groups' );
 		wp_cache_delete( $post_id, 'bbl_post_transids' );
 	}
 
@@ -1228,7 +1228,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
 
-		if ( $translations = wp_cache_get( $transid, 'bbl_translation_groups' ) )
+		if ( $translations = wp_cache_get( $transid, 'bbl_post_translation_groups' ) )
 			return $translations;
 
 		if ( is_wp_error( $transid ) )
@@ -1259,7 +1259,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				$translations[ bbl_get_default_lang_code() ] = $post;
 		}
 
-		wp_cache_add( $transid, $translations, 'bbl_translation_groups' );
+		wp_cache_add( $transid, $translations, 'bbl_post_translation_groups' );
 
 		return $translations;
 	}
