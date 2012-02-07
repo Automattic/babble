@@ -833,6 +833,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function deleted_post( $post_id ) {
 		$transid = $this->get_transid( $post_id );
 		wp_cache_delete( $transid, 'bbl_translation_groups' );
+		wp_cache_delete( $post_id, 'bbl_post_transids' );
 	}
 
 	/**
