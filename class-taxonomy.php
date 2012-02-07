@@ -598,6 +598,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * values) will include the post for the post ID passed.
 	 * 
 	 * @FIXME: Should I filter out the term ID passed?
+	 * @FIXME: We should cache the translation groups, as we do for posts
 	 *
 	 * @param int|object $term Either a WP Term object, or a term_id 
 	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Term object
