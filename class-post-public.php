@@ -107,6 +107,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
 		$this->add_filter( 'the_posts', null, null, 2 );
+		$this->add_action( 'transition_post_status', null, null, 3 );
 		
 		$this->done_metaboxes = false;
 		$this->lang_map = array();
@@ -795,6 +796,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		wp_cache_delete( $transid, 'bbl_post_translations' );
 
+		// FIXME: Use consistent language throughout; i.e. source_post, not origin_post.
 		$origin_id = isset( $_GET[ 'bbl_origin_id' ] ) ? (int) $_GET[ 'bbl_origin_id' ] : false;
 		$origin_post = get_post( $origin_id );
 
@@ -874,6 +876,40 @@ class Babble_Post_Public extends Babble_Plugin {
 			wp_update_post( $post_data );
 		}
 		
+		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP transition_post_status action which fires whenever
+	 * a post status changes through use of wp_transition_post_status.
+	 *
+	 * @param string $new_status The new status 
+	 * @param string $old_status The old status 
+	 * @param object $post The post object
+	 * @return void
+	 **/
+	public function transition_post_status( $new_status, $old_status, $post ) {
+		if ( $new_status == $old_status )
+			return;
+
+		if ( $this->no_recursion ) {
+			return;
+		}
+		$this->no_recursion = 'transition_post_status';
+
+		if ( 'publish' == $new_status && $new_status != $old_status ) {
+			// Ensure the date of publication of a translation gets
+			// sync'd immediately with the original language post.
+			if ( bbl_get_default_lang_code() != bbl_get_post_lang_code( $post->ID ) ) {
+				$source_post = bbl_get_post_in_lang( $post->ID, bbl_get_default_lang_code() );
+				$postdata = array(
+					'ID' => $post->ID,
+					'post_date' =>$source_post->post_date,
+				);
+				wp_update_post( $postdata );
+			}
+		}
+			
 		$this->no_recursion = false;
 	}
 
@@ -1414,17 +1450,20 @@ class Babble_Post_Public extends Babble_Plugin {
 		$postdata = array(
 			'ID' => $target_id,
 			'post_author' => $source_post->post_author,
-			'post_date' => $source_post->post_date,
 			'post_modified' => $target_post->post_modified,
 			'ping_status' => $source_post->ping_status,
 			'post_password' => $source_post->post_password,
 			'menu_order' => $source_post->menu_order,
 			'post_mime_type' => $source_post->post_mime_type,
 		);
+		
 		if ( $target_parent_post )
 			$postdata[ 'post_parent' ] = $target_parent_post->ID;
 		else
 			$postdata[ 'post_parent' ] = 0;
+
+		if ( bbl_get_default_lang_code() == $source_lang_code )
+			$postdata[ 'post_date' ] = $source_post->post_date;
 
 		// Comment status only synced when going from the default lang code
 		if ( bbl_get_default_lang_code() == $source_lang_code )
