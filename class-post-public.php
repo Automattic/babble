@@ -141,6 +141,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		);
 		wp_enqueue_script( 'post-public-admin', $this->url( '/js/post-public-admin.js' ), array( 'jquery' ), $this->version );
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
+		$this->maybe_upgrade();
 	}
 
 	/**
@@ -1601,6 +1602,55 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected function get_features_supported_by_post_type( $post_type ) {
 		global $_wp_post_type_features;
 		return (array) $_wp_post_type_features[$post_type];
+	}
+	
+	/**
+	 * Remove over-synced post metas.
+	 *
+	 * @return void
+	 **/
+	protected function prune_post_meta() {
+		global $wpdb;
+		$meta_keys = array( '_extmedia-youtube', '_extmedia-duration', '_thumbnail_id', '_wp_trash_meta_time', '_wp_page_template' );
+		foreach ( $meta_keys as $meta_key ) {
+			$prepared_sql = $wpdb->prepare( "SELECT COUNT(*) AS count, post_id, meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key = %s GROUP BY post_id, meta_key, meta_value HAVING count > 1", $meta_key );
+			error_log( "SW: SQL: $prepared_sql" );
+			$metas = $wpdb->get_results( $prepared_sql );
+			foreach ( $metas as $meta ) {
+				if ( $meta->count < 2 ) {
+					error_log( "SW: BAD count: $meta->count" );
+					continue;
+				}
+				$prepared_sql = $wpdb->prepare( "DELETE FROM $wpdb->postmeta WHERE post_id = %d AND meta_key = %s AND meta_value = %s LIMIT %d", $meta->post_id, $meta->meta_key, $meta->meta_value, (int) $meta->count - 1 );
+				error_log( "SW: SQL ($meta->count|" . ((int) $meta->count - 1) . "): $prepared_sql" );
+				$wpdb->query( $prepared_sql );
+			}
+		}
+	}
+	
+	/**
+	 * Checks the DB structure is up to date, rewrite rules, 
+	 * theme image size options are set, etc.
+	 *
+	 * @return void
+	 **/
+	protected function maybe_upgrade() {
+		global $wpdb;
+		$option_name = 'bbl_post_public_version';
+		$version = get_option( $option_name, 0 );
+
+		if ( $version == $this->version )
+			return;
+
+		if ( $version < 1 ) {
+			$this->prune_post_meta();
+			error_log( "Babble Post Public: Remove excess post meta" );
+		}
+
+		// N.B. Remember to increment $this->version above when you add a new IF
+
+		update_option( $option_name, $this->version );
+		error_log( "Babble Post Public: Done upgrade, now at version " . $this->version );
 	}
 
 }
