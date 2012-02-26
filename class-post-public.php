@@ -114,7 +114,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
 		
-		$this->version = 1;
+		$this->version = 2;
 	}
 
 	/**
@@ -1642,7 +1642,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( $version == $this->version )
 			return;
 
-		if ( $version < 1 ) {
+		if ( $version < 2 ) {
+			// WARNING THIS ROUTINE SHOULD NOT BE RUN BY MORE THAN ONE USER AT A TIME
+			// WE NEED TO ADD LOCKING SO THIS DOES NOT HAPPEN
 			$this->prune_post_meta();
 			error_log( "Babble Post Public: Remove excess post meta" );
 		}
