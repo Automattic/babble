@@ -123,6 +123,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function admin_init() {
+		$this->maybe_upgrade();
 		$post_type = false;
 		if ( isset( $_GET[ 'post_type' ] ) ) {
 			$post_type = $_GET[ 'post_type' ];
@@ -141,7 +142,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		);
 		wp_enqueue_script( 'post-public-admin', $this->url( '/js/post-public-admin.js' ), array( 'jquery' ), $this->version );
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
-		$this->maybe_upgrade();
 	}
 
 	/**
