@@ -524,7 +524,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( $query->is_main_query() ) {
 			return;
 		}
-		if ( $this->is_gallery_tab() ) {
+		if ( $this->is_media_upload_tab( 'gallery' ) ) {
 			return;
 		}
 		
@@ -1610,12 +1610,22 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Are we on the media upload gallery tab?
 	 *
-	 * @return boolean True if we are
+	 * @param string $tab A specific tab to detect
+	 * @return boolean True if we are on media upload generally, and the specific tab if specified
 	 **/
-	protected function is_gallery_tab() {
-		if ( 'media-upload.php' != basename( $_SERVER[ 'SCRIPT_NAME' ] ) )
+	protected function is_media_upload_tab( $tab = null ) {
+		if ( ! is_admin() )
 			return false;
-		return ( is_admin() && isset( $_GET[ 'post_id' ] ) && isset( $_GET[ 'type' ] ) && 'image' == $_GET[ 'type' ] && isset( $_GET[ 'tab' ] ) && 'gallery' == $_GET[ 'tab' ] );
+		if ( 'media-upload.php' != basename( $_SERVER[ 'SCRIPT_NAME' ] ) ) {
+			return false;
+		}
+		if ( is_null( $tab ) ) {
+			return true;
+		}
+		if ( isset( $_GET[ 'tab' ] ) || $tab == $_GET[ 'tab' ] ) {
+			return true;
+		}
+		return false;
 	}
 	
 	/**
