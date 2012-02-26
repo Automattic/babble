@@ -524,6 +524,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( $query->is_main_query() ) {
 			return;
 		}
+		if ( $this->is_gallery_tab() ) {
+			return;
+		}
 		
 		$query->query_vars = $this->translate_query_vars( $query->query_vars );
 	}
@@ -1602,6 +1605,17 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected function get_features_supported_by_post_type( $post_type ) {
 		global $_wp_post_type_features;
 		return (array) $_wp_post_type_features[$post_type];
+	}
+
+	/**
+	 * Are we on the media upload gallery tab?
+	 *
+	 * @return boolean True if we are
+	 **/
+	protected function is_gallery_tab() {
+		if ( 'media-upload.php' != basename( $_SERVER[ 'SCRIPT_NAME' ] ) )
+			return false;
+		return ( is_admin() && isset( $_GET[ 'post_id' ] ) && isset( $_GET[ 'type' ] ) && 'image' == $_GET[ 'type' ] && isset( $_GET[ 'tab' ] ) && 'gallery' == $_GET[ 'tab' ] );
 	}
 	
 	/**
