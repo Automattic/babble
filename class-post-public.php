@@ -1638,15 +1638,12 @@ class Babble_Post_Public extends Babble_Plugin {
 		$meta_keys = array( '_extmedia-youtube', '_extmedia-duration', '_thumbnail_id', '_wp_trash_meta_time', '_wp_page_template' );
 		foreach ( $meta_keys as $meta_key ) {
 			$prepared_sql = $wpdb->prepare( "SELECT COUNT(*) AS count, post_id, meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key = %s GROUP BY post_id, meta_key, meta_value HAVING count > 1", $meta_key );
-			error_log( "SW: SQL: $prepared_sql" );
 			$metas = $wpdb->get_results( $prepared_sql );
 			foreach ( $metas as $meta ) {
 				if ( $meta->count < 2 ) {
-					error_log( "SW: BAD count: $meta->count" );
 					continue;
 				}
 				$prepared_sql = $wpdb->prepare( "DELETE FROM $wpdb->postmeta WHERE post_id = %d AND meta_key = %s AND meta_value = %s LIMIT %d", $meta->post_id, $meta->meta_key, $meta->meta_value, (int) $meta->count - 1 );
-				error_log( "SW: SQL ($meta->count|" . ((int) $meta->count - 1) . "): $prepared_sql" );
 				$wpdb->query( $prepared_sql );
 			}
 		}
