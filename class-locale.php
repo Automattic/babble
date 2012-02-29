@@ -284,7 +284,12 @@ class Babble_Locale {
 		$post = get_post( $post_id );
 		$post_lang_code = bbl_get_post_lang_code( $post );
 		$lang = bbl_get_lang( $post_lang_code );
-		$classes[] = 'bbl-post-' . $lang->text_direction;
+		if ( get_post_meta( $post->ID, '_bbl_default_text_direction', true ) ) {
+			$default_lang = bbl_get_default_lang();
+			$classes[] = 'bbl-post-' . $default_lang->text_direction;
+		} else {
+			$classes[] = 'bbl-post-' . $lang->text_direction;
+		}
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->names );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->url_prefix );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->code );
