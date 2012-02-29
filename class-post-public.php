@@ -86,7 +86,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'init', 'init_late', 9999 );
+		$this->add_action( 'load-post-new.php', 'load_post' );
 		$this->add_action( 'load-post-new.php', 'load_post_new' );
+		$this->add_action( 'load-post.php', 'load_post' );
 		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'parse_request' );
@@ -94,6 +96,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'pre_get_posts' );
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'save_post', null, null, 2 );
+		$this->add_action( 'transition_post_status', null, null, 3 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_before_admin_bar_render' );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
@@ -107,7 +110,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'single_template' );
 		$this->add_filter( 'the_posts', null, null, 2 );
-		$this->add_action( 'transition_post_status', null, null, 3 );
 		
 		$this->done_metaboxes = false;
 		$this->lang_map = array();
@@ -198,6 +200,24 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$default_lang = bbl_get_default_lang();
 		wp_die( sprintf( _x( 'You can only create content in %s, please consult your editorial team. Use the back button to return.', '%s will be the name of the default language, e.g. "English".', 'fsd' ), $default_lang->display_name ) );
+	}
+
+	/**
+	 * Hooks the WP load-post-new.php and load-post.php actions to
+	 * provide a box to indicate default directionality for posts in
+	 * languages which don't share the same directionality as the
+	 * default language.
+	 *
+	 * @return void
+	 **/
+	public function load_post() {
+		$default_lang = bbl_get_default_lang();
+		$current_lang = bbl_get_current_lang();
+		if ( $default_lang->text_direction != $current_lang->text_direction ) {
+			$post_id = isset( $_GET[ 'post' ] ) ? (int) $_GET[ 'post' ] : 0;
+			$post = get_post( $post_id );
+			add_meta_box( 'bbl_directionality', __( 'Text Direction', 'bbl' ), array( $this, 'metabox_text_direction' ), $post->post_type, 'side' );
+		}
 	}
 
 	/**
@@ -480,7 +500,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 
-		$retain = apply_filters( 'bbl_metaboxes_for_translators', array( 'submitdiv', 'postexcerpt' ), $screen->post_type );
+		$retain = apply_filters( 'bbl_metaboxes_for_translators', array( 'submitdiv', 'postexcerpt', 'bbl_directionality' ), $screen->post_type );
 		
 		foreach (  $wp_meta_boxes[ $screen->post_type ] as $context => $boxes_in_context ) {
 			foreach ( $boxes_in_context as $priority => $boxes_at_priority ) {
@@ -507,6 +527,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		// We only need to resync the post meta, as
 		// properties are synced on every save.
 		$this->maybe_resync_meta_data( $post_id, $post );
+		// Save any text directionality enforcement
+		$this->save_text_directionality( $post_id, $post );
 	}
 
 	/**
@@ -1084,6 +1106,38 @@ class Babble_Post_Public extends Babble_Plugin {
 		do_action( 'bbl_metabox_resync_after', $post, $metabox );
 	}
 	
+	/**
+	 * The callback function which provides HTML for the Babble 
+	 * Text Direction metabox, which allows a translator to 
+	 * specify that this content should use the directionality
+	 * of the default language rather than the assumed language
+	 * of this content. For example, a translator might quickly
+	 * paste in English content into the Arabic area and assign
+	 * it the left to right directionality temporarily.
+	 *
+	 * @param object $post The WP Post object being edited
+	 * @param array $metabox The args and params for this metabox
+	 * @return void (echoes HTML)
+	 **/
+	public function metabox_text_direction( $post, $metabox ) {
+		$current_lang = bbl_get_current_lang();
+		if ( 'rtl' == $current_lang->text_direction )
+			$direction = __( 'Left to right', 'bbl' );
+		else
+			$direction = __( 'Right to left', 'bbl' );
+		$checked = (bool) get_post_meta( $post->ID, '_bbl_default_text_direction', true );
+		wp_nonce_field( "bbl_default_text_direction-{$post->ID}", '_bbl_default_text_direction' );
+		?>
+			<p>
+				<label for="bbl_default_text_direction">
+					<input type="checkbox" name="bbl_default_text_direction" value="1" id="bbl_default_text_direction" <?php checked( $checked ); ?> />
+					<?php printf( _x( '%s text', 'Indicates the directionality of some text, e.g. "Left to right text"', 'bbl' ), $direction ); ?>
+				</label>
+			</p>
+		<?php
+		do_action( 'bbl_metabox_resync_after', $post, $metabox );
+	}
+	
 	// PUBLIC METHODS
 	// ==============
 
@@ -1405,6 +1459,33 @@ class Babble_Post_Public extends Babble_Plugin {
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
+
+	/**
+	 * Save the checkbox indicating text directionality.
+	 *
+	 * @param int $post_id The ID of the post
+	 * @param object $post The post object itself
+	 * @return void
+	 **/
+	function save_text_directionality( $post_id, $post ) {
+		if ( ! isset( $_POST[ '_bbl_default_text_direction' ] ) )
+			return;
+
+		if ( 'revision' == $post->post_type )
+			return;
+
+		if ( $this->no_recursion )
+			return;
+		$this->no_recursion = 'save_text_directionality';
+
+		check_admin_referer( "bbl_default_text_direction-{$post->ID}", '_bbl_default_text_direction' );
+		if ( isset( $_POST[ 'bbl_default_text_direction' ] ) && (bool) $_POST[ 'bbl_default_text_direction' ] )
+			update_post_meta( $post_id, '_bbl_default_text_direction', true );
+		else
+			delete_post_meta( $post_id, '_bbl_default_text_direction' );
+
+		$this->no_recursion = false;
+	}
 
 	/**
 	 * Gets all the post meta for a post in an array.
