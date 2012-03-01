@@ -1555,7 +1555,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( bbl_get_default_lang_code() == $source_lang_code )
 			$postdata[ 'comment_status' ] = $source_post->comment_status;
 
-		$postdata = apply_filters( 'bbl_pre_sync_properties', $postdata, $origin_id );
+		$postdata = apply_filters( 'bbl_pre_sync_properties', $postdata, $source_id );
 
 		wp_update_post( $postdata );
 	}
