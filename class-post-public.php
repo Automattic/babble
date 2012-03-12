@@ -1717,7 +1717,15 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected function prune_post_meta() {
 		global $wpdb;
-		$meta_keys = array( '_extmedia-youtube', '_extmedia-duration', '_thumbnail_id', '_wp_trash_meta_time', '_wp_page_template' );
+		$meta_keys = array( 
+			'_extmedia-duration', 
+			'_extmedia-youtube', 
+			'_thumbnail_id', 
+			'_wp_old_slug' ,
+			'_wp_page_template', 
+			'_wp_trash_meta_status',
+			'_wp_trash_meta_time', 
+		);
 		foreach ( $meta_keys as $meta_key ) {
 			$prepared_sql = $wpdb->prepare( "SELECT COUNT(*) AS count, post_id, meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key = %s GROUP BY post_id, meta_key, meta_value HAVING count > 1", $meta_key );
 			$metas = $wpdb->get_results( $prepared_sql );
@@ -1745,9 +1753,15 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( $version == $this->version )
 			return;
 
-		if ( $version < 2 ) {
-			// WARNING THIS ROUTINE SHOULD NOT BE RUN BY MORE THAN ONE USER AT A TIME
-			// WE NEED TO ADD LOCKING SO THIS DOES NOT HAPPEN
+		if ( $start_time = get_option( "{$option_name}_running", false ) ) {
+			
+			error_log( "Babble Post Public: Update routine is already running" );
+			return;
+		}
+		add_option( "{$option_name}_running", time(), null, 'no' );
+
+		if ( $version < 5 ) {
+			error_log( "Babble Post Public: Start pruning metadata" );
 			$this->prune_post_meta();
 			error_log( "Babble Post Public: Remove excess post meta" );
 		}
@@ -1755,6 +1769,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		// N.B. Remember to increment $this->version above when you add a new IF
 
 		update_option( $option_name, $this->version );
+		delete_option( "{$option_name}_running", true, null, 'no' );
 		error_log( "Babble Post Public: Done upgrade, now at version " . $this->version );
 	}
 
