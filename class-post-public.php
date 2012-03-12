@@ -67,13 +67,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @var array
 	 **/
 	protected $slugs_and_vars;
-
-	// /**
-	//  * Regex for detecting the language from a URL
-	//  *
-	//  * @var string
-	//  **/
-	// protected $lang_regex = '|^[^/]+|i';
 	
 	public function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
