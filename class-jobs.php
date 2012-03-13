@@ -156,11 +156,6 @@ class Babble_Job extends Babble_Plugin {
 	public function metabox_status() {
 		$langs = bbl_get_active_langs();
 		
-		// var_dump( $langs );
-		// return;
-		// $lang_terms = wp_get_object_terms( get_the_ID(), 'bbl_jobs_language' );
-		// var_dump( $lang_terms );
-		// return;
 		?>
 		<p>
 			<label for="tax_input_bbl_jobs_language">Language: 
