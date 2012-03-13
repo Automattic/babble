@@ -122,6 +122,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$core_post_types = array( 'post', 'page', 'attachment' );
 		if ( is_array( $this->post_types ) )
 			$post_types = array_merge( $core_post_types, array_keys( $this->post_types ) );
+		else
 			$post_types = $core_post_types;
 
 		register_taxonomy( 'post_translation', $post_types, array(
