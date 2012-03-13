@@ -67,6 +67,14 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @var array
 	 **/
 	protected $slugs_and_vars;
+
+	/**
+	 * An array of meta_keys, indexed by meta_key, containing
+	 * meta_keys we KNOW to be added as unique.
+	 *
+	 * @var array
+	 **/
+	protected $unique_meta_keys;
 	
 	public function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
@@ -93,6 +101,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'wp_before_admin_bar_render' );
 		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
+		$this->add_filter( 'add_post_metadata', null, null, 5 );
 		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
 		$this->add_filter( 'manage_posts_columns', 'manage_posts_columns', null, 2 );
 		$this->add_filter( 'page_link', null, null, 2 );
@@ -354,6 +363,23 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
+	 * Store whether a particular meta_key is unique or not. Pretty hacky.
+	 *
+	 * @param null $null Follows a pattern for actions/filters relating to meta, but meta ID not set yet so null
+	 * @param int $post_id The ID for the WordPress Post object this meta relates to
+	 * @param string $meta_key The key for this meta entry
+	 * @param mixed $meta_value The new value for this meta entry
+	 * @param bool $unique Whether the meta_key should be unique
+	 * @return null Always return null, or we are bypassing the meta save to DB
+	 **/
+	public function add_post_metadata( $null, $post_id, $meta_key, $meta_value, $unique ) {
+		if ( $unique ) {
+			$this->unique_meta_keys[ $meta_key ] = $meta_key;
+		}
+		return null;
+	}
+
+	/**
 	 * Hooks the WP added_post_meta action to sync metadata across to the
 	 * translations in shadow post types.
 	 *
@@ -372,11 +398,13 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$this->no_meta_recursion = 'added_post_meta';
 
+		$unique = isset( $this->unique_meta_keys[ $meta_key ] );
+
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
 			if ( $this->get_post_lang_code( $post_id ) == $lang_code )
 				continue;
-			add_post_meta( $translation->ID, $meta_key, $meta_value );
+			add_post_meta( $translation->ID, $meta_key, $meta_value, $unique );
 		}
 		
 		$this->no_meta_recursion = false;
