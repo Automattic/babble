@@ -855,12 +855,18 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// Copy all the metadata across
 		$metas = $this->get_all_post_meta( $origin_id );
+
+		// Stop meta recursion while we add the metadata to the new post
+		if ( $this->no_meta_recursion )
+			return;
+		$this->no_meta_recursion = 'wp_insert_post';
 		foreach ( $metas as $meta ) {
 			// Some metadata shouldn't be synced
 			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta->meta_key ) )
 				continue;
 			add_post_meta( $new_post_id, $meta->meta_key, $meta->meta_value );
 		}
+		$this->no_meta_recursion = false;
 
 		// Copy the various core post properties across
 		$this->sync_properties( $origin_id, $new_post_id );
