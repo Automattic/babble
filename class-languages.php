@@ -77,6 +77,16 @@ class Babble_Languages extends Babble_Plugin {
 		$this->add_action( 'admin_notices', 'admin_notices' );
 		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );
 
+
+		$this->initiate();
+	}
+
+	/**
+	 * (Re)initiates the properties of this object.
+	 *
+	 * @return void
+	 **/
+	public function initiate() {
 		if ( ! ( $this->available_langs = $this->get_option( 'available_langs', false ) ) ) {
 			$this->parse_available_languages();
 		}
@@ -88,7 +98,6 @@ class Babble_Languages extends Babble_Plugin {
 		// @FIXME: Add something in so the user gets setup with the single language they are currently using
 		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) )
 			$this->set_defaults();
-			
 	}
 	
 	// WP HOOKS
