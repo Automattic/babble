@@ -1802,6 +1802,19 @@ class Babble_Post_Public extends Babble_Plugin {
 		error_log( "Babble Post Public: Done upgrade, now at version " . $this->version );
 	}
 
+	/**
+	 * Checks for duplicated metadata in some key meta_keys.
+	 *
+	 * @return boolean
+	 * @author Simon Wheatley
+	 */
+	function have_duplicate_metadata() {
+		global $wpdb;
+		$sql = "SELECT COUNT(*) AS count, post_id, meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key IN ( '_extmedia-youtube', '_extmedia-duration', '_thumbnail_id', '_wp_trash_meta_time', '_wp_page_template', '_wp_trash_meta_status' ) GROUP BY post_id, meta_key, meta_value HAVING count > 1 ORDER BY count, post_id, meta_key";
+		return (bool) count( $wpdb->get_results( $sql ) );
+	}
+	
+
 }
 
 global $bbl_post_public;
