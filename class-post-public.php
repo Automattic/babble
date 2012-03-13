@@ -1006,6 +1006,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			'_edit_last', // Related to edit lock, should be individual to translations
 			'_edit_lock', // The edit lock, should be individual to translations
 			'_bbl_default_text_direction', // The text direction, should be individual to translations
+			// '_wp_trash_meta_status',
+			// '_wp_trash_meta_time',
 		);
 		if ( in_array( $meta_key, $sync_not ) )
 			$sync = false;
