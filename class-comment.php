@@ -84,6 +84,7 @@ class Babble_Comment extends Babble_Plugin {
 
 }
 
+global $bbl_comment;
 $bbl_comment = new Babble_Comment();
 
 ?>

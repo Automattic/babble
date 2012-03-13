@@ -879,6 +879,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 }
 
+global $bbl_taxonomies;
 $bbl_taxonomies = new Babble_Taxonomies();
 
 ?>

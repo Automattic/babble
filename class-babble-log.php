@@ -44,6 +44,7 @@ class Babble_Log {
 
 }
 
+global $bbl_log;
 $bbl_log = new Babble_Log();
 
 ?>

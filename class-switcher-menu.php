@@ -521,6 +521,7 @@ class Babble_Switcher_Menu {
 	
 }
 
+global $bbl_switcher_menu;
 $bbl_switcher_menu = new Babble_Switcher_Menu();
 
 ?>

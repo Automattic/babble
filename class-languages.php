@@ -509,6 +509,7 @@ class Babble_Languages extends Babble_Plugin {
 	}
 }
 
+global $bbl_languages;
 $bbl_languages = new Babble_Languages();
 
 ?>

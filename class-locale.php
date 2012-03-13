@@ -471,6 +471,7 @@ class Babble_Locale {
 
 }
 
+global $bbl_locale;
 $bbl_locale = new Babble_Locale();
 
 ?>
