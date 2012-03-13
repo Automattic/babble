@@ -70,12 +70,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function init_early() {
-		// // Ensure we catch any existing language shadow taxonomies already registered
-		// if ( is_array( $this->taxonomies ) )
-		// 	$taxonomies = array_merge( array( 'post_tag', 'category' ), array_keys( $this->taxonomies ) );
-		// else
-		// 	$taxonomies = array( 'post_tag', 'category' );
-
 		// This translation will connect each term with it's translated equivalents
 		register_taxonomy( 'term_translation', 'term', array(
 			'rewrite' => false,
@@ -84,14 +78,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			'show_in_nav_menus' => false,
 			'label' => __( 'Term Translation ID', 'bbl' ),
 		) );
-
-		// // Catch any taxonomy which were registered before this class came along
-		// // and hooked the registered_post_type action.
-		// $existing_taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
-		// // var_dump( $existing_taxonomies );
-		// // exit;
-		// foreach ( $existing_taxonomies as $taxonomy_object )
-		// 	$this->registered_taxonomy( $taxonomy_object->name, $taxonomy_object->object_type, get_object_vars( $taxonomy_object ) );
 	}
 	
 	/**
