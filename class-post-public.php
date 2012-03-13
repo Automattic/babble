@@ -77,7 +77,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'deleted_post' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
-		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'init', 'init_late', 9999 );
 		$this->add_action( 'load-post-new.php', 'load_post' );
 		$this->add_action( 'load-post-new.php', 'load_post_new' );
@@ -104,12 +103,35 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'single_template' );
 		$this->add_filter( 'the_posts', null, null, 2 );
 		
+		$this->initiate();
+	}
+	/**
+	 * Initiates 
+	 *
+	 * @return void
+	 **/
+	public function initiate() {
 		$this->done_metaboxes = false;
 		$this->lang_map = array();
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
 		
-		$this->version = 2;
+		$this->version = 5;
+
+		// Ensure we catch any existing language shadow post_types already registered
+		$core_post_types = array( 'post', 'page', 'attachment' );
+		if ( is_array( $this->post_types ) )
+			$post_types = array_merge( $core_post_types, array_keys( $this->post_types ) );
+			$post_types = $core_post_types;
+
+		register_taxonomy( 'post_translation', $post_types, array(
+			'rewrite' => false,
+			'public' => false,
+			'show_ui' => false,
+			'show_in_nav_menus' => false,
+			'show_in_nav_menus' => false,
+			'label' => __( 'Post Translation ID', 'sil' ),
+		) );
 	}
 
 	/**
@@ -139,29 +161,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
 	}
 
-	/**
-	 * Hooks the WP init action early
-	 *
-	 * @return void
-	 **/
-	public function init_early() {
-
-		// Ensure we catch any existing language shadow post_types already registered
-		$core_post_types = array( 'post', 'page', 'attachment' );
-		if ( is_array( $this->post_types ) )
-			$post_types = array_merge( $core_post_types, array_keys( $this->post_types ) );
-		else
-			$post_types = $core_post_types;
-
-		register_taxonomy( 'post_translation', $post_types, array(
-			'rewrite' => false,
-			'public' => false,
-			'show_ui' => false,
-			'show_in_nav_menus' => false,
-			'show_in_nav_menus' => false,
-			'label' => __( 'Post Translation ID', 'sil' ),
-		) );
-	}
 
 	/**
 	 * Hooks the WP init action really really late.
