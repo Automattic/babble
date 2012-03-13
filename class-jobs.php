@@ -250,6 +250,7 @@ class Babble_Job extends Babble_Plugin {
 
 }
 
+global $bbl_job;
 $bbl_job = new Babble_Job();
 
 ?>
