@@ -1783,11 +1783,16 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 
 		if ( $start_time = get_option( "{$option_name}_running", false ) ) {
-			
-			error_log( "Babble Post Public: Update routine is already running" );
-			return;
+			$time_diff = time() - $start_time;
+			// Check the lock is less than 30 mins old, and if it is, bail
+			if ( $time_diff < ( 60 * 30 ) ) {
+				error_log( "Babble Post Public: Existing update routine has been running for less than 30 minutes" );
+				return;
+			}
+			error_log( "Babble Post Public: Update routine is running, but older than 30 minutes; going ahead regardless" );
+		} else {
+			add_option( "{$option_name}_running", time(), null, 'no' );
 		}
-		add_option( "{$option_name}_running", time(), null, 'no' );
 
 		if ( $version < 7 ) {
 			error_log( "Babble Post Public: Start pruning metadata" );
