@@ -179,6 +179,7 @@ class Babble_Languages extends Babble_Plugin {
 
 	/**
 	 * Set the active language objects for the current site, keyed
+	 * by URL prefix.
 	 * 
 	 * @return array An array of Babble language objects
 	 **/
