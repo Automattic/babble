@@ -81,6 +81,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		$this->add_action( 'added_post_meta', null, null, 4 );
 		$this->add_action( 'admin_init' );
+		$this->add_action( 'clean_post_cache' );
 		$this->add_action( 'body_class', null, null, 2 );
 		$this->add_action( 'deleted_post' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
@@ -551,6 +552,21 @@ class Babble_Post_Public extends Babble_Plugin {
 		// Save any text directionality enforcement
 		$this->save_text_directionality( $post_id, $post );
 	}
+	
+	/**
+	 * Hooks the WP clean_post_cache action to clear the Babble
+	 * post translation and transid caches.
+	 *
+	 * Occasionally called directly by within this class.
+	 *
+	 * @param int $post_id The ID of the post to clear the caches for 
+	 * @return void
+	 **/
+	function clean_post_cache( $post_id ) {
+		$transid = $this->get_transid( $post_id );
+		wp_cache_delete( $transid, 'bbl_post_translations' );
+		wp_cache_delete( $post_id, 'bbl_post_transids' );
+	}
 
 	/**
 	 * Hooks the WP pre_get_posts ref action in the WP_Query,
@@ -843,7 +859,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$transid = isset( $_GET[ 'bbl_transid' ] ) ? (int) $_GET[ 'bbl_transid' ] : false;
 		$this->set_transid( $new_post, $transid );
 
-		wp_cache_delete( $transid, 'bbl_post_translations' );
+		$this->clean_post_cache( $new_post_id );
 
 		// FIXME: Use consistent language throughout; i.e. source_post, not origin_post.
 		$origin_id = isset( $_GET[ 'bbl_origin_id' ] ) ? (int) $_GET[ 'bbl_origin_id' ] : false;
@@ -889,8 +905,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function deleted_post( $post_id ) {
 		$transid = $this->get_transid( $post_id );
-		wp_cache_delete( $transid, 'bbl_post_translations' );
-		wp_cache_delete( $post_id, 'bbl_post_transids' );
+		$this->clean_post_cache( $post_id );
 	}
 
 	/**
@@ -907,7 +922,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->no_recursion = 'post_updated';
 
 		$transid = $this->get_transid( $post_id );
-		wp_cache_delete( $transid, 'bbl_post_translations' );
+
+		$this->clean_post_cache( $post_id );
+
 		$translations = $this->get_post_translations( $post_id );
 		foreach ( $translations as $lang_code => & $translation ) {
 			if ( $translation->ID == $post_id )
@@ -1695,7 +1712,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( is_wp_error( $result ) )
 			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
 
-		wp_cache_delete( $post->ID, 'bbl_post_transids' );
+		$this->clean_post_cache( $post->ID );
 		
 		return $transid;
 	}
