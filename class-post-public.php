@@ -662,6 +662,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		// the default language
 		if ( is_post_type_archive() && ! bbl_is_default_lang() )
 			$classes[] = 'post-type-archive-' . bbl_get_post_type_in_lang( get_query_var( 'post_type' ), bbl_get_default_lang_code() );
+		if ( is_single() )
+			$classes[] = 'single-' . bbl_get_base_post_type( get_post_type() );
 		return $classes;
 	}
 
