@@ -125,7 +125,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
 		
-		$this->version = 7;
+		$this->version = 8;
 
 		// Ensure we catch any existing language shadow post_types already registered
 		$core_post_types = array( 'post', 'page', 'attachment' );
@@ -1796,7 +1796,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			add_option( "{$option_name}_running", time(), null, 'no' );
 		}
 
-		if ( $version < 7 ) {
+		if ( $version < 8 ) {
 			error_log( "Babble Post Public: Start pruning metadata" );
 			$this->prune_post_meta();
 			error_log( "Babble Post Public: Remove excess post meta" );
