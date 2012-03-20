@@ -46,7 +46,11 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	function __construct() {
 		$this->setup( 'babble-tgt', 'plugin' );
 		$this->add_action( 'admin_menu' );
+		$this->add_action( 'load-post-new.php', 'load_post' );
+		$this->add_action( 'load-post.php', 'load_post' );
 		$this->add_action( 'load-tools_page_btgt', 'load_tools_page' );
+		$this->add_action( 'save_post', null, null, 2 );
+		$this->add_filter( 'bbl_metaboxes_for_translators', 'metaboxes_for_translators' );
 		$this->add_filter( 'bbl_pre_sync_properties', 'pre_sync_properties', null, 2 );
 	}
 	
@@ -103,6 +107,62 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	}
 
 	/**
+	 * Hooks the various dynamic actions fired when the edit post and 
+	 * edit new post screens are loaded. Determines if the post to be 
+	 * edited has become disconnected from it's translation group,
+	 * and shows the Reconnect metabox if it has.
+	 *
+	 * @return void
+	 **/
+	public function load_post() {
+		$screen = get_current_screen();
+		if ( ! $post_id = isset( $_GET[ 'post' ] ) ? $_GET[ 'post' ] : false )
+			return;
+		$post = get_post( $post_id );
+		if ( ! in_array( $post->post_status, array( 'draft', 'pending', 'publish' ) ) )
+			return;
+		if ( bbl_get_post_lang_code( $post ) == bbl_get_default_lang_code() )
+			return;
+		if ( $default_lang_post = bbl_get_post_in_lang( $post, bbl_get_default_lang_code() ) )
+			return;
+		$this->add_meta_box( 'bbl_reconnect', 'Reconnect Translation', 'metabox_reconnect', $post->post_type, 'side' );
+	}
+
+	/**
+	 * Hooks the WP save_post action 
+	 *
+	 * @param int $post_id The ID of the post being saved 
+	 * @param object $post The WordPress post object being saved
+	 * @return void
+	 **/
+	function save_post( $post_id, $post ) {
+		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) )
+			return;
+		
+		if ( ! isset( $_POST[ '_bbl_reconnect_nonce' ] ) )
+			return;
+			
+		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
+		if ( $posted_id != $post_id )
+			return;
+		// While we're at it, let's check the nonce
+		check_admin_referer( "bbl_reconnect_translation_$post_id", '_bbl_reconnect_nonce' );
+			
+		// Check the user has set a transid
+		if ( ! $transid = isset( $_POST[ 'bbl_transid' ] ) ? (int) $_POST[ 'bbl_transid' ] : false )
+			return;
+
+		// Check the transid the user has set actually exists
+		if ( ! term_exists( $transid, 'post_translation' ) ) {
+			$this->set_admin_error( __( 'The TransID you want to reconnect this content to does not exist. Please check the Translation Group information and try again.', 'bbl' ) );
+			return;
+		}
+		
+		global $bbl_post_public;
+		$bbl_post_public->set_transid( $post, $transid );
+	}
+
+	/**
 	 * Hooks the Babble bbl_pre_sync_properties filter to
 	 * log any changes to parent. We're not making changes
 	 * to the data, just logging significant changes for
@@ -126,8 +186,43 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		return $postdata;
 	}
 
+	/**
+	 * Hooks the Babble bbl_metaboxes_for_translators filter to 
+	 * add the bbl_reconnect metabox to the list of boxes allowed
+	 * on translator screens.
+	 *
+	 * @param array $boxes The array of box names which are allowed 
+	 * @return array The array of box names which are allowed 
+	 **/
+	function metaboxes_for_translators( $boxes ) {
+		$boxes[] = 'bbl_reconnect';
+		return $boxes;
+	}
+
 	// CALLBACKS
 	// =========
+	
+	/**
+	 * The callback function which provides HTML for the Babble 
+	 * Translation Reconnection metabox, which allows an admin
+	 * to reconnect a post to the equivalent post in the
+	 * default language.
+	 *
+	 * @param object $post The WP Post object being edited
+	 * @param array $metabox The args and params for this metabox
+	 * @return void (echoes HTML)
+	 **/
+	public function metabox_reconnect( $post, $metabox ) {
+			wp_nonce_field( "bbl_reconnect_translation_{$post->ID}", '_bbl_reconnect_nonce' );
+		?>
+			<p>
+				<label for="bbl_transid">TransID
+					<input type="text" name="bbl_transid" value="" id="bbl_transid" />
+				</label><br />
+				<span class="description">The option to specify a TransID will only show up if something terminal has happened to this translation. Do not change this if you do not know what you are doing.</span>
+			</p>
+		<?php
+	}
 
 	/**
 	 * Callback function for the HTML for the tools page.
