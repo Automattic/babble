@@ -522,7 +522,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 
-		$retain = apply_filters( 'bbl_metaboxes_for_translators', array( 'submitdiv', 'postexcerpt', 'bbl_directionality' ), $screen->post_type );
+		$retain = apply_filters( 'bbl_metaboxes_for_translators', array( 'submitdiv', 'postexcerpt', 'bbl_directionality', 'slugdiv' ), $screen->post_type );
 		
 		foreach (  $wp_meta_boxes[ $screen->post_type ] as $context => $boxes_in_context ) {
 			foreach ( $boxes_in_context as $priority => $boxes_at_priority ) {
