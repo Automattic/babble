@@ -383,9 +383,6 @@ class Babble_Languages extends Babble_Plugin {
 			}
 		}
 		
-		error_log( "SW: Active langs: " . print_r( $this->active_langs, true ) );
-		error_log( "SW: Langs: " . print_r( $this->langs, true ) );
-		
 		// Finish up, redirecting if we're all OK
 		if ( ! $this->errors ) {
 			// Save the public languages
