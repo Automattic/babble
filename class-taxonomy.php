@@ -607,7 +607,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$taxonomies = array();
 		$taxonomies[] = $base_taxonomy;
 		foreach ( $this->lang_map as $lang_taxes )
-			$taxonomies[] = $lang_taxes[ $base_taxonomy ];
+			if ( $lang_taxes[ $base_taxonomy ] )
+				$taxonomies[] = $lang_taxes[ $base_taxonomy ];
 
 		// Get all the translations in one cached DB query
 		$existing_terms = get_terms( $taxonomies, array( 'include' => $term_ids, 'hide_empty' => false ) );
