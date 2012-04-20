@@ -500,34 +500,46 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( $this->no_recursion )
 			return;
 		$this->no_recursion = true;
-		
+
 		// DO NOT SYNC THE TRANSID TAXONOMIES!!
-		if ( 'post_translation' == $taxonomy )
+		if ( 'post_translation' == $taxonomy ) {
+			$this->no_recursion = false;
 			return;
-		if ( 'term_translation' == $taxonomy )
+		}
+		if ( 'term_translation' == $taxonomy ) {
+			$this->no_recursion = false;
 			return;
+		}
 
 		if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
-
+			
 			// Here we assume that this taxonomy is on a post type
 			$translations = bbl_get_post_translations( $object_id );
+
 			foreach ( $translations as $lang_code => & $translation ) {
+
 				if ( bbl_get_post_lang_code( $object_id ) == $lang_code )
 					continue;
+
+				$translated_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, $lang_code );
 				$translated_terms = array();
+
 				foreach ( $terms as $term ) {
+
 					if ( is_int( $term ) )
 						$_term = get_term( $term, $taxonomy );
 					else
-						$_term = get_term_by( 'slug', $term, $taxonomy );
+						$_term = get_term_by( 'name', $term, $taxonomy );
 					if ( is_wp_error( $_term ) ) {
 						continue;
 					}
+
 					$translated_term = $this->get_term_in_lang( $_term->term_id, $taxonomy, $lang_code, false );
 					$translated_terms[] = (int) $translated_term->term_id;
+
 				}
-				$translated_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, $lang_code );
-				wp_set_object_terms( $translation->ID, $translated_terms, $translated_taxonomy, $append );
+
+				$result = wp_set_object_terms( $translation->ID, $translated_terms, $translated_taxonomy, $append );
 			}
 			
 		} else {
