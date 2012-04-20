@@ -766,7 +766,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @param int $target_term_id The term ID to find the translation group for 
 	 * @return int The transID the target term belongs to
 	 **/
-	protected function get_transid( $target_term_id ) {
+	public function get_transid( $target_term_id ) {
 		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) )
 			return $transid;
 
@@ -793,7 +793,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @param int $translation_group_id The ID of the translation group to add this 
 	 * @return int The transID the target term belongs to
 	 **/
-	protected function set_transid( $target_term_id, $transid = null ) {
+	public function set_transid( $target_term_id, $transid = null ) {
 		if ( ! $target_term_id )
 			throw new exception( "Please specify a target term_id" );
 
