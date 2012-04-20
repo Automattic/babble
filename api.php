@@ -137,7 +137,7 @@ function bbl_get_base_taxonomy( $taxonomy ) {
  *
  * @param string $taxonomy A taxonomy to return in a given language
  * @param string $lang_code The language code for the required language (optional, defaults to current)
- * @return void
+ * @return string The taxonomy name
  **/
 function bbl_get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
 	global $bbl_taxonomies;
