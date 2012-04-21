@@ -448,18 +448,19 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function parse_request( $wp ) {
 
-		// If the current language is the default language, then we don't need
-		// to do anything at all
-		if ( bbl_is_default_lang() ) {
-			return;
-		}
-
 		// Sequester the original query, in case we need it to get the default content later
 		if ( ! isset( $wp->query_vars[ 'bbl_tax_original_query' ] ) )
 			$wp->query_vars[ 'bbl_tax_original_query' ] = $wp->query_vars;
 
 		$taxonomy 	= false;
 		$terms 		= false;
+
+		$taxonomies = get_taxonomies( null, 'objects' );
+		$lang_taxonomies = array();
+		foreach ( $taxonomies as $taxonomy => $tax_obj ) {
+			$tax = $this->get_taxonomy_in_lang( $taxonomy, bbl_get_current_lang_code() );
+			$lang_taxonomies[ $tax_obj->rewrite[ 'slug' ] ] = $tax;
+		}
 
 		if ( isset( $wp->query_vars[ 'tag' ] ) ) {
 			$taxonomy = $this->get_taxonomy_in_lang( 'post_tag', $wp->query_vars[ 'lang' ] );
@@ -469,6 +470,23 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$taxonomy = $this->get_taxonomy_in_lang( 'category', $wp->query_vars[ 'lang' ] );
 			$terms = $wp->query_vars[ 'category_name' ];
 			unset( $wp->query_vars[ 'category_name' ] );
+		} else {
+			$taxonomies = array();
+			foreach ( $lang_taxonomies as $slug => $tax ) {
+				if ( isset( $wp->query_vars[ $slug ] ) ) {
+					$taxonomies[] = $tax;
+					break;
+				}
+			}
+			
+			if ( $taxonomies ) {
+				$post_types = array();
+				foreach ( $taxonomies as $taxonomy ) {
+					$taxonomy = get_taxonomy( $taxonomy );
+					$post_types = array_merge( $post_types, $taxonomy->object_type );
+				}
+				$wp->query_vars[ 'post_type' ] = $post_types;
+			}
 		}
 
 		if ( $taxonomy && $terms ) {
