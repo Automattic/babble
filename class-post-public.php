@@ -1027,11 +1027,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function single_template( $template ) {
 		// Deal with the language front pages and custom page templates
+		$post = get_post( get_the_ID() );
 		if ( 'page' == get_option('show_on_front') ) {
 			$front_page_transid = $this->get_transid( get_option( 'page_on_front' ) );
 			$this_transid = $this->get_transid( get_the_ID() );
 			if ( $front_page_transid == $this_transid ) {
-				$post = get_post( get_the_ID() );
 				// global $wp_query, $wp;
 				if ( 'page' == $this->get_base_post_type( $post->post_type ) ) {
 					if ( $custom_page_template = get_post_meta( get_option( 'page_on_front' ), '_wp_page_template', true ) )
@@ -1042,6 +1042,15 @@ class Babble_Post_Public extends Babble_Plugin {
 						return $_template;
 					}
 				}
+			}
+		}
+		if ( 'page' == $this->get_base_post_type( $post->post_type ) ) {
+			if ( $custom_page_template = get_post_meta( get_the_ID(), '_wp_page_template', true ) )
+				$templates = array( $custom_page_template );
+			else
+				$templates = array( 'page.php' );
+			if ( $_template = locate_template( $templates ) ) {
+				return $_template;
 			}
 		}
 		return $template;
