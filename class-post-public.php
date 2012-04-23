@@ -1045,8 +1045,9 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 		if ( 'page' == $this->get_base_post_type( $post->post_type ) ) {
-			if ( $custom_page_template = get_post_meta( get_the_ID(), '_wp_page_template', true ) )
-				$templates = array( $custom_page_template );
+			$custom_page_template = get_post_meta( get_the_ID(), '_wp_page_template', true );
+			if ( false !== $custom_page_template && 'default' != $custom_page_template )
+				$templates = (array) $custom_page_template;
 			else
 				$templates = array( 'page.php' );
 			if ( $_template = locate_template( $templates ) ) {
