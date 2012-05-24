@@ -145,9 +145,14 @@ class Babble_Locale {
 		}
 		// The WP robots.txt rewrite rule will not have worked, as the
 		// code objects to the language prefix. Here we add it in again.
-		remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
+		$hooked = false;
+		if ( has_filter( 'home_url' ) ) {
+			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
+			$hooked = true;
+		}
 		$home_path = parse_url( home_url() );
-		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
+		if ( $hooked )
+			add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 		if ( empty( $home_path['path'] ) || '/' == $home_path['path'] )
 			$new_rules[ 'robots\.txt$' ] = $wp_rewrite->index . '?robots=1';
 	    return $new_rules;
@@ -196,7 +201,7 @@ class Babble_Locale {
 	 *
 	 * FIXME: Should I be extending and replacing the WP class?
 	 *
-	 * @param object $… WP object, passed by reference (so no need to return)
+	 * @param object $wp The WP object, passed by reference (so no need to return)
 	 * @return void
 	 **/
 	public function parse_request_early( $wp ) {
