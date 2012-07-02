@@ -1,0 +1,342 @@
+# Translation of Babble in Turkish
+# This file is distributed under the same license as the Babble package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2012-05-31 13:26:47+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: Babble\n"
+
+#: class-jobs.php:50
+msgid "Status"
+msgstr "Durum"
+
+#: class-jobs.php:51
+msgid "Details"
+msgstr "Detaylar"
+
+#: class-jobs.php:63
+msgctxt "translation jobs general name"
+msgid "Jobs"
+msgstr "İşler"
+
+#: class-jobs.php:64
+msgctxt "translation jobs singular name"
+msgid "Job"
+msgstr "İş"
+
+#: class-jobs.php:65
+msgctxt "translation job"
+msgid "Add New"
+msgstr "Yeni Ekle"
+
+#: class-jobs.php:66
+msgctxt "translation job"
+msgid "Create New Job"
+msgstr "Yeni İş Ekle"
+
+#: class-jobs.php:67
+msgctxt "translation job"
+msgid "Edit Job"
+msgstr "İşi Düzelt"
+
+#: class-jobs.php:68
+msgctxt "translation job"
+msgid "New Job"
+msgstr "Yeni iş"
+
+#: class-jobs.php:69
+msgctxt "translation job"
+msgid "View Job"
+msgstr "İşi Görüntüle"
+
+#: class-jobs.php:70
+msgctxt "translation job"
+msgid "Search Jobs"
+msgstr "İşlerde Araştır"
+
+#: class-jobs.php:71
+msgctxt "translation job"
+msgid "No jobs found."
+msgstr "İş bulunamadı."
+
+#: class-jobs.php:72
+msgctxt "translation job"
+msgid "No jobs found in Trash."
+msgstr "Çöp kutusunda iş bulunamadı."
+
+#: class-jobs.php:73
+msgctxt "translation job"
+msgid "All Jobs"
+msgstr "Bütün İşler"
+
+#: class-jobs.php:76
+msgid "Content, both posts and taxonomy terms, which need to be translated."
+msgstr "İçeriklerin, hem iletilerin hem de sınıflandırmaların, çevrilmesi gerekmektedir."
+
+#: class-jobs.php:88
+msgctxt "statuses of translation jobs, general name"
+msgid "Statuses"
+msgstr "Durumlar"
+
+#: class-jobs.php:89
+msgctxt "statuses of translation jobs, singular name"
+msgid "Status"
+msgstr "Durum"
+
+#: class-jobs.php:90
+msgctxt "status of translation jobs"
+msgid "Status"
+msgstr "Durum"
+
+#: class-jobs.php:91
+msgctxt "status of translation jobs"
+msgid "Popular Statuses"
+msgstr "Popüler Durumlar"
+
+#: class-jobs.php:92
+msgctxt "status of translation jobs"
+msgid "All Statuses"
+msgstr "Bütün Durumlar"
+
+#: class-jobs.php:93
+msgctxt "status of translation jobs"
+msgid "Edit Status"
+msgstr "Durumu Düzenle"
+
+#: class-jobs.php:94
+msgctxt "status of translation jobs"
+msgid "View Status"
+msgstr "Durumu Görüntüle"
+
+#: class-jobs.php:95
+msgctxt "status of translation jobs"
+msgid "Update Status"
+msgstr "Durumu Güncelle"
+
+#: class-jobs.php:96
+msgctxt "status of translation jobs"
+msgid "Add New Status"
+msgstr "Yeni Durum Ekle"
+
+#: class-jobs.php:97
+msgctxt "status of translation jobs"
+msgid "New Status Name"
+msgstr "Yeni Durumun Adı"
+
+#: class-jobs.php:98
+msgctxt "status of translation jobs"
+msgid "Separate statuses with commas"
+msgstr "Durumları virgülle ayırın"
+
+#: class-jobs.php:99
+msgctxt "status of translation jobs"
+msgid "Add or remove statuses"
+msgstr "Durum ekleyin ya da çıkarın"
+
+#: class-jobs.php:100
+msgctxt "status of translation jobs"
+msgid "Choose from the most used statuses"
+msgstr "En çok kullanılan durumlardan birini seç"
+
+#: class-jobs.php:110
+msgctxt "language for translation jobs, general name"
+msgid "Languages"
+msgstr "Diller"
+
+#: class-jobs.php:111 class-jobs.php:112
+msgctxt "language for translation jobs, general name"
+msgid "Language"
+msgstr "Dil"
+
+#: class-jobs.php:113
+msgctxt "language for translation jobs, general name"
+msgid "Popular Languages"
+msgstr "Popüler Diller"
+
+#: class-jobs.php:114
+msgctxt "language for translation jobs, general name"
+msgid "All Languages"
+msgstr "Bütün Diller"
+
+#: class-jobs.php:115
+msgctxt "language for translation jobs, general name"
+msgid "Edit Language"
+msgstr "Dili Düzenle"
+
+#: class-jobs.php:116
+msgctxt "language for translation jobs, general name"
+msgid "View Language"
+msgstr "Dili Görüntüle"
+
+#: class-jobs.php:117
+msgctxt "language for translation jobs, general name"
+msgid "Update Language"
+msgstr "Dili Güncelle"
+
+#: class-jobs.php:118
+msgctxt "language for translation jobs, general name"
+msgid "Add New Language"
+msgstr "Yeni bir Dil Ekle"
+
+#: class-jobs.php:119
+msgctxt "language for translation jobs, general name"
+msgid "New Language Name"
+msgstr "Yeni Dilin İsmi"
+
+#: class-jobs.php:120
+msgctxt "language for translation jobs, general name"
+msgid "Separate languages with commas"
+msgstr "Dilleri virgülle ayır"
+
+#: class-jobs.php:121
+msgctxt "language for translation jobs, general name"
+msgid "Add or remove languages"
+msgstr "Yeni bir dil ekle ya da çıkar"
+
+#: class-jobs.php:122
+msgctxt "language for translation jobs, general name"
+msgid "Choose from the most used languages"
+msgstr "En çok kullanılan dillerden birini seç"
+
+#: class-jobs.php:145 class-jobs.php:215
+msgid "Save"
+msgstr "Kaydet"
+
+#: class-languages.php:90
+msgid "<strong>Babble problem:</strong> Please visit the <a href=\"%s\">Available Languages settings</a> and setup your available languages and the default language."
+msgstr "<strong>Babble problem:</strong> Lütfen <a href=\"%s\">Available Languages settings</a> i ziyaret edin, ve kullanmak istediğiniz diller ile sitenizde otomatik olarak çalışmasını istediğiniz dili seçin. "
+
+#: class-languages.php:100 templates-admin/options-available-languages.php:11
+msgid "Available Languages"
+msgstr "Dil Seçenekleri "
+
+#: class-languages.php:290
+msgid "The languages \"%1$s\" and \"%2$s\" are using the same URL Prefix. Each URL prefix should be unique."
+msgstr " \"%1$s\" ve \"%2$s\" dilleri aynı internet adresi kodunu kullanmaktadır. Her internet adresinin kodu birbirinden farklı olmalıdır."
+
+#: class-languages.php:311
+msgid "You must set at least two languages as active."
+msgstr "En az iki dili kullanılabilir dilleriniz olarak seçmelisiniz."
+
+#: class-languages.php:332
+msgid "Your language settings have been saved."
+msgstr "Dil seçenekleriniz kaydedildi."
+
+#: class-locale.php:91
+msgid "<strong>Babble problem:</strong> Fancy permalinks are disabled. Please enable them in order to have language prefixed URLs work correctly."
+msgstr "<strong> Anlaşılmazlık problemi :</strong> Düzenlenmiş linkler engellenmiş.Dil kodlarının bulunduğu internet adreslerinin düzgün çalışabilmesi için lütfen bu linkleri etkinleştirin."
+
+#: class-plugin.php:311
+msgid "This plugin admin template could not be found: %s"
+msgstr "Bu eklenti paketi bulunamadı: %s"
+
+#: class-plugin.php:445
+msgid "This plugin template could not be found, perhaps you need to hook `sil_plugins_dir` and `sil_plugins_url`: %s"
+msgstr "Bu eklenti paketi bulunamadı, `sil_plugins_dir`ve` sil_plugins_url adreslerini birbirine bağlamayı deneyin %s"
+
+#: class-post-public.php:142 class-taxonomy.php:83
+msgid "Term Translation ID"
+msgstr "Terim Çeviri No"
+
+#: class-post-public.php:157
+msgid "Post Translation ID"
+msgstr "İleti Çeviri No"
+
+#: class-post-public.php:988
+msgid "Invalid Post"
+msgstr "Geçersiz İleti"
+
+#: class-switcher-menu.php:149 class-switcher-menu.php:181
+#: class-switcher-menu.php:221 class-switcher-menu.php:250
+#: class-switcher-menu.php:295 class-switcher-menu.php:326
+#: class-switcher-menu.php:366 class-switcher-menu.php:395
+#: class-switcher-menu.php:424 class-switcher-menu.php:463
+msgid "Switch to %s"
+msgstr "%s e geçin"
+
+#: class-switcher-menu.php:187 class-switcher-menu.php:257
+#: class-switcher-menu.php:333 class-switcher-menu.php:431
+msgid "Create for %s"
+msgstr "%s için oluşturun"
+
+#: class-taxonomy.php:375
+msgid "Empty Term"
+msgstr "Boş terim"
+
+#: templates-admin/options-available-languages.php:20
+msgid "Please select the languages you wish to translate this site into, you should select at least two, and select \"Save Changes\" below the languages table."
+msgstr "Lütfen siteyi çevirmek istediğiniz dilleri seçin. En az iki dil belirtmelisiniz ve seçimlerinizi diller tablosunun altındaki \"Değişiklikleri Kaydet\" tuşuna basarak kaydediniz."
+
+#: templates-admin/options-available-languages.php:23
+msgid "Default language:"
+msgstr "Otomatik dil:"
+
+#: templates-admin/options-available-languages.php:36
+#: templates-admin/options-available-languages.php:51
+msgid "Active"
+msgstr "Etkin"
+
+#: templates-admin/options-available-languages.php:40
+#: templates-admin/options-available-languages.php:55
+msgid "Code"
+msgstr "Kod"
+
+#: templates-admin/options-available-languages.php:41
+#: templates-admin/options-available-languages.php:56
+msgid "Name(s)"
+msgstr "Ad(lar)"
+
+#: templates-admin/options-available-languages.php:42
+#: templates-admin/options-available-languages.php:57
+msgid "Display Name"
+msgstr "Kullanıcı Adı"
+
+#: templates-admin/options-available-languages.php:43
+#: templates-admin/options-available-languages.php:58
+msgid "URL Prefix"
+msgstr "URL önkodu"
+
+#: templates-admin/options-available-languages.php:44
+#: templates-admin/options-available-languages.php:59
+msgid "Text Direction"
+msgstr "Yazı yönü"
+
+#: templates-admin/options-available-languages.php:68
+#: templates-admin/options-available-languages.php:73
+msgid "Enable \"%s\" on this site"
+msgstr "Bu sitede \"%s\"i etkinleştir"
+
+#: templates-admin/options-available-languages.php:79
+msgid "Display name for \"%s\""
+msgstr "\"%s\"in Kullanıcı adı"
+
+#: templates-admin/options-available-languages.php:85
+msgid "URL prefix for \"%s\""
+msgstr "\"%s\"in URL önkodu"
+
+#: templates-admin/options-available-languages.php:91
+msgid "<strong>Left</strong> to right"
+msgstr "<strong>Left</strong> sağa doğru"
+
+#: templates-admin/options-available-languages.php:93
+msgid "<strong>Right</strong> to left"
+msgstr "<strong>Right</strong> sola doğru"
+
+msgid "Babble"
+msgstr "Anlaşılmazlık"
+
+msgid "http://simonwheatley.co.uk/wordpress/babble"
+msgstr "http://simonwheatley.co.uk/wordpress/babble"
+
+msgid "Now with Taxonomies!"
+msgstr "Şimdi de sınıflandırmalar!"
+
+msgid "Simon Wheatley"
+msgstr "Simon Wheatley"
+
+msgid "http://simonwheatley.co.uk/wordpress/"
+msgstr "http://simonwheatley.co.uk/wordpress/"
