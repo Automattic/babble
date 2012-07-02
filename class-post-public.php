@@ -83,6 +83,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'admin_init' );
 		$this->add_action( 'clean_post_cache' );
 		$this->add_action( 'body_class', null, null, 2 );
+		$this->add_action( 'before_delete_post' );
 		$this->add_action( 'deleted_post' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
@@ -552,21 +553,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		// Save any text directionality enforcement
 		$this->save_text_directionality( $post_id, $post );
 	}
-	
-	/**
-	 * Hooks the WP clean_post_cache action to clear the Babble
-	 * post translation and transid caches.
-	 *
-	 * Occasionally called directly by within this class.
-	 *
-	 * @param int $post_id The ID of the post to clear the caches for 
-	 * @return void
-	 **/
-	function clean_post_cache( $post_id ) {
-		$transid = $this->get_transid( $post_id );
-		wp_cache_delete( $transid, 'bbl_post_translations' );
-		wp_cache_delete( $post_id, 'bbl_post_transids' );
-	}
 
 	/**
 	 * Hooks the WP pre_get_posts ref action in the WP_Query,
@@ -898,14 +884,43 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
+	 * Hooks the WP action delete_post to keep our cache up to date.
+	 *
+	 * @param int $post_id The ID of the post which was deleted. 
+	 * @return void
+	 **/
+	public function before_delete_post( $post_id ) {
+		$this->clean_post_cache( $post_id );
+	}
+
+	/**
 	 * Hooks the WP action save_post to keep our cache up to date.
 	 *
 	 * @param int $post_id The ID of the post which was deleted. 
 	 * @return void
 	 **/
 	public function deleted_post( $post_id ) {
-		$transid = $this->get_transid( $post_id );
 		$this->clean_post_cache( $post_id );
+	}
+	
+	/**
+	 * Hooks the WP clean_post_cache action to clear the Babble
+	 * post translation and transid caches.
+	 *
+	 * Occasionally called directly by within this class.
+	 *
+	 * @param int $post_id The ID of the post to clear the caches for 
+	 * @return void
+	 **/
+	function clean_post_cache( $post_id ) {
+		wp_cache_delete( $post_id, 'bbl_post_transids' );
+		// clean_post_cache gets called in some situations where
+		// the post is already deleted, in which case do not
+		// force the creation of a transid.
+		if ( ! $transid = $this->get_transid( $post_id, false ) ) {
+			return;
+		}
+		wp_cache_delete( $transid, 'bbl_post_translations' );
 	}
 
 	/**
@@ -1683,18 +1698,30 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return string The transid
 	 * @access private
 	 **/
-	function get_transid( $post ) {
+	function get_transid( $post, $create = true ) {
 		$post = get_post( $post );
 
-		if ( $transid = wp_cache_get( $post->ID, 'bbl_post_transids' ) )
+		if ( ! $post->ID )
+			return false;
+
+		if ( $transid = wp_cache_get( $post->ID, 'bbl_post_transids' ) ) {
 			return $transid;
+		}
 
 		$transids = (array) wp_get_object_terms( $post->ID, 'post_translation', array( 'fields' => 'ids' ) );
 		// "There can be only one" (so we'll just drop the others)
-		if ( isset( $transids[ 0 ] ) )
+		$transid = false;
+		if ( isset( $transids[ 0 ] ) ) {
 			$transid = $transids[ 0 ];
-		else
-			$transid = $this->set_transid( $post );
+		} else {
+			if ( $create ) {
+				$transid = $this->set_transid( $post );
+			}
+		}
+		
+		if ( ! $transid ) {
+			return false;
+		}
 
 		wp_cache_add( $post->ID, $transid, 'bbl_post_transids' );
 
@@ -1719,6 +1746,8 @@ class Babble_Post_Public extends Babble_Plugin {
 				error_log( "Problem creating a new Post TransID: " . print_r( $result, true ) );
 			else
 				$transid = $result[ 'term_id' ];
+			// Delete anything in there currently
+			wp_cache_delete( $transid, 'bbl_post_translations' );
 		}
 		$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
 		if ( is_wp_error( $result ) )
