@@ -343,7 +343,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			$result = register_post_type( $new_post_type, $new_args );
 			if ( is_wp_error( $result ) ) {
-				// bbl_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
+				error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
 			} else {
 				$this->post_types[ $new_post_type ] = $post_type;
 				$this->lang_map[ $new_post_type ] = $lang->code;
