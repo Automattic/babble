@@ -103,6 +103,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( ! is_array( $object_type ) )
 			$object_type = array_unique( (array) $object_type );
 
+		// Use the Babble term counting function, unless the taxonomy registrant
+		// has defined their own – in which case we'll just have to hope against 
+		// hope that it's Babble aware :S
+		// FIXME: Setting this in the following fashion seems hacky… I feel uncomfortable.
+		if ( empty( $GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback ) )
+			$GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback = array( & $this, 'update_post_term_count' );
+
 		// Untranslated taxonomies do not have shadow equivalents in each language,
 		// but do apply to the bast post_type and all it's shadow post_types.
 		if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
@@ -504,6 +511,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			);
 		
 		}
+		
 	}
 
 	/**
@@ -779,6 +787,52 @@ class Babble_Taxonomies extends Babble_Plugin {
 	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
+
+	/**
+	 * Will update term count based on object types of the current 
+	 * taxonomy. Will only count the post(s) in the default language.
+	 *
+	 * Private function for the default callback for post_tag and category
+	 * taxonomies.
+	 *
+	 * @param array $terms List of Term taxonomy IDs
+	 * @param object $taxonomy Current taxonomy object of terms
+	 */
+	function update_post_term_count( $terms, $taxonomy ) {
+		global $wpdb;
+
+		$object_types = (array) $taxonomy->object_type;
+
+		foreach ( $object_types as &$object_type ) {
+			list( $object_type ) = explode( ':', $object_type );
+			// Babble specific code, to only count in primary language
+			$object_type = bbl_get_post_type_in_lang( $object_type, bbl_get_default_lang_code() );
+		}
+
+		$object_types = array_unique( $object_types );
+
+		if ( false !== ( $check_attachments = array_search( 'attachment', $object_types ) ) ) {
+			unset( $object_types[ $check_attachments ] );
+			$check_attachments = true;
+		}
+
+		if ( $object_types )
+			$object_types = esc_sql( array_filter( $object_types, 'post_type_exists' ) );
+		foreach ( (array) $terms as $term ) {
+			$count = 0;
+
+			// Attachments can be 'inherit' status, we need to base count off the parent's status if so
+			if ( $check_attachments )
+				$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships, $wpdb->posts p1 WHERE p1.ID = $wpdb->term_relationships.object_id AND ( post_status = 'publish' OR ( post_status = 'inherit' AND post_parent > 0 AND ( SELECT post_status FROM $wpdb->posts WHERE ID = p1.post_parent ) = 'publish' ) ) AND post_type = 'attachment' AND term_taxonomy_id = %d", $term ) );
+
+			if ( $object_types )
+				$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships, $wpdb->posts WHERE $wpdb->posts.ID = $wpdb->term_relationships.object_id AND post_status = 'publish' AND post_type IN ('" . implode("', '", $object_types ) . "') AND term_taxonomy_id = %d", $term ) );
+
+			do_action( 'edit_term_taxonomy', $term, $taxonomy );
+			$wpdb->update( $wpdb->term_taxonomy, compact( 'count' ), array( 'term_taxonomy_id' => $term ) );
+			do_action( 'edited_term_taxonomy', $term, $taxonomy );
+		}
+	}
 
 	/**
 	 * Hooks up a taxonomy with all the actions/filters it needs.
