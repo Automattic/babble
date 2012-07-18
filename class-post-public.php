@@ -858,7 +858,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// Copy all the metadata across
-		$metas = $this->get_all_post_meta( $origin_id );
+		$metas = (array) get_post_meta( $origin_id );
 
 		// Stop meta recursion while we add the metadata to the new post
 		if ( $this->no_meta_recursion )
@@ -1564,28 +1564,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Gets all the post meta for a post in an array.
-	 * 
-	 * Hello VIP Code reviewer. I imagine you've just noticed the
-	 * direct database access at this point, and are wondering just
-	 * what the heck I think I'm doing? The issue is that I need to
-	 * clone a post, including postmeta and there is no built-in
-	 * meta API function to get all the postmeta entries for
-	 * a given post. Hope we can agree that this is OK, unless
-	 * I'm missing a better way of doing this?
-	 * 
-	 * @TODO: Raise a Trac ticket for adding this functionality to the (post) meta API
-	 *
-	 * @param int $post A WordPress post ID
-	 * @return array An array of postmeta values
-	 **/
-	protected function get_all_post_meta( $post_id ) {
-		global $wpdb;
-		$sql = " SELECT * FROM $wpdb->postmeta WHERE post_id = %d ";
-		return $wpdb->get_results( $wpdb->prepare( $sql, $post_id ) );
-	}
-
-	/**
 	 * Copy various properties from one post to another.
 	 *
 	 * @param int $source_id The source post, to copy FROM 
@@ -1666,7 +1644,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->no_meta_recursion = 'updated_post_meta';
 
 		// First delete all the synced meta from this post
-		$current_metas = $this->get_all_post_meta( $post_id );
+		$current_metas = (array) get_post_meta( $post_id );
 		$current_meta_keys = wp_filter_object_list( $current_metas, array(), null, 'meta_key' );
 		$current_meta_keys = array_unique( $current_meta_keys );
 		foreach ( $current_meta_keys as $current_meta_key ) {
@@ -1738,6 +1716,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	function set_transid( $post, $transid = false ) {
 		$post = get_post( $post );
+		if ( ! isset( $post->ID ) )
+			return false;
 		// @FIXME: Abstract the code for generating and associating a new TransID
 		if ( ! $transid ) {
 			$transid_name = 'post_transid_' . uniqid();
