@@ -448,6 +448,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function parse_request( $wp ) {
 
+		if ( is_admin() )
+			return;
+
 		// Sequester the original query, in case we need it to get the default content later
 		if ( ! isset( $wp->query_vars[ 'bbl_tax_original_query' ] ) )
 			$wp->query_vars[ 'bbl_tax_original_query' ] = $wp->query_vars;
