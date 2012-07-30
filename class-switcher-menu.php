@@ -166,6 +166,12 @@ class Babble_Switcher_Menu {
 		$classes[] = 'bbl-lang';
 		if ( $lang->code == bbl_get_current_lang_code() )
 			$classes[] = 'bbl-active';
+
+		// Preventing errors on initial plugin load - before settings saved the first time
+		if ( empty( $lang->display_name ) ) {
+			$lang->display_name = '';
+		}
+
 		$this->links[ $lang->code ] = array(
 			'classes' => $classes,
 			'href' => $href,
