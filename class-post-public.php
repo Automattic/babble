@@ -1633,6 +1633,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		
 		if ( ! $nonce )
 			return;
+								
+		if ( ! isset( $_POST[ 'bbl_resync_translation' ] ) || ! $_POST[ 'bbl_resync_translation' ] )
+			return;
 			
 		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
 		if ( $posted_id != $post_id )
