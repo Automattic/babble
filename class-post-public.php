@@ -467,7 +467,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			delete_post_meta( $translation->ID, $meta_key );
 		}
 		
-		$this->no_recursion = false;
+		$this->no_meta_recursion = false;
 	}
 
 	/**
