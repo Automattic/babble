@@ -1658,9 +1658,11 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// Now add meta in again from the origin post
 		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
-		$metas = get_post_meta( $origin_post->ID );
-		// error_log( "SW: Metas: " . print_r( $metas , true ) );
 		
+		$metas = get_post_meta( $origin_post->ID );
+		if ( ! $metas )
+			return;
+
 		foreach ( $metas as $meta_key => & $meta_value ) {
 			// Some metadata shouldn't be synced
 			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
