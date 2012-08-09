@@ -858,21 +858,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			wp_update_post( array( 'ID' => $new_post_id, 'post_type' => $new_post_type ) );
 		}
 
-		// @FIXME: SW: This functionality and maybe_resync_meta_data should be made DRYer.
 		// Copy all the metadata across
-		$metas = (array) get_post_meta( $origin_id );
-
-		// Stop meta recursion while we add the metadata to the new post
-		if ( $this->no_meta_recursion )
-			return;
-		$this->no_meta_recursion = 'wp_insert_post';
-		foreach ( $metas as $meta ) {
-			// Some metadata shouldn't be synced
-			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta->meta_key ) )
-				continue;
-			add_post_meta( $new_post_id, $meta->meta_key, $meta->meta_value );
-		}
-		$this->no_meta_recursion = false;
+		$this->sync_post_meta( $new_post_id );
 
 		// Copy the various core post properties across
 		$this->sync_properties( $origin_id, $new_post_id );
@@ -1643,6 +1630,17 @@ class Babble_Post_Public extends Babble_Plugin {
 		// While we're at it, let's check the nonce
 		check_admin_referer( "bbl_resync_translation-$post_id", '_bbl_metabox_resync' );
 		
+		$this->sync_post_meta( $post_id );
+	}
+
+	/**
+	 * Resync all (synced) post meta data from the post in
+	 * the default language to this post.
+	 *
+	 * @param $int The post ID to sync TO
+	 * @return void
+	 **/
+	function sync_post_meta( $post_id ) {
 		if ( $this->no_meta_recursion )
 			return;
 		$this->no_meta_recursion = 'updated_post_meta';
