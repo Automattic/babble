@@ -858,6 +858,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			wp_update_post( array( 'ID' => $new_post_id, 'post_type' => $new_post_type ) );
 		}
 
+		// @FIXME: SW: This functionality and maybe_resync_meta_data should be made DRYer.
 		// Copy all the metadata across
 		$metas = (array) get_post_meta( $origin_id );
 
