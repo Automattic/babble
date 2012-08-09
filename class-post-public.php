@@ -1649,24 +1649,32 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// First delete all the synced meta from this post
 		$current_metas = (array) get_post_meta( $post_id );
-		$current_meta_keys = wp_filter_object_list( $current_metas, array(), null, 'meta_key' );
-		$current_meta_keys = array_unique( $current_meta_keys );
-		foreach ( $current_meta_keys as $current_meta_key ) {
-			// Some metadata shouldn't be synced
-			if ( ! apply_filters( 'bbl_sync_meta_key', true, $current_meta_key ) )
-				continue;
-			delete_post_meta( $post_id, $current_meta_key );
+		foreach ( $current_metas as $current_meta_key => & $current_meta_values ) {
+			// Some metadata shouldn't be synced, this filter allows a dev to return
+			// false if the particular meta_key is one which shouldn't be synced.
+			// If you find a core meta_key which is currently synced and should NOT be, 
+			// please submit a patch to the sync_meta_key method on this class. Thanks.
+			if ( apply_filters( 'bbl_sync_meta_key', true, $current_meta_key ) )
+				delete_post_meta( $post_id, $current_meta_key );
 		}
 
 		// Now add meta in again from the origin post
 		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
 		$metas = get_post_meta( $origin_post->ID );
-		foreach ( $metas as $meta ) {
+		// error_log( "SW: Metas: " . print_r( $metas , true ) );
+		
+		foreach ( $metas as $meta_key => & $meta_value ) {
 			// Some metadata shouldn't be synced
-			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta->meta_key ) )
+			if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 				continue;
-			add_post_meta( $post_id, $meta->meta_key, $meta->meta_value );
+			// The meta could be an array stored in a single postmeta row or an
+			// array of values from multiple rows; work out which we have.
+			$val_multi = get_post_meta( $origin_post->ID, $meta_key );
+			foreach ( $val_multi as & $val_single ) {
+				add_post_meta( $post_id, $meta_key, $val_single );
+			}
 		}
+		$this->no_meta_recursion = false;
 	}
 
 	/**
