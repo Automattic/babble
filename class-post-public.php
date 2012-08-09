@@ -126,7 +126,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->lang_map = array();
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
-		
+		$this->no_meta_recursion = false;
+
 		$this->version = 9;
 
 		// Ensure we catch any existing language shadow post_types already registered
