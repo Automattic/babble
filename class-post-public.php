@@ -1626,7 +1626,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		// can do this by checking for the presence of the nonce.
 		$nonce = isset( $_POST[ '_bbl_metabox_resync' ] ) ? $_POST[ '_bbl_metabox_resync' ] : false;
 		
-		
 		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) )
 			return;
 		
