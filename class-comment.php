@@ -27,12 +27,13 @@ class Babble_Comment extends Babble_Plugin {
 	 **/
 	public function comments_template_args( $args ) {
 		if ( isset( $args[ 'post_id' ] ) && ! empty( $args[ 'post_id' ] ) ) {
-			$posts = bbl_get_post_translations( $args[ 'post_id' ] );
-			if ( isset( $args[ 'post__in' ] ) && ! is_array( $args[ 'post__in' ] ) )
-				$args[ 'post__in' ] = array();
-			foreach ( $posts as & $post )
-				$args[ 'post__in' ][] = $post->ID;
-			unset( $args[ 'post_id' ] );
+			if ( $posts = bbl_get_post_translations( $args[ 'post_id' ] ) ) {
+				if ( isset( $args[ 'post__in' ] ) && ! is_array( $args[ 'post__in' ] ) )
+					$args[ 'post__in' ] = array();
+				foreach ( $posts as & $post )
+					$args[ 'post__in' ][] = $post->ID;
+				unset( $args[ 'post_id' ] );
+			}
 		}
 		return $args;
 	}
