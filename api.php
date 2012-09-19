@@ -221,6 +221,8 @@ function bbl_get_new_post_translation_url( $default_post, $lang ) {
  **/
 function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
 	global $bbl_post_public;
+	if ( is_null( $lang_code ) )
+		$lang_code = bbl_get_current_lang_code();
 	return $bbl_post_public->get_post_type_in_lang( $original_post_type, $lang_code );
 }
 
