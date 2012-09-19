@@ -494,6 +494,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 				foreach ( $taxonomies as $taxonomy ) {
 					$taxonomy = get_taxonomy( $taxonomy );
 					$post_types = array_merge( $post_types, $taxonomy->object_type );
+					// Filter out the post_types not in this language
+					foreach ( $post_types as & $post_type )
+						$post_type = bbl_get_post_type_in_lang( $post_type );
+					$post_types = array_unique( $post_types );
 				}
 				$wp->query_vars[ 'post_type' ] = $post_types;
 			}
@@ -511,7 +515,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			);
 		
 		}
-		
 	}
 
 	/**
