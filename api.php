@@ -145,6 +145,16 @@ function bbl_get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
 }
 
 /**
+ * Test whether a particular taxonomy is translated or not.
+ * 
+ * @param string $taxonomy The name of the taxonomy to check
+ * @return bool True if this is a translated taxonomy
+ */
+function bbl_is_translated_taxonomy( $taxonomy ) {
+	return (bool) apply_filters( 'bbl_translated_taxonomy', true, $taxonomy );
+}
+
+/**
  * Returns a taxonomy slug translated into a particular language.
  *
  * @param string $slug The slug to translate
