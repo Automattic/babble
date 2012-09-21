@@ -462,9 +462,13 @@ class Babble_Switcher_Menu {
 	 **/
 	protected function add_taxonomy_archive_link( $lang ) {
 		$classes = array();
-		if ( isset( $this->translations[ $lang->code ]->term_id ) ) { // Translation exists
+		$queried_object = get_queried_object();
+		if ( ! bbl_is_translated_taxonomy( $queried_object->taxonomy ) ) {
+			$this->add_arbitrary_link( $lang );
+			return;
+		} elseif ( isset( $this->translations[ $lang->code ]->term_id ) ) { // Translation exists
 			bbl_switch_to_lang( $lang->code );
-			$href = get_term_link( $this->translations[ $lang->code ], bbl_get_base_taxonomy( $this->translations[ $lang->code ]->taxonomy ) );
+			$href = get_term_link( $this->translations[ $lang->code ], bbl_get_base_taxonomy( $queried_object->taxonomy ) );
 			bbl_restore_lang();
 			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
 			$classes[] = 'bbl-existing';
