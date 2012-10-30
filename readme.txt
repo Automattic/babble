@@ -12,13 +12,13 @@ A plugin to handle translating content into a variety of languages.
 This plugin is at a proof of concept stage for translating post type content for the built
 in types of `post` and `page`.
 
-The plugin was built with the Automattic VIP Hosting Environment in mind, and, hopefully, to
-WordPress development best practices.
+The plugin was built with an aversion to both additional database tables, additional columns 
+or column changes and a desire to keep additional queries to a minimum.
 
 There are a **lot** of `@FIXME` comments, expressing doubts, fears, uncertainties and 
 unknowns; feel free to weigh in on any of them.
 
-Please send bugs to simon@sweetinteraction.com, or enter them on https://github.com/simonwheatley/babble/issues
+Please add bugs to https://github.com/simonwheatley/babble/issues
 
 == Installation ==
 
@@ -38,6 +38,10 @@ Installation is fairly standard:
 3. Shows the provisional URL structure on the frontend, and the collapsed Babble language switcher menu in the admin bar
 
 == Changelog ==
+
+= alpha 1.1 =
+
+Taxonomies.
 
 = alpha 1 =
 
