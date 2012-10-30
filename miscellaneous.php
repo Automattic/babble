@@ -43,6 +43,8 @@ function bbl_admin_init() {
 			}
 		} else {
 			$post_lang_code = bbl_get_post_lang_code( $post_id );
+			if ( is_wp_error( $post_lang_code ) )
+				return;
 			if ( $post_lang_code != $cur_lang_code ) {
 				$url = add_query_arg( array( 'lang' => $post_lang_code ) );
 				wp_redirect( $url );
