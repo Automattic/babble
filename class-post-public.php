@@ -111,6 +111,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
 		$this->add_filter( 'post_type_archive_link', null, null, 2 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
+		$this->add_filter( 'get_sample_permalink', null, null, 5 );
 		$this->add_filter( 'single_template' );
 		$this->add_filter( 'the_posts', null, null, 2 );
 		
@@ -773,6 +774,24 @@ class Babble_Post_Public extends Babble_Plugin {
 		return user_trailingslashit( $post_link );
 	}
 
+	/**
+	 * Hooks the get_sample_permalink filter to provide a correct sample permalink
+	 * in situations where the post_name has been hacked for a particular context.
+	 * 
+	 * @filter get_sample_permalink (not yet in existence, see http://core.trac.wordpress.org/attachment/ticket/22338)
+	 * 
+	 * @param array $permalink The array, like array( $permalink, $post_name )
+	 * @param string $title A desired title (could be null)
+	 * @param string $name A desired post name (could be null)
+	 * @param int $id The Post ID 
+	 * @param object $post A (hacked) Post object 
+	 * @return array The array, like array( $permalink, $post_name )
+	 */
+	public function get_sample_permalink( $permalink, $title, $name, $id, $post ) {
+		$permalink[ 0 ] = $this->post_type_link( $permalink[ 0 ], $post, $leavename );
+		return $permalink;
+	}
+	
 	/**
 	 * Hooks the WP page_link filter to ensure correct virtual language directory prefix, etc.
 	 *
