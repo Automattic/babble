@@ -1399,7 +1399,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * post ID. N.B. The returned array of post objects (and false 
 	 * values) will include the post for the post ID passed.
 	 * 
-	 * @FIXME: Should I filter out the post ID passed?
+	 * @FIXME: Should I filter out the post ID passed? Note this will probably screw the switcher menu.
 	 *
 	 * @param int|object $post Either a WP Post object, or a post ID 
 	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
