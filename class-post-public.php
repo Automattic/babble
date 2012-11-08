@@ -1713,6 +1713,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * raise an issue.
 	 *
 	 * @param int|object $post The WP Post object, or the ID of a post
+	 * @param bool $create A flag to create the transid if it doesn't exist already
 	 * @return string The transid
 	 * @access private
 	 **/
