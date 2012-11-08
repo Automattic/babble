@@ -76,7 +76,7 @@ class Babble_Switcher_Menu {
 		$editing_post = false;
 		$listing_posts = false;
 		if ( is_admin() ) {
-			$editing_post = ( is_admin() && 'post' == $this->screen->base && isset( $_GET[ 'post' ] ) );
+			$editing_post = ( is_admin() && 'post' == $this->screen->base && isset( $_GET[ 'post' ] ) ) ? $_GET[ 'post' ] : false;
 			$listing_posts = ( is_admin() && 'edit' == $this->screen->base && ! isset( $_GET[ 'post' ] ) );
 		}
 
@@ -84,7 +84,7 @@ class Babble_Switcher_Menu {
 		$editing_term = false;
 		$listing_terms = false;
 		if ( is_admin() ) {
-			$editing_term = ( is_admin() && 'edit-tags' == $this->screen->base && isset( $_GET[ 'tag_ID' ] ) );
+			$editing_term = ( is_admin() && 'edit-tags' == $this->screen->base && isset( $_GET[ 'tag_ID' ] ) ) ? $_GET[ 'tag_ID' ] : false;
 			$listing_terms = ( is_admin() && 'edit-tags' == $this->screen->base && ! isset( $_GET[ 'tag_ID' ] ) );
 		}
 
@@ -104,7 +104,7 @@ class Babble_Switcher_Menu {
 			// @TODO: Convert to a switch statement, convert all the vars to a single property on the class
 			if ( is_admin() ) {
 				if ( $editing_post ) {			// Admin: Editing post link
-					$this->add_admin_post_link( $alt_lang );
+					$this->add_admin_post_link( $alt_lang, $editing_post );
 				} else if ( $editing_term ) {	// Admin: Editing term link
 					$this->add_admin_term_link( $alt_lang );
 				} else if ( $listing_posts ) {	// Admin: Listing posts link
@@ -264,7 +264,7 @@ class Babble_Switcher_Menu {
 	 * @param object $lang A Babble language object for this link
 	 * @return void
 	 **/
-	protected function add_admin_post_link( $lang ) {
+	protected function add_admin_post_link( $lang, $editing_post ) {
 		$classes = array();
 		if ( isset( $this->translations[ $lang->code ]->ID ) ) { // Translation exists
 			$href = add_query_arg( array( 'lang' => $lang->code, 'post' => $this->translations[ $lang->code ]->ID ) );
@@ -273,26 +273,16 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-post';
 		} else { // Translation does not exist
-			if ( isset( $this->translations[ bbl_get_default_lang_code() ] ) && count( $this->translations ) > 1 ) {
+			if ( 'auto-draft' != get_post_status( $editing_post ) ) {
 				$default_post = $this->translations[ bbl_get_default_lang_code() ];
 				$href = bbl_get_new_post_translation_url( $default_post, $lang->code );
 				$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
 				$classes[] = 'bbl-add';
 				$classes[] = 'bbl-add-post';
-			} else if ( 1 == count( $this->translations ) ) { // Just the default language post
-				$classes[] = 'bbl-add-disabled';
-				$title = sprintf( __( 'Unable to create for %s until you save', 'bbl' ), $lang->names );
-				$this->links[ $lang->code ] = array(
-					'classes' => $classes,
-					'href' => '#',
-					'id' => $lang->url_prefix,
-					'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
-					'title' => $title,
-					'lang_display_name' => $lang->display_name,
-				);
-				return;
 			} else {
-				return; // Don't create the switcher menu items yet
+				$href = '#';
+                $title = sprintf( __( 'Unable to create for %s until you save', 'bbl' ), $lang->names );				$title = sprintf( __( 'Unable to create for %s, try saving', 'bbl' ), $lang->names );
+				$classes[] = 'bbl-null';
 			}
 		}
 		$href = apply_filters( 'bbl_switch_admin_post_link', $href, $lang, $this->translations );
