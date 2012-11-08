@@ -105,6 +105,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'add_post_metadata', null, null, 5 );
 		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
+		$this->add_filter( 'bbl_translated_taxonomy', 'translated_taxonomy', null, 2 );
 		$this->add_filter( 'manage_posts_columns', 'manage_posts_columns', null, 2 );
 		$this->add_filter( 'page_link', null, null, 2 );
 		$this->add_filter( 'posts_request' );
@@ -1153,6 +1154,12 @@ class Babble_Post_Public extends Babble_Plugin {
 		echo "<a href='$view_link' title='$view_title'>" . __( 'view', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'edit', 'babble' ) . "</a>";
 	}
 
+	public function translated_taxonomy( $translated, $taxonomy ) {
+		if ( 'post_translation' == $taxonomy )
+			return false;
+		return $translated;
+	}
+	
 	// CALLBACKS
 	// =========
 	
