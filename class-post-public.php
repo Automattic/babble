@@ -1442,12 +1442,15 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_start_translating();
 		$translations = array();
 		foreach ( $posts as & $post ) {
-			if ( isset( $this->lang_map[ $post->post_type ] ) )
+			if ( isset( $this->lang_map[ $post->post_type ] ) ) {
 				$translations[ $this->lang_map[ $post->post_type ] ] = $post;
-			else
-				continue;
+			} else if ( bbl_get_default_lang_code() == bbl_get_post_lang_code( $post ) ) {
+				$translations[ bbl_get_default_lang_code() ] = $post;
+			} else {
+				// A translation exists for a language which isn't activated.
+				// Never mind, perhaps someone deactivated it.
+			}
 		}
-		$translations[ bbl_get_default_lang_code() ] = $post;
 
 		wp_cache_add( $transid, $translations, 'bbl_post_translations' );
 
