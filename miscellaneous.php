@@ -379,4 +379,3 @@ class Bbl_Comment_Query {
 	}
 }
 
-?>
