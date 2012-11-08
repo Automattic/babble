@@ -935,7 +935,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 			return;
 		$this->no_recursion = true;
 
-		$taxonomies = get_object_taxonomies( $post->post_type );
+		$_taxonomies = get_object_taxonomies( $post->post_type );
+
+		// Filter out the untranslated taxonomies
+		foreach ( $_taxonomies as & $taxonomy )
+			if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) )
+				$taxonomies[] = $taxonomy;
+		
 		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
 
 		// First dissociate all the terms from synced taxonomies from this post
@@ -944,8 +950,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Now associate terms from synced taxonomies in from the origin post
 		foreach ( $taxonomies as $taxonomy ) {
 			$origin_taxonomy = $taxonomy;
-			if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) )
-				$origin_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, bbl_get_default_lang_code() );
 			$term_ids = wp_get_object_terms( $origin_post->ID, $origin_taxonomy, array( 'fields' => 'ids' ) );
 			$term_ids = array_map( 'absint', $term_ids );
 			$result = wp_set_object_terms( $post_id, $term_ids, $taxonomy );
