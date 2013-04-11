@@ -1,7 +1,7 @@
 === Babble ===
 Contributors: simonwheatley
 Requires at least: 3.4.2
-Tested up to: 3.4.2
+Tested up to: 3.5.1
 Stable tag: Alpha 1.1
 Tags: translations
  
