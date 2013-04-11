@@ -18,7 +18,7 @@ or column changes and a desire to keep additional queries to a minimum.
 There are a **lot** of `@FIXME` comments, expressing doubts, fears, uncertainties and 
 unknowns; feel free to weigh in on any of them.
 
-Please add bugs to https://github.com/simonwheatley/babble/issues
+Please add bugs to https://github.com/cftp/babble/issues
 
 == Installation ==
 
