@@ -7,8 +7,8 @@
 * Stable tag: Alpha 1.2
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
-*  
-* A plugin to handle translating content into a variety of languages.
+
+A plugin to handle translating content into a variety of languages.
 
 ## Description
 
