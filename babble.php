@@ -4,7 +4,7 @@
 Plugin Name: Babble
 Plugin URI: http://simonwheatley.co.uk/wordpress/babble
 Description: Now with Taxonomies!
-Version: Alpha 1.2
+Version: Alpha 1.3
 Author: Simon Wheatley
 Author URI: http://simonwheatley.co.uk/wordpress/
 */
