@@ -179,6 +179,16 @@ function bbl_is_translated_taxonomy( $taxonomy ) {
 }
 
 /**
+ * Test whether a particular post type is translated or not.
+ * 
+ * @param string $post_type The name of the post type to check
+ * @return bool True if this is a translated post type
+ */
+function bbl_is_translated_post_type( $post_type ) {
+	return (bool) apply_filters( 'bbl_translated_post_type', true, $post_type );
+}
+
+/**
  * Returns a taxonomy slug translated into a particular language.
  *
  * @param string $slug The slug to translate
@@ -297,6 +307,20 @@ function bbl_is_page( $page = '' ) {
 function bbl_get_post_in_lang( $post, $lang_code, $fallback = true ) {
 	global $bbl_post_public;
 	return $bbl_post_public->get_post_in_lang( $post, $lang_code, $fallback );
+}
+
+/**
+ * Returns the term in a particular language
+ *
+ * @param int|object $term Either a term object, or a term ID 
+ * @param string $taxonomy The term taxonomy
+ * @param string $lang_code The language code for the required language 
+ * @param boolean $fallback If true: if a term is not available, fallback to the default language content (defaults to true)
+ * @return object|boolean The term object, or if $fallback was false and no term then returns false
+ **/
+function bbl_get_term_in_lang( $term, $taxonomy, $lang_code, $fallback = true ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_term_in_lang( $term, $taxonomy, $lang_code, $fallback );
 }
 
 /**
