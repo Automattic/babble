@@ -201,6 +201,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * 			public 'code' => string 'ar'
 	 * 			public 'url_prefix' => string 'ar'
 	 * 			public 'text_direction' => string 'rtl'
+	 * 			public 'display_name' => string 'Arabic'
 	 * 
 	 * @return array An array of Babble language objects
 	 **/
@@ -467,6 +468,7 @@ class Babble_Languages extends Babble_Plugin {
 	 *
 	 * This method is an identical copy of format_code_lang 
 	 * in wp-admin/includes/ms.php
+	 * @TODO why? ^
 	 *
 	 * @FIXME: We end up with a load of anglicised names, which doesn't seem super-friendly, internationally speaking.
 	 * 

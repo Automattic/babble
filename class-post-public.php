@@ -205,7 +205,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( isset( $_GET[ 'bbl_origin_id' ] ) )
 			return;
 		$default_lang = bbl_get_default_lang();
-		wp_die( sprintf( _x( 'You can only create content in %s, please consult your editorial team. Use the back button to return.', '%s will be the name of the default language, e.g. "English".', 'fsd' ), $default_lang->display_name ) );
+		wp_die( sprintf( _x( 'You can only create content in %s. Please consult your editorial team.', '%s will be the name of the default language, e.g. "English".', 'babble' ), $default_lang->display_name ), '', array( 'back_link' => true ) );
 	}
 
 	/**
@@ -892,6 +892,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		do_action( 'bbl_created_new_shadow_post', $new_post_id, $origin_id );
 		
 		// Now we have to do a redirect, to ensure the WP Nonce gets generated correctly
+		// @TODO Fix this. 'wp_insert_post' is not the hook we should be using here. It also affects the admin
+		// dashboard (raising a warning) and the add-new screen (performing an unnecessary redirect).
 		wp_redirect( admin_url( "/post.php?post={$new_post_id}&action=edit&post_type={$new_post->post_type}" ) );
 	}
 
@@ -1143,7 +1145,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$default_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
 		if ( ! $default_post ) {
-			echo '<em style="color: #bc0b0b">' . __( 'no link', 'babble' ) . '</em>';
+			echo '<em style="color: #bc0b0b">' . __( 'No link', 'babble' ) . '</em>';
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
@@ -1153,7 +1155,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_restore_lang();
 		$edit_title = esc_attr( sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
 		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		echo "<a href='$view_link' title='$view_title'>" . __( 'view', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'edit', 'babble' ) . "</a>";
+		echo "<a href='$view_link' title='$view_title'>" . __( 'View', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'Edit', 'babble' ) . "</a>";
 	}
 
 	// CALLBACKS

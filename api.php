@@ -7,7 +7,7 @@
  * @since Alpha 1
  */
 
-/*  Copyright 2011 Simon Wheatley
+/*  Copyright 2013 Code for the People
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -104,8 +104,8 @@ function bbl_restore_lang() {
 
 /**
  * Get the terms which are the translations for the provided 
- * post ID. N.B. The returned array of term objects (and false 
- * values) will include the post for the post ID passed.
+ * term ID. N.B. The returned array of term objects (and false 
+ * values) will include the term for the term ID passed.
  * 
  * @FIXME: Should I filter out the term ID passed?
  *
@@ -438,6 +438,7 @@ function bbl_get_shadow_post_types( $base_post_type ) {
  * 			public 'code' => string 'ar'
  * 			public 'url_prefix' => string 'ar'
  * 			public 'text_direction' => string 'rtl'
+ * 			public 'display_name' => string 'Arabic'
  * 
  * @uses Babble_Languages::get_active_langs to do the actual work
  *

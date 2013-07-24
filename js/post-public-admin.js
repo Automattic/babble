@@ -1,4 +1,5 @@
 jQuery( document ).ready( function( $ ) {
+
 	if ( ! bbl_post_public.is_default_lang ) {
 		// Fixup the side admin menu, which is confused by our
 		// additional language post types.
