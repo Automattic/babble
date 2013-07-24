@@ -73,10 +73,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// This translation will connect each term with it's translated equivalents
 		register_taxonomy( 'term_translation', 'term', array(
 			'rewrite' => false,
-			'public' => true,
-			'show_ui' => true,
+			'public' => true,  # ?
+			'show_ui' => true, # ?
 			'show_in_nav_menus' => false,
-			'label' => __( 'Term Translation ID', 'bbl' ),
+			'label' => __( 'Term Translation ID', 'babble' ),
 		) );
 	}
 	

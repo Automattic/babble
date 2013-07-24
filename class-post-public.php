@@ -222,7 +222,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( $default_lang->text_direction != $current_lang->text_direction ) {
 			$post_id = isset( $_GET[ 'post' ] ) ? (int) $_GET[ 'post' ] : 0;
 			$post = get_post( $post_id );
-			add_meta_box( 'bbl_directionality', __( 'Text Direction', 'bbl' ), array( $this, 'metabox_text_direction' ), $post->post_type, 'side' );
+			add_meta_box( 'bbl_directionality', __( 'Text Direction', 'babble' ), array( $this, 'metabox_text_direction' ), $post->post_type, 'side' );
 		}
 	}
 
@@ -595,7 +595,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! bbl_translating() ) {
 			return;
 		}
-		global $bbl_locale, $bbl_languages;
 
 		if ( is_admin() ) {
 			return;
@@ -1189,7 +1188,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		?>
 			<p>
 				<label for="bbl_resync_translation"><input type="checkbox" name="bbl_resync_translation" value="1" id="bbl_resync_translation" />
-					<?php _e( 'Synchronise data with original post', 'fsd' ); ?>
+					<?php _e( 'Synchronise data with original post', 'babble' ); ?>
 				</label>
 			</p>
 		<?php
@@ -1212,16 +1211,16 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function metabox_text_direction( $post, $metabox ) {
 		$current_lang = bbl_get_current_lang();
 		if ( 'rtl' == $current_lang->text_direction )
-			$direction = __( 'Left to right', 'bbl' );
+			$direction = __( 'Left to right', 'babble' );
 		else
-			$direction = __( 'Right to left', 'bbl' );
+			$direction = __( 'Right to left', 'babble' );
 		$checked = (bool) get_post_meta( $post->ID, '_bbl_default_text_direction', true );
 		wp_nonce_field( "bbl_default_text_direction-{$post->ID}", '_bbl_default_text_direction' );
 		?>
 			<p>
 				<label for="bbl_default_text_direction">
 					<input type="checkbox" name="bbl_default_text_direction" value="1" id="bbl_default_text_direction" <?php checked( $checked ); ?> />
-					<?php printf( _x( '%s text', 'Indicates the directionality of some text, e.g. "Left to right text"', 'bbl' ), $direction ); ?>
+					<?php printf( _x( '%s text', 'Indicates the directionality of some text, e.g. "Left to right text"', 'babble' ), $direction ); ?>
 				</label>
 			</p>
 		<?php

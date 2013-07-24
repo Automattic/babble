@@ -232,7 +232,6 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return object|boolean A Babble language object
 	 **/
 	public function get_lang( $lang_code ) {
-		global $bbl_locale;
 		if ( ! isset( $this->langs[ $lang_code ] ) )
 			return false;
 		return $this->langs[ $lang_code ];

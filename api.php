@@ -113,7 +113,7 @@ function bbl_restore_lang() {
  * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
  * @access public
  **/
-function bbl_get_term_translations( $term, $taxonomy = null ) {
+function bbl_get_term_translations( $term, $taxonomy ) {
 	global $bbl_taxonomies;
 	return $bbl_taxonomies->get_term_translations( $term, $taxonomy );
 }
