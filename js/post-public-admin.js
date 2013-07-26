@@ -14,4 +14,7 @@ jQuery( document ).ready( function( $ ) {
 		// Remove Bulk Edit and Quick Edit options
 		$( '#posts-filter option[value="edit"], #posts-filter td.column-title span.inline' ).remove();
 	}
+
+	$( '#original_post_content' ).prop( 'readOnly', true );
+
 } );

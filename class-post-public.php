@@ -170,6 +170,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$data = array(
 			'menu_id' => $menu_id,
 			'is_default_lang' => (bool) ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ),
+			'is_bbl_post_type' => (bool) ( 0 === strpos( $post_type, 'bbl_' ) ),
 		);
 		wp_enqueue_script( 'post-public-admin', $this->url( '/js/post-public-admin.js' ), array( 'jquery' ), $this->version );
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
@@ -1586,7 +1587,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param int $target_id The target post, to copy TO 
 	 * @return void
 	 **/
-	protected function sync_properties( $source_id, $target_id ) {
+	public function sync_properties( $source_id, $target_id ) {
 		if ( ! ( $source_post = get_post( $source_id ) ) )
 			return;
 
