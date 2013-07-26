@@ -1541,12 +1541,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function get_slug_in_lang( $slug, $lang ) {
-		$_slug = strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug, $lang->code ) );
+		$_slug = mb_strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug, $lang->code ) );
 		// @FIXME: For some languages the translation might be the same as the original
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
 		// FIXME: Do we need to check that the slug is unique at this point?
-		return strtolower( "{$_slug}_{$lang->code}" );
+		return mb_strtolower( "{$_slug}_{$lang->code}" );
 	}
 	
 	// PRIVATE/PROTECTED METHODS
