@@ -41,7 +41,7 @@ require_once( 'api.php' );
 
 require_once( 'class-plugin.php' );
 
-// require_once( 'class-jobs.php' );
+require_once( 'class-jobs.php' );
 require_once( 'class-languages.php' );
 require_once( 'class-locale.php' );
 require_once( 'class-post-public.php' );

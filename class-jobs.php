@@ -1,13 +1,12 @@
 <?php
-
 /**
  * Class for handling jobs for the various language
  * translation teams.
  *
  * @package Babble
- * @since 0.1
+ * @since 1.3
  */
-class Babble_Job extends Babble_Plugin {
+class Babble_Jobs extends Babble_Plugin {
     
 	/**
 	 * A version number used for cachebusting, rewrite rule
@@ -245,7 +244,5 @@ class Babble_Job extends Babble_Plugin {
 
 }
 
-global $bbl_job;
-$bbl_job = new Babble_Job();
-
-?>
+global $bbl_jobs;
+$bbl_jobs = new Babble_Jobs();
