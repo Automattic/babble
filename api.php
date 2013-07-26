@@ -270,6 +270,8 @@ function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
 	return $bbl_post_public->get_post_type_in_lang( $original_post_type, $lang_code );
 }
 
+add_filter( 'bbl_get_content_post_type', 'bbl_get_post_type_in_lang' );
+
 /**
  * Is the query for a single page or translation or a single page?
  *

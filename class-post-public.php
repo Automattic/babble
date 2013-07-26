@@ -1486,6 +1486,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$base_post_type = $this->get_base_post_type( $post_type );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_post_type;
+		// Some post types are untranslated…
+		if ( ! apply_filters( 'bbl_translated_post_type', true, $post_type ) )
+			return $post_type;
 		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
 			return false;
 		}
