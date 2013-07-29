@@ -9,6 +9,9 @@ jQuery( document ).ready( function( $ ) {
 				.addClass( 'wp-menu-open' )
 				.removeClass( 'wp-not-current-submenu' );
 		}
+	}
+
+	if ( bbl_post_public.is_bbl_post_type || ! bbl_post_public.is_default_lang ) {
 		// Remove the add button next to the title for non-default languages
 		$( 'h2 .add-new-h2' ).remove();
 		// Remove Bulk Edit and Quick Edit options

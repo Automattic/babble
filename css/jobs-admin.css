@@ -18,3 +18,89 @@
 }
 
 /* @end */
+
+body.bbl-post-type-bbl_job .postbox-container {
+	display: none;
+}
+
+body.bbl-post-type-bbl_job #poststuff #post-body {
+	margin-right: 0;
+}
+
+#bbl-translation-editor .bbl-translation-property {
+	float: left;
+	width: 49%;
+}
+
+#bbl-translation-editor .bbl-translation-original {
+	float: right;
+	width: 49%;
+}
+
+#bbl-translation-editor .bbl-translation-section {
+	clear: both;
+	/* @TODO change to clearfix */
+	overflow: auto;
+	margin-bottom: 10px;
+}
+
+#bbl-translation-editor .bbl-translation-section-post_title,
+#bbl-translation-editor .bbl-translation-section-post_content {
+	margin-bottom: 30px;
+}
+
+
+#bbl-translation-editor .bbl-translation-property textarea,
+#bbl-translation-editor .bbl-translation-original textarea {
+	box-sizing: border-box;
+	resize: vertical;
+	height: 12em;
+	width: 100%;
+	margin: 0;
+	display: block;
+}
+
+#bbl-translation-editor .bbl-translation-property input[type="text"],
+#bbl-translation-editor .bbl-translation-original input[type="text"] {
+	box-sizing: border-box;
+	width: 100%;
+	margin: 0;
+}
+
+#bbl-translation-editor .bbl-translation-property-post_content textarea,
+#bbl-translation-editor .bbl-translation-original-post_content textarea {
+	height: auto;
+}
+
+#bbl-translation-editor .bbl-translation-property-post_title input {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 3px 8px;
+	font-size: 1.7em;
+	line-height: 115%;
+	margin: 0;
+}
+
+#bbl-translation-editor .bbl-translation-original-post_title {
+	font-size: 1.7em;
+	line-height: 115%;
+	padding-top: 4px;
+}
+
+#bbl-translation-editor .bbl-translation-submit {
+	width: 50%;
+	/*float: right;*/
+}
+
+#bbl-translation-editor .bbl-translation-original-term_name {
+	padding-top: 4px;
+}
+
+#bbl-translation-editor .meta-box-sortables .inside {
+	/* @TODO change to clearfix */
+	overflow: auto;;
+}
+
+#bbl-translation-editor .meta-box-sortables .inside h4 {
+	margin: 5px 0 0;
+}

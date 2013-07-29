@@ -59,6 +59,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'term_link', null, null, 3 );
+		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'admin_body_class' );
+
 	}
 	
 	// WP HOOKS
@@ -610,6 +613,28 @@ class Babble_Taxonomies extends Babble_Plugin {
 	
 	// PUBLIC METHODS
 	// ==============
+
+	public function admin_body_class( $class ) {
+
+		$taxonomy = get_current_screen() ? get_current_screen()->taxonomy : null;
+		if ( $taxonomy )
+			$class .= ' bbl-taxonomy-' . $taxonomy;
+
+		return $class;
+
+	}
+
+	public function bbl_translated_taxonomy( $translated, $taxonomy ) {
+		if ( 'term_translation' == $taxonomy )
+			return false;
+		if ( 'nav_menu' == $taxonomy )
+			return false;
+		if ( 'link_category' == $taxonomy )
+			return false;
+		if ( 'post_format' == $taxonomy )
+			return false;
+		return $translated;
+	}
 
 	/**
 	 * Provided with a taxonomy name, e.g. `post_tag`, and a language

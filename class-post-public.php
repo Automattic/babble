@@ -114,7 +114,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'get_sample_permalink', null, null, 5 );
 		$this->add_filter( 'single_template' );
 		$this->add_filter( 'the_posts', null, null, 2 );
-		
+		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'admin_body_class' );
+
 		$this->initiate();
 	}
 	/**
@@ -1230,6 +1232,22 @@ class Babble_Post_Public extends Babble_Plugin {
 	
 	// PUBLIC METHODS
 	// ==============
+
+	public function bbl_translated_taxonomy( $translated, $taxonomy ) {
+		if ( 'post_translation' == $taxonomy )
+			return false;
+		return $translated;
+	}
+
+	public function admin_body_class( $class ) {
+
+		$post_type = get_current_screen() ? get_current_screen()->post_type : null;
+		if ( $post_type )
+			$class .= ' bbl-post-type-' . $post_type;
+
+		return $class;
+
+	}
 
 	/**
 	 * Takes a set of query vars and amends them to show the content
