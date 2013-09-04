@@ -89,15 +89,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function registered_taxonomy( $taxonomy, $object_type, $args ) {
-		// Don't bother with non-public taxonomies for now
-		// If we remove this, we need to avoid dealing with post_translation and term_translation
-		if ( ! $args[ 'public' ] || 'post_translation' == $taxonomy || 'term_translation' == $taxonomy ) {
+		if ( in_array( $taxonomy, $this->ignored_taxonomies() )  ) {
 			return;
 		}
 
-		if ( $this->no_recursion ) {
+		if ( $this->no_recursion )
 			return;
-		}
+
 		$this->no_recursion = true;
 
 		if ( ! is_array( $object_type ) )
@@ -112,7 +110,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		// Untranslated taxonomies do not have shadow equivalents in each language,
 		// but do apply to the bast post_type and all it's shadow post_types.
-		if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+		if ( ! $this->is_taxonomy_translated( $taxonomy ) ) {
 			// Apply this taxonomy to all the shadow post types
 			// of all of the base post_types it applies to.
 			foreach ( $object_type as $ot ) {
@@ -124,6 +122,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 					register_taxonomy_for_object_type( $taxonomy, $shadow_post_type );
 				}
 			}
+
 			$this->no_recursion = false;
 			return;
 		}
@@ -174,7 +173,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 				$this->lang_map[ $lang->code ] = array();
 			$this->lang_map[ $lang->code ][ $taxonomy ] = $new_taxonomy;
 			
-			
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
 			
 			$this->add_taxonomy_hooks( $new_taxonomy );
@@ -182,6 +180,21 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// bbl_stop_logging();
 
 		$this->no_recursion = false;
+	}
+
+	public function ignored_taxonomies() {
+		return array( 'post_translation', 'term_translation' );
+	}
+
+	public function is_taxonomy_translated( $taxonomy ) {
+		if( in_array( $taxonomy, $this->ignored_taxonomies() ) )
+			return false;
+
+		// @FIXME: Remove this when menu's are translatable
+		if( 'nav_menu' == $taxonomy )
+			return false;
+
+		return apply_filters( 'bbl_translated_taxonomy', true, $taxonomy );
 	}
 
 	/**
@@ -201,7 +214,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			// @TODO: This is very nearly copy pasted from registered_taxonomy above, abstract the code into a joint function
 			// Untranslated taxonomies do not have shadow equivalents in each language,
 			// but do apply to the bast post_type and all it's shadow post_types.
-			if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+			if ( ! $this->is_taxonomy_translated( $taxonomy ) ) {
 				// Apply this taxonomy to all the shadow post types
 				// of all of the base post_types it applies to.
 				foreach ( $object_type as $ot ) {
@@ -239,7 +252,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$taxonomies = get_object_taxonomies( $origin_post->post_type );
 
 		foreach ( $taxonomies as $taxonomy ) {
-			if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+			if ( ! $this->is_taxonomy_translated( $taxonomy ) ) {
 				$term_ids = wp_get_object_terms( $origin_post->ID, $taxonomy, array( 'fields' => 'ids' ) );
 				$term_ids = array_map( 'absint', $term_ids );
 				wp_set_object_terms( $new_post->ID, $term_ids, $taxonomy );
@@ -534,16 +547,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->no_recursion = true;
 
 		// DO NOT SYNC THE TRANSID TAXONOMIES!!
-		if ( 'post_translation' == $taxonomy ) {
-			$this->no_recursion = false;
-			return;
-		}
-		if ( 'term_translation' == $taxonomy ) {
+		if ( in_array( $taxonomy, $this->ignored_taxonomies() ) ) {
 			$this->no_recursion = false;
 			return;
 		}
 
-		if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) ) {
+		if ( $this->is_taxonomy_translated( $taxonomy ) ) {
 			
 			// Here we assume that this taxonomy is on a post type
 			$translations = bbl_get_post_translations( $object_id );
@@ -755,16 +764,20 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
 		// Some taxonomies are untranslated…
-		if ( ! apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) )
+		if ( ! $this->is_taxonomy_translated( $taxonomy ) )
 			return $taxonomy;
 			
 		if ( ! $taxonomy )
 			return false; // @FIXME: Should I actually be throwing an error here?
+
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
+
 		$base_taxonomy = $this->get_base_taxonomy( $taxonomy );
+
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_taxonomy;
+
 		return $this->lang_map[ $lang_code ][ $base_taxonomy ];
 	}
 
@@ -944,7 +957,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Now associate terms from synced taxonomies in from the origin post
 		foreach ( $taxonomies as $taxonomy ) {
 			$origin_taxonomy = $taxonomy;
-			if ( apply_filters( 'bbl_translated_taxonomy', true, $taxonomy ) )
+			if ( $this->is_taxonomy_translated( $taxonomy ) )
 				$origin_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, bbl_get_default_lang_code() );
 			$term_ids = wp_get_object_terms( $origin_post->ID, $origin_taxonomy, array( 'fields' => 'ids' ) );
 			$term_ids = array_map( 'absint', $term_ids );
