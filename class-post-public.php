@@ -1362,7 +1362,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function get_post_lang_code( $post ) {
 		$post = get_post( $post );
 		if ( ! $post )
-			return new WP_Error( 'bbl_invalid_post', __( 'Invalid Post passed to get_post_lang_code' ) );
+			return new WP_Error( 'bbl_invalid_post', __( 'Invalid Post passed to get_post_lang_code', 'babble' ) );
 		if ( isset( $this->lang_map[ $post->post_type ] ) )
 			return $this->lang_map[ $post->post_type ];
 		return bbl_get_default_lang_code();
