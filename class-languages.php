@@ -93,6 +93,7 @@ class Babble_Languages extends Babble_Plugin {
 		$this->active_langs = $this->get_option( 'active_langs', array() );
 		$this->langs = $this->get_option( 'langs', array() );
 		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
+		$this->langs = $this->merge_lang_sets( $this->langs, $this->lang_prefs );
 		$this->default_lang = $this->get_option( 'default_lang', 'en_US' );
 		$this->public_langs = $this->get_option( 'public_langs', array( $this->default_lang ) );
 		// @FIXME: Add something in so the user gets setup with the single language they are currently using
@@ -105,11 +106,13 @@ class Babble_Languages extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP admin_notices action to warn the admin
-	 * if the permalinks aren't pretty enough.
+	 * if the available languages need to be set up.
 	 *
 	 * @return void
 	 **/
 	public function admin_notices() {
+		if ( get_current_screen()->id == 'settings_page_babble_languages' )
+			return;
 		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) ) {
 			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble setup:</strong> Please visit the <a href="%s">Available Languages settings</a> and setup your available languages and the default language.', 'babble' ), admin_url( 'options-general.php?page=babble_languages' ) ) );
 		}
@@ -198,6 +201,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * 			public 'code' => string 'ar'
 	 * 			public 'url_prefix' => string 'ar'
 	 * 			public 'text_direction' => string 'rtl'
+	 * 			public 'display_name' => string 'Arabic'
 	 * 
 	 * @return array An array of Babble language objects
 	 **/
@@ -228,7 +232,6 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return object|boolean A Babble language object
 	 **/
 	public function get_lang( $lang_code ) {
-		global $bbl_locale;
 		if ( ! isset( $this->langs[ $lang_code ] ) )
 			return false;
 		return $this->langs[ $lang_code ];
@@ -259,7 +262,7 @@ class Babble_Languages extends Babble_Plugin {
 	/**
 	 * Returns the default language for this site.
 	 *
-	 * @return string The language object for the default language
+	 * @return object The language object for the default language
 	 **/
 	public function get_default_lang() {
 		return bbl_get_lang( $this->default_lang );
@@ -464,6 +467,7 @@ class Babble_Languages extends Babble_Plugin {
 	 *
 	 * This method is an identical copy of format_code_lang 
 	 * in wp-admin/includes/ms.php
+	 * @TODO why? ^
 	 *
 	 * @FIXME: We end up with a load of anglicised names, which doesn't seem super-friendly, internationally speaking.
 	 * 

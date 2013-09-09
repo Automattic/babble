@@ -59,6 +59,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'term_link', null, null, 3 );
+		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'admin_body_class' );
+
 	}
 	
 	// WP HOOKS
@@ -73,10 +76,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// This translation will connect each term with it's translated equivalents
 		register_taxonomy( 'term_translation', 'term', array(
 			'rewrite' => false,
-			'public' => true,
-			'show_ui' => true,
+			'public' => true,  # ?
+			'show_ui' => true, # ?
 			'show_in_nav_menus' => false,
-			'label' => __( 'Term Translation ID', 'bbl' ),
+			'label' => __( 'Term Translation ID', 'babble' ),
 		) );
 	}
 	
@@ -286,6 +289,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$nonce = @ $_POST[ '_bbl_nonce' ];
 		if ( ! $nonce )
 			return;
+		# @TODO we shouldn't be throwing exceptions if we're not catching them anywhere:
 		if ( wp_verify_nonce( $nonce, "bbl_edit_$term_id" ) )
 			throw new exception( "Failed nonce check" );
 		$transid = @ $_POST[ 'bbl_transid' ];
@@ -610,6 +614,28 @@ class Babble_Taxonomies extends Babble_Plugin {
 	// PUBLIC METHODS
 	// ==============
 
+	public function admin_body_class( $class ) {
+
+		$taxonomy = get_current_screen() ? get_current_screen()->taxonomy : null;
+		if ( $taxonomy )
+			$class .= ' bbl-taxonomy-' . $taxonomy;
+
+		return $class;
+
+	}
+
+	public function bbl_translated_taxonomy( $translated, $taxonomy ) {
+		if ( 'term_translation' == $taxonomy )
+			return false;
+		if ( 'nav_menu' == $taxonomy )
+			return false;
+		if ( 'link_category' == $taxonomy )
+			return false;
+		if ( 'post_format' == $taxonomy )
+			return false;
+		return $translated;
+	}
+
 	/**
 	 * Provided with a taxonomy name, e.g. `post_tag`, and a language
 	 * code, will return the shadow taxonomy in that language.
@@ -624,8 +650,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 	/**
 	 * Get the terms which are the translations for the provided 
-	 * post ID. N.B. The returned array of term objects (and false 
-	 * values) will include the post for the post ID passed.
+	 * term ID. N.B. The returned array of term objects (and false 
+	 * values) will include the term for the term ID passed.
 	 * 
 	 * @FIXME: Should I filter out the term ID passed?
 	 * @FIXME: We should cache the translation groups, as we do for posts
@@ -705,7 +731,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		
 		bbl_switch_to_lang( $lang_code );
 		$transid = $this->get_transid( $default_term->term_id );
-		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
+		$url = admin_url( "edit-tags.php?taxonomy=$taxonomy" );
 		$args = array( 
 			'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 
 			'bbl_transid' => $transid, 
@@ -780,14 +806,35 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_slug_in_lang( $slug, $lang_code = null ) {
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
-		$_slug = strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug, $lang_code ) );
+		$_slug = mb_strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug, $lang_code ) );
 		// @FIXME: For some languages the translation might be the same as the original
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
 		// Do we need to check that the slug is unique at this point?
-		return strtolower( "{$_slug}_{$lang_code}" );
+		return mb_strtolower( "{$_slug}_{$lang_code}" );
 	}
 	
+
+	public function initialise_translation( $origin_term, $taxonomy, $lang_code ) {
+
+		$new_taxonomy = $this->get_slug_in_lang( $taxonomy, $lang_code );
+
+		$transid = $this->get_transid( $origin_term->term_id );
+
+		// Insert translation:
+		$this->no_recursion = true;
+		$new_term_id = wp_insert_term( $origin_term->name . ' - ' . $lang_code, $new_taxonomy );
+		$this->no_recursion = false;
+
+		$new_term = get_term( $new_term_id['term_id'], $new_taxonomy );
+
+		// Assign transid to translation:
+		$this->set_transid( $new_term_id['term_id'], $transid );
+
+		return $new_term;
+
+	}
+
 	// PRIVATE/PROTECTED METHODS
 	// =========================
 

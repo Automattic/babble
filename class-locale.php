@@ -17,11 +17,25 @@ class Babble_Locale {
 	protected $lang_regex = '|^[^/]+|i';
 
 	/**
-	 * The language for the current request.
+	 * The language for the content of the current request.
 	 *
 	 * @var string
 	 **/
-	protected $lang;
+	protected $content_lang;
+
+	/**
+	 * The interface language for the current request.
+	 *
+	 * @var string
+	 **/
+	protected $interface_lang;
+
+	/**
+	 * The locale for the current request.
+	 *
+	 * @var string
+	 **/
+	protected $locale;
 
 	/**
 	 * The URL prefix for the current request
@@ -50,7 +64,7 @@ class Babble_Locale {
 	 *
 	 * @var int
 	 **/
-	protected $version = 1;
+	protected $version = 2;
 	
 	/**
 	 * Setup any add_action or add_filter calls. Initiate properties.
@@ -63,14 +77,17 @@ class Babble_Locale {
 		add_action( 'admin_notices', array( & $this, 'admin_notices' ) );
 		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
 		add_action( 'pre_comment_on_post', array( & $this, 'pre_comment_on_post' ) );
+		#add_action( 'admin_bar_menu', array( $this, 'action_admin_bar_menu' ), -999 );
 		add_filter( 'body_class', array( & $this, 'body_class' ) );
 		add_filter( 'locale', array( & $this, 'set_locale' ) );
+		#add_filter( 'load_textdomain_mofile', array( $this, 'filter_override_mofile' ), 1, 2 );
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
 		add_filter( 'post_class', array( & $this, 'post_class' ), null, 3 );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
 
-		$this->admin_lang_cookie = $wpdb->prefix . '_bbl_admin_lang_' . COOKIEHASH;
+		$this->content_lang_cookie   = $wpdb->prefix . '_bbl_content_lang_' . COOKIEHASH;
+		$this->interface_lang_cookie = $wpdb->prefix . '_bbl_interface_lang_' . COOKIEHASH;
 	}
 
 	/**
@@ -81,7 +98,8 @@ class Babble_Locale {
 	public function admin_init(  ) {
 		add_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
 		$this->maybe_update();
-		$this->maybe_set_cookie_lang();
+		$this->maybe_set_cookie_content_lang();
+		$this->maybe_set_cookie_interface_lang();
 	}
 
 	/**
@@ -158,6 +176,51 @@ class Babble_Locale {
 	    return $new_rules;
 	}
 
+	public function action_admin_bar_menu( WP_Admin_Bar $wp_admin_bar ) {
+
+		# this isn't used
+		# @TODO delete
+
+		if ( is_admin() )
+			return;
+
+		$interface_lang = $this->get_interface_lang();
+		$content_lang   = $this->get_content_lang();
+
+		if ( $interface_lang == $content_lang )
+			return;
+
+		$mofile = WP_LANG_DIR . "/{$interface_lang}.mo";
+
+		# doesn't work because original strings take precedence
+		$load = load_textdomain( $content_lang, $mofile );
+
+	}
+
+	/**
+	 * Hooks the 'load_textdomain_mofile' filter to load the content language mo files
+	 *
+	 * @param  string $mofile The mo file to load
+	 * @param  string $domain The textdomain
+	 * @return string The mo file to load
+	 **/
+	public function filter_override_mofile( $mofile, $domain ) {
+
+		# this isn't used
+		# @TODO delete
+
+		if ( $this->get_interface_lang() == $this->get_content_lang() )
+			return $mofile;
+
+		if ( false !== strpos( $mofile, 'wp-content/languages/' ) )
+			return $mofile;
+
+		$mofile = str_replace( $this->get_interface_lang(), $this->get_content_lang(), $mofile );
+
+		return $mofile;
+
+	}
+
 	/**
 	 * Hooks the WP locale filter to switch locales whenever we gosh darned want.
 	 *
@@ -165,35 +228,56 @@ class Babble_Locale {
 	 * @return string The locale
 	 **/
 	public function set_locale( $locale ) {
-		global $wp_rewrite, $bbl_languages;
-		
 		// Deal with the special case of wp-comments-post.php
 		if ( false !== stristr( $_SERVER[ 'REQUEST_URI' ], 'wp-comments-post.php' ) ) {
 			if ( $comment_post_ID = ( isset( $_POST[ 'comment_post_ID' ] ) ) ? (int) $_POST[ 'comment_post_ID' ] : false ) {
-				$this->set_lang( bbl_get_post_lang_code( $comment_post_ID ) );
-				return $this->lang;
+				$this->set_content_lang( bbl_get_post_lang_code( $comment_post_ID ) );
+				return $this->content_lang;
 			}
 		}
-		
-		if ( isset( $this->lang ) )
-			return $this->lang;
+
+		#if ( is_admin() ) {
+			if ( isset( $this->interface_lang ) )
+				return $this->interface_lang;
+		#} else {
+		#	if ( isset( $this->content_lang ) )
+		#		return $this->content_lang;
+		#}
+
 		if ( is_admin() ) {
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
-			if ( isset( $_GET[ 'lang' ] ) ) {
-				$this->set_lang( $_GET[ 'lang' ] );
+			if ( isset( $_POST[ 'interface_lang' ] ) ) {
+				$this->set_interface_lang( $_POST[ 'interface_lang' ] );
 			} else {
 				// $current_user = wp_get_current_user();
-				if ( $lang = $this->get_cookie_lang() )
-					$this->set_lang( $lang );
+				if ( $lang = $this->get_cookie_interface_lang() )
+					$this->set_interface_lang( $lang );
+			}
+			// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
+			if ( isset( $_GET[ 'lang' ] ) ) {
+				$this->set_content_lang( $_GET[ 'lang' ] );
+			} else {
+				// $current_user = wp_get_current_user();
+				if ( $lang = $this->get_cookie_content_lang() )
+					$this->set_content_lang( $lang );
 			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
-				$this->set_lang_from_prefix( $matches[ 0 ] );
+				$this->set_content_lang_from_prefix( $matches[ 0 ] );
+			if ( $lang = $this->get_cookie_content_lang() )
+				$this->set_interface_lang( $lang );
 		}
-		if ( ! isset( $this->lang ) || ! $this->lang )
-			$this->set_lang( bbl_get_default_lang_code() );
-		return $this->lang;
+
+		if ( ! isset( $this->content_lang ) || ! $this->content_lang )
+			$this->set_content_lang( bbl_get_default_lang_code() );
+		if ( ! isset( $this->interface_lang ) || ! $this->interface_lang )
+			$this->set_interface_lang( bbl_get_default_lang_code() );
+
+		#if ( is_admin() )
+			return $this->interface_lang;
+		#else
+		#	return $this->content_lang;
 	}
 
 	/**
@@ -212,7 +296,7 @@ class Babble_Locale {
 			exit;
 		}
 		// Otherwise, simply set the lang for this request
-		$wp->query_vars[ 'lang' ] = $this->lang;
+		$wp->query_vars[ 'lang' ] = $this->content_lang;
 		$wp->query_vars[ 'lang_url_prefix' ] = $this->url_prefix;
 	}
 
@@ -306,17 +390,38 @@ class Babble_Locale {
 	// --------------
 
 	/**
-	 * Get the current lang for this class, which is also the
+	 * Get the current (content) lang for this class, which is also the
 	 * current lang in the Query Vars.
 	 *
-	 * @return void
+	 * @TODO deprecate
+	 *
+	 * @return string
 	 **/
 	public function get_lang() {
-		return $this->lang;
+		return $this->get_content_lang();
 	}
 
 	/**
-	 * Set the current lang for this class, and in Query Vars.
+	 * Get the current content lang for this class, which is also the
+	 * current lang in the Query Vars.
+	 *
+	 * @return string
+	 **/
+	public function get_content_lang() {
+		return $this->content_lang;
+	}
+
+	/**
+	 * Get the current interface lang for this class.
+	 *
+	 * @return string
+	 **/
+	public function get_interface_lang() {
+		return $this->interface_lang;
+	}
+
+	/**
+	 * Set the current (content) lang for this class, and in Query Vars.
 	 *
 	 * @param string $lang The language code to switch to 
 	 * @return void
@@ -325,9 +430,9 @@ class Babble_Locale {
 		// @FIXME: Need to validate language here
 		if ( ! is_array( $this->lang_stack ) )
 			$this->lang_stack = array();
-		$this->lang_stack[] = $this->lang;
-		$this->set_lang( $lang );
-		set_query_var( 'lang', $this->lang );
+		$this->lang_stack[] = $this->content_lang;
+		$this->set_content_lang( $lang );
+		set_query_var( 'lang', $this->content_lang );
 	}
 	
 	/**
@@ -336,15 +441,15 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	public function restore_lang() {
-		$this->set_lang( array_pop( $this->lang_stack ) );
-		set_query_var( 'lang', $this->lang );
+		$this->set_content_lang( array_pop( $this->lang_stack ) );
+		set_query_var( 'lang', $this->content_lang );
 	}
 
 	// Non-public Methods
 	// ------------------
 
 	/**
-	 * Set the language code and URL prefix for any 
+	 * Set the content language code and URL prefix for any 
 	 * subsequent requests.
 	 *
 	 * @FIXME: Currently we don't check that the language is valid
@@ -352,22 +457,35 @@ class Babble_Locale {
 	 * @param string $code A language code
 	 * @return void
 	 **/
-	protected function set_lang( $code ) {
+	protected function set_content_lang( $code ) {
 		global $bbl_languages;
-		// Set the language in the application
-		$this->lang = $code;
-		$this->url_prefix = $bbl_languages->get_url_prefix_from_code( $this->lang );
+		// Set the content language in the application
+		$this->content_lang = $code;
+		$this->url_prefix = $bbl_languages->get_url_prefix_from_code( $this->content_lang );
 	}
 
 	/**
-	 * Set the language for the URL prefix provided.
+	 * Set the interace language code.
+	 *
+	 * @FIXME: Currently we don't check that the language is valid
+	 *
+	 * @param string $code A language code
+	 * @return void
+	 **/
+	protected function set_interface_lang( $code ) {
+		// Set the interface language in the application
+		$this->interface_lang = $code;
+	}
+
+	/**
+	 * Set the content language for the URL prefix provided.
 	 *
 	 * @param string $url_prefix A URL prefix, e.g. "de" 
 	 * @return void
 	 **/
-	protected function set_lang_from_prefix( $url_prefix ) {
+	protected function set_content_lang_from_prefix( $url_prefix ) {
 		global $bbl_languages;
-		$this->set_lang( bbl_get_lang_from_prefix( $url_prefix ) );
+		$this->set_content_lang( bbl_get_lang_from_prefix( $url_prefix ) );
 	}
 
 	/**
@@ -427,28 +545,51 @@ class Babble_Locale {
 	}
 
 	/**
+	 * Sets the content language cookie where necessary. We are using cookies
+	 * as we cannot get userdata at the set_locale action, which is where 
+	 * we need to read the user's language.
+	 *
+	 * @return void
+	 **/
+	protected function maybe_set_cookie_content_lang() {
+		// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
+		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : false )
+			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+	}
+
+	/**
 	 * Sets the admin language cookie where necessary. We are using cookies
 	 * as we cannot get userdata at the set_locale action, which is where 
 	 * we need to read the user's language.
 	 *
 	 * @return void
 	 **/
-	protected function maybe_set_cookie_lang() {
-		// $current_lang = $this->get_lang();
-		// $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : '';
-		// $cookie_lang = $this->get_cookie_lang();
-		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : false )
-			setcookie( $this->admin_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+	protected function maybe_set_cookie_interface_lang() {
+		// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
+		if ( $requested_lang = ( isset( $_POST[ 'interface_lang' ] ) ) ? $_POST[ 'interface_lang' ] : false )
+			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
 	}
 
 	/**
-	 * Gets the language code from the admin language cookie.
+	 * Gets the language code from the content language cookie.
+	 *
+	 * @TODO: This should use a cookie that's keyed to the current user when present
 	 *
 	 * @return string A language code
 	 **/
-	protected function get_cookie_lang() {
-		global $wpdb;
-		return ( isset( $_COOKIE[ $wpdb->prefix . '_bbl_admin_lang_' . COOKIEHASH ] ) ) ? $_COOKIE[ $wpdb->prefix . '_bbl_admin_lang_' . COOKIEHASH ] : '';
+	protected function get_cookie_content_lang() {
+		return ( isset( $_COOKIE[ $this->content_lang_cookie ] ) ) ? $_COOKIE[ $this->content_lang_cookie ] : '';
+	}
+
+	/**
+	 * Gets the language code from the interface language cookie.
+	 *
+	 * @TODO: This should use a cookie that's keyed to the current user when present
+	 *
+	 * @return string A language code
+	 **/
+	protected function get_cookie_interface_lang() {
+		return ( isset( $_COOKIE[ $this->interface_lang_cookie] ) ) ? $_COOKIE[ $this->interface_lang_cookie ] : '';
 	}
 
 	/**
@@ -478,5 +619,3 @@ class Babble_Locale {
 
 global $bbl_locale;
 $bbl_locale = new Babble_Locale();
-
-?>

@@ -123,7 +123,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'get_sample_permalink', null, null, 5 );
 		$this->add_filter( 'single_template' );
 		$this->add_filter( 'the_posts', null, null, 2 );
-		
+		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'admin_body_class' );
+
 		$this->initiate();
 	}
 	/**
@@ -180,11 +182,48 @@ class Babble_Post_Public extends Babble_Plugin {
 		$data = array(
 			'menu_id' => $menu_id,
 			'is_default_lang' => (bool) ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ),
+			'is_bbl_post_type' => (bool) ( 0 === strpos( $post_type, 'bbl_' ) ),
 		);
 		wp_enqueue_script( 'post-public-admin', $this->url( '/js/post-public-admin.js' ), array( 'jquery' ), $this->version );
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
 	}
 
+	/**
+	 * Initialise a translation for the given post.
+	 *
+	 * @param  WP_Post $origin_post The origin post
+	 * @param  string  $lang_code   The language code for the new translation
+	 * @return WP_Post              The translation post
+	 */
+	public function initialise_translation( WP_Post $origin_post, $lang_code ) {
+
+		$new_post_type = $this->get_post_type_in_lang( $origin_post->post_type, $lang_code );
+		$transid       = $this->get_transid( $origin_post->ID );
+
+		// Insert translation:
+		$this->no_recursion = true;
+		$new_post_id = wp_insert_post( array(
+			'post_type'   => $new_post_type,
+			'post_status' => 'draft',
+		), true );
+		$this->no_recursion = false;
+
+		$new_post = get_post( $new_post_id );
+
+		// Assign transid to translation:
+		$this->set_transid( $new_post, $transid );
+
+		// Copy all the metadata across
+		$this->sync_post_meta( $new_post_id );
+
+		// Copy the various core post properties across
+		$this->sync_properties( $origin_id, $new_post_id );
+
+		do_action( 'bbl_created_new_shadow_post', $new_post->ID, $origin_post->ID );
+
+		return $new_post;
+
+	}
 
 	/**
 	 * Hooks the WP init action really really late.
@@ -215,7 +254,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( isset( $_GET[ 'bbl_origin_id' ] ) )
 			return;
 		$default_lang = bbl_get_default_lang();
-		wp_die( sprintf( _x( 'You can only create content in %s, please consult your editorial team. Use the back button to return.', '%s will be the name of the default language, e.g. "English".', 'fsd' ), $default_lang->display_name ) );
+		wp_die( sprintf( _x( 'You can only create content in %s. Please consult your editorial team.', '%s will be the name of the default language, e.g. "English".', 'babble' ), $default_lang->display_name ), '', array( 'back_link' => true ) );
 	}
 
 	/**
@@ -232,7 +271,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( $default_lang->text_direction != $current_lang->text_direction ) {
 			$post_id = isset( $_GET[ 'post' ] ) ? (int) $_GET[ 'post' ] : 0;
 			$post = get_post( $post_id );
-			add_meta_box( 'bbl_directionality', __( 'Text Direction', 'bbl' ), array( $this, 'metabox_text_direction' ), $post->post_type, 'side' );
+			add_meta_box( 'bbl_directionality', __( 'Text Direction', 'babble' ), array( $this, 'metabox_text_direction' ), $post->post_type, 'side' );
 		}
 	}
 
@@ -612,7 +651,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! bbl_translating() ) {
 			return;
 		}
-		global $bbl_locale, $bbl_languages;
 
 		if ( is_admin() ) {
 			return;
@@ -909,6 +947,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		do_action( 'bbl_created_new_shadow_post', $new_post_id, $origin_id );
 		
 		// Now we have to do a redirect, to ensure the WP Nonce gets generated correctly
+		// @TODO Fix this. 'wp_insert_post' is not the hook we should be using here. It also affects the admin
+		// dashboard (raising a warning) and the add-new screen (performing an unnecessary redirect).
 		wp_redirect( admin_url( "/post.php?post={$new_post_id}&action=edit&post_type={$new_post->post_type}" ) );
 	}
 
@@ -1135,18 +1175,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		// Insert our cols just before comments, or date.
 		if ( $post_type == bbl_get_post_type_in_lang( $post_type, bbl_get_default_lang_code() ) )
 			return $columns;
-		$new_cols = array();
-		foreach ( $columns as $col_name => $col ) {
-			if ( 'comments' == $col_name || 'date' == $col_name ) {
-				$new_cols[ 'bbl_link' ] = __( 'Translation of', 'babble' );
-				$new_cols = array_merge( $new_cols, $columns );
-				break;
-			} else {
-				$new_cols[ $col_name ] = $col;
-				unset( $columns[ $col_name ] );
-			}
-		}
-		return $new_cols;
+		$columns[ 'bbl_link' ] = __( 'Translation of', 'babble' );
+		return $columns;
 	}
 
 	/**
@@ -1161,7 +1191,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$default_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
 		if ( ! $default_post ) {
-			echo '<em style="color: #bc0b0b">' . __( 'no link', 'babble' ) . '</em>';
+			echo '<em style="color: #bc0b0b">' . __( 'No link', 'babble' ) . '</em>';
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
@@ -1171,7 +1201,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_restore_lang();
 		$edit_title = esc_attr( sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
 		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		echo "<a href='$view_link' title='$view_title'>" . __( 'view', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'edit', 'babble' ) . "</a>";
+		echo "<a href='$view_link' title='$view_title'>" . __( 'View', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'Edit', 'babble' ) . "</a>";
 	}
 
 	// CALLBACKS
@@ -1205,7 +1235,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		?>
 			<p>
 				<label for="bbl_resync_translation"><input type="checkbox" name="bbl_resync_translation" value="1" id="bbl_resync_translation" />
-					<?php _e( 'Synchronise data with original post', 'fsd' ); ?>
+					<?php _e( 'Synchronise data with original post', 'babble' ); ?>
 				</label>
 			</p>
 		<?php
@@ -1228,16 +1258,16 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function metabox_text_direction( $post, $metabox ) {
 		$current_lang = bbl_get_current_lang();
 		if ( 'rtl' == $current_lang->text_direction )
-			$direction = __( 'Left to right', 'bbl' );
+			$direction = __( 'Left to right', 'babble' );
 		else
-			$direction = __( 'Right to left', 'bbl' );
+			$direction = __( 'Right to left', 'babble' );
 		$checked = (bool) get_post_meta( $post->ID, '_bbl_default_text_direction', true );
 		wp_nonce_field( "bbl_default_text_direction-{$post->ID}", '_bbl_default_text_direction' );
 		?>
 			<p>
 				<label for="bbl_default_text_direction">
 					<input type="checkbox" name="bbl_default_text_direction" value="1" id="bbl_default_text_direction" <?php checked( $checked ); ?> />
-					<?php printf( _x( '%s text', 'Indicates the directionality of some text, e.g. "Left to right text"', 'bbl' ), $direction ); ?>
+					<?php printf( _x( '%s text', 'Indicates the directionality of some text, e.g. "Left to right text"', 'babble' ), $direction ); ?>
 				</label>
 			</p>
 		<?php
@@ -1246,6 +1276,22 @@ class Babble_Post_Public extends Babble_Plugin {
 	
 	// PUBLIC METHODS
 	// ==============
+
+	public function bbl_translated_taxonomy( $translated, $taxonomy ) {
+		if ( 'post_translation' == $taxonomy )
+			return false;
+		return $translated;
+	}
+
+	public function admin_body_class( $class ) {
+
+		$post_type = get_current_screen() ? get_current_screen()->post_type : null;
+		if ( $post_type )
+			$class .= ' bbl-post-type-' . $post_type;
+
+		return $class;
+
+	}
 
 	/**
 	 * Takes a set of query vars and amends them to show the content
@@ -1370,7 +1416,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function get_post_lang_code( $post ) {
 		$post = get_post( $post );
 		if ( ! $post )
-			return new WP_Error( 'bbl_invalid_post', __( 'Invalid Post passed to get_post_lang_code' ) );
+			return new WP_Error( 'bbl_invalid_post', __( 'Invalid Post passed to get_post_lang_code', 'babble' ) );
 		if ( isset( $this->lang_map[ $post->post_type ] ) )
 			return $this->lang_map[ $post->post_type ];
 		return bbl_get_default_lang_code();
@@ -1503,6 +1549,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$base_post_type = $this->get_base_post_type( $post_type );
 		if ( bbl_get_default_lang_code() == $lang_code )
 			return $base_post_type;
+		// Some post types are untranslated…
+		if ( ! apply_filters( 'bbl_translated_post_type', true, $post_type ) )
+			return $post_type;
 		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
 			return false;
 		}
@@ -1555,12 +1604,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function get_slug_in_lang( $slug, $lang ) {
-		$_slug = strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug, $lang->code ) );
+		$_slug = mb_strtolower( apply_filters( 'bbl_translate_post_type_slug', $slug, $lang->code ) );
 		// @FIXME: For some languages the translation might be the same as the original
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
 		// FIXME: Do we need to check that the slug is unique at this point?
-		return strtolower( "{$_slug}_{$lang->code}" );
+		return mb_strtolower( "{$_slug}_{$lang->code}" );
 	}
 	
 	// PRIVATE/PROTECTED METHODS
@@ -1600,7 +1649,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param int $target_id The target post, to copy TO 
 	 * @return void
 	 **/
-	protected function sync_properties( $source_id, $target_id ) {
+	public function sync_properties( $source_id, $target_id ) {
 		if ( ! ( $source_post = get_post( $source_id ) ) )
 			return;
 
@@ -1620,6 +1669,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			'ID' => $target_id,
 			'post_author' => $source_post->post_author,
 			'post_modified' => $target_post->post_modified,
+			'post_modified_gmt' => $target_post->post_modified_gmt,
 			'ping_status' => $source_post->ping_status,
 			'post_password' => $source_post->post_password,
 			'menu_order' => $source_post->menu_order,
@@ -1631,8 +1681,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		else
 			$postdata[ 'post_parent' ] = 0;
 
-		if ( bbl_get_default_lang_code() == $source_lang_code )
+		if ( bbl_get_default_lang_code() == $source_lang_code ) {
 			$postdata[ 'post_date' ] = $source_post->post_date;
+			$postdata[ 'post_date_gmt' ] = $source_post->post_date_gmt;
+		}
 
 		// Comment status only synced when going from the default lang code
 		if ( bbl_get_default_lang_code() == $source_lang_code )
