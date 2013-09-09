@@ -47,7 +47,8 @@ require_once( 'class-locale.php' );
 require_once( 'class-post-public.php' );
 require_once( 'class-comment.php' );
 require_once( 'class-taxonomy.php' );
-require_once( 'class-switcher-menu.php' );
+require_once( 'class-switcher-content.php' );
+require_once( 'class-switcher-interface.php' );
 require_once( 'class-admin-bar.php' );
 
 require_once( 'miscellaneous.php' );
