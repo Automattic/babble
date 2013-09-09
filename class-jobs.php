@@ -279,7 +279,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 			$terms_data = stripslashes_deep( $_POST['bbl_translation']['terms'] );
 	    	$terms      = get_post_meta( $job->ID, 'bbl_job_term', false );
-rofl($terms);
+
 			foreach ( $terms as $term_info ) {
 
 				list( $taxo, $term_id ) = explode( '|', $term_info );
@@ -290,21 +290,16 @@ rofl($terms);
 				if ( 'complete' == $job->post_status ) {
 
 					$trans = bbl_get_term_in_lang( $term, $taxo, $lang, false );
-					rofl($trans);
 					if ( !$trans )
 						$trans = $this->initialise_term_translation( $term, $taxo, $lang );
-rofl($trans);
+
 					$terms_data[$term->term_id]['term_id'] = $trans->term_id;
-rofl($terms_data);
+
 					$args = array(
 						'name' => $terms_data[$term->term_id]['name'],
 						'slug' => '',
 					);
-					rofl($args);
 					$update = wp_update_term( absint( $trans->term_id ), $trans->taxonomy, $args );
-					rofl($update);
-					wp_footer();
-					die();
 
 				}
 
