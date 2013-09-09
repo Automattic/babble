@@ -572,6 +572,7 @@ class Babble_Jobs extends Babble_Plugin {
 		global $bbl_post_public;
 
 		$new_post_type = bbl_get_post_type_in_lang( $origin_post->post_type, $lang_code );
+		$transid       = $bbl_post_public->get_transid( $origin_post->ID );
 
 		// Insert translation:
 		$this->no_recursion = true;
@@ -584,7 +585,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$new_post = get_post( $new_post_id );
 
 		// Assign transid to translation:
-		$bbl_post_public->set_transid( $new_post );
+		$bbl_post_public->set_transid( $new_post, $transid );
 
 		// Copy all the metadata across
 		$bbl_post_public->sync_post_meta( $new_post_id );
@@ -604,6 +605,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$new_taxonomy = bbl_get_taxonomy_slug_in_lang( $taxonomy, $lang_code );
 
+		$transid = $bbl_taxonomies->get_transid( $origin_term->term_id );
+
 		// Insert translation:
 		$this->no_recursion = true;
 		$new_term_id = wp_insert_term( $origin_term->name . ' - ' . $lang_code, $new_taxonomy );
@@ -612,7 +615,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$new_term = get_term( $new_term_id['term_id'], $new_taxonomy );
 
 		// Assign transid to translation:
-		$bbl_taxonomies->set_transid( $new_term_id['term_id'] );
+		$bbl_taxonomies->set_transid( $new_term_id['term_id'], $transid );
 
 		return $new_term;
 
