@@ -1121,18 +1121,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		// Insert our cols just before comments, or date.
 		if ( $post_type == bbl_get_post_type_in_lang( $post_type, bbl_get_default_lang_code() ) )
 			return $columns;
-		$new_cols = array();
-		foreach ( $columns as $col_name => $col ) {
-			if ( 'comments' == $col_name || 'date' == $col_name ) {
-				$new_cols[ 'bbl_link' ] = __( 'Translation of', 'babble' );
-				$new_cols = array_merge( $new_cols, $columns );
-				break;
-			} else {
-				$new_cols[ $col_name ] = $col;
-				unset( $columns[ $col_name ] );
-			}
-		}
-		return $new_cols;
+		$columns[ 'bbl_link' ] = __( 'Translation of', 'babble' );
+		return $columns;
 	}
 
 	/**
