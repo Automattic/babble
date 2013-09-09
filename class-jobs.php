@@ -233,6 +233,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 	public function save_job( $job_id, WP_Post $job ) {
 
+		global $bbl_post_public, $bbl_taxonomies;
+
 		if ( $this->no_recursion )
 			return;
 		if ( 'bbl_job' != $job->post_type )
@@ -261,8 +263,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 			if ( 'complete' == $job->post_status ) {
 
-				if ( !$trans = bbl_get_post_in_lang( $post, $lang, false ) )
-					$trans = $this->initialise_post_translation( $post, $lang );
+				if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang, false ) )
+					$trans = $bbl_post_public->initialise_translation( $post, $lang );
 
 				$post_data['ID']          = $trans->ID;
 				$post_data['post_status'] = $post->post_status;
@@ -289,9 +291,9 @@ class Babble_Jobs extends Babble_Plugin {
 
 				if ( 'complete' == $job->post_status ) {
 
-					$trans = bbl_get_term_in_lang( $term, $taxo, $lang, false );
+					$trans = $bbl_taxonomies->get_term_in_lang( $term, $taxo, $lang, false );
 					if ( !$trans )
-						$trans = $this->initialise_term_translation( $term, $taxo, $lang );
+						$trans = $bbl_taxonomies->initialise_translation( $term, $taxo, $lang );
 
 					$terms_data[$term->term_id]['term_id'] = $trans->term_id;
 
@@ -556,70 +558,6 @@ class Babble_Jobs extends Babble_Plugin {
 
     // PUBLIC METHODS
     // ==============
-
-	/**
-	 * Initialise a translation for the given post.
-	 *
-	 * @TODO Babble needs a method for creating a translation. Much of this is copied
-	 * from Babble_Post_Public::wp_insert_post()
-	 * 
-	 * @param  WP_Post $origin_post The origin post
-	 * @param  string  $lang_code   The language code for the new translation
-	 * @return WP_Post              The translation post
-	 */
-	protected function initialise_post_translation( WP_Post $origin_post, $lang_code ) {
-
-		global $bbl_post_public;
-
-		$new_post_type = bbl_get_post_type_in_lang( $origin_post->post_type, $lang_code );
-		$transid       = $bbl_post_public->get_transid( $origin_post->ID );
-
-		// Insert translation:
-		$this->no_recursion = true;
-		$new_post_id = wp_insert_post( array(
-			'post_type'   => $new_post_type,
-			'post_status' => 'draft',
-		), true );
-		$this->no_recursion = false;
-
-		$new_post = get_post( $new_post_id );
-
-		// Assign transid to translation:
-		$bbl_post_public->set_transid( $new_post, $transid );
-
-		// Copy all the metadata across
-		$bbl_post_public->sync_post_meta( $new_post_id );
-
-		// Copy the various core post properties across
-		$bbl_post_public->sync_properties( $origin_id, $new_post_id );
-
-		do_action( 'bbl_created_new_shadow_post', $new_post->ID, $origin_post->ID );
-
-		return $new_post;
-
-	}
-
-	public function initialise_term_translation( $origin_term, $taxonomy, $lang_code ) {
-
-		global $bbl_taxonomies;
-
-		$new_taxonomy = bbl_get_taxonomy_slug_in_lang( $taxonomy, $lang_code );
-
-		$transid = $bbl_taxonomies->get_transid( $origin_term->term_id );
-
-		// Insert translation:
-		$this->no_recursion = true;
-		$new_term_id = wp_insert_term( $origin_term->name . ' - ' . $lang_code, $new_taxonomy );
-		$this->no_recursion = false;
-
-		$new_term = get_term( $new_term_id['term_id'], $new_taxonomy );
-
-		// Assign transid to translation:
-		$bbl_taxonomies->set_transid( $new_term_id['term_id'], $transid );
-
-		return $new_term;
-
-	}
 
     public function get_post_jobs( WP_Post $post ) {
     	return $this->get_object_jobs( $post->ID, 'post', $post->post_type );

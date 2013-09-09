@@ -178,6 +178,42 @@ class Babble_Post_Public extends Babble_Plugin {
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
 	}
 
+	/**
+	 * Initialise a translation for the given post.
+	 *
+	 * @param  WP_Post $origin_post The origin post
+	 * @param  string  $lang_code   The language code for the new translation
+	 * @return WP_Post              The translation post
+	 */
+	public function initialise_translation( WP_Post $origin_post, $lang_code ) {
+
+		$new_post_type = $this->get_post_type_in_lang( $origin_post->post_type, $lang_code );
+		$transid       = $this->get_transid( $origin_post->ID );
+
+		// Insert translation:
+		$this->no_recursion = true;
+		$new_post_id = wp_insert_post( array(
+			'post_type'   => $new_post_type,
+			'post_status' => 'draft',
+		), true );
+		$this->no_recursion = false;
+
+		$new_post = get_post( $new_post_id );
+
+		// Assign transid to translation:
+		$this->set_transid( $new_post, $transid );
+
+		// Copy all the metadata across
+		$this->sync_post_meta( $new_post_id );
+
+		// Copy the various core post properties across
+		$this->sync_properties( $origin_id, $new_post_id );
+
+		do_action( 'bbl_created_new_shadow_post', $new_post->ID, $origin_post->ID );
+
+		return $new_post;
+
+	}
 
 	/**
 	 * Hooks the WP init action really really late.

@@ -814,6 +814,27 @@ class Babble_Taxonomies extends Babble_Plugin {
 		return mb_strtolower( "{$_slug}_{$lang_code}" );
 	}
 	
+
+	public function initialise_translation( $origin_term, $taxonomy, $lang_code ) {
+
+		$new_taxonomy = $this->get_slug_in_lang( $taxonomy, $lang_code );
+
+		$transid = $this->get_transid( $origin_term->term_id );
+
+		// Insert translation:
+		$this->no_recursion = true;
+		$new_term_id = wp_insert_term( $origin_term->name . ' - ' . $lang_code, $new_taxonomy );
+		$this->no_recursion = false;
+
+		$new_term = get_term( $new_term_id['term_id'], $new_taxonomy );
+
+		// Assign transid to translation:
+		$this->set_transid( $new_term_id['term_id'], $transid );
+
+		return $new_term;
+
+	}
+
 	// PRIVATE/PROTECTED METHODS
 	// =========================
 
