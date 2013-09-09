@@ -1615,6 +1615,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			'ID' => $target_id,
 			'post_author' => $source_post->post_author,
 			'post_modified' => $target_post->post_modified,
+			'post_modified_gmt' => $target_post->post_modified_gmt,
 			'ping_status' => $source_post->ping_status,
 			'post_password' => $source_post->post_password,
 			'menu_order' => $source_post->menu_order,
@@ -1626,8 +1627,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		else
 			$postdata[ 'post_parent' ] = 0;
 
-		if ( bbl_get_default_lang_code() == $source_lang_code )
+		if ( bbl_get_default_lang_code() == $source_lang_code ) {
 			$postdata[ 'post_date' ] = $source_post->post_date;
+			$postdata[ 'post_date_gmt' ] = $source_post->post_date_gmt;
+		}
 
 		// Comment status only synced when going from the default lang code
 		if ( bbl_get_default_lang_code() == $source_lang_code )
