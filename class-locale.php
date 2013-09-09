@@ -265,7 +265,7 @@ class Babble_Locale {
 			// @FIXME: Should probably check the available languages here
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
 				$this->set_content_lang_from_prefix( $matches[ 0 ] );
-			if ( $lang = $this->get_cookie_interface_lang() )
+			if ( $lang = $this->get_cookie_content_lang() )
 				$this->set_interface_lang( $lang );
 		}
 
