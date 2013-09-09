@@ -85,14 +85,11 @@
 
 	<div class="bbl-translation-submit">
 
-		<?php
-
-		# @TODO this might be better off not as a meta box. in fact, definitely. change it.
-
-		do_action( 'bbl_translation_submit_meta_boxes', 'bbl_translation_editor_submit', $job );
-		do_meta_boxes( 'bbl_translation_editor_submit', 'submit', compact( 'job' ) );
-
-		?>
+		<select name="post_status">
+			<option value="in-progress"><?php esc_html_e( 'In Progress', 'babble' ); ?></option>
+			<option value="complete" <?php selected( $job->post_status, 'complete' ); ?>><?php esc_html_e( 'Complete', 'babble' ); ?></option>
+		</select>
+		<?php submit_button( __( 'Update', 'babble' ), 'primary large', 'submit', false ); ?>
 
 	</div>
 
