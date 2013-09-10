@@ -33,7 +33,7 @@ class Babble_Admin_bar extends Babble_Plugin {
 			'href' => '#',
 			'id' => $parent_id,
 			'meta' => array( 'class' => "bbl_lang_{$current_lang->code} bbl_lang" ),
-			'title' => $current_lang->names,
+			'title' => $current_lang->name,
 			'parent' => false,
 		) );
 		foreach ( $links as & $link ) {

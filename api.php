@@ -460,7 +460,7 @@ function bbl_get_shadow_post_types( $base_post_type ) {
  * language object looks like:
  * 'ar' => 
  * 		object(stdClass)
- * 			public 'names' => string 'Arabic'
+ * 			public 'name' => string 'Arabic'
  * 			public 'code' => string 'ar'
  * 			public 'url_prefix' => string 'ar'
  * 			public 'text_direction' => string 'rtl'

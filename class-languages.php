@@ -161,7 +161,7 @@ class Babble_Languages extends Babble_Plugin {
 			$lang->input_lang_class = ( 'rtl' == $lang->text_direction ) ? 'lang-rtl' : 'lang-ltr' ;
 			$lang->display_name = ( @ isset( $_POST[ "display_name_$code" ] ) ) ? $_POST[ "display_name_$code" ] : @ $lang->display_name;
 			if ( ! $lang->display_name )
-				$lang->display_name = $lang->names;
+				$lang->display_name = $lang->name;
 			// Note any url_prefix errors
 			$lang->url_prefix_error = ( @ $this->errors[ "url_prefix_$code" ] ) ? 'babble-error' : '0' ;
 			// Flag the active languages
@@ -197,7 +197,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * by URL prefix. A language object looks like:
 	 * 'ar' => 
 	 * 		object(stdClass)
-	 * 			public 'names' => string 'Arabic'
+	 * 			public 'name' => string 'Arabic'
 	 * 			public 'code' => string 'ar'
 	 * 			public 'url_prefix' => string 'ar'
 	 * 			public 'text_direction' => string 'rtl'
@@ -410,7 +410,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * with an array of language objects which look like:
   	 * 'ar' => 
   	 * 		object(stdClass)
-  	 * 			public 'names' => string 'Arabic'
+  	 * 			public 'name' => string 'Arabic'
   	 * 			public 'code' => string 'ar'
   	 * 			public 'url_prefix' => string 'ar'
   	 * 			public 'text_direction' => string 'rtl'
@@ -423,7 +423,7 @@ class Babble_Languages extends Babble_Plugin {
 		foreach ( glob( WP_LANG_DIR . '/*.mo' ) as $mo_file ) {
 			preg_match( '/(([a-z]+)(_[a-z]+)?)\.mo$/i', $mo_file, $matches );
 			$lang = array(
-				'names' => $this->format_code_lang( $matches[ 2 ] ),
+				'name' => $this->format_code_lang( $matches[ 2 ] ),
 				'code' => $matches[ 1 ],
 				'url_prefix' => $matches[ 2 ],
 				'text_direction' => $this->is_rtl( $matches[ 1 ] ),
@@ -434,7 +434,7 @@ class Babble_Languages extends Babble_Plugin {
 		}
 		// Add in US English, which is the default on WordPress and has no language files
 		$en = new stdClass;
-		$en->names = 'English; US';
+		$en->name = 'English; US';
 		$en->code = 'en_US';
 		$en->url_prefix = 'en';
 		$en->text_direction = 'ltr';
@@ -525,7 +525,7 @@ class Babble_Languages extends Babble_Plugin {
 
 		$this->langs = array( $locale => $this->available_langs[ $locale ] );
 		$this->langs[ $locale ]->url_prefix = $url_prefix;
-		$this->langs[ $locale ]->display_name = $this->langs[ $locale ]->names;
+		$this->langs[ $locale ]->display_name = $this->langs[ $locale ]->name;
 		$this->default_lang = $locale;
 		$this->public_langs = array( $locale );
 	}

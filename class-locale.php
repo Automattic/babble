@@ -354,7 +354,7 @@ class Babble_Locale {
 		$lang = bbl_get_current_lang();
 		$classes[] = 'bbl-' . $lang->text_direction;
 		$classes[] = 'bbl-' . $lang->text_direction;
-		$classes[] = 'bbl-' . sanitize_title( $lang->names );
+		$classes[] = 'bbl-' . sanitize_title( $lang->name );
 		$classes[] = 'bbl-' . sanitize_title( $lang->url_prefix );
 		$classes[] = 'bbl-' . sanitize_title( $lang->code );
 		$classes[] = 'bbl-' . sanitize_title( $lang->display_name );
@@ -379,7 +379,7 @@ class Babble_Locale {
 		} else {
 			$classes[] = 'bbl-post-' . $lang->text_direction;
 		}
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->names );
+		$classes[] = 'bbl-post-' . sanitize_title( $lang->name );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->url_prefix );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->code );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->display_name );
