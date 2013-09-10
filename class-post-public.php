@@ -76,8 +76,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'admin_init' );
 		$this->add_action( 'clean_post_cache' );
 		$this->add_action( 'body_class', null, null, 2 );
-		$this->add_action( 'before_delete_post' );
-		$this->add_action( 'deleted_post' );
+		$this->add_action( 'before_delete_post', 'clean_post_cache' );
+		$this->add_action( 'deleted_post', 'clean_post_cache' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
 		$this->add_action( 'init', 'init_late', 9999 );
 		$this->add_action( 'load-post-new.php', 'load_post_new' );
@@ -90,7 +90,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'transition_post_status', null, null, 3 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_before_admin_bar_render' );
-		$this->add_action( 'wp_insert_post', null, null, 2 );
 		$this->add_filter( 'add_menu_classes' );
 		$this->add_filter( 'add_post_metadata', null, null, 5 );
 		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
@@ -496,6 +495,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( $query->is_main_query() ) {
 			return;
 		}
+		# @TODO we should scrap this and more intelligently filter the QVs rather than basing it on whether we're on a media tab
 		if ( $this->is_media_upload_tab( 'gallery' ) ) {
 			return;
 		}
@@ -771,73 +771,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		
 		$this->no_recursion = false;
 		return $link;
-	}
-
-	/**
-	 * Hooks the WP wp_insert_post action to set a transid on 
-	 *
-	 * @param int $post_id The ID of the post which has just been inserted
-	 * @param object $post The WP Post object which has just been inserted 
-	 * @return void
-	 **/
-	public function wp_insert_post( $new_post_id, $new_post ) {
-		if ( 'auto-draft' != $new_post->post_status )
-			return;
-
-		if ( $this->no_recursion )
-			return;
-		$this->no_recursion = 'wp_insert_post';
-
-		// Get any approved term ID for the transid for any new translation
-		$transid = isset( $_GET[ 'bbl_transid' ] ) ? (int) $_GET[ 'bbl_transid' ] : false;
-		$this->set_transid( $new_post, $transid );
-
-		$this->clean_post_cache( $new_post_id );
-
-		// FIXME: Use consistent language throughout; i.e. source_post, not origin_post.
-		$origin_id = isset( $_GET[ 'bbl_origin_id' ] ) ? (int) $_GET[ 'bbl_origin_id' ] : false;
-		$origin_post = get_post( $origin_id );
-
-		// Ensure the post is in the correct shadow post_type
-		if ( bbl_get_default_lang_code() != bbl_get_current_lang_code() ) {
-			$new_post_type = $this->get_post_type_in_lang( $new_post->post_type, bbl_get_current_lang_code() );
-			wp_update_post( array( 'ID' => $new_post_id, 'post_type' => $new_post_type ) );
-		}
-
-		// Copy all the metadata across
-		$this->sync_post_meta( $new_post_id );
-
-		// Copy the various core post properties across
-		$this->sync_properties( $origin_id, $new_post_id );
-		
-		$this->no_recursion = false;
-
-		do_action( 'bbl_created_new_shadow_post', $new_post_id, $origin_id );
-		
-		// Now we have to do a redirect, to ensure the WP Nonce gets generated correctly
-		// @TODO Fix this. 'wp_insert_post' is not the hook we should be using here. It also affects the admin
-		// dashboard (raising a warning) and the add-new screen (performing an unnecessary redirect).
-		wp_redirect( admin_url( "/post.php?post={$new_post_id}&action=edit&post_type={$new_post->post_type}" ) );
-	}
-
-	/**
-	 * Hooks the WP action delete_post to keep our cache up to date.
-	 *
-	 * @param int $post_id The ID of the post which was deleted. 
-	 * @return void
-	 **/
-	public function before_delete_post( $post_id ) {
-		$this->clean_post_cache( $post_id );
-	}
-
-	/**
-	 * Hooks the WP action save_post to keep our cache up to date.
-	 *
-	 * @param int $post_id The ID of the post which was deleted. 
-	 * @return void
-	 **/
-	public function deleted_post( $post_id ) {
-		$this->clean_post_cache( $post_id );
 	}
 	
 	/**
@@ -1754,5 +1687,3 @@ class Babble_Post_Public extends Babble_Plugin {
 
 global $bbl_post_public;
 $bbl_post_public = new Babble_Post_Public();
-
-?>

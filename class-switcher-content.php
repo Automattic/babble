@@ -196,6 +196,7 @@ class Babble_Switcher_Menu {
 				'tag_ID' => $this->translations[ $lang->code ]->term_id 
 			);
 			$href = add_query_arg( $args );
+			# This string is not localisable. We will actually need to bundle the phrase for 'Switch to {lang}' for every language.
 			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-term';
