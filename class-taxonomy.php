@@ -55,7 +55,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_action( 'set_object_terms', null, null, 5 );
 		$this->add_filter( 'get_terms' );
-		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'term_link', null, null, 3 );
 		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
 		$this->add_filter( 'admin_body_class' );
@@ -500,17 +499,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 
 		$this->no_recursion = false;
-	}
-
-	/**
-	 * Hooks posts_request.
-	 *
-	 * @param  
-	 * @return void
-	 **/
-	public function posts_request( $query ) {
-		// bbl_log( "Query: $query" );
-		return $query;
 	}
 	
 	// CALLBACKS

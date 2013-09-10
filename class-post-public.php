@@ -95,7 +95,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
 		$this->add_filter( 'manage_posts_columns', 'manage_posts_columns', null, 2 );
 		$this->add_filter( 'page_link', null, null, 2 );
-		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
 		$this->add_filter( 'post_type_archive_link', null, null, 2 );
 		$this->add_filter( 'post_type_link', null, null, 3 );
@@ -229,10 +228,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		if ( bbl_get_current_lang_code() == bbl_get_default_lang_code() )
 			return;
-		if ( isset( $_GET[ 'bbl_origin_id' ] ) )
-			return;
-		$default_lang = bbl_get_default_lang();
-		wp_die( sprintf( _x( 'You can only create content in %s. Please consult your editorial team.', '%s will be the name of the default language, e.g. "English".', 'babble' ), $default_lang->display_name ), '', array( 'back_link' => true ) );
+
+		wp_die( __( 'You can only create content in your site\'s default language. Please consult your editorial team.', 'babble' ), '', array( 'back_link' => true ) );
 	}
 
 	/**
@@ -525,17 +522,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		$wp->query_vars = $this->translate_query_vars( $wp->query_vars, $wp->request );
-	}
-
-	/**
-	 * Hooks posts_request.
-	 *
-	 * @param  
-	 * @return void
-	 **/
-	public function posts_request( $query ) {
-		// error_log( "Query: $query" );
-		return $query;
 	}
 
 	/**
@@ -1678,7 +1664,16 @@ class Babble_Post_Public extends Babble_Plugin {
 	 */
 	function have_duplicate_metadata() {
 		global $wpdb;
-		$sql = "SELECT COUNT(*) AS count, post_id, meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key IN ( '_extmedia-youtube', '_extmedia-duration', '_thumbnail_id', '_wp_trash_meta_time', '_wp_page_template', '_wp_trash_meta_status' ) GROUP BY post_id, meta_key, meta_value HAVING count > 1 ORDER BY count, post_id, meta_key";
+		$sql = "
+			SELECT COUNT(*) AS count, post_id, meta_key, meta_value
+			FROM $wpdb->postmeta
+			WHERE meta_key IN (
+				'_extmedia-youtube', '_extmedia-duration', '_thumbnail_id', '_wp_trash_meta_time', '_wp_page_template', '_wp_trash_meta_status'
+			)
+			GROUP BY post_id, meta_key, meta_value
+			HAVING count > 1
+			ORDER BY count, post_id, meta_key
+		";
 		return (bool) count( $wpdb->get_results( $sql ) );
 	}
 	
