@@ -189,10 +189,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->set_transid( $new_post, $transid );
 
 		// Copy all the metadata across
-		$this->sync_post_meta( $new_post_id );
+		$this->sync_post_meta( $new_post->ID );
 
 		// Copy the various core post properties across
-		$this->sync_properties( $origin_id, $new_post_id );
+		$this->sync_properties( $origin_post->ID, $new_post->ID );
 
 		do_action( 'bbl_created_new_shadow_post', $new_post->ID, $origin_post->ID );
 
