@@ -44,9 +44,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function __construct() {
 		$this->setup( 'babble-taxonomy', 'plugin' );
-		if ( is_admin() ) {
-			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
-		}
 		$this->add_action( 'bbl_created_new_shadow_post', 'created_new_shadow_post', null, 2 );
 		$this->add_action( 'bbl_registered_shadow_post_types', 'registered_shadow_post_types' );
 		$this->add_action( 'init', 'init_early', 0 );
@@ -175,7 +172,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
 			
-			$this->add_taxonomy_hooks( $new_taxonomy );
 		}
 		// bbl_stop_logging();
 
