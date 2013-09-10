@@ -46,13 +46,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected $lang_map2;
 
 	/**
-	 * A flag to record that we've done the metabox juggling.
-	 *
-	 * @var boolean
-	 **/
-	protected $done_metaboxes;
-
-	/**
 	 * A version number to use for cache busting, database updates, etc
 	 *
 	 * @var int
@@ -86,18 +79,14 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'before_delete_post' );
 		$this->add_action( 'deleted_post' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
-		$this->add_action( 'do_meta_boxes', 'do_meta_boxes_early', null, 9 );
 		$this->add_action( 'init', 'init_late', 9999 );
-		$this->add_action( 'load-post-new.php', 'load_post' );
 		$this->add_action( 'load-post-new.php', 'load_post_new' );
-		$this->add_action( 'load-post.php', 'load_post' );
 		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'post_updated' );
 		$this->add_action( 'pre_get_posts' );
 		$this->add_action( 'registered_post_type', null, null, 2 );
-		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_action( 'transition_post_status', null, null, 3 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
 		$this->add_action( 'wp_before_admin_bar_render' );
@@ -125,7 +114,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function initiate() {
-		$this->done_metaboxes = false;
 		$this->lang_map = array();
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
@@ -218,6 +206,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Hooks the WP init action really really late.
 	 *
+	 * @TODO we should performance profile this. Two calls to serialise two potentially large objects might be slow.
+	 *
 	 * @return void
 	 **/
 	public function init_late() {
@@ -245,24 +235,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$default_lang = bbl_get_default_lang();
 		wp_die( sprintf( _x( 'You can only create content in %s. Please consult your editorial team.', '%s will be the name of the default language, e.g. "English".', 'babble' ), $default_lang->display_name ), '', array( 'back_link' => true ) );
-	}
-
-	/**
-	 * Hooks the WP load-post-new.php and load-post.php actions to
-	 * provide a box to indicate default directionality for posts in
-	 * languages which don't share the same directionality as the
-	 * default language.
-	 *
-	 * @return void
-	 **/
-	public function load_post() {
-		$default_lang = bbl_get_default_lang();
-		$current_lang = bbl_get_current_lang();
-		if ( $default_lang->text_direction != $current_lang->text_direction ) {
-			$post_id = isset( $_GET[ 'post' ] ) ? (int) $_GET[ 'post' ] : 0;
-			$post = get_post( $post_id );
-			add_meta_box( 'bbl_directionality', __( 'Text Direction', 'babble' ), array( $this, 'metabox_text_direction' ), $post->post_type, 'side' );
-		}
 	}
 
 	/**
@@ -308,8 +280,6 @@ class Babble_Post_Public extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP registered_post_type action. 
-	 * 
-	 * N.B. THIS HOOK IS NOT IMPLEMENTED UNTIL WP 3.3
 	 *
 	 * @param string $post_type The post type which has just been registered. 
 	 * @param array $args The arguments with which the post type was registered
@@ -510,90 +480,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		
 		$this->no_meta_recursion = false;
-	}
-
-	/**
-	 * Hooks the WP do_meta_boxes_early marginally before the core
-	 * WordPress functions get involved, to only show the metaboxes
-	 * required for translatable content.
-	 * 
-	 * Plugin devs can use the bbl_metaboxes_for_translators filter
-	 * to add the ID of a metabox they want shown to translators.
-	 *
-	 * @param string|object $screen Screen identifier we are checking metaboxes for (occasionally equivalent to a post type)
-	 * @return void
-	 **/
-	public function do_meta_boxes_early( $screen ) {
-		global $wp_meta_boxes;
-
-		if ( $this->done_metaboxes )
-			return;
-		$this->done_metaboxes = true;
-
-		if ( empty( $screen ) )
-			$screen = get_current_screen();
-		elseif ( is_string( $screen ) )
-			$screen = convert_to_screen( $screen );
-		
-		if ( 'post' != $screen->base )
-			return;
-
-		$base_post_type = bbl_get_post_type_in_lang( $screen->post_type, bbl_get_default_lang_code() );
-		if ( $base_post_type == $screen->post_type )
-			return;
-
-		// $page = $screen->id;
-
-		if ( empty( $base_screen ) )
-			$base_screen = get_current_screen();
-		elseif ( is_string( $base_screen ) )
-			$base_screen = convert_to_screen( $base_screen );
-		
-		$post = get_post( get_the_ID() );
-		do_action( 'add_meta_boxes_' . $base_post_type, $post );
-		
-		if ( isset( $wp_meta_boxes[ $base_post_type ] ) ) {
-			foreach (  $wp_meta_boxes[ $base_post_type ] as $context => $boxes_in_context ) {
-				foreach ( $boxes_in_context as $priority => $boxes_at_priority ) {
-					foreach ( $boxes_at_priority as $id => $meta_box ) {
-						// This is crude; we're going to add all the metaboxes
-						// to the shadow post type, WordPress' add_meta_box 
-						// function will ignore existing boxes.
-						add_meta_box( $id, $meta_box[ 'title' ], $meta_box[ 'callback' ], $screen->post_type, $context, $priority, $meta_box[ 'args' ] );
-					}
-				}
-			}
-		}
-
-		$retain = apply_filters( 'bbl_metaboxes_for_translators', array( 'submitdiv', 'postexcerpt', 'bbl_directionality', 'slugdiv' ), $screen->post_type );
-		
-		foreach (  $wp_meta_boxes[ $screen->post_type ] as $context => $boxes_in_context ) {
-			foreach ( $boxes_in_context as $priority => $boxes_at_priority ) {
-				foreach ( $boxes_at_priority as $id => $meta_box ) {
-					if ( in_array( $id, $retain ) )
-						continue;
-					remove_meta_box( $id, $screen->post_type, $context );
-				}
-			}
-		}
-		
-		do_action( 'bbl_do_translation_metaboxes', $post );
-	}
-
-	/**
-	 * Hooks the WP save_post action to resync data
-	 * when requested.
-	 *
-	 * @param int $post_id The ID of the WP post
-	 * @param object $post The WP Post object 
-	 * @return void
-	 **/
-	public function save_post( $post_id, $post ) {
-		// We only need to resync the post meta, as
-		// properties are synced on every save.
-		$this->maybe_resync_meta_data( $post_id, $post );
-		// Save any text directionality enforcement
-		$this->save_text_directionality( $post_id, $post );
 	}
 
 	/**
@@ -1186,76 +1072,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		echo "<a href='$view_link' title='$view_title'>" . __( 'View', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'Edit', 'babble' ) . "</a>";
 	}
 
-	// CALLBACKS
-	// =========
-	
-	/**
-	 * The callback function which provides HTML for the Babble 
-	 * Translation Resync metabox, which allows a translator to 
-	 * re-sync all the data from the original post.
-	 *
-	 * This metabox isn't shown by default, a dev must add it 
-	 * like so:
-	 * 
-	 * function fsd_bbl_do_translation_metaboxes( $post ) {
-	 * 	  global $bbl_post_public;
-	 * 	  add_meta_box( 'bbl_resync', 'Translation Resync', array( $bbl_post_public, 'metabox_resync' ), $post->post_type, 'side' );
-	 * }
-	 * add_action( 'bbl_do_translation_metaboxes', 'fsd_bbl_do_translation_metaboxes' );
-	 * 
-	 * @FIXME: This is handling both data and taxonomies, split it out into the class-taxonomy.php file?
-	 *
-	 * @param object $post The WP Post object being edited
-	 * @param array $metabox The args and params for this metabox
-	 * @return void (echoes HTML)
-	 **/
-	public function metabox_resync( $post, $metabox ) {
-		// Sometimes it's useful to have something theme 
-		// specific in this metabox.
-		do_action( 'bbl_metabox_resync_before', $post, $metabox );
-		wp_nonce_field( "bbl_resync_translation-$post->ID", '_bbl_metabox_resync' );
-		?>
-			<p>
-				<label for="bbl_resync_translation"><input type="checkbox" name="bbl_resync_translation" value="1" id="bbl_resync_translation" />
-					<?php _e( 'Synchronise data with original post', 'babble' ); ?>
-				</label>
-			</p>
-		<?php
-		do_action( 'bbl_metabox_resync_after', $post, $metabox );
-	}
-	
-	/**
-	 * The callback function which provides HTML for the Babble 
-	 * Text Direction metabox, which allows a translator to 
-	 * specify that this content should use the directionality
-	 * of the default language rather than the assumed language
-	 * of this content. For example, a translator might quickly
-	 * paste in English content into the Arabic area and assign
-	 * it the left to right directionality temporarily.
-	 *
-	 * @param object $post The WP Post object being edited
-	 * @param array $metabox The args and params for this metabox
-	 * @return void (echoes HTML)
-	 **/
-	public function metabox_text_direction( $post, $metabox ) {
-		$current_lang = bbl_get_current_lang();
-		if ( 'rtl' == $current_lang->text_direction )
-			$direction = __( 'Left to right', 'babble' );
-		else
-			$direction = __( 'Right to left', 'babble' );
-		$checked = (bool) get_post_meta( $post->ID, '_bbl_default_text_direction', true );
-		wp_nonce_field( "bbl_default_text_direction-{$post->ID}", '_bbl_default_text_direction' );
-		?>
-			<p>
-				<label for="bbl_default_text_direction">
-					<input type="checkbox" name="bbl_default_text_direction" value="1" id="bbl_default_text_direction" <?php checked( $checked ); ?> />
-					<?php printf( _x( '%s text', 'Indicates the directionality of some text, e.g. "Left to right text"', 'babble' ), $direction ); ?>
-				</label>
-			</p>
-		<?php
-		do_action( 'bbl_metabox_resync_after', $post, $metabox );
-	}
-	
 	// PUBLIC METHODS
 	// ==============
 
@@ -1600,6 +1416,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Save the checkbox indicating text directionality.
 	 *
+	 * @TODO this needs to move into the translation jobs class
+	 *
 	 * @param int $post_id The ID of the post
 	 * @param object $post The post object itself
 	 * @return void
@@ -1675,37 +1493,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$postdata = apply_filters( 'bbl_pre_sync_properties', $postdata, $source_id );
 
 		wp_update_post( $postdata );
-	}
-
-	/**
-	 * Checks for the relevant POSTed field, then 
-	 * resyncs the meta data, etc.
-	 *
-	 * @param int $post_id The ID of the WP post
-	 * @param object $post The WP Post object 
-	 * @return void
-	 **/
-	protected function maybe_resync_meta_data( $post_id, $post ) {
-		// Check that the fields were included on the screen, we
-		// can do this by checking for the presence of the nonce.
-		$nonce = isset( $_POST[ '_bbl_metabox_resync' ] ) ? $_POST[ '_bbl_metabox_resync' ] : false;
-		
-		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) )
-			return;
-		
-		if ( ! $nonce )
-			return;
-								
-		if ( ! isset( $_POST[ 'bbl_resync_translation' ] ) || ! $_POST[ 'bbl_resync_translation' ] )
-			return;
-			
-		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
-		if ( $posted_id != $post_id )
-			return;
-		// While we're at it, let's check the nonce
-		check_admin_referer( "bbl_resync_translation-$post_id", '_bbl_metabox_resync' );
-		
-		$this->sync_post_meta( $post_id );
 	}
 
 	/**
@@ -1828,7 +1615,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Return a list of features supported by a post_type.
 	 *
-	 * Hello there, VIP code reviewer. I imagine you're wondering
+	 * Hello there, code investigator. I imagine you're wondering
 	 * why I'm accessing a global prefixed by an underscore? I realise
 	 * these are nominally private variables, prone to change, but
 	 * I need to access a list of all features supported by a post
