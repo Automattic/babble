@@ -124,7 +124,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function admin_menu() {
-		add_options_page( __( 'Available Languages', 'babble' ), __( 'Available Languages' ), 'manage_options', 'babble_languages', array( $this, 'options' ) );
+		add_options_page( __( 'Available Languages', 'babble' ), __( 'Available Languages' , 'babble'), 'manage_options', 'babble_languages', array( $this, 'options' ) );
 	}
 	
 	/**

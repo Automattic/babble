@@ -17,7 +17,7 @@
 	wp_nonce_field( 'babble_lang_prefs', '_babble_nonce' ); 
 ?>
 
-<p><?php _e( 'Please select the languages you wish to translate this site into, you should select at least two, and select "Save Changes" below the languages table.' ); ?></p>
+<p><?php _e( 'Please select the languages you wish to translate this site into, you should select at least two, and select "Save Changes" below the languages table.', 'babble' ); ?></p>
 
 <p>
 	<label for="default_lang"><?php _e( 'Default language:', 'babble' ); ?></label> 

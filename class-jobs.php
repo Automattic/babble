@@ -203,7 +203,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 	public function bbl_translation_submit_meta_boxes( $type, $job ) {
 
-		add_meta_box( 'bbl_job_submit', __( 'Save Translation' ), array( $this, 'metabox_translation_submit' ), $type, 'submit' );
+		add_meta_box( 'bbl_job_submit', __( 'Save Translation' , 'babble'), array( $this, 'metabox_translation_submit' ), $type, 'submit' );
 
 	}
 

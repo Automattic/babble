@@ -134,7 +134,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			'show_ui' => false,
 			'show_in_nav_menus' => false,
 			'show_in_nav_menus' => false,
-			'label' => __( 'Post Translation ID', 'sil' ),
 		) );
 	}
 

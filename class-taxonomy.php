@@ -388,7 +388,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 	
 		if ( !is_object($term) )
-			$term = new WP_Error('invalid_term', __('Empty Term'));
+			$term = new WP_Error('invalid_term', __('Empty Term', 'babble'));
 	
 		if ( is_wp_error( $term ) )
 			return $term;
