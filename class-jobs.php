@@ -37,6 +37,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_action( 'save_post', 'save_job', null, 2 );
 		$this->add_action( 'manage_bbl_job_posts_custom_column', 'action_column', null, 2 );
 		$this->add_action( 'add_meta_boxes_bbl_job', null, 999 );
+		$this->add_action( 'load-post.php', 'load_post_edit' );
 
 		$this->add_filter( 'manage_bbl_job_posts_columns', 'filter_columns' );
 		$this->add_filter( 'bbl_translated_post_type', null, null, 2 );
@@ -116,6 +117,35 @@ class Babble_Jobs extends Babble_Plugin {
 	public function admin_init() {
 		# @TODO use filemtime everywhere
 		wp_enqueue_style( 'bbl-jobs-admin', $this->url( 'css/jobs-admin.css' ), array(), $this->version );
+	}
+
+	/**
+	 * Hooks the WP action load-post.php to detect people
+	 * trying to edit translation posts, and instead kick 
+	 * redirect them to an existing translation job or
+	 * create a translation job and direct them to that.
+	 *
+	 * @action load-post.php
+	 * 
+	 * @return void
+	 **/
+	public function load_post_edit() {
+		$screen = get_current_screen();
+		$post = get_post( absint( $_GET[ 'post' ] ) );
+		if ( ! bbl_is_translated_post_type( $post->post_type ) )
+			return;
+		if ( bbl_get_default_lang_code() == bbl_get_post_lang_code( $post ) )
+			return;
+		// Check capabilities include editing a translation post
+		// - If not, the button shouldn't be on the Admin Bar
+		// - But we also need to not process at this point
+		// Create a new translation job for the current language
+		$lang_codes = (array) bbl_get_post_lang_code( $post );
+		$jobs = $this->create_translation_jobs( $post, $lang_codes );
+		// Redirect to the translation job
+		$url = get_edit_post_link( $jobs[0], 'url' );
+		wp_redirect( $url );
+		exit;
 	}
 
 	/**
@@ -668,8 +698,11 @@ class Babble_Jobs extends Babble_Plugin {
 				'post_status' => 'new',
 				'post_author' => get_current_user_id(),
 				'post_title'  => get_the_title( $post ),
-				'post_name'   => "job-{$lang_code}-{$post->post_name}",
+				// This post_name construction may need to change when we have multiple translation jobs per canonical post
+				// Do we even need to set a post_name?
+				'post_name'   => "job-{$lang_code}-{$post->post_name}", 
 			) );
+			$jobs[] = $job;
 			$this->no_recursion = false;
 
 			add_post_meta( $job, 'bbl_job_post', "{$post->post_type}|{$post->ID}", true );
@@ -687,9 +720,7 @@ class Babble_Jobs extends Babble_Plugin {
 						add_post_meta( $job, 'bbl_job_term', "{$taxo}|{$term_id}", false );
 				}
 			}
-			$jobs[] = $job;
 		}
-
 		return $jobs;
 	}
 
