@@ -353,61 +353,9 @@ class Babble_Jobs extends Babble_Plugin {
 		# @TODO this should be wp_verify_nonce() with a return instead of check_admin_referer()
 		check_admin_referer( "bbl_ready_for_translation-{$post->ID}", '_bbl_ready_for_translation' );
 
-		$taxos       = get_object_taxonomies( $post->post_type );
 		$langs       = bbl_get_active_langs();
-		$trans_terms = array();
-
-		foreach ( $taxos as $key => $taxo ) {
-
-			if ( !bbl_is_translated_taxonomy( $taxo ) )
-				continue;
-
-			$terms = get_the_terms( $post, $taxo );
-
-			if ( empty( $terms ) )
-				continue;
-
-			foreach ( $terms as $term )
-				$trans_terms[$taxo][$term->term_id] = bbl_get_term_translations( $term->term_id, $term->taxonomy );
-
-		}
-
-		# @TODO individual language selection when marking post as translation ready
-
-		foreach ( $langs as $lang ) {
-
-			if ( bbl_get_default_lang_code() == $lang->code )
-				continue;
-
-			# @TODO abstract this:
-			$this->no_recursion = true;
-			$job = wp_insert_post( array(
-				'post_type'   => 'bbl_job',
-				'post_status' => 'new',
-				'post_author' => get_current_user_id(),
-				'post_title'  => get_the_title( $post ),
-				'post_name'   => "job-{$lang->code}-{$post->post_name}",
-			) );
-			$this->no_recursion = false;
-
-			add_post_meta( $job, 'bbl_job_post', "{$post->post_type}|{$post->ID}", true );
-			wp_set_object_terms( $job, $lang->code, 'bbl_job_language' );
-
-			#$this->initialise_post_translation( $post, $lang->code );
-
-			if ( empty( $trans_terms ) )
-				continue;
-
-			$objects = array();
-			foreach ( $trans_terms as $taxo => $terms ) {
-				foreach ( $terms as $term_id => $trans ) {
-					if ( !isset( $trans[$lang->code] ) )
-						add_post_meta( $job, 'bbl_job_term', "{$taxo}|{$term_id}", false );
-				}
-			}
-
-		}
-
+		$lang_codes  = wp_list_pluck( $langs, 'code' );
+		$this->create_translation_jobs( $post->ID, $lang_codes );
 	}
 
 	/**
@@ -676,6 +624,73 @@ class Babble_Jobs extends Babble_Plugin {
 
 		return $return;
 
+	}
+
+	/**
+	 * Create some translation jobs.
+	 *
+	 * @param int $post_id The ID of the post to create translation jobs for
+	 * @param array $lang_codes The language codes to create translation jobs of this post for
+	 * @return array An array of Translation Job posts
+	 **/
+	public function create_translation_jobs( $post_id, $lang_codes ) {
+		$post        = get_post( $post_id );
+		$taxos       = get_object_taxonomies( $post->post_type );
+		$trans_terms = array();
+
+		foreach ( $taxos as $key => $taxo ) {
+
+			if ( !bbl_is_translated_taxonomy( $taxo ) )
+				continue;
+
+			$terms = get_the_terms( $post, $taxo );
+
+			if ( empty( $terms ) )
+				continue;
+
+			foreach ( $terms as $term )
+				$trans_terms[$taxo][$term->term_id] = bbl_get_term_translations( $term->term_id, $term->taxonomy );
+
+		}
+
+		# @TODO individual language selection when marking post as translation ready – NOW DONE?
+
+		$jobs = array();
+		foreach ( $lang_codes as $lang_code ) {
+
+			if ( bbl_get_default_lang_code() == $lang_code )
+				continue;
+
+			# @TODO abstract this:
+			$this->no_recursion = true;
+			$job = wp_insert_post( array(
+				'post_type'   => 'bbl_job',
+				'post_status' => 'new',
+				'post_author' => get_current_user_id(),
+				'post_title'  => get_the_title( $post ),
+				'post_name'   => "job-{$lang_code}-{$post->post_name}",
+			) );
+			$this->no_recursion = false;
+
+			add_post_meta( $job, 'bbl_job_post', "{$post->post_type}|{$post->ID}", true );
+			wp_set_object_terms( $job, $lang_code, 'bbl_job_language' );
+
+			#$this->initialise_post_translation( $post, $lang_code );
+
+			if ( empty( $trans_terms ) )
+				continue;
+
+			$objects = array();
+			foreach ( $trans_terms as $taxo => $terms ) {
+				foreach ( $terms as $term_id => $trans ) {
+					if ( !isset( $trans[$lang_code] ) )
+						add_post_meta( $job, 'bbl_job_term', "{$taxo}|{$term_id}", false );
+				}
+			}
+			$jobs[] = $job;
+		}
+
+		return $jobs;
 	}
 
 	// PRIVATE/PROTECTED METHODS
