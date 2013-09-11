@@ -43,6 +43,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
 		$this->add_filter( 'post_updated_messages' );
 		$this->add_filter( 'wp_insert_post_empty_content', null, null, 2 );
+		$this->add_filter( 'admin_title', null, null, 2 );
 
 		$this->version = 1.1;
 	}
@@ -115,6 +116,30 @@ class Babble_Jobs extends Babble_Plugin {
 	public function admin_init() {
 		# @TODO use filemtime everywhere
 		wp_enqueue_style( 'bbl-jobs-admin', $this->url( 'css/jobs-admin.css' ), array(), $this->version );
+	}
+
+	/**
+	 * Hooks the WP admin_title filter to give some context to the
+	 * page titles.
+	 *
+	 * @filter admin_title
+	 *
+	 * @param string $admin_title The admin title (for the TITLE element)
+	 * @param string $title The title used in the H2 element above the edit form
+	 * @return string The admin title
+	 **/
+	function admin_title( $admin_title, $title ) {
+		$screen = get_current_screen();
+		if ( 'post' == $screen->base && 'bbl_job' == $screen->post_type ) {
+			$pto = get_post_type_object( 'bbl_job' );
+			$post = get_post();
+			if ( $lang_codes = wp_get_object_terms( $post->ID, array( 'bbl_job_language' ), array( 'fields' => 'names' ) ) ) {
+				$lang = bbl_get_lang($lang_codes[ 0 ] );
+				$admin_title = sprintf( $pto->labels->edit_item_context, $lang->display_name );
+				$GLOBALS[ 'title' ] = $admin_title;
+			}
+		}
+		return $admin_title;
 	}
 
 	public function edit_form_after_title() {
@@ -401,6 +426,7 @@ class Babble_Jobs extends Babble_Plugin {
 			'add_new'            => _x( 'Add New', 'translation job', 'babble' ),
 			'add_new_item'       => _x( 'Create New Job', 'translation job', 'babble' ),
 			'edit_item'          => _x( 'Edit Translation Job', 'translation job', 'babble' ),
+			'edit_item_context'  => _x( 'Edit %s Translation Job', 'translation job; e.g. "Edit French Translation Job"', 'babble' ),
 			'new_item'           => _x( 'New Job', 'translation job', 'babble' ),
 			'view_item'          => _x( 'View Job', 'translation job', 'babble' ),
 			'search_items'       => _x( 'Search Jobs', 'translation job', 'babble' ),
