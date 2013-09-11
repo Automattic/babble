@@ -564,14 +564,36 @@ class Babble_Jobs extends Babble_Plugin {
 	// PUBLIC METHODS
 	// ==============
 
+	/**
+	 * Return the array of jobs for a Post, keyed
+	 * by lang code.
+	 *
+	 * @param object $post A WP Post object
+	 * @return array An array of WP Translation Job Post objects 
+	 */
 	public function get_post_jobs( WP_Post $post ) {
 		return $this->get_object_jobs( $post->ID, 'post', $post->post_type );
 	}
 
+	/**
+	 * Return the array of jobs for a Term, keyed
+	 * by lang code.
+	 *
+	 * @param object $post A WP Term object
+	 * @return array An array of WP Translation Job Post objects 
+	 */
 	public function get_term_jobs( $term ) {
 		return $this->get_object_jobs( $term->term_id, 'term', $term->taxonomy );
 	}
 
+	/**
+	 * Return the array of jobs for a Term or Post, keyed
+	 * by lang code.
+	 *
+	 * @param object $post A WP Term object
+	 * @param string $type Either 'term' or 'post'
+	 * @return array An array of WP Translation Job Post objects 
+	 */
 	public function get_object_jobs( $id, $type, $name ) {
 
 		bbl_stop_translating(); # Yuck yuck yuck
