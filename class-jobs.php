@@ -128,16 +128,14 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @param string $title The title used in the H2 element above the edit form
 	 * @return string The admin title
 	 **/
-	function admin_title( $admin_title, $title ) {
+	public function admin_title( $admin_title, $title ) {
 		$screen = get_current_screen();
 		if ( 'post' == $screen->base && 'bbl_job' == $screen->post_type ) {
 			$pto = get_post_type_object( 'bbl_job' );
-			$post = get_post();
-			if ( $lang_codes = wp_get_object_terms( $post->ID, array( 'bbl_job_language' ), array( 'fields' => 'names' ) ) ) {
-				$lang = bbl_get_lang($lang_codes[ 0 ] );
-				$admin_title = sprintf( $pto->labels->edit_item_context, $lang->display_name );
-				$GLOBALS[ 'title' ] = $admin_title;
-			}
+			$job = get_post();
+			$lang = $this->get_job_language( $job );
+			$admin_title = sprintf( $pto->labels->edit_item_context, $lang->display_name );
+			$GLOBALS[ 'title' ] = $admin_title;
 		}
 		return $admin_title;
 	}
