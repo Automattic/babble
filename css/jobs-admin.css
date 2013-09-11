@@ -37,6 +37,18 @@ body.bbl-post-type-bbl_job #poststuff #post-body {
 	width: 49%;
 }
 
+#bbl-translation-editor .bbl-translation-group {
+	border-top: 1px solid #ddd; /* FIXME: We should hook into the WP colours at this point, particularly with MP6 */
+	margin-top: 20px;
+	padding-top: 15px;
+}
+
+#bbl-translation-editor .bbl-translation-group:first-child {
+	border-top: none;
+	margin-top: 0;
+	padding-top: 0;
+}
+
 #bbl-translation-editor .bbl-translation-section {
 	clear: both;
 	/* @TODO change to clearfix */
