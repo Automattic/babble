@@ -703,6 +703,8 @@ class Babble_Jobs extends Babble_Plugin {
 		$taxos       = get_object_taxonomies( $post->post_type );
 		$trans_terms = array();
 
+		// @TODO Validate that the $post is in the default language, otherwise fail
+
 		foreach ( $taxos as $key => $taxo ) {
 
 			if ( !bbl_is_translated_taxonomy( $taxo ) )
@@ -737,6 +739,7 @@ class Babble_Jobs extends Babble_Plugin {
 				// Do we even need to set a post_name?
 				'post_name'   => "job-{$lang_code}-{$post->post_name}", 
 			) );
+			// @TODO If a translation already exists, populate the translation job with the translation
 			$jobs[] = $job;
 			$this->no_recursion = false;
 
