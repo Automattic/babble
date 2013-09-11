@@ -7,7 +7,7 @@
  * @since 1.3
  */
 class Babble_Jobs extends Babble_Plugin {
-    
+	
 	/**
 	 * A version number used for cachebusting, rewrite rule
 	 * flushing, etc.
@@ -23,10 +23,10 @@ class Babble_Jobs extends Babble_Plugin {
 	 **/
 	protected $no_recursion;
 	
-    public function __construct() {
-        $this->setup( 'babble-job', 'plugin' );
-        
-        $this->add_action( 'init', 'init_early', 0 );
+	public function __construct() {
+		$this->setup( 'babble-job', 'plugin' );
+		
+		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'admin_init' );
 		$this->add_action( 'edit_form_after_title' );
 		$this->add_action( 'add_meta_boxes' );
@@ -45,16 +45,16 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_filter( 'wp_insert_post_empty_content', null, null, 2 );
 
 		$this->version = 1.1;
-    }
+	}
 
-    public function add_meta_boxes_bbl_job( WP_Post $post ) {
+	public function add_meta_boxes_bbl_job( WP_Post $post ) {
 
-    	# Unapologetically remove all meta boxes from the translation screen:
+		# Unapologetically remove all meta boxes from the translation screen:
 
-    	global $wp_meta_boxes;
-    	unset( $wp_meta_boxes['bbl_job'] );
+		global $wp_meta_boxes;
+		unset( $wp_meta_boxes['bbl_job'] );
 
-    }
+	}
 
 	public function wp_insert_post_empty_content( $maybe_empty, $postarr ) {
 		// Allow translations to have empty content
@@ -63,11 +63,11 @@ class Babble_Jobs extends Babble_Plugin {
 		return $maybe_empty;
 	}
 
-    public function bbl_translated_post_type( $translated, $post_type ) {
-    	if ( 'bbl_job' == $post_type )
-    		return false;
-    	return $translated;
-    }
+	public function bbl_translated_post_type( $translated, $post_type ) {
+		if ( 'bbl_job' == $post_type )
+			return false;
+		return $translated;
+	}
 
 	public function bbl_translated_taxonomy( $translated, $taxonomy ) {
 		if ( 'bbl_job_language' == $taxonomy )
@@ -245,17 +245,17 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$post_nonce  = isset( $_POST[ '_bbl_translation_editor_post' ] ) ? $_POST[ '_bbl_translation_editor_post' ] : false;
 		$terms_nonce = isset( $_POST[ '_bbl_translation_editor_terms' ] ) ? $_POST[ '_bbl_translation_editor_terms' ] : false;
-    	$language    = get_the_terms( $job, 'bbl_job_language' );
+		$language    = get_the_terms( $job, 'bbl_job_language' );
 
-    	if ( empty( $language ) )
-    		return false;
-    	else
-    		$lang = reset( $language )->name;
+		if ( empty( $language ) )
+			return false;
+		else
+			$lang = reset( $language )->name;
 
 		if ( $post_nonce and wp_verify_nonce( $post_nonce, "bbl_translation_editor_post_{$job->ID}") ) {
 
 			$post_data = stripslashes_deep( $_POST['bbl_translation']['post'] );
-	    	$post_info = get_post_meta( $job->ID, 'bbl_job_post', true );
+			$post_info = get_post_meta( $job->ID, 'bbl_job_post', true );
 			list( $post_type, $post_id ) = explode( '|', $post_info );
 			$post = get_post( $post_id );
 
@@ -280,7 +280,7 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( $terms_nonce and wp_verify_nonce( $terms_nonce, "bbl_translation_editor_terms_{$job->ID}") ) {
 
 			$terms_data = stripslashes_deep( $_POST['bbl_translation']['terms'] );
-	    	$terms      = get_post_meta( $job->ID, 'bbl_job_term', false );
+			$terms      = get_post_meta( $job->ID, 'bbl_job_term', false );
 
 			foreach ( $terms as $term_info ) {
 
@@ -453,31 +453,31 @@ class Babble_Jobs extends Babble_Plugin {
 	// CALLBACKS
 	// =========
 
-    public function filter_columns( $cols ) {
-    	$new_cols = array();
-    	foreach ( $cols as $col_id => $col ) {
-    		if ( 'date' != $col_id ) {
-    			$new_cols[$col_id] = $col;
-    		} else {
-    			$new_cols['bbl_language'] = __( 'Language', 'babble' );
-    			$new_cols['bbl_type']     = __( 'Items', 'babble' );
-    			$new_cols['bbl_status']   = __( 'Status', 'babble' );
-    			$new_cols['date'] = $col;
-    		}
-    	}
-    	return $new_cols;
-    }
+	public function filter_columns( $cols ) {
+		$new_cols = array();
+		foreach ( $cols as $col_id => $col ) {
+			if ( 'date' != $col_id ) {
+				$new_cols[$col_id] = $col;
+			} else {
+				$new_cols['bbl_language'] = __( 'Language', 'babble' );
+				$new_cols['bbl_type']     = __( 'Items', 'babble' );
+				$new_cols['bbl_status']   = __( 'Status', 'babble' );
+				$new_cols['date'] = $col;
+			}
+		}
+		return $new_cols;
+	}
 
-    public function action_column( $col, $post_id ) {
+	public function action_column( $col, $post_id ) {
 
-    	$post = get_post( $post_id );
-    	$status = get_post_status_object( $post->post_status );
+		$post = get_post( $post_id );
+		$status = get_post_status_object( $post->post_status );
 
-    	switch ( $col ) {
+		switch ( $col ) {
 
-    		case 'bbl_language':
-    			echo $this->get_job_language( $post )->display_name;
-    			break;
+			case 'bbl_language':
+				echo $this->get_job_language( $post )->display_name;
+				break;
 
 			case 'bbl_type':
 				echo implode( ', ', $this->get_job_type( $post ) );
@@ -487,9 +487,9 @@ class Babble_Jobs extends Babble_Plugin {
 				echo $status->label;
 				break;
 
-    	}
+		}
 
-    }
+	}
 
 	public function metabox_post_translations( WP_Post $post, array $metabox ) {
 
@@ -556,18 +556,18 @@ class Babble_Jobs extends Babble_Plugin {
 
 	}
 
-    // PUBLIC METHODS
-    // ==============
+	// PUBLIC METHODS
+	// ==============
 
-    public function get_post_jobs( WP_Post $post ) {
-    	return $this->get_object_jobs( $post->ID, 'post', $post->post_type );
-    }
+	public function get_post_jobs( WP_Post $post ) {
+		return $this->get_object_jobs( $post->ID, 'post', $post->post_type );
+	}
 
-    public function get_term_jobs( $term ) {
-    	return $this->get_object_jobs( $term->term_id, 'term', $term->taxonomy );
-    }
+	public function get_term_jobs( $term ) {
+		return $this->get_object_jobs( $term->term_id, 'term', $term->taxonomy );
+	}
 
-    public function get_object_jobs( $id, $type, $name ) {
+	public function get_object_jobs( $id, $type, $name ) {
 
 		bbl_stop_translating(); # Yuck yuck yuck
 		$jobs = get_posts( array(
@@ -593,21 +593,21 @@ class Babble_Jobs extends Babble_Plugin {
 
 		return $return;
 
-    }
+	}
 
-    public function get_job_language( WP_Post $job ) {
-    	$languages = get_the_terms( $job, 'bbl_job_language' );
-    	if ( empty( $languages ) )
-    		return false;
-    	return bbl_get_lang( reset( $languages )->name );
-    }
+	public function get_job_language( WP_Post $job ) {
+		$languages = get_the_terms( $job, 'bbl_job_language' );
+		if ( empty( $languages ) )
+			return false;
+		return bbl_get_lang( reset( $languages )->name );
+	}
 
-    public function get_job_type( WP_Post $job ) {
+	public function get_job_type( WP_Post $job ) {
 
-    	$post  = get_post_meta( $job->ID, 'bbl_job_post', true );
-    	$terms = get_post_meta( $job->ID, 'bbl_job_term', false );
+		$post  = get_post_meta( $job->ID, 'bbl_job_post', true );
+		$terms = get_post_meta( $job->ID, 'bbl_job_term', false );
 
-    	$return = array();
+		$return = array();
 
 		if ( !empty( $post ) ) {
 			list( $post_type, $post_id ) = explode( '|', $post );
@@ -616,23 +616,23 @@ class Babble_Jobs extends Babble_Plugin {
 
 		if ( !empty( $terms ) ) {
 
-	    	foreach ( $terms as $term ) {
-	    		list( $taxonomy, $term_id ) = explode( '|', $term );
-	    		$return[] = get_taxonomy( $taxonomy )->labels->name;
-	    	}
+			foreach ( $terms as $term ) {
+				list( $taxonomy, $term_id ) = explode( '|', $term );
+				$return[] = get_taxonomy( $taxonomy )->labels->name;
+			}
 
-	    }
+		}
 
-    	return array_unique( $return );
+		return array_unique( $return );
 
-    }
+	}
 
-    public function get_job_objects( WP_Post $job ) {
+	public function get_job_objects( WP_Post $job ) {
 
-    	$post  = get_post_meta( $job->ID, 'bbl_job_post', true );
-    	$terms = get_post_meta( $job->ID, 'bbl_job_term', false );
+		$post  = get_post_meta( $job->ID, 'bbl_job_post', true );
+		$terms = get_post_meta( $job->ID, 'bbl_job_term', false );
 
-    	$return = array();
+		$return = array();
 
 		if ( !empty( $post ) ) {
 			list( $post_type, $post_id ) = explode( '|', $post );
@@ -643,19 +643,19 @@ class Babble_Jobs extends Babble_Plugin {
 
 		if ( !empty( $terms ) ) {
 
-	    	foreach ( $terms as $term ) {
-	    		list( $taxonomy, $term_id ) = explode( '|', $term );
-	    		$return['terms'][$taxonomy][] = get_term( $term_id, $taxonomy );
-	    	}
+			foreach ( $terms as $term ) {
+				list( $taxonomy, $term_id ) = explode( '|', $term );
+				$return['terms'][$taxonomy][] = get_term( $term_id, $taxonomy );
+			}
 
-	    }
+		}
 
-	    return $return;
+		return $return;
 
-    }
+	}
 
-    // PRIVATE/PROTECTED METHODS
-    // =========================
+	// PRIVATE/PROTECTED METHODS
+	// =========================
 
 	/**
 	 * Called by admin_init, this method ensures we are all up to date and 
