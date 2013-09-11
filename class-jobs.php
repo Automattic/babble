@@ -154,7 +154,7 @@ class Babble_Jobs extends Babble_Plugin {
 		}
 		// Create a new translation job for the current language
 		$lang_codes = array( $lang_code );
-		$jobs = $this->create_translation_jobs( $canonical_post, $lang_codes );
+		$jobs = $this->create_post_jobs( $canonical_post, $lang_codes );
 		// Redirect to the translation job
 		$url = get_edit_post_link( $jobs[0], 'url' );
 		wp_redirect( $url );
@@ -398,7 +398,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$langs       = bbl_get_active_langs();
 		$lang_codes  = wp_list_pluck( $langs, 'code' );
-		$this->create_translation_jobs( $post->ID, $lang_codes );
+		$this->create_post_jobs( $post->ID, $lang_codes );
 	}
 
 	/**
@@ -698,7 +698,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @param array $lang_codes The language codes to create translation jobs of this post for
 	 * @return array An array of Translation Job posts
 	 **/
-	public function create_translation_jobs( $post_id, $lang_codes ) {
+	public function create_post_jobs( $post_id, $lang_codes ) {
 		$post        = get_post( $post_id );
 		$taxos       = get_object_taxonomies( $post->post_type );
 		$trans_terms = array();
