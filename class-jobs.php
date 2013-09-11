@@ -139,6 +139,9 @@ class Babble_Jobs extends Babble_Plugin {
 		// Check capabilities include editing a translation post
 		// - If not, the button shouldn't be on the Admin Bar
 		// - But we also need to not process at this point
+		// @TODO Check for an existing translation job, not completed
+		// and redirect to that if it exists.
+		
 		// Create a new translation job for the current language
 		$lang_codes = (array) bbl_get_post_lang_code( $post );
 		$jobs = $this->create_translation_jobs( $post, $lang_codes );
