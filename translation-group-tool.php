@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-require_once( 'class-plugin.php' );
+require_once 'class-plugin.php';
 
 /**
  * Handles the display and functionality of the translation group tool.
@@ -230,7 +230,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function tools_page() {
-		require_once( 'translation-group-tool-sorter.php' );
+		require_once 'translation-group-tool-sorter.php';
 		$vars = array();
 		$this->render_admin( 'translation-groups.php', $vars );
 	}

@@ -934,8 +934,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Hooks the bbl_sync_meta_key filter from this class which checks 
 	 * if a meta_key should be synced. If we return false, it won't be.
 	 *
-	 * @param array $meta_keys The meta_keys which should be unsynced
-	 * @return array The meta_keys which should be unsynced
+	 * @TODO correct inline docs
 	 **/
 	function sync_meta_key( $sync, $meta_key ) {
 		$sync_not = array(
