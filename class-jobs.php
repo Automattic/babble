@@ -606,8 +606,8 @@ class Babble_Jobs extends Babble_Plugin {
 	 */
 	public function get_object_jobs( $id, $type, $name ) {
 
-		bbl_stop_translating(); # Yuck yuck yuck
 		$jobs = get_posts( array(
+			'bbl_translate'  => false,
 			'post_type'      => 'bbl_job',
 			'post_status'    => array(
 				'new', 'in-progress'
@@ -616,7 +616,6 @@ class Babble_Jobs extends Babble_Plugin {
 			'meta_value'     => "{$type}|{$id}",
 			'posts_per_page' => -1,
 		) );
-		bbl_start_translating(); # kcuy kcuy kcuY
 
 		if ( empty( $jobs ) )
 			return array();

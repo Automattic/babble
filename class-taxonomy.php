@@ -485,14 +485,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 			foreach ( $translations as $lang_code => & $translation ) {
 				if ( bbl_get_post_lang_code( $object_id ) == $lang_code )
 					continue;
-				bbl_stop_translating();
 				wp_set_object_terms( $translation->ID, $terms, $taxonomy, $append );
-				bbl_start_translating();
 			}
 
 		}
-
-
 
 		$this->no_recursion = false;
 	}

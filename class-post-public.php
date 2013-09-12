@@ -485,8 +485,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param object $wp_query A WP_Query object, passed by reference
 	 * @return void (param passed by reference)
 	 **/
-	public function pre_get_posts( $query ) {
-		if ( ! bbl_translating() ) {
+	public function pre_get_posts( WP_Query $query ) {
+		if ( false === $query->get( 'bbl_translate' ) ) {
 			return;
 		}
 		if ( $query->is_main_query() ) {
@@ -511,9 +511,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param object $wp WP object, passed by reference (so no need to return)
 	 * @return void
 	 **/
-	public function parse_request( $wp ) {
+	public function parse_request( WP $wp ) {
 
-		if ( ! bbl_translating() ) {
+		if ( isset( $wp->query_vars['bbl_translate'] ) and ( false === $wp->query_vars['bbl_translate'] ) ) {
 			return;
 		}
 
@@ -1208,14 +1208,13 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// Get all the translations in one cached DB query
 		$args = array(
+			// We want a clean listing, without any particular language
+			'bbl_translate' => false,
 			'include' => $post_ids,
 			'post_type' => $post_types,
 			'post_status' => array( 'publish', 'pending', 'draft', 'future' ),
 		);
-		// We want a clean listing, without any particular language
-		bbl_stop_translating();
 		$posts = get_posts( $args );
-		bbl_start_translating();
 		$translations = array();
 		foreach ( $posts as & $post ) {
 			if ( isset( $this->lang_map[ $post->post_type ] ) )

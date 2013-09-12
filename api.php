@@ -584,41 +584,6 @@ function bbl_get_switcher_links( $id_prefix = '' ) {
 	return $bbl_switcher_menu->get_switcher_links( $id_prefix );
 }
 
-// @TODO: EUGH. GLOBALS. UGLY. Get rid of the $bbl_translating global, perhaps replace with mini class?
-
-global $bbl_translating;
-$bbl_translating = true;
-
-/**
- * Start doing translation.
- *
- * @return void 
- **/
-function bbl_start_translating() {
-	global $bbl_translating;
-	$bbl_translating = true;
-}
-
-/**
- * Stop doing any translation.
- *
- * @return void 
- **/
-function bbl_stop_translating() {
-	global $bbl_translating;
-	$bbl_translating = false;
-}
-
-/**
- * Should we be doing any translation.
- *
- * @return boolean True for yes 
- **/
-function bbl_translating() {
-	global $bbl_translating;
-	return $bbl_translating;
-}
-
 /**
  * Start logging for Babble
  *
