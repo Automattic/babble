@@ -1,15 +1,13 @@
 <?php
-
 /*
 Plugin Name: Babble
-Plugin URI: http://simonwheatley.co.uk/wordpress/babble
+Plugin URI:  https://github.com/cftp/babble/
 Description: Now with Taxonomies!
-Version: Alpha 1.3
-Author: Simon Wheatley
-Author URI: http://simonwheatley.co.uk/wordpress/
-*/
- 
-/*  Copyright 2011 Simon Wheatley
+Version:     1.4
+Author:      Code For The People
+Author URI:  http://codeforthepeople.com/
+
+Copyright 2013 Code For The People Ltd
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,7 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @package Babble
  * @since Alpha 1
- * @copyright Copyright (C) Simon Wheatley (except where noted)
+ * @copyright Copyright (c) Simon Wheatley & Code For The People Ltd (except where noted)
  */
 
 require_once 'class-babble-log.php';
