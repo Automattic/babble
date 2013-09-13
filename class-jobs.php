@@ -421,16 +421,12 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( !bbl_is_translated_post_type( $post->post_type ) )
 			return;
 
-		$nonce    = isset( $_POST[ '_bbl_ready_for_translation' ] ) ? $_POST[ '_bbl_ready_for_translation' ] : false;
-		$ready_id = isset( $_POST[ 'babble_ready_for_translation' ] ) ? $_POST[ 'babble_ready_for_translation' ] : 0;
+		$nonce = isset( $_POST[ '_bbl_ready_for_translation' ] ) ? $_POST[ '_bbl_ready_for_translation' ] : false;
 
 		if ( !$nonce )
 			return;
-		if ( $ready_id != $post->ID )
+		if ( !wp_verify_nonce( $nonce, "bbl_ready_for_translation-{$post->ID}" ) )
 			return;
-
-		# @TODO this should be wp_verify_nonce() with a return instead of check_admin_referer()
-		check_admin_referer( "bbl_ready_for_translation-{$post->ID}", '_bbl_ready_for_translation' );
 
 		$langs       = bbl_get_active_langs();
 		$lang_codes  = wp_list_pluck( $langs, 'code' );
@@ -544,23 +540,17 @@ class Babble_Jobs extends Babble_Plugin {
 
 	public function metabox_post_translations( WP_Post $post, array $metabox ) {
 
-		# @TODO cap checks
-
 		$langs   = bbl_get_active_langs();
 		$trans   = bbl_get_post_translations( $post );
 		$jobs    = $this->get_post_jobs( $post );
 		$default = bbl_get_default_lang_code();
+		$capable = current_user_can( 'publish_post', $post->ID );
 
 		unset( $trans[$default] );
 
-		#foreach ( $jobs as $job_lang => $job ) {
-		#	if ( 'complete' != get_post_status( $job ) )
-		#		unset( $trans[$job_lang] );
-		#}
-
 		if ( !empty( $trans ) ) {
 
-			if ( !empty( $jobs ) ) {
+			if ( !empty( $jobs ) and $capable ) {
 				?><h4><?php _e( 'Complete:', 'babble' ); ?></h4><?php
 			}
 
@@ -573,7 +563,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 		}
 
-		if ( !empty( $jobs ) ) {
+		if ( !empty( $jobs ) and $capable ) {
 
 			?><h4><?php _e( 'Pending:', 'babble' ); ?></h4><?php
 			foreach ( $jobs as $job ) {
@@ -592,12 +582,18 @@ class Babble_Jobs extends Babble_Plugin {
 			<p><a href="<?php echo add_query_arg( $args, admin_url( 'edit.php' ) ); ?>"><?php _e( 'View pending translation jobs &raquo;', 'babble' ); ?></a></p>
 			<?php
 
-		} else {
+		} else if ( $capable ) {
 
 			wp_nonce_field( "bbl_ready_for_translation-{$post->ID}", '_bbl_ready_for_translation' );
 
 			?>
 			<p><label><input type="checkbox" name="babble_ready_for_translation" value="<?php echo absint( $post->ID ); ?>" /> <?php _e( 'Ready for translation', 'babble' ); ?></label></p>
+			<?php
+
+		} else {
+
+			?>
+			<p><?php _ex( 'None', 'No translations', 'babble' ); ?></p>
 			<?php
 
 		}
