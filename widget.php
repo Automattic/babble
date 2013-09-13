@@ -16,14 +16,12 @@ class Babble_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-		global $post;
-		extract( $args );
 
-		echo $before_widget;
+		echo $args['before_widget'];
 
-		echo $before_title . __('Languages') . $after_title;
+		echo $args['before_title'] . __( 'Languages', 'babble' ) . $args['after_title'];
 
-		$list = bbl_get_switcher_links(  );
+		$list = bbl_get_switcher_links();
 
 		switch ( $instance['show_as'] ) {
 
@@ -80,7 +78,7 @@ class Babble_Widget extends WP_Widget {
 						ability to create one; so here's a link
 						to allow him/her to do so
 					*/
-					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" title="' . esc_attr( $item[ 'title' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang_display_name' ] ) . ' [' . __('Add') . ']</a></li>';
+					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" title="' . esc_attr( $item[ 'title' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang_display_name' ] ) . ' [' . __( 'Add', 'babble' ) . ']</a></li>';
 				}
 				elseif ( $item[ 'href'] ) {
 					/*
@@ -113,7 +111,7 @@ class Babble_Widget extends WP_Widget {
 
 		}
 
-		echo $after_widget;
+		echo $args['after_widget'];
 	}
 
 	function update( $new_instance, $old_instance ) {
