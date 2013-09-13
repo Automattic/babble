@@ -31,7 +31,7 @@ class Babble_Widget extends WP_Widget {
 			echo '<select onchange="document.location.href=this.options[this.selectedIndex].value;">';
 			foreach ( $list as $item ) :
 
-				if ( in_array( 'bbl-active',$item['classes'] ) ) {
+				if ( $item['active'] ) {
 					$selected = 'selected="selected" ';
 				} else {
 					$selected = '';
