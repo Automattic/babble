@@ -98,11 +98,6 @@ class Babble_Widget extends WP_Widget {
 						in case you want to 'grey it out' somehow
 					*/
 					echo '<li class="no-translation"><div class="bbl-no-translation">' . esc_html( $item[ 'lang_display_name' ] ) . '</div></li>';
-				} else {
-					/*
-						User didn't want unavailable links
-						to be shown... so they aren't.
-					*/
 				}
 
 			endforeach;
@@ -119,7 +114,6 @@ class Babble_Widget extends WP_Widget {
 		$instance = $old_instance;
 		$instance['show_as'] = strip_tags( $new_instance['show_as'] );
 		$instance['show_if_unavailable'] = strip_tags( $new_instance['show_if_unavailable'] );
-		$instance['langorder'] = $_['langorder'];
 		return $instance;
 
 	}
