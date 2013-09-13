@@ -447,7 +447,7 @@ class Babble_Jobs extends Babble_Plugin {
 			'add_new'            => _x( 'Add New', 'translation job', 'babble' ),
 			'add_new_item'       => _x( 'Create New Job', 'translation job', 'babble' ),
 			'edit_item'          => _x( 'Edit Translation Job', 'translation job', 'babble' ),
-			'edit_item_context'  => _x( 'Edit %s Translation Job', 'translation job; e.g. "Edit French Translation Job"', 'babble' ),
+			'edit_item_context'  => _x( 'Edit Translation Job (%s)', 'translation job; e.g. "Edit Translation Job (French)"', 'babble' ),
 			'new_item'           => _x( 'New Job', 'translation job', 'babble' ),
 			'view_item'          => _x( 'View Job', 'translation job', 'babble' ),
 			'search_items'       => _x( 'Search Jobs', 'translation job', 'babble' ),
@@ -456,7 +456,6 @@ class Babble_Jobs extends Babble_Plugin {
 			'all_items'          => _x( 'All Translation Jobs', 'translation job', 'babble' ),
 		);
 		$args = array(
-			'description'        => __( 'Content, both posts and taxonomy terms, which need to be translated.', 'babble' ),
 			'public'             => false,
 			'publicly_queryable' => false,
 			'show_ui'            => true,
