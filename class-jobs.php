@@ -38,6 +38,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_action( 'manage_bbl_job_posts_custom_column', 'action_column', null, 2 );
 		$this->add_action( 'add_meta_boxes_bbl_job', null, 999 );
 		$this->add_action( 'load-post.php', 'load_post_edit' );
+		$this->add_action( 'pre_get_posts' );
 
 		$this->add_filter( 'manage_bbl_job_posts_columns', 'filter_columns' );
 		$this->add_filter( 'bbl_translated_post_type', null, null, 2 );
@@ -45,6 +46,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_filter( 'post_updated_messages' );
 		$this->add_filter( 'wp_insert_post_empty_content', null, null, 2 );
 		$this->add_filter( 'admin_title', null, null, 2 );
+		$this->add_filter( 'query_vars' );
 
 		$this->version = 1.1;
 	}
@@ -181,6 +183,40 @@ class Babble_Jobs extends Babble_Plugin {
 			$GLOBALS[ 'title' ] = $admin_title;
 		}
 		return $admin_title;
+	}
+
+	/**
+	 * Filters the public query vars and adds some of our own
+	 *
+	 * @filter query_vars
+	 * @param  array $vars Pulbic query vars
+	 * @return array Updated public query vars
+	 */
+	public function query_vars( array $vars ) {
+		if ( is_admin() ) {
+			$vars[] = 'bbl_job_post';
+			$vars[] = 'bbl_job_term';
+		}
+		return $vars;
+	}
+
+	/**
+	 * Hooks the WP pre_get_posts ref action in the WP_Query. Sets the meta query
+	 * that's necessary for filtering jobs by their objects.
+	 *
+	 * @param WP_Query $wp_query A WP_Query object, passed by reference
+	 * @return void (param passed by reference)
+	 **/
+	public function pre_get_posts( WP_Query & $query ) {
+
+		if ( $job_post = $query->get( 'bbl_job_post' ) ) {
+			$query->set( 'meta_key', 'bbl_job_post' );
+			$query->set( 'meta_value', $job_post );
+		} else if ( $job_term = $query->get( 'bbl_job_term' ) ) {
+			$query->set( 'meta_key', 'bbl_job_term' );
+			$query->set( 'meta_value', $job_term );
+		}
+
 	}
 
 	public function edit_form_after_title() {
@@ -548,12 +584,9 @@ class Babble_Jobs extends Babble_Plugin {
 				<?php
 			}
 
-			# @TODO meta_key|value won't work here of course because they're not public query args.
-			# implement a bbl_job_post|term|etc query var that adds a meta query.
 			$args = array(
-				'post_type'  => 'bbl_job',
-				'meta_key'   => 'bbl_job_post',
-				'meta_value' => "{$post->post_type}|{$post->ID}",
+				'post_type'    => 'bbl_job',
+				'bbl_job_post' => "{$post->post_type}|{$post->ID}",
 			);
 			?>
 			<p><a href="<?php echo add_query_arg( $args, admin_url( 'edit.php' ) ); ?>"><?php _e( 'View pending translation jobs &raquo;', 'babble' ); ?></a></p>
