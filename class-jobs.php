@@ -598,12 +598,13 @@ class Babble_Jobs extends Babble_Plugin {
 	}
 
 	/**
-	 * Return the array of jobs for a Term or Post, keyed
+	 * Return the array of jobs for a term or post, keyed
 	 * by lang code.
 	 *
-	 * @param object $post A WP Term object
+	 * @param int The ID of the object (eg. post ID or term ID)
 	 * @param string $type Either 'term' or 'post'
-	 * @return array An array of WP Translation Job Post objects 
+	 * @param string $name The post type name or the term's taxonomy name
+	 * @return array An array of translation job WP_Post objects
 	 */
 	public function get_object_jobs( $id, $type, $name ) {
 
@@ -701,7 +702,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @param array $lang_codes The language codes to create translation jobs of this post for
 	 * @return array An array of Translation Job posts
 	 **/
-	public function create_post_jobs( $post_id, $lang_codes ) {
+	public function create_post_jobs( $post_id, array $lang_codes ) {
 		$post        = get_post( $post_id );
 		$taxos       = get_object_taxonomies( $post->post_type );
 		$trans_terms = array();
@@ -731,7 +732,6 @@ class Babble_Jobs extends Babble_Plugin {
 			if ( bbl_get_default_lang_code() == $lang_code )
 				continue;
 
-			# @TODO abstract this:
 			$this->no_recursion = true;
 			$job = wp_insert_post( array(
 				'post_type'   => 'bbl_job',

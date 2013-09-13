@@ -278,7 +278,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Hooks the WP registered_post_type action. 
 	 *
 	 * @param string $post_type The post type which has just been registered. 
-	 * @param array $args The arguments with which the post type was registered
+	 * @param object $args The arguments with which the post type was registered
 	 * @return void
 	 **/
 	public function registered_post_type( $post_type, $args ) {
@@ -481,12 +481,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Hooks the WP pre_get_posts ref action in the WP_Query,
 	 * for the main query it does nothing, for other queries
-	 * if switches the post types to our shadow post types.
+	 * it switches the post types to our shadow post types.
 	 *
-	 * @param object $wp_query A WP_Query object, passed by reference
+	 * @param WP_Query $wp_query A WP_Query object, passed by reference
 	 * @return void (param passed by reference)
 	 **/
-	public function pre_get_posts( WP_Query $query ) {
+	public function pre_get_posts( WP_Query & $query ) {
 		if ( false === $query->get( 'bbl_translate' ) ) {
 			return;
 		}
@@ -509,10 +509,10 @@ class Babble_Post_Public extends Babble_Plugin {
 	 *
 	 * FIXME: Should I be extending and replacing the WP class?
 	 *
-	 * @param object $wp WP object, passed by reference (so no need to return)
+	 * @param WP $wp WP object, passed by reference (so no need to return)
 	 * @return void
 	 **/
-	public function parse_request( WP $wp ) {
+	public function parse_request( WP & $wp ) {
 
 		if ( isset( $wp->query_vars['bbl_translate'] ) and ( false === $wp->query_vars['bbl_translate'] ) ) {
 			return;
@@ -532,10 +532,10 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * the default language where appropriate.
 	 *
 	 * @param array $posts The posts retrieved by WP_Query, passed by reference 
-	 * @param object $wp_query The WP_Query, passed by reference 
+	 * @param WP_Query $wp_query The WP_Query, passed by reference 
 	 * @return array The posts
 	 **/
-	public function the_posts( $posts, $wp_query ) {
+	public function the_posts( array $posts, WP_Query & $wp_query ) {
 		if ( is_admin() )
 			return $posts;
 		
@@ -575,7 +575,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param string|array $class One or more classes which have been added to the class list.
 	 * @return array An array of class strings, poss with some indexes containing more than one space separated class 
 	 **/
-	public function body_class( $classes, $class ) {
+	public function body_class( array $classes, $class ) {
 		// Shadow post_type archives also get the post_type class for
 		// the default language
 		if ( is_post_type_archive() && ! bbl_is_default_lang() )
@@ -957,10 +957,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param string $post_type The post type for this lists table 
 	 * @return array The columns
 	 **/
-	public function manage_posts_columns( $columns, $post_type ) {
+	public function manage_posts_columns( array $columns, $post_type ) {
 		// Insert our cols just before comments, or date.
 		if ( $post_type == bbl_get_post_type_in_lang( $post_type, bbl_get_default_lang_code() ) )
 			return $columns;
+		# @TODO is this phrase localisable? Might need changing.
 		$columns[ 'bbl_link' ] = __( 'Translation of', 'babble' );
 		return $columns;
 	}
@@ -1017,7 +1018,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @param string|boolean $request If this is called on the parse_request hook, $request contains the root relative URL
 	 * @return array $query_vars A set of WordPress query vars
 	 **/
-	protected function translate_query_vars( $query_vars, $request = false ) {
+	protected function translate_query_vars( array $query_vars, $request = false ) {
 
 		// Sequester the original query, in case we need it to get the default content later
 		$query_vars[ 'bbl_original_query' ] = $query_vars;
@@ -1196,6 +1197,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return $translations;
 		}
 
+		# @TODO A transid should never be a wp_error. Check and fix.
 		if ( is_wp_error( $transid ) )
 			error_log( "Error getting transid: " . print_r( $transid, true ) );
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
