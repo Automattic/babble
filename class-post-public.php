@@ -1597,8 +1597,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected function prune_post_meta() {
 		global $wpdb;
 		$meta_keys = array( 
-			'_extmedia-duration', 
-			'_extmedia-youtube', 
 			'_thumbnail_id', 
 			'_wp_old_slug' ,
 			'_wp_page_template', 
