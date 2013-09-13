@@ -625,8 +625,8 @@ class Babble_Jobs extends Babble_Plugin {
 		$return = array();
 
 		foreach ( $jobs as $job ) {
-			$lang = $this->get_job_language( $job );
-			$return[$lang->code] = $job;
+			if ( $lang = $this->get_job_language( $job ) )
+				$return[$lang->code] = $job;
 		}
 
 		return $return;
@@ -738,9 +738,6 @@ class Babble_Jobs extends Babble_Plugin {
 				'post_status' => 'new',
 				'post_author' => get_current_user_id(),
 				'post_title'  => get_the_title( $post ),
-				// This post_name construction may need to change when we have multiple translation jobs per canonical post
-				// Do we even need to set a post_name?
-				'post_name'   => "job-{$lang_code}-{$post->post_name}", 
 			) );
 			// @TODO If a translation already exists, populate the translation job with the translation
 			$jobs[] = $job;
@@ -748,8 +745,6 @@ class Babble_Jobs extends Babble_Plugin {
 
 			add_post_meta( $job, 'bbl_job_post', "{$post->post_type}|{$post->ID}", true );
 			wp_set_object_terms( $job, $lang_code, 'bbl_job_language' );
-
-			#$this->initialise_post_translation( $post, $lang_code );
 
 			if ( empty( $trans_terms ) )
 				continue;
