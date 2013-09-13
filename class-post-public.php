@@ -166,12 +166,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Initialise a translation for the given post.
 	 *
-	 * @param  WP_Post $origin_post The origin post
-	 * @param  string  $lang_code   The language code for the new translation
-	 * @return WP_Post              The translation post
+	 * @param  WP_Post|int $origin_post The origin post object or post ID
+	 * @param  string      $lang_code   The language code for the new translation
+	 * @return WP_Post The translation post
 	 */
-	public function initialise_translation( WP_Post $origin_post, $lang_code ) {
+	public function initialise_translation( $origin_post, $lang_code ) {
 
+		$origin_post   = get_post( $origin_post );
 		$new_post_type = $this->get_post_type_in_lang( $origin_post->post_type, $lang_code );
 		$transid       = $this->get_transid( $origin_post->ID );
 
@@ -1165,7 +1166,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns the post ID for the post in the default language from which 
 	 * this post was translated.
 	 *
-	 * @param int|object $post Either a WP Post object, or a post ID 
+	 * @param int|WP_Post $post Either a WP Post object, or a post ID 
 	 * @return int The ID of the default language equivalent post
 	 **/
 	public function get_default_lang_post( $post ) {
@@ -1183,7 +1184,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * 
 	 * @FIXME: Should I filter out the post ID passed?
 	 *
-	 * @param int|object $post Either a WP Post object, or a post ID 
+	 * @param int|WP_Post $post Either a WP Post object, or a post ID 
 	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
 	 **/
 	public function get_post_translations( $post ) {
@@ -1293,7 +1294,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns the post in a particular language, or the fallback content
 	 * if there's no post available.
 	 *
-	 * @param int|object $post Either a WP Post object, or a post ID 
+	 * @param int|WP_Post $post Either a WP Post object, or a post ID 
 	 * @param string $lang_code The language code for the required language 
 	 * @param boolean $fallback If true: if a post is not available, fallback to the default language content (defaults to true)
 	 * @return object|boolean The WP Post object, or if $fallback was false and no post then returns false

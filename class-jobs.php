@@ -578,10 +578,11 @@ class Babble_Jobs extends Babble_Plugin {
 	 * Return the array of jobs for a Post, keyed
 	 * by lang code.
 	 *
-	 * @param object $post A WP Post object
+	 * @param WP_Post|int $post A WP Post object or a post ID
 	 * @return array An array of WP Translation Job Post objects 
 	 */
-	public function get_post_jobs( WP_Post $post ) {
+	public function get_post_jobs( $post ) {
+		$post = get_post( $post );
 		return $this->get_object_jobs( $post->ID, 'post', $post->post_type );
 	}
 
@@ -631,15 +632,17 @@ class Babble_Jobs extends Babble_Plugin {
 
 	}
 
-	public function get_job_language( WP_Post $job ) {
+	public function get_job_language( $job ) {
+		$job       = get_post( $job );
 		$languages = get_the_terms( $job, 'bbl_job_language' );
 		if ( empty( $languages ) )
 			return false;
 		return bbl_get_lang( reset( $languages )->name );
 	}
 
-	public function get_job_type( WP_Post $job ) {
+	public function get_job_type( $job ) {
 
+		$job   = get_post( $job );
 		$post  = get_post_meta( $job->ID, 'bbl_job_post', true );
 		$terms = get_post_meta( $job->ID, 'bbl_job_term', false );
 
@@ -663,8 +666,9 @@ class Babble_Jobs extends Babble_Plugin {
 
 	}
 
-	public function get_job_objects( WP_Post $job ) {
+	public function get_job_objects( $job ) {
 
+		$job   = get_post( $job );
 		$post  = get_post_meta( $job->ID, 'bbl_job_post', true );
 		$terms = get_post_meta( $job->ID, 'bbl_job_term', false );
 
