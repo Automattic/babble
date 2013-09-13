@@ -68,6 +68,15 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected $slugs_and_vars;
 
+	
+	/**
+	 * An array of Post IDs for posts that are in the process of
+	 * being deleted.
+	 *
+	 * @var array
+	 **/
+	protected $deleting_post_ids;
+
 	/**
 	 * An array of meta_keys, indexed by meta_key, containing
 	 * meta_keys we KNOW to be added as unique.
@@ -128,6 +137,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
 		$this->no_meta_recursion = false;
+		$this->deleting_post_ids = array();
 
 		$this->version = 9;
 
@@ -455,6 +465,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function deleted_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
+		
+		// When we are deleting posts, we don't want to sync
+		// the metadata deletion across the other posts in 
+		// the same translation group
+		if ( in_array( $post_id, $this->deleting_post_ids ) )
+			return;
+
 		// Some metadata shouldn't be synced
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
@@ -902,6 +919,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function before_delete_post( $post_id ) {
+		$this->deleting_post_ids[] = $post_id;
 		$this->clean_post_cache( $post_id );
 	}
 
