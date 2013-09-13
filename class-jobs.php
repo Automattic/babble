@@ -615,7 +615,7 @@ class Babble_Jobs extends Babble_Plugin {
 				'new', 'in-progress'
 			),
 			'meta_key'       => "bbl_job_{$type}",
-			'meta_value'     => "{$type}|{$id}",
+			'meta_value'     => "{$name}|{$id}",
 			'posts_per_page' => -1,
 		) );
 
