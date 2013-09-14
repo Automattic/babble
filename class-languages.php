@@ -370,7 +370,6 @@ class Babble_Languages extends Babble_Plugin {
 				$active_langs[ $langs[ $code ]->url_prefix ] = $code;
 			if ( count( $active_langs ) < 2 ) {
 				$this->set_admin_error( __( 'You must set at least two languages as active.', 'babble' ) );
-				$this->errors[ 'active_langs' ];
 			} else {
 				$this->active_langs = $active_langs;
 				$this->update_option( 'active_langs', $this->active_langs );
@@ -378,14 +377,13 @@ class Babble_Languages extends Babble_Plugin {
 				$this->update_option( 'langs', $this->langs );
 			}
 			if ( ! isset( $_POST[ 'public_langs' ] ) ) {
-				$this->set_admin_error( __( 'You must set at least your default language as active.', 'babble' ) );
+				$this->set_admin_error( __( 'You must set at least your default language as public.', 'babble' ) );
 			} else {
 				$public_langs = (array) $_POST[ 'public_langs' ];
 				if ( ! in_array( @ $_POST[ 'default_lang' ], $public_langs ) )
-					$this->set_admin_error( __( 'You must set your default language as active.', 'babble' ) );
+					$this->set_admin_error( __( 'You must set your default language as public.', 'babble' ) );
 			}
 		}
-		
 		// Finish up, redirecting if we're all OK
 		if ( ! $this->errors ) {
 			// Save the public languages
@@ -466,8 +464,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * Return the language name for the provided language code.
 	 *
 	 * This method is an identical copy of format_code_lang 
-	 * in wp-admin/includes/ms.php
-	 * @TODO why? ^
+	 * in wp-admin/includes/ms.php which is only available on Multisite.
 	 *
 	 * @FIXME: We end up with a load of anglicised names, which doesn't seem super-friendly, internationally speaking.
 	 * 
@@ -533,5 +530,3 @@ class Babble_Languages extends Babble_Plugin {
 
 global $bbl_languages;
 $bbl_languages = new Babble_Languages();
-
-?>

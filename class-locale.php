@@ -309,6 +309,7 @@ class Babble_Locale {
 	 * @return array An array of the public query vars
 	 **/
 	public function query_vars( $query_vars ) {
+		# @TODO why is this here?
 		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 		return array_merge( $query_vars, array( 'lang', 'lang_url_prefix' ) );
 	}
@@ -320,6 +321,7 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	public function pre_comment_on_post() {
+		# @TODO why is this here?
 		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 	}
 
@@ -356,9 +358,11 @@ class Babble_Locale {
 		$lang = bbl_get_current_lang();
 		$classes[] = 'bbl-' . $lang->text_direction;
 		$classes[] = 'bbl-' . $lang->text_direction;
+		# @TODO I don't think this class should be included:
 		$classes[] = 'bbl-' . sanitize_title( $lang->name );
 		$classes[] = 'bbl-' . sanitize_title( $lang->url_prefix );
 		$classes[] = 'bbl-' . sanitize_title( $lang->code );
+		# @TODO I don't think this class should be included:
 		$classes[] = 'bbl-' . sanitize_title( $lang->display_name );
 		return $classes;
 	}
@@ -381,9 +385,11 @@ class Babble_Locale {
 		} else {
 			$classes[] = 'bbl-post-' . $lang->text_direction;
 		}
+		# @TODO I don't think this class should be included:
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->name );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->url_prefix );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->code );
+		# @TODO I don't think this class should be included:
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->display_name );
 		return $classes;
 	}

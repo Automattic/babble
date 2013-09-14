@@ -17,10 +17,10 @@
 	wp_nonce_field( 'babble_lang_prefs', '_babble_nonce' ); 
 ?>
 
-<p><?php _e( 'Please select the languages you wish to translate this site into, you should select at least two, and select "Save Changes" below the languages table.', 'babble' ); ?></p>
+<p><?php _e( 'Please select the languages you wish to translate this site into. You should select at least two, and select "Save Changes" below the languages table.', 'babble' ); ?></p>
 
 <p>
-	<label for="default_lang"><?php _e( 'Default language:', 'babble' ); ?></label> 
+	<label for="default_lang"><?php _e( 'Default Language:', 'babble' ); ?></label> 
 	<select name="default_lang" id="default_lang">
 		<?php foreach( $active_langs as $lang ) : ?>
 			<option value="<?php echo esc_attr( $lang->code ); ?>" <?php selected( $lang->code, $default_lang ); ?>><?php echo esc_html( $lang->name ); ?></option>
