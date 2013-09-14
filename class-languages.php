@@ -418,21 +418,21 @@ class Babble_Languages extends Babble_Plugin {
 	protected function parse_available_languages() {
 		unset( $this->available_langs );
 		$this->available_langs = array();
-		foreach ( glob( WP_LANG_DIR . '/*.mo' ) as $mo_file ) {
-			preg_match( '/(([a-z]+)(_[a-z]+)?)\.mo$/i', $mo_file, $matches );
+		foreach ( get_available_languages() as $lang_code ) {
+			list( $prefix ) = explode( '_', $lang_code );
 			$lang = array(
-				'name' => $this->format_code_lang( $matches[ 2 ] ),
-				'code' => $matches[ 1 ],
-				'url_prefix' => $matches[ 2 ],
-				'text_direction' => $this->is_rtl( $matches[ 1 ] ),
+				'name' => $this->format_code_lang( $prefix ),
+				'code' => $lang_code,
+				'url_prefix' => $prefix,
+				'text_direction' => $this->is_rtl( $lang_code ),
 			);
 			// Cast to an object, in case we want to start using actual classes
 			// at some point in the future.
-			$this->available_langs[ $matches[ 1 ] ] = (object) $lang;
+			$this->available_langs[ $lang_code ] = (object) $lang;
 		}
 		// Add in US English, which is the default on WordPress and has no language files
 		$en = new stdClass;
-		$en->name = 'English; US';
+		$en->name = 'English (US)';
 		$en->code = 'en_US';
 		$en->url_prefix = 'en';
 		$en->text_direction = 'ltr';
