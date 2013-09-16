@@ -1109,9 +1109,13 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 
-		$templates[] = "single-{$post->post_type}.php";
-		$templates[] = "single-{$this->get_base_post_type($post->post_type)}.php";
-		$templates[] = "single.php";
+		$bbl_templates[] = "single-{$this->get_base_post_type($post->post_type)}";
+		$bbl_templates[] = "single";
+		$lang = bbl_get_current_lang();
+		foreach ( $bbl_templates as $bbl_template ) {
+			$templates[] = strtolower( "{$bbl_template}-{$lang->code}.php" );
+			$templates[] = strtolower( "{$bbl_template}-{$lang->url_prefix}.php" );
+		}
 		$template = get_query_template( 'single-gosts', $templates );
 
 		return $template;
