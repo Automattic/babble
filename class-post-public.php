@@ -1068,7 +1068,8 @@ class Babble_Post_Public extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP filter single_template to deal with the shadow post
-	 * types for pages, ensuring they use the right template.
+	 * types for pages and singular templates, ensuring they use the 
+	 * right template.
 	 *
 	 * @param string $template Path to a template file 
 	 * @return Path to a template file
