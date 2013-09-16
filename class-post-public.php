@@ -1074,6 +1074,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return Path to a template file
 	 **/
 	public function single_template( $template ) {
+		if( bbl_is_default_lang() )
+			return $template;
+
 		// Deal with the language front pages and custom page templates
 		$post = get_post( get_the_ID() );
 		if ( 'page' == get_option('show_on_front') ) {
