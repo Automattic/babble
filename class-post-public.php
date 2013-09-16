@@ -658,18 +658,21 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		if ( ! $subs_index )
 			return $posts;
+
 		$subs_posts = get_posts( array( 'include' => array_values( $subs_index ), 'post_status' => 'publish' ) );
 		// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
 		// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered
 		foreach ( $posts as & $post ) {
 			// @FIXME: I'm assuming this get_post call is cached, which it seems to be
-			$default_post = get_post( $subs_index[ $post->ID ] );
-			if ( empty( $post->post_title ) )
-				$post->post_title = $default_post->post_title;
-			if ( empty( $post->post_excerpt ) )
-				$post->post_excerpt = $default_post->post_excerpt;
-			if ( empty( $post->post_content ) )
-				$post->post_content = $default_post->post_content;
+			if( isset( $subs_index[ $post->ID ] ) ) {
+				$default_post = get_post( $subs_index[ $post->ID ] );
+				if ( empty( $post->post_title ) )
+					$post->post_title = $default_post->post_title;
+				if ( empty( $post->post_excerpt ) )
+					$post->post_excerpt = $default_post->post_excerpt;
+				if ( empty( $post->post_content ) )
+					$post->post_content = $default_post->post_content;
+			}
 		}
 		return $posts;
 	}
@@ -1071,6 +1074,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return Path to a template file
 	 **/
 	public function single_template( $template ) {
+		if( bbl_is_default_lang() )
+			return $template;
+
 		// Deal with the language front pages and custom page templates
 		$post = get_post( get_the_ID() );
 		if ( 'page' == get_option('show_on_front') ) {
@@ -1101,6 +1107,12 @@ class Babble_Post_Public extends Babble_Plugin {
 				return $_template;
 			}
 		}
+
+		$templates[] = "single-{$post->post_type}.php";
+		$templates[] = "single-{$this->get_base_post_type($post->post_type)}.php";
+		$templates[] = "single.php";
+		$template = get_query_template( 'single-gosts', $templates );
+
 		return $template;
 	}
 
