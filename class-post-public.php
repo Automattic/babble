@@ -104,7 +104,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'post_updated' );
-		$this->add_action( 'pre_get_posts' );
+		$this->add_action( 'pre_get_posts', null, 11 );
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_action( 'transition_post_status', null, null, 3 );
@@ -1282,8 +1282,13 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			// Trigger the archive listing for the relevant shadow post type
 			// of 'post' for this language.
-			if ( bbl_get_default_lang_code() != $lang )
-				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
+			if ( bbl_get_default_lang_code() != $lang ) {
+				$post_type = isset( $query_vars[ 'post_type' ] ) ? $query_vars[ 'post_type' ] : 'post';
+
+				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
+
+			}
+
 			return $query_vars;
 		}
 

@@ -142,10 +142,12 @@ class Babble_Switcher_Menu {
 				$this->add_arbitrary_link( $alt_lang );
 			}
 		}
-		
+
 		// Make up the class attribute on all links
-		foreach ( $this->links as & $link )
-			$link[ 'class' ] = implode( ' ', $link[ 'classes' ] );
+		foreach ( $this->links as $lang_code => & $link ){
+			$link[ 'class' ]  = implode( ' ', $link[ 'classes' ] );
+			$link[ 'active' ] = $lang_code == bbl_get_current_lang_code();
+		}
 	}
 
 	/**
@@ -178,7 +180,6 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
-			'lang_display_name' => $lang->display_name,
 		);
 	}
 
@@ -221,7 +222,6 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
-			'lang_display_name' => $lang->display_name,
 		);
 	}
 
@@ -254,7 +254,6 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
-			'lang_display_name' => $lang->display_name,
 		);
 	}
 
@@ -298,7 +297,6 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
-			'lang_display_name' => $lang->display_name,
 		);
 	}
 
@@ -331,7 +329,6 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
-			'lang_display_name' => $lang->display_name,
 		);
 	}
 
@@ -388,7 +385,6 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
-			'lang_display_name' => $lang->display_name,
 		);
 	}
 
@@ -420,7 +416,6 @@ class Babble_Switcher_Menu {
 			'href' => $href,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
-			'lang_display_name' => $lang->display_name,
 		);
 	}
 
@@ -450,7 +445,6 @@ class Babble_Switcher_Menu {
 			'href' => $href,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
-			'lang_display_name' => $lang->display_name,
 		);
 	}
 
@@ -491,7 +485,6 @@ class Babble_Switcher_Menu {
 			'classes' => $classes,
 			'href' => $href,
 			'id' => $lang->url_prefix,
-			'lang_display_name' => $lang->display_name,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
 		);
@@ -523,7 +516,6 @@ class Babble_Switcher_Menu {
 			'classes' => $classes,
 			'href' => $href,
 			'id' => $lang->url_prefix,
-			'lang_display_name' => $lang->display_name,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
 		);
