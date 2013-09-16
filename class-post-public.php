@@ -1107,6 +1107,12 @@ class Babble_Post_Public extends Babble_Plugin {
 				return $_template;
 			}
 		}
+
+		$templates[] = "single-{$post->post_type}.php";
+		$templates[] = "single-{$this->get_base_post_type($post->post_type)}.php";
+		$templates[] = "single.php";
+		$template = get_query_template( 'single-gosts', $templates );
+
 		return $template;
 	}
 
