@@ -39,6 +39,8 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_action( 'add_meta_boxes_bbl_job', null, 999 );
 		$this->add_action( 'load-post.php', 'load_post_edit' );
 		$this->add_action( 'pre_get_posts' );
+		$this->add_action( 'admin_menu' );
+		$this->add_action( 'wp_before_admin_bar_render' );
 
 		$this->add_filter( 'manage_bbl_job_posts_columns', 'filter_columns' );
 		$this->add_filter( 'bbl_translated_post_type', null, null, 2 );
@@ -355,6 +357,17 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$this->render_admin( 'translation-editor.php', $vars );
 
+	}
+
+	public function admin_menu() {
+		# Remove the 'Add New' submenu for Translations.
+		remove_submenu_page( 'edit.php?post_type=bbl_job', 'post-new.php?post_type=bbl_job' );
+	}
+
+	public function wp_before_admin_bar_render() {
+		global $wp_admin_bar;
+		# Remove the '+New -> Translation Job' admin bar menu.
+		$wp_admin_bar->remove_node( 'new-bbl_job' );
 	}
 
 	/**

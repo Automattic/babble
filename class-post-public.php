@@ -251,36 +251,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function wp_before_admin_bar_render() {
 		global $wp_admin_bar;
-		$nodes = $wp_admin_bar->get_nodes();
 		if ( ! bbl_is_default_lang() )
 			$wp_admin_bar->remove_node( 'new-content' );
-		foreach ( $nodes as & $node ) {
-			if ( ! bbl_is_default_lang() ) {
-				if ( 'new-content' == $node->parent )
-					$wp_admin_bar->remove_node( $node->id );
-			} else {
-				if ( 'new-content' == $node->parent ) {
-					$url_bits = parse_url( $node->href );
-					if ( ! isset( $url_bits[ 'query' ] ) )
-						continue;
-					parse_str( $url_bits[ 'query' ], $vars );
-					$post_type = false;
-					if ( isset( $vars[ 'post_type' ] ) )
-						$post_type = $vars[ 'post_type' ];
-					else if ( stristr( $vars[ 'path' ], 'post-new.php' ) )
-						$post_type = 'post';
-					if ( ! $post_type )
-						continue;
-					if ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ) {
-						if ( ! in_array( $post_type, $this->post_types ) )
-							$wp_admin_bar->remove_node( $node->id );
-					} else {
-						if ( ! in_array( $post_type, $this->lang_map2[ bbl_get_current_lang_code() ] ) )
-							$wp_admin_bar->remove_node( $node->id );
-					}
-				}
-			}
-		}
 	}
 
 	/**
@@ -349,7 +321,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			if ( false !== $args[ 'rewrite' ] ) {
 				if ( ! is_array( $new_args[ 'rewrite' ] ) )
 					$new_args[ 'rewrite' ] = array();
-				// Do I not need to add this query_var into the query_vars filter? It seems not.
 				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_slug_in_lang( $slug, $lang, $args );
 				$new_args[ 'has_archive' ] = $this->get_slug_in_lang( $archive_slug, $lang );
 			}
@@ -357,6 +328,8 @@ class Babble_Post_Public extends Babble_Plugin {
 				'query_var' => $new_args[ 'query_var' ],
 				'has_archive' => $new_args[ 'has_archive' ],
 			);
+
+			$new_args['show_in_admin_bar'] = false;
 
 			$result = register_post_type( $new_post_type, $new_args );
 			if ( is_wp_error( $result ) ) {
