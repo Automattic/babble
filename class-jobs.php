@@ -4,7 +4,7 @@
  * translation teams.
  *
  * @package Babble
- * @since 1.3
+ * @since 1.4
  */
 class Babble_Jobs extends Babble_Plugin {
 	
@@ -47,6 +47,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_filter( 'wp_insert_post_empty_content', null, null, 2 );
 		$this->add_filter( 'admin_title', null, null, 2 );
 		$this->add_filter( 'query_vars' );
+		$this->add_filter( 'user_has_cap', null, null, 3 );
 
 		$this->version = 1.1;
 	}
@@ -198,6 +199,82 @@ class Babble_Jobs extends Babble_Plugin {
 			$vars[] = 'bbl_job_term';
 		}
 		return $vars;
+	}
+
+	/**
+	 * Filter the user's capabilities so they can be added/removed on the fly.
+	 *
+	 * @TODO description of what this does
+	 *
+	 * @filter user_has_cap
+	 * @param array $user_caps     User's capabilities
+	 * @param array $required_caps Actual required capabilities for the requested capability
+	 * @param array $args          Arguments that accompany the requested capability check:
+	 *                             [0] => Requested capability from current_user_can()
+	 *                             [1] => Current user ID
+	 *                             [2] => Optional second parameter from current_user_can()
+	 * @return array User's capabilities
+	 */
+	public function user_has_cap( array $user_caps, array $required_caps, array $args ) {
+
+		$user = new WP_User( $args[1] );
+
+		switch ( $args[0] ) {
+
+			case 'edit_post':
+			case 'edit_bbl_job':
+			case 'delete_post':
+			case 'delete_bbl_job':
+			case 'publish_post':
+			case 'publish_bbl_job':
+
+				$job = get_post( $args[2] );
+
+				if ( !$job or ( 'bbl_job' != $job->post_type ) )
+					break;
+
+				$objects = $this->get_job_objects( $job );
+				$pto     = get_post_type_object( $job->post_type );
+				$cap     = str_replace( 'bbl_job', 'post', $args[0] );
+
+				if ( isset( $objects['post'] ) ) {
+
+					# This directly maps the ability to edit/delete/publish the job with the ability to do the same to the job's post:
+					$can = user_can( $user, $pto->cap->$cap, $objects['post']->ID );
+					foreach ( $required_caps as $required ) {
+						if ( !isset( $user_caps[$required] ) )
+							$user_caps[$required] = $can;
+					}
+
+				} else { # else if isset object terms
+
+				}
+
+				break;
+
+			case 'edit_bbl_jobs':
+
+				# Special case for displaying the admin menu:
+
+				# By default, Translators will have this cap:
+				if ( isset( $user_caps[$args[0]] ) )
+					break;
+
+				# Cycle through post types with show_ui true, give edit_bbl_jobs cap to the user if they can edit any of the post types
+
+				foreach ( get_post_types( array( 'show_ui' => true ), 'objects' ) as $pto ) {
+					if ( user_can( $user, $pto->cap->edit_posts ) ) {
+						$user_caps[$args[0]] = true;
+						break;
+					}
+				}
+
+				break;
+
+		}
+
+		return $user_caps;
+
 	}
 
 	/**
@@ -464,6 +541,8 @@ class Babble_Jobs extends Babble_Plugin {
 			'labels'             => $labels,
 			'can_export'         => true,
 			'supports'           => false,
+			'capability_type'    => 'bbl_job',
+			'map_meta_cap'       => true,
 		);
 		register_post_type( 'bbl_job', $args );
 		register_post_status( 'new', array(
@@ -491,7 +570,8 @@ class Babble_Jobs extends Babble_Plugin {
 			'protected'              => true,
 		) );
 		$args = array(
-			'show_ui' => false
+			'public'  => false,
+			'show_ui' => false,
 		);
 		register_taxonomy( 'bbl_job_language', array( 'bbl_job' ), $args );
 	}
