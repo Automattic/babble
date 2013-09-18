@@ -340,10 +340,18 @@ class Babble_Jobs extends Babble_Plugin {
 
 		}
 
-		$vars = array(
-			'job'   => $job,
-			'items' => $items,
+		$statuses = array(
+			'in-progress' => get_post_status_object( 'in-progress' )->label,
 		);
+
+		if ( ( 'pending' == $job->post_status ) or !current_user_can( 'publish_post', $job->ID ) )
+			$statuses['pending'] = get_post_status_object( 'pending' )->label;
+		if ( current_user_can( 'publish_post', $job->ID ) )
+			$statuses['complete'] = get_post_status_object( 'complete' )->label;
+
+		$statuses = apply_filters( 'bbl_job_statuses', $statuses, $job, $objects );
+
+		$vars = compact( 'job', 'items', 'statuses' );
 
 		$this->render_admin( 'translation-editor.php', $vars );
 
@@ -448,7 +456,7 @@ class Babble_Jobs extends Babble_Plugin {
 				# The ability to complete a translation of a post directly
 				# maps to the ability to publish the canonical post.
 
-				if ( current_user_can( 'publish_post', $post->ID ) ) {
+				if ( current_user_can( 'publish_post', $job->ID ) ) {
 
 					if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang, false ) )
 						$trans = $bbl_post_public->initialise_translation( $post, $lang );

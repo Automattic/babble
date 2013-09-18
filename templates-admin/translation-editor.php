@@ -86,8 +86,9 @@
 	<div class="bbl-translation-submit">
 
 		<select name="post_status">
-			<option value="in-progress"><?php esc_html_e( 'In Progress', 'babble' ); ?></option>
-			<option value="complete" <?php selected( $job->post_status, 'complete' ); ?>><?php esc_html_e( 'Complete', 'babble' ); ?></option>
+			<?php foreach ( $statuses as $status => $label ) { ?>
+				<option value="<?php echo esc_attr( $status ); ?>" <?php selected( $job->post_status, $status ); ?>><?php echo esc_html( $label ); ?></option>
+			<?php } ?>
 		</select>
 		<?php submit_button( __( 'Update', 'babble' ), 'primary large', 'submit', false ); ?>
 
