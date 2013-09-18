@@ -105,7 +105,7 @@
 	</tbody>
 </table>
 
-<?php submit_button(); ?>
+<?php submit_button( __( 'Save Changes', 'babble' ) ); ?>
 
 </form>
 

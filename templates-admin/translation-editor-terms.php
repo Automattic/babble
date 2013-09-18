@@ -9,7 +9,7 @@
 
 		<div class="bbl-translation-section">
 
-			<h4>Name</h4>
+			<h4><?php _e( 'Name', 'babble' ); ?></h4>
 			<div class="bbl-translation-property bbl-translation-property-term_name">
 				<input type="text" class="regular-text" name="bbl_translation[terms][<?php echo $original->term_id; ?>][name]" value="<?php echo esc_attr( $translation->name ); ?>">
 			</div>
@@ -22,7 +22,7 @@
 		<?php if ( !empty( $original->slug ) or !empty( $translation->slug ) ) { ?>
 			<div class="bbl-translation-section">
 
-				<h4>Slug</h4>
+				<h4><?php _e( 'Slug (optional)', 'babble' ); ?></h4>
 				<div class="bbl-translation-property bbl-translation-property-term_slug">
 					<input type="text" class="regular-text" name="bbl_translation[terms][<?php echo $original->term_id; ?>][slug]" value="<?php echo esc_attr( $translation->slug ); ?>">
 				</div>
@@ -36,7 +36,7 @@
 		<?php if ( !empty( $original->description ) or !empty( $translation->description ) ) { ?>
 			<div class="bbl-translation-section">
 
-				<h4>Description</h4>
+				<h4><?php _e( 'Description', 'babble' ); ?></h4>
 				<div class="bbl-translation-property bbl-translation-property-term_description">
 					<textarea class="regular-text" name="bbl_translation[terms][<?php echo $original->term_id; ?>][description]"><?php echo esc_textarea( $translation->description ); ?></textarea>
 				</div>
