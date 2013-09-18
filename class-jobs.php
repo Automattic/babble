@@ -240,7 +240,7 @@ class Babble_Jobs extends Babble_Plugin {
 				if ( isset( $objects['post'] ) ) {
 
 					# This directly maps the ability to edit/delete/publish the job with the ability to do the same to the job's post:
-					$can = user_can( $user, $pto->cap->$cap, $objects['post']->ID );
+					$can = user_can( $user, $cap, $objects['post']->ID );
 					foreach ( $required_caps as $required ) {
 						if ( !isset( $user_caps[$required] ) )
 							$user_caps[$required] = $can;
