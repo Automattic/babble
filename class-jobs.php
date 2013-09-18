@@ -420,9 +420,6 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( 'bbl_job' != $job->post_type )
 			return;
 
-		# create / update post trans if necessary
-		# create / update term trans if necessary
-
 		$post_nonce  = isset( $_POST[ '_bbl_translation_editor_post' ] ) ? $_POST[ '_bbl_translation_editor_post' ] : false;
 		$terms_nonce = isset( $_POST[ '_bbl_translation_editor_terms' ] ) ? $_POST[ '_bbl_translation_editor_terms' ] : false;
 		$language    = get_the_terms( $job, 'bbl_job_language' );
@@ -441,17 +438,43 @@ class Babble_Jobs extends Babble_Plugin {
 
 			update_post_meta( $job->ID, "bbl_post_{$post_id}", $post_data );
 
+			if ( 'pending' == $job->post_status ) {
+
+				# Nothing.
+
+			}
+
 			if ( 'complete' == $job->post_status ) {
 
-				if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang, false ) )
-					$trans = $bbl_post_public->initialise_translation( $post, $lang );
+				# The ability to complete a translation of a post directly
+				# maps to the ability to publish the canonical post.
 
-				$post_data['ID']          = $trans->ID;
-				$post_data['post_status'] = $post->post_status;
+				if ( current_user_can( 'publish_post', $post->ID ) ) {
 
-				$this->no_recursion = true;
-				wp_update_post( $post_data, true );
-				$this->no_recursion = false;
+					if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang, false ) )
+						$trans = $bbl_post_public->initialise_translation( $post, $lang );
+
+					$post_data['ID']          = $trans->ID;
+					$post_data['post_status'] = $post->post_status;
+
+					$this->no_recursion = true;
+					wp_update_post( $post_data, true );
+					$this->no_recursion = false;
+
+				} else {
+
+					# Just in case. Switch the job back to in-progress status.
+					# It would be nice to be able to use the 'publish' status because then we get the built-in
+					# publish_post cap checks, but we can't control the post status label on a per-post-type basis yet.
+
+					$this->no_recursion = true;
+					wp_update_post( array(
+						'ID'          => $job->ID,
+						'post_status' => 'in-progress',
+					), true );
+					$this->no_recursion = false;
+
+				}
 
 			}
 
@@ -471,6 +494,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 				if ( 'complete' == $job->post_status ) {
 
+					# @TODO if current user can edit term
+
 					$trans = $bbl_taxonomies->get_term_in_lang( $term, $taxo, $lang, false );
 					if ( !$trans )
 						$trans = $bbl_taxonomies->initialise_translation( $term, $taxo, $lang );
@@ -488,7 +513,6 @@ class Babble_Jobs extends Babble_Plugin {
 			}
 
 		}
-
 
 	}
 
@@ -638,6 +662,9 @@ class Babble_Jobs extends Babble_Plugin {
 		$trans   = bbl_get_post_translations( $post );
 		$jobs    = $this->get_post_jobs( $post );
 		$default = bbl_get_default_lang_code();
+
+		# The ability to create a translation of a post directly
+		# maps to the ability to publish the canonical post.
 		$capable = current_user_can( 'publish_post', $post->ID );
 
 		unset( $trans[$default] );
