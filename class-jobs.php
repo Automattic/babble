@@ -39,6 +39,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_action( 'add_meta_boxes_bbl_job', null, 999 );
 		$this->add_action( 'load-post.php', 'load_post_edit' );
 		$this->add_action( 'pre_get_posts' );
+		$this->add_action( 'admin_menu' );
 
 		$this->add_filter( 'manage_bbl_job_posts_columns', 'filter_columns' );
 		$this->add_filter( 'bbl_translated_post_type', null, null, 2 );
@@ -544,6 +545,9 @@ class Babble_Jobs extends Babble_Plugin {
 			'supports'           => false,
 			'capability_type'    => 'bbl_job',
 			'map_meta_cap'       => true,
+			'capabilities'       => array(
+				'create_posts' => 'do_not_allow',
+			),
 		);
 		register_post_type( 'bbl_job', $args );
 		register_post_status( 'new', array(
@@ -575,6 +579,16 @@ class Babble_Jobs extends Babble_Plugin {
 			'show_ui' => false,
 		);
 		register_taxonomy( 'bbl_job_language', array( 'bbl_job' ), $args );
+	}
+
+	public function admin_menu() {
+
+		# Denying create_posts for a CPT prevents accessing the whole CPT menu unless the user has the edit_posts cap.
+		# Creating a submenu item fixes the issue, so here we're adding a submenu item that nobody can access.
+		# See http://core.trac.wordpress.org/ticket/22895
+
+		add_submenu_page( 'edit.php?post_type=bbl_job', null, null, 'do_not_allow', null, '__return_false' );
+
 	}
 
 	// CALLBACKS
