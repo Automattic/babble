@@ -37,6 +37,7 @@ require_once 'class-babble-log.php';
 
 require_once 'api.php';
 require_once 'deprecated.php';
+require_once 'widget.php';
 
 require_once 'class-plugin.php';
 

@@ -143,10 +143,12 @@ class Babble_Switcher_Menu {
 				$this->add_arbitrary_link( $alt_lang );
 			}
 		}
-		
+
 		// Make up the class attribute on all links
-		foreach ( $this->links as & $link )
-			$link[ 'class' ] = implode( ' ', $link[ 'classes' ] );
+		foreach ( $this->links as $lang_code => & $link ){
+			$link[ 'class' ]  = implode( ' ', $link[ 'classes' ] );
+			$link[ 'active' ] = $lang_code == bbl_get_current_lang_code();
+		}
 	}
 
 	/**

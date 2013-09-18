@@ -61,6 +61,15 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected $slugs_and_vars;
 
+	
+	/**
+	 * An array of Post IDs for posts that are in the process of
+	 * being deleted.
+	 *
+	 * @var array
+	 **/
+	protected $deleting_post_ids;
+
 	/**
 	 * An array of meta_keys, indexed by meta_key, containing
 	 * meta_keys we KNOW to be added as unique.
@@ -85,7 +94,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'post_updated' );
-		$this->add_action( 'pre_get_posts' );
+		$this->add_action( 'pre_get_posts', null, 11 );
 		$this->add_action( 'registered_post_type', null, null, 2 );
 		$this->add_action( 'transition_post_status', null, null, 3 );
 		$this->add_action( 'updated_post_meta', null, null, 4 );
@@ -116,6 +125,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
 		$this->no_meta_recursion = false;
+		$this->deleting_post_ids = array();
 
 		$this->version = 9;
 
@@ -459,6 +469,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function deleted_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
+		
+		// When we are deleting posts, we don't want to sync
+		// the metadata deletion across the other posts in 
+		// the same translation group
+		if ( in_array( $post_id, $this->deleting_post_ids ) )
+			return;
+
 		// Some metadata shouldn't be synced
 		if ( ! apply_filters( 'bbl_sync_meta_key', true, $meta_key ) )
 			return;
@@ -758,7 +775,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->no_recursion = false;
 		return $link;
 	}
-	
+
 	/**
 	 * Hooks the WP clean_post_cache action to clear the Babble
 	 * post translation and transid caches.
@@ -1044,8 +1061,13 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			// Trigger the archive listing for the relevant shadow post type
 			// of 'post' for this language.
-			if ( bbl_get_default_lang_code() != $lang )
-				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
+			if ( bbl_get_default_lang_code() != $lang ) {
+				$post_type = isset( $query_vars[ 'post_type' ] ) ? $query_vars[ 'post_type' ] : 'post';
+
+				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
+
+			}
+
 			return $query_vars;
 		}
 

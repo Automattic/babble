@@ -1,15 +1,16 @@
-=== Babble ===
-Contributors: simonwheatley, cftp, johnbillion, scottsweb, imsimond
-Tags: translations
-Requires at least: 3.5.1
-Tested up to: 3.5.1
-Stable tag: Alpha 1.2
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+# Babble
+
+* Contributors: simonwheatley, cftp, johnbillion, scottsweb, imsimond
+* Tags: translations
+* Requires at least: 3.5.1
+* Tested up to: 3.5.1
+* Stable tag: Alpha 1.2
+* License: GPLv2 or later
+* License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 A plugin to handle translating content into a variety of languages.
 
-== Description ==
+## Description
 
 This plugin is at a proof of concept stage for translating post type content for the built
 in types of `post` and `page`. It is powering a live site at http://freespeechdebate.com/.
@@ -22,7 +23,7 @@ unknowns; feel free to weigh in on any of them.
 
 Please add bugs to https://github.com/cftp/babble/issues
 
-== Installation ==
+## Installation
 
 Installation is fairly standard:
 
@@ -33,27 +34,22 @@ Installation is fairly standard:
 1. You'll now be prompted to set the languages you want, you can pick from any of the language packs you've got installed
 1. You'll notice the language switcher menu in the admin bar, use this to switch languages and (depending on context) to create new versions of the content you are looking at (from the front end) or editing (from the admin area)
 
-== Screenshots ==
+## Changelog
 
-1. Shows the Babble language switch menu in the admin area, showing the site in Hebrew and the options to switch to English or German
-2. Shows the Babble language switch menu while editing a post, where a German translation has been created and offering the option to create a Hebrew translation
-3. Shows the provisional URL structure on the frontend, and the collapsed Babble language switcher menu in the admin bar
-
-== Changelog ==
-
-= alpha 1.3 =
+### alpha 1.3 
 
 * BUGFIX: Don't sync deleting a posts metadata across the translation group (Fixes #93)
 
-= alpha 1.2 =
+### alpha 1.2 
 
 *gap of time while we add various things*
 
-= alpha 1.1 =
+### alpha 1.1 
 
 * Taxonomies.
 
-= alpha 1 =
+### alpha 1 
 
 * Proof of concept concentrating on the translation of posts. Taxonomies and menus are not handled yet. Widgets are out of scope completely for this phase of work.
+
 
