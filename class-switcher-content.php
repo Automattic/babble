@@ -128,6 +128,7 @@ class Babble_Switcher_Menu {
 			// Don't add a switcher link if the language is not public and
 			// the user cannot edit any posts (as a rough guide to whether 
 			// they are more than just a subscriber).
+			// @TODO this cap check should move into each add_*_link() method:
 			if ( ! bbl_is_public_lang( $alt_lang->code ) && ! current_user_can( 'edit_posts' ) )
 				continue;
 			

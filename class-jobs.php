@@ -505,6 +505,7 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( !wp_verify_nonce( $nonce, "bbl_ready_for_translation-{$post->ID}" ) )
 			return;
 
+		# @TODO individual language selection when marking post as translation ready
 		$langs       = bbl_get_active_langs();
 		$lang_codes  = wp_list_pluck( $langs, 'code' );
 		$this->create_post_jobs( $post->ID, $lang_codes );
@@ -831,8 +832,6 @@ class Babble_Jobs extends Babble_Plugin {
 				$trans_terms[$taxo][$term->term_id] = bbl_get_term_translations( $term->term_id, $term->taxonomy );
 
 		}
-
-		# @TODO individual language selection when marking post as translation ready – NOW DONE?
 
 		$jobs = array();
 		foreach ( $lang_codes as $lang_code ) {

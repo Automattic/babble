@@ -131,7 +131,6 @@ class Babble_Post_Public extends Babble_Plugin {
 			'public' => false,
 			'show_ui' => false,
 			'show_in_nav_menus' => false,
-			'show_in_nav_menus' => false,
 		) );
 	}
 
