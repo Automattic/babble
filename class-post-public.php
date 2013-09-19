@@ -238,6 +238,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		if ( bbl_get_current_lang_code() == bbl_get_default_lang_code() )
 			return;
+		if ( !bbl_is_translated_post_type( $screen->post_type ) )
+			return;
 
 		wp_die( __( 'You can only create content in your site\'s default language. Please consult your editorial team.', 'babble' ), '', array( 'back_link' => true ) );
 	}
@@ -1144,17 +1146,13 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function get_new_post_translation_url( $default_post, $lang_code ) {
 		$default_post = get_post( $default_post );
-		bbl_switch_to_lang( $lang_code );
-		$transid = $this->get_transid( $default_post );
-		$url = admin_url( '/post-new.php' );
+		$url = admin_url( 'post-new.php' );
 		$args = array( 
-			'bbl_transid' => $transid, 
-			'bbl_origin_id' => $default_post->ID, 
-			'lang' => $lang_code, 
-			'post_type' => $this->get_post_type_in_lang( $default_post->post_type, $lang_code ),
+			'bbl_origin_post' => $default_post->ID, 
+			'lang'            => $lang_code, 
+			'post_type'       => 'bbl_job',
 		);
 		$url = add_query_arg( $args, $url );
-		bbl_restore_lang();
 		return $url;
 	}
 

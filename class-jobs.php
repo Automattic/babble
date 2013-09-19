@@ -183,8 +183,15 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( 'post' == $screen->base && 'bbl_job' == $screen->post_type ) {
 			$pto = get_post_type_object( 'bbl_job' );
 			$job = get_post();
-			$lang = $this->get_job_language( $job );
-			$admin_title = sprintf( $pto->labels->edit_item_context, $lang->display_name );
+			if ( 'add' == $screen->action ) {
+				if ( isset( $_GET['lang'] ) ) {
+					$lang = bbl_get_lang( $_GET['lang'] );
+					$admin_title = sprintf( $pto->labels->add_item_context, $lang->display_name );
+				}
+			} else {
+				$lang = $this->get_job_language( $job );
+				$admin_title = sprintf( $pto->labels->edit_item_context, $lang->display_name );
+			}
 			$GLOBALS[ 'title' ] = $admin_title;
 		}
 		return $admin_title;
@@ -571,6 +578,7 @@ class Babble_Jobs extends Babble_Plugin {
 			'menu_name'          => _x( 'Translations', 'translation jobs menu name', 'babble' ),
 			'add_new'            => _x( 'Add New', 'translation job', 'babble' ),
 			'add_new_item'       => _x( 'Create New Job', 'translation job', 'babble' ),
+			'add_item_context'   => _x( 'Add Translation Job (%s)', 'translation job; e.g. "Add Translation Job (French)"', 'babble' ),
 			'edit_item'          => _x( 'Edit Translation Job', 'translation job', 'babble' ),
 			'edit_item_context'  => _x( 'Edit Translation Job (%s)', 'translation job; e.g. "Edit Translation Job (French)"', 'babble' ),
 			'new_item'           => _x( 'New Job', 'translation job', 'babble' ),
