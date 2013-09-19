@@ -558,6 +558,8 @@ class Babble_Jobs extends Babble_Plugin {
 			return;
 		if ( !wp_verify_nonce( $nonce, "bbl_ready_for_translation-{$post->ID}" ) )
 			return;
+		if ( !isset( $_POST['babble_ready_for_translation'] ) )
+			return;
 
 		# @TODO individual language selection when marking post as translation ready
 		$langs       = bbl_get_active_langs();
