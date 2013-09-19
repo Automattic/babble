@@ -25,17 +25,41 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+
 /**
- * Returns the current language code.
+ * Returns the current content language code.
  *
  * @FIXME: Currently does not check for language validity, though perhaps we should check that elsewhere and redirect?
  *
  * @return string A language code
  * @access public
  **/
-function bbl_get_current_lang_code() {
+function bbl_get_current_content_lang_code() {
 	global $bbl_locale;
-	return $bbl_locale->get_lang();
+	return $bbl_locale->get_content_lang();
+}
+
+/**
+ * Returns the current interface language code.
+ *
+ * @FIXME: Currently does not check for language validity, though perhaps we should check that elsewhere and redirect?
+ *
+ * @return string A language code
+ * @access public
+ **/
+function bbl_get_current_interface_lang_code() {
+	global $bbl_locale;
+	return $bbl_locale->get_interface_lang();
+}
+
+/**
+ * Returns the current (content) language code.
+ *
+ * @return string A language code
+ * @access public
+ **/
+function bbl_get_current_lang_code() {
+	return bbl_get_current_content_lang_code();
 }
 
 /**
@@ -52,9 +76,9 @@ function bbl_is_public_lang( $lang_code ) {
 }
 
 /**
- * Set the current lang.
+ * Set the current (content) lang.
  * 
- * @uses Babble_Locale::switch_lang to do the actual work
+ * @uses Babble_Locale::switch_to_lang to do the actual work
  * @see switch_to_blog for similarities
  *
  * @param string $lang The language code to switch to 
@@ -459,9 +483,9 @@ function bbl_get_default_lang_code() {
 }
 
 /**
- * Returns the default language code for this site.
+ * Returns the default language for this site.
  *
- * @return string A language code, e.g. "he_IL"
+ * @return object A language object
  **/
 function bbl_get_default_lang() {
 	global $bbl_languages;

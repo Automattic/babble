@@ -92,7 +92,7 @@ class Babble_Switcher_Menu {
 			$this->translations = bbl_get_post_translations( get_the_ID() );
 		} else if ( 'page' == get_option( 'show_on_front' ) && is_home() ) {
 			$this->translations = bbl_get_post_translations( get_option( 'page_for_posts' ) );
-		} else if ( is_tax() || is_category() || $editing_term ) {
+		} else if ( ( !is_admin() and ( is_tax() || is_category() ) ) || $editing_term ) {
 			if ( isset( $_REQUEST[ 'tag_ID' ] ) )
 				$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
 			else
@@ -128,7 +128,7 @@ class Babble_Switcher_Menu {
 			// Don't add a switcher link if the language is not public and
 			// the user cannot edit any posts (as a rough guide to whether 
 			// they are more than just a subscriber).
-			if ( ! bbl_is_public_lang( $alt_lang->code ) && ! current_user_can( 'edit_post' ) )
+			if ( ! bbl_is_public_lang( $alt_lang->code ) && ! current_user_can( 'edit_posts' ) )
 				continue;
 			
 			if ( is_front_page() ) { 				// Language homepage
@@ -161,7 +161,7 @@ class Babble_Switcher_Menu {
 		$classes = array();
 		$href = add_query_arg( array( 'lang' => $lang->code ) );
 		$href = apply_filters( 'bbl_switch_admin_generic_link', $href, $lang );
-		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
 		$classes[] = 'bbl-admin-generic';
@@ -198,13 +198,13 @@ class Babble_Switcher_Menu {
 				'tag_ID' => $this->translations[ $lang->code ]->term_id 
 			);
 			$href = add_query_arg( $args );
-			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-term';
 		} else { // Translation does not exist
 			$default_term = (int) $_GET[ 'tag_ID' ];
 			$href = bbl_get_new_term_translation_url( $default_term, $lang->code, $this->screen->taxonomy );
-			$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
+			$title = sprintf( __( 'Create for %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
 		}
@@ -239,7 +239,7 @@ class Babble_Switcher_Menu {
 		);
 		$href = add_query_arg( $args );
 		$href = apply_filters( 'bbl_switch_admin_list_terms_link', $href, $lang );
-		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
 		$classes[] = 'bbl-admin-taxonomy';
@@ -268,14 +268,14 @@ class Babble_Switcher_Menu {
 		if ( isset( $this->translations[ $lang->code ]->ID ) ) { // Translation exists
 			$href = add_query_arg( array( 'lang' => $lang->code, 'post' => $this->translations[ $lang->code ]->ID ) );
 			$href = remove_query_arg( 'message', $href );
-			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-post';
 		} else { // Translation does not exist
 			if ( isset( $this->translations[ bbl_get_default_lang_code() ] ) ) {
 				$default_post = $this->translations[ bbl_get_default_lang_code() ];
 				$href = bbl_get_new_post_translation_url( $default_post, $lang->code );
-				$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
+				$title = sprintf( __( 'Create for %s', 'babble' ), $lang->display_name );
 				$classes[] = 'bbl-add';
 				$classes[] = 'bbl-add-post';
 			} else {
@@ -314,7 +314,7 @@ class Babble_Switcher_Menu {
 		);
 		$href = add_query_arg( $args );
 		$href = apply_filters( 'bbl_switch_admin_list_posts_link', $href, $lang );
-		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
 		$classes[] = 'bbl-admin-edit-post';
@@ -353,14 +353,14 @@ class Babble_Switcher_Menu {
 			bbl_switch_to_lang( $lang->code );
 			$href = get_permalink( $this->translations[ $lang->code ]->ID );
 			bbl_restore_lang();
-			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing';
 			$classes[] = 'bbl-existing-post';
 		} else if ( current_user_can( 'edit_post', $this->translations[ bbl_get_default_lang_code() ]->ID ) ) {
 			// Generate a URL to create the translation
 			$default_post = $this->translations[ bbl_get_default_lang_code() ];
 			$href = bbl_get_new_post_translation_url( $default_post, $lang->code );
-			$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
+			$title = sprintf( __( 'Create for %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-post';
 		} else {
@@ -370,7 +370,7 @@ class Babble_Switcher_Menu {
 
 			// Show a blank link for unavailable translations
 			$href = false;
-			$title = sprintf( __( 'This content is unavailable in %s', 'bbl' ), $lang->names );
+			$title = sprintf( __( 'This content is unavailable in %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-unavailable';
 		}
 		$href = apply_filters( 'bbl_switch_post_link', $href, $lang, $this->translations );
@@ -403,7 +403,7 @@ class Babble_Switcher_Menu {
 		$href = home_url( "$lang->url_prefix/" );
 		add_filter( 'home_url', array( $bbl_locale, 'home_url'), null, 2 );
 		$href = apply_filters( 'bbl_switch_front_page_link', $href, $lang );
-		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-existing';
 		$classes[] = 'bbl-front-page';
@@ -426,13 +426,12 @@ class Babble_Switcher_Menu {
 	 * @return void
 	 **/
 	protected function add_post_type_archive_link( $lang ) {
-		global $bbl_locale;
 		$classes = array();
 		bbl_switch_to_lang( $lang->code );
 		$href = get_post_type_archive_link( get_query_var( 'post_type' ) );
 		bbl_restore_lang();
 		$href = apply_filters( 'bbl_switch_post_type_archive_link', $href, $lang );
-		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-existing';
 		$classes[] = 'bbl-post-type-archive';
@@ -464,14 +463,14 @@ class Babble_Switcher_Menu {
 			bbl_switch_to_lang( $lang->code );
 			$href = get_term_link( $this->translations[ $lang->code ], bbl_get_base_taxonomy( $queried_object->taxonomy ) );
 			bbl_restore_lang();
-			$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing';
 			$classes[] = 'bbl-existing-term';
 		} else { // Translation does not exist
 			// Generate a URL to create the translation
 			$default_term = $this->translations[ bbl_get_default_lang_code() ];
 			$href = bbl_get_new_term_translation_url( $default_term->term_id, $lang->code, $default_term->taxonomy );
-			$title = sprintf( __( 'Create for %s', 'bbl' ), $lang->names );
+			$title = sprintf( __( 'Create for %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
 		}
@@ -504,7 +503,7 @@ class Babble_Switcher_Menu {
 		$href = home_url( $matches[ 1 ] );
 		bbl_restore_lang();
 		$href = apply_filters( 'bbl_switch_arbitrary_link', $href, $lang );
-		$title = sprintf( __( 'Switch to %s', 'bbl' ), $lang->names );
+		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 		$classes[] = 'bbl-existing';
 		$classes[] = 'bbl-existing-term';
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";

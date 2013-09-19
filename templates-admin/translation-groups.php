@@ -21,7 +21,7 @@
 					counter++;
 					dupe_ids.push( dupes[ i ] );
 				}
-				msg += 'Got ' + counter + ' dplicate post IDs, look for the red: ' + dupe_ids.join( ', ' );
+				msg += 'Got ' + counter + ' duplicate post IDs, look for the red: ' + dupe_ids.join( ', ' );
 				alert( msg );
 			}
 		} );
@@ -30,14 +30,14 @@
 	<div>
 		<form action="" method="get">
 			<input type="hidden" name="page" value="btgt" />
-			<p><?php _e( 'Show only the following statuses:', 'bbl' ); ?></p>
+			<p><?php _e( 'Show only the following statuses:', 'babble' ); ?></p>
 			<p><?php 
 				$stati = get_post_stati( null, 'objects' ); 
 				$selected_stati = ( isset( $_GET[ 'bbl_stati' ] ) ) ? $_GET[ 'bbl_stati' ] : array( 'publish', 'private', 'draft', 'private', 'future', 'pending' );
 				foreach ( $stati as $status => $status_obj ) : ?>
-				<label for="status-<?php echo esc_attr( $status ); ?>"><input type="checkbox" name="bbl_stati[]" value="<?php echo esc_attr( $status ); ?>" id="status-<?php echo esc_attr( $status ); ?>" <?php checked( in_array( $status, $selected_stati ) ); ?> /> <?php echo esc_html( $status_obj->label ); ?> (<?php echo $status_obj->public ? __( 'public', 'bbl' ) : __( 'hidden', 'bbl' ); ?>)</label><br />
+				<label for="status-<?php echo esc_attr( $status ); ?>"><input type="checkbox" name="bbl_stati[]" value="<?php echo esc_attr( $status ); ?>" id="status-<?php echo esc_attr( $status ); ?>" <?php checked( in_array( $status, $selected_stati ) ); ?> /> <?php echo esc_html( $status_obj->label ); ?> (<?php echo $status_obj->public ? __( 'public', 'babble' ) : __( 'hidden', 'babble' ); ?>)</label><br />
 			<?php endforeach; ?></p>
-			<?php submit_button( __( 'Filter', 'bbl' ) ); ?>
+			<?php submit_button( __( 'Filter', 'babble' ) ); ?>
 		</form>
 	</div>
 
