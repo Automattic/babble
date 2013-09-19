@@ -1209,12 +1209,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		);
 		$posts = get_posts( $args );
 		$translations = array();
-		foreach ( $posts as & $post ) {
-			if ( isset( $this->lang_map[ $post->post_type ] ) )
-				$translations[ $this->lang_map[ $post->post_type ] ] = $post;
-			else
-				$translations[ bbl_get_default_lang_code() ] = $post;
-		}
+		foreach ( $posts as $post )
+			$translations[ $this->get_post_lang_code( $post ) ] = $post;
 
 		wp_cache_add( $transid, $translations, 'bbl_post_translations' );
 

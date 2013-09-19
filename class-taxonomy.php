@@ -570,7 +570,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Finally, we're ready to return the terms in this 
 		// translation group.
 		$terms = array();
-		$terms[ bbl_get_current_lang()->code ] = $term;
 		foreach ( $existing_terms as $t )
 			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = $t;
 		return $terms;
