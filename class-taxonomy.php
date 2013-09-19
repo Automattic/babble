@@ -538,7 +538,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * term ID. N.B. The returned array of term objects (and false 
 	 * values) will include the term for the term ID passed.
 	 * 
-	 * @FIXME: Should I filter out the term ID passed?
 	 * @FIXME: We should cache the translation groups, as we do for posts
 	 *
 	 * @param int|object $term Either a WP Term object, or a term_id 

@@ -544,6 +544,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
 		// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered
 		foreach ( $posts as & $post ) {
+			// @TODO why does this only override the title/excerpt/content? Why not override the post object entirely?
 			// @FIXME: I'm assuming this get_post call is cached, which it seems to be
 			$default_post = get_post( $subs_index[ $post->ID ] );
 			if ( empty( $post->post_title ) )
@@ -1177,8 +1178,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * post ID. N.B. The returned array of post objects (and false 
 	 * values) will include the post for the post ID passed.
 	 * 
-	 * @FIXME: Should I filter out the post ID passed?
-	 *
 	 * @param int|WP_Post $post Either a WP Post object, or a post ID 
 	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
 	 **/

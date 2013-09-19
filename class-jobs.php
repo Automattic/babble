@@ -126,10 +126,12 @@ class Babble_Jobs extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP action load-post.php to detect people
-	 * trying to edit translation posts, and instead kick 
+	 * trying to edit translated posts, and instead kick 
 	 * redirect them to an existing translation job or
 	 * create a translation job and direct them to that.
 	 *
+	 * @TODO this should be in the post-public class
+	 * 
 	 * @action load-post.php
 	 * 
 	 * @return void
@@ -192,7 +194,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * Filters the public query vars and adds some of our own
 	 *
 	 * @filter query_vars
-	 * @param  array $vars Pulbic query vars
+	 * @param  array $vars Public query vars
 	 * @return array Updated public query vars
 	 */
 	public function query_vars( array $vars ) {
@@ -467,7 +469,7 @@ class Babble_Jobs extends Babble_Plugin {
 			if ( 'complete' == $job->post_status ) {
 
 				# The ability to complete a translation of a post directly
-				# maps to the ability to publish the canonical post.
+				# maps to the ability to publish the origin post.
 
 				if ( current_user_can( 'publish_post', $job->ID ) ) {
 
@@ -911,6 +913,7 @@ class Babble_Jobs extends Babble_Plugin {
 						add_post_meta( $job, 'bbl_job_term', "{$taxo}|{$term_id}", false );
 				}
 			}
+
 		}
 		return $jobs;
 	}
