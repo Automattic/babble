@@ -985,7 +985,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 				$trans = bbl_get_term_translations( $term->term_id, $term->taxonomy );
 
-				if ( !isset( $trans[$lang_code] ) or ( $trans[$lang_code]->term_id == $trans[bbl_get_default_lang_code()]->term_id ) )
+				if ( !isset( $trans[$lang_code] ) )
 					$trans_terms[$taxo][$term->term_id] = $term;
 
 			}
