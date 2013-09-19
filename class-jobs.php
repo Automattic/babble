@@ -309,12 +309,41 @@ class Babble_Jobs extends Babble_Plugin {
 
 	public function edit_form_after_title() {
 
-		if ( 'bbl_job' != get_current_screen()->post_type )
+		$screen = get_current_screen();
+
+		if ( 'bbl_job' != $screen->post_type )
 			return;
 
-		$job     = get_post();
-		$objects = $this->get_job_objects( $job );
-		$items   = array();
+		$job   = get_post();
+		$items = $objects = $vars = array();
+
+		if ( ( 'add' == $screen->action ) and isset( $_GET['lang'] ) ) {
+
+			$vars['lang_code'] = stripslashes( $_GET['lang'] );
+
+			if ( isset( $_GET['bbl_origin_post'] ) ) {
+
+				$post  = get_post( absint( $_GET['bbl_origin_post' ] ) );
+				$terms = $this->get_post_terms_to_translate( $post, $_GET['lang'] );
+				$objects['post'] = $post;
+				if ( !empty( $terms ) )
+					$objects['terms'] = $terms;
+				$vars['origin_post'] = $post->ID;
+
+			} else if ( isset( $_GET['bbl_origin_term'] ) and isset( $_GET['bbl_origin_taxonomy'] ) ) {
+
+				$term = get_term( $_GET['bbl_origin_term'], $_GET['bbl_origin_taxonomy'] );
+				$objects['terms'][$term->taxonomy][$term->term_id] = $term;
+				$vars['origin_term']     = $term->term_id;
+				$vars['origin_taxonomy'] = $term->taxonomy;
+
+			}
+
+		} else {
+
+			$objects = $this->get_job_objects( $job );
+
+		}
 
 		if ( isset( $objects['post'] ) ) {
 
@@ -362,7 +391,9 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$statuses = apply_filters( 'bbl_job_statuses', $statuses, $job, $objects );
 
-		$vars = compact( 'job', 'items', 'statuses' );
+		$vars['job']      = $job;
+		$vars['items']    = $items;
+		$vars['statuses'] = $statuses;
 
 		$this->render_admin( 'translation-editor.php', $vars );
 
@@ -449,16 +480,44 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( 'bbl_job' != $job->post_type )
 			return;
 
-		$post_nonce  = isset( $_POST[ '_bbl_translation_editor_post' ] ) ? $_POST[ '_bbl_translation_editor_post' ] : false;
-		$terms_nonce = isset( $_POST[ '_bbl_translation_editor_terms' ] ) ? $_POST[ '_bbl_translation_editor_terms' ] : false;
-		$language    = get_the_terms( $job, 'bbl_job_language' );
+		$edit_post_nonce   = isset( $_POST[ '_bbl_translation_edit_post' ] ) ? $_POST[ '_bbl_translation_edit_post' ] : false;
+		$edit_terms_nonce  = isset( $_POST[ '_bbl_translation_edit_terms' ] ) ? $_POST[ '_bbl_translation_edit_terms' ] : false;
+		$origin_post_nonce = isset( $_POST[ '_bbl_translation_origin_post' ] ) ? $_POST[ '_bbl_translation_origin_post' ] : false;
+		$origin_term_nonce = isset( $_POST[ '_bbl_translation_origin_term' ] ) ? $_POST[ '_bbl_translation_origin_term' ] : false;
+		$lang_code_nonce   = isset( $_POST[ '_bbl_translation_lang_code' ] ) ? $_POST[ '_bbl_translation_lang_code' ] : false;
+
+		if ( $lang_code_nonce and wp_verify_nonce( $lang_code_nonce, "bbl_translation_lang_code_{$job->ID}" ) ) {
+			wp_set_object_terms( $job->ID, stripslashes( $_POST['bbl_lang_code'] ), 'bbl_job_language', false );
+		}
+
+		$language = get_the_terms( $job, 'bbl_job_language' );
 
 		if ( empty( $language ) )
 			return false;
 		else
-			$lang = reset( $language )->name;
+			$lang_code = reset( $language )->name;
 
-		if ( $post_nonce and wp_verify_nonce( $post_nonce, "bbl_translation_editor_post_{$job->ID}") ) {
+		if ( $origin_post_nonce and wp_verify_nonce( $origin_post_nonce, "bbl_translation_origin_post_{$job->ID}") ) {
+			if ( $origin_post = get_post( absint( $_POST['bbl_origin_post'] ) ) ) {
+				add_post_meta( $job->ID, 'bbl_job_post', "{$origin_post->post_type}|{$origin_post->ID}", true );
+
+				foreach ( $this->get_post_terms_to_translate( $origin_post->ID, $lang_code ) as $taxo => $terms ) {
+					foreach ( $terms as $term_id => $term )
+						add_post_meta( $job->ID, 'bbl_job_term', "{$taxo}|{$term_id}", false );
+				}
+
+			}
+			# @TODO else wp_die()?
+		}
+
+		# @TODO not implemented:
+		if ( $origin_term_nonce and wp_verify_nonce( $origin_term_nonce, "bbl_translation_origin_term_{$job->ID}") ) {
+			if ( $origin_term = get_term( absint( $_POST['bbl_origin_term'] ), $_POST['bbl_origin_taxonomy'] ) )
+				add_post_meta( $job->ID, 'bbl_job_term', "{$origin_term->taxonomy}|{$origin_term->term_id}", false );
+			# @TODO else wp_die()?
+		}
+
+		if ( $edit_post_nonce and wp_verify_nonce( $edit_post_nonce, "bbl_translation_edit_post_{$job->ID}" ) ) {
 
 			$post_data = stripslashes_deep( $_POST['bbl_translation']['post'] );
 			$post_info = get_post_meta( $job->ID, 'bbl_job_post', true );
@@ -480,8 +539,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 				if ( current_user_can( 'publish_post', $job->ID ) ) {
 
-					if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang, false ) )
-						$trans = $bbl_post_public->initialise_translation( $post, $lang );
+					if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang_code, false ) )
+						$trans = $bbl_post_public->initialise_translation( $post, $lang_code );
 
 					$post_data['ID']          = $trans->ID;
 					$post_data['post_status'] = $post->post_status;
@@ -509,7 +568,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 		}
 
-		if ( $terms_nonce and wp_verify_nonce( $terms_nonce, "bbl_translation_editor_terms_{$job->ID}") ) {
+		if ( $edit_terms_nonce and wp_verify_nonce( $edit_terms_nonce, "bbl_translation_edit_terms_{$job->ID}") ) {
 
 			$terms_data = stripslashes_deep( $_POST['bbl_translation']['terms'] );
 			$terms      = get_post_meta( $job->ID, 'bbl_job_term', false );
@@ -525,9 +584,9 @@ class Babble_Jobs extends Babble_Plugin {
 
 					# @TODO if current user can edit term
 
-					$trans = $bbl_taxonomies->get_term_in_lang( $term, $taxo, $lang, false );
+					$trans = $bbl_taxonomies->get_term_in_lang( $term, $taxo, $lang_code, false );
 					if ( !$trans )
-						$trans = $bbl_taxonomies->initialise_translation( $term, $taxo, $lang );
+						$trans = $bbl_taxonomies->initialise_translation( $term, $taxo, $lang_code );
 
 					$terms_data[$term->term_id]['term_id'] = $trans->term_id;
 

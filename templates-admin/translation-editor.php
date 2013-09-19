@@ -1,10 +1,22 @@
 <div id="bbl-translation-editor">
 
+	<?php
+		if ( isset( $lang_code ) ) {
+			wp_nonce_field( "bbl_translation_lang_code_{$job->ID}", '_bbl_translation_lang_code' );
+			echo '<input type="hidden" name="bbl_lang_code" value="' . esc_attr( $lang_code ) . '">';
+		}
+	?>
+
 	<?php if ( isset( $items['post'] ) ) { ?>
 
 		<?php
 	
-			wp_nonce_field( "bbl_translation_editor_post_{$job->ID}", '_bbl_translation_editor_post' );
+			if ( isset( $origin_post ) ) {
+				wp_nonce_field( "bbl_translation_origin_post_{$job->ID}", '_bbl_translation_origin_post' );
+				echo '<input type="hidden" name="bbl_origin_post" value="' . absint( $origin_post ) . '">';
+			}
+
+			wp_nonce_field( "bbl_translation_edit_post_{$job->ID}", '_bbl_translation_edit_post' );
 
 			$original    = $items['post']['original'];
 			$translation = $items['post']['translation'];
@@ -67,7 +79,13 @@
 
 		<?php
 
-		wp_nonce_field( "bbl_translation_editor_terms_{$job->ID}", '_bbl_translation_editor_terms' );
+		if ( isset( $origin_term ) ) {
+			wp_nonce_field( "bbl_translation_origin_term_{$job->ID}", '_bbl_translation_origin_term' );
+			echo '<input type="hidden" name="bbl_origin_term" value="' . absint( $origin_term ) . '">';
+			echo '<input type="hidden" name="bbl_origin_taxonomy" value="' . absint( $origin_taxonomy ) . '">';
+		}
+
+		wp_nonce_field( "bbl_translation_edit_terms_{$job->ID}", '_bbl_translation_edit_terms' );
 
 		do_action( 'bbl_translation_terms_meta_boxes', 'bbl_translation_editor_terms', $items['terms'] );
 
