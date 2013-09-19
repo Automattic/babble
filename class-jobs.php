@@ -872,26 +872,9 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @return array An array of Translation Job posts
 	 **/
 	public function create_post_jobs( $post_id, array $lang_codes ) {
-		$post        = get_post( $post_id );
-		$taxos       = get_object_taxonomies( $post->post_type );
-		$trans_terms = array();
+		$post = get_post( $post_id );
 
 		// @TODO Validate that the $post is in the default language, otherwise fail
-
-		foreach ( $taxos as $key => $taxo ) {
-
-			if ( !bbl_is_translated_taxonomy( $taxo ) )
-				continue;
-
-			$terms = get_the_terms( $post, $taxo );
-
-			if ( empty( $terms ) )
-				continue;
-
-			foreach ( $terms as $term )
-				$trans_terms[$taxo][$term->term_id] = bbl_get_term_translations( $term->term_id, $term->taxonomy );
-
-		}
 
 		$jobs = array();
 		foreach ( $lang_codes as $lang_code ) {
@@ -906,26 +889,52 @@ class Babble_Jobs extends Babble_Plugin {
 				'post_author' => get_current_user_id(),
 				'post_title'  => get_the_title( $post ),
 			) );
+			$this->no_recursion = false;
 			// @TODO If a translation already exists, populate the translation job with the translation
 			$jobs[] = $job;
-			$this->no_recursion = false;
 
 			add_post_meta( $job, 'bbl_job_post', "{$post->post_type}|{$post->ID}", true );
 			wp_set_object_terms( $job, $lang_code, 'bbl_job_language' );
 
-			if ( empty( $trans_terms ) )
-				continue;
-
-			$objects = array();
-			foreach ( $trans_terms as $taxo => $terms ) {
-				foreach ( $terms as $term_id => $trans ) {
-					if ( !isset( $trans[$lang_code] ) )
-						add_post_meta( $job, 'bbl_job_term', "{$taxo}|{$term_id}", false );
-				}
+			foreach ( $this->get_post_terms_to_translate( $post->ID, $lang_code ) as $taxo => $terms ) {
+				foreach ( $terms as $term_id => $term )
+					add_post_meta( $job, 'bbl_job_term', "{$taxo}|{$term_id}", false );
 			}
 
 		}
+
 		return $jobs;
+	}
+
+	public function get_post_terms_to_translate( $post_id, $lang_code ) {
+
+		$post        = get_post( $post_id );
+		$taxos       = get_object_taxonomies( $post->post_type );
+		$trans_terms = array();
+
+		foreach ( $taxos as $key => $taxo ) {
+
+			if ( !bbl_is_translated_taxonomy( $taxo ) )
+				continue;
+
+			$terms = get_the_terms( $post, $taxo );
+
+			if ( empty( $terms ) )
+				continue;
+
+			foreach ( $terms as $term ) {
+
+				$trans = bbl_get_term_translations( $term->term_id, $term->taxonomy );
+
+				if ( !isset( $trans[$lang_code] ) or ( $trans[$lang_code]->term_id == $trans[bbl_get_default_lang_code()]->term_id ) )
+					$trans_terms[$taxo][$term->term_id] = $term;
+
+			}
+
+		}
+
+		return $trans_terms;
+
 	}
 
 	// PRIVATE/PROTECTED METHODS
