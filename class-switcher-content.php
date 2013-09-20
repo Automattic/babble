@@ -90,14 +90,17 @@ class Babble_Switcher_Menu {
 
 		if ( is_singular() || is_single() || $editing_post ) {
 			$this->translations = bbl_get_post_translations( get_the_ID() );
+			$this->jobs         = bbl_get_post_jobs( get_the_ID() );
 		} else if ( 'page' == get_option( 'show_on_front' ) && is_home() ) {
 			$this->translations = bbl_get_post_translations( get_option( 'page_for_posts' ) );
+			$this->jobs         = bbl_get_post_jobs( get_option( 'page_for_posts' ) );
 		} else if ( ( !is_admin() and ( is_tax() || is_category() ) ) || $editing_term ) {
 			if ( isset( $_REQUEST[ 'tag_ID' ] ) )
 				$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
 			else
 				$term = get_queried_object();
 			$this->translations = bbl_get_term_translations( $term->term_id, $term->taxonomy );
+			$this->jobs         = bbl_get_term_jobs( $term->term_id, $term->taxonomy );
 		}
 
 		foreach ( $alt_langs as $i => & $alt_lang ) {
@@ -199,10 +202,14 @@ class Babble_Switcher_Menu {
 				'tag_ID' => $this->translations[ $lang->code ]->term_id 
 			);
 			$href = add_query_arg( $args );
-			# This string is not localisable. We will actually need to bundle the phrase for 'Switch to {lang}' for every language.
 			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-term';
+		} else if ( isset( $this->jobs[ $lang->code ]->ID ) ) { // Translation job exists
+			$href = get_edit_post_link( $this->jobs[ $lang->code ]->ID, 'url' );
+			$title = sprintf( _x( '%s: %s', 'Translation job status and language (example: In Progress: French)', 'babble' ), get_post_status_object( $this->jobs[ $lang->code ]->post_status )->label, $lang->display_name );
+			$classes[] = 'bbl-job-edit';
+			$classes[] = 'bbl-job-edit-term';
 		} else { // Translation does not exist
 			$default_term = (int) $_GET[ 'tag_ID' ];
 			$href = bbl_get_new_term_translation_url( $default_term, $lang->code, $this->screen->taxonomy );
@@ -273,6 +280,12 @@ class Babble_Switcher_Menu {
 			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-post';
+		} else if ( isset( $this->jobs[ $lang->code ]->ID ) ) { // Translation job exists
+			$href = add_query_arg( array( 'lang' => $lang->code, 'post' => $this->jobs[ $lang->code ]->ID ) );
+			$href = remove_query_arg( 'message', $href );
+			$title = sprintf( _x( '%s: %s', 'Translation job status and language (example: In Progress: French)', 'babble' ), get_post_status_object( $this->jobs[ $lang->code ]->post_status )->label, $lang->display_name );
+			$classes[] = 'bbl-job-edit';
+			$classes[] = 'bbl-job-edit-post';
 		} else { // Translation does not exist
 			if ( isset( $this->translations[ bbl_get_default_lang_code() ] ) ) {
 				$default_post = $this->translations[ bbl_get_default_lang_code() ];

@@ -107,8 +107,6 @@ function bbl_restore_lang() {
  * term ID. N.B. The returned array of term objects (and false 
  * values) will include the term for the term ID passed.
  * 
- * @FIXME: Should I filter out the term ID passed?
- *
  * @param int|object $term Either a WP Term object, or a term_id 
  * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
  * @access public
@@ -116,6 +114,19 @@ function bbl_restore_lang() {
 function bbl_get_term_translations( $term, $taxonomy ) {
 	global $bbl_taxonomies;
 	return $bbl_taxonomies->get_term_translations( $term, $taxonomy );
+}
+
+/**
+ * Get the posts which are the translation jobs for the provided 
+ * term ID.
+ * 
+ * @param int|object $term Either a WP Term object, or a term_id 
+ * @return array An array keyed by the site languages, each key containing a WP Post object
+ * @access public
+ **/
+function bbl_get_term_jobs( $term, $taxonomy ) {
+	global $bbl_jobs;
+	return $bbl_jobs->get_term_jobs( $term, $taxonomy );
 }
 
 /**
@@ -205,8 +216,6 @@ function bbl_get_taxonomy_slug_in_lang( $slug, $lang_code = null ) {
  * post ID. N.B. The returned array of post objects (and false 
  * values) will include the post for the post ID passed.
  * 
- * @FIXME: Should I filter out the post ID passed?
- *
  * @param int|object $post Either a WP Post object, or a post ID 
  * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
  * @access public
@@ -214,6 +223,19 @@ function bbl_get_taxonomy_slug_in_lang( $slug, $lang_code = null ) {
 function bbl_get_post_translations( $post ) {
 	global $bbl_post_public;
 	return $bbl_post_public->get_post_translations( $post );
+}
+
+/**
+ * Get the posts which are the translation jobs for the provided 
+ * post ID.
+ * 
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @return array Either an array keyed by the site languages, each key containing a WP Post object
+ * @access public
+ **/
+function bbl_get_post_jobs( $post ) {
+	global $bbl_jobs;
+	return $bbl_jobs->get_post_jobs( $post );
 }
 
 /**

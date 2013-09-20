@@ -818,10 +818,11 @@ class Babble_Jobs extends Babble_Plugin {
 	 * Return the array of jobs for a Term, keyed
 	 * by lang code.
 	 *
-	 * @param object $post A WP Term object
+	 * @param object $term A WP Term object or a term ID
 	 * @return array An array of WP Translation Job Post objects 
 	 */
-	public function get_term_jobs( $term ) {
+	public function get_term_jobs( $term, $taxonomy ) {
+		$term = get_term( $term, $taxonomy );
 		return $this->get_object_jobs( $term->term_id, 'term', $term->taxonomy );
 	}
 
