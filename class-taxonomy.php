@@ -611,18 +611,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$default_term = get_term( $default_term, $taxonomy );
 		if ( is_wp_error( $default_term ) )
 			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
-		
-		bbl_switch_to_lang( $lang_code );
-		$transid = $this->get_transid( $default_term->term_id );
-		$url = admin_url( "edit-tags.php?taxonomy=$taxonomy" );
+		$url = admin_url( 'post-new.php' );
 		$args = array( 
-			'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 
-			'bbl_transid' => $transid, 
-			'bbl_default_term' => $default_term->term_id, 
-			'lang' => $lang_code,
+			'bbl_origin_term' => $default_term->term_id,
+			'bbl_origin_taxonomy' => $default_term->taxonomy,
+			'lang'            => $lang_code,
+			'post_type'       => 'bbl_job',
 		);
 		$url = add_query_arg( $args, $url );
-		bbl_restore_lang();
 		return $url;
 	}
 
