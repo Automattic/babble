@@ -31,7 +31,7 @@
 
 				<div class="bbl-translation-section bbl-translation-section-post_title">
 					<div class="bbl-translation-property bbl-translation-property-post_title">
-						<input type="text" class="regular-text" name="bbl_translation[post][post_title]" value="<?php echo esc_attr( $translation->post_title ); ?>" placeholder="<?php echo esc_attr( apply_filters( 'enter_title_here', __( 'Enter title here' ), $original ) ); ?>">
+						<input type="text" class="regular-text" name="bbl_translation[post][post_title]" value="<?php echo esc_attr( $translation->post_title ); ?>" placeholder="<?php echo esc_attr( apply_filters( 'enter_title_here', __( 'Enter title here', 'babble' ), $original ) ); ?>">
 					</div>
 					<div class="bbl-translation-original bbl-translation-original-post_title">
 						<?php echo esc_html( $original->post_title ); ?>
