@@ -4,33 +4,29 @@
  * Class for providing the user interface switching option on the user profile screen
  *
  * @package Babble
- * @since 1.3
+ * @since 1.4
  */
-class Babble_Switcher_Interface {
+class Babble_Switcher_Interface extends Babble_Plugin {
 	
 	// PUBLIC METHODS
 	// ==============
 	
 	public function __construct() {
-		add_action( 'personal_options', array( $this, 'action_personal_options' ), 1 );
+		$this->setup( 'babble-switcher-interface', 'plugin' );
+
+		$this->add_action( 'personal_options' );
 	}
 
-	public function action_personal_options ( WP_User $user ) {
+	public function personal_options( WP_User $user ) {
 		$langs   = bbl_get_active_langs();
 		$current = bbl_get_current_interface_lang_code();
 
 		if ( empty( $langs ) )
 			return;
-		?>
-		<tr>
-			<th scope="row"><?php _e( 'Interface Language', 'babble' ); ?></th>
-			<td><select name="interface_lang">
-				<?php foreach ( $langs as $lang ) { ?>
-					<option value="<?php echo esc_attr( $lang->code ); ?>" <?php selected( $lang->code, $current ); ?>><?php echo esc_html( $lang->display_name ); ?></option>
-				<?php } ?>
-			</select></td>
-		</tr>
-		<?php
+
+		$vars = compact( 'langs', 'current' );
+		$this->render_admin( 'switcher-interface.php', $vars );
+
 	}
 
 }

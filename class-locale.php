@@ -86,6 +86,9 @@ class Babble_Locale {
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
 
+		# @TODO this exposes the $wpdb prefix. We should set the cookie path to the site path instead
+		# (example.com/site or site.example.com) so the cookie is only set for the current site on a multisite install
+		# @TODO actually, both of these should be user preferences, not cookies.
 		$this->content_lang_cookie   = $wpdb->prefix . '_bbl_content_lang_' . COOKIEHASH;
 		$this->interface_lang_cookie = $wpdb->prefix . '_bbl_interface_lang_' . COOKIEHASH;
 	}
@@ -265,7 +268,7 @@ class Babble_Locale {
 			// @FIXME: Should probably check the available languages here
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
 				$this->set_content_lang_from_prefix( $matches[ 0 ] );
-			if ( $lang = $this->get_cookie_interface_lang() )
+			if ( $lang = $this->get_cookie_content_lang() )
 				$this->set_interface_lang( $lang );
 		}
 
@@ -285,10 +288,10 @@ class Babble_Locale {
 	 *
 	 * FIXME: Should I be extending and replacing the WP class?
 	 *
-	 * @param object $wp The WP object, passed by reference (so no need to return)
+	 * @param WP $wp The WP object, passed by reference (so no need to return)
 	 * @return void
 	 **/
-	public function parse_request_early( $wp ) {
+	public function parse_request_early( WP $wp ) {
 		// If this is the site root, redirect to default language homepage 
 		if ( ! $wp->request ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
@@ -306,7 +309,8 @@ class Babble_Locale {
 	 * @param array $query_vars An array of the public query vars 
 	 * @return array An array of the public query vars
 	 **/
-	public function query_vars( $query_vars ) {
+	public function query_vars( array $query_vars ) {
+		# @TODO why is this here?
 		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 		return array_merge( $query_vars, array( 'lang', 'lang_url_prefix' ) );
 	}
@@ -318,6 +322,7 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	public function pre_comment_on_post() {
+		# @TODO why is this here?
 		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 	}
 
@@ -350,13 +355,15 @@ class Babble_Locale {
 	 * @param array $classes The body classes 
 	 * @return array The body classes 
 	 **/
-	public function body_class( $classes ) {
+	public function body_class( array $classes ) {
 		$lang = bbl_get_current_lang();
 		$classes[] = 'bbl-' . $lang->text_direction;
 		$classes[] = 'bbl-' . $lang->text_direction;
-		$classes[] = 'bbl-' . sanitize_title( $lang->names );
+		# @TODO I don't think this class should be included:
+		$classes[] = 'bbl-' . sanitize_title( $lang->name );
 		$classes[] = 'bbl-' . sanitize_title( $lang->url_prefix );
 		$classes[] = 'bbl-' . sanitize_title( $lang->code );
+		# @TODO I don't think this class should be included:
 		$classes[] = 'bbl-' . sanitize_title( $lang->display_name );
 		return $classes;
 	}
@@ -369,7 +376,7 @@ class Babble_Locale {
 	 * @param int $post_id The ID of the post we're providing classes for 
 	 * @return array The body classes 
 	 **/
-	public function post_class( $classes, $class, $post_id ) {
+	public function post_class( array $classes, $class, $post_id ) {
 		$post = get_post( $post_id );
 		$post_lang_code = bbl_get_post_lang_code( $post );
 		$lang = bbl_get_lang( $post_lang_code );
@@ -379,9 +386,11 @@ class Babble_Locale {
 		} else {
 			$classes[] = 'bbl-post-' . $lang->text_direction;
 		}
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->names );
+		# @TODO I don't think this class should be included:
+		$classes[] = 'bbl-post-' . sanitize_title( $lang->name );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->url_prefix );
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->code );
+		# @TODO I don't think this class should be included:
 		$classes[] = 'bbl-post-' . sanitize_title( $lang->display_name );
 		return $classes;
 	}
@@ -619,5 +628,3 @@ class Babble_Locale {
 
 global $bbl_locale;
 $bbl_locale = new Babble_Locale();
-
-?>
