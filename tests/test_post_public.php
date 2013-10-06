@@ -1,5 +1,7 @@
 <?php
 
+// NOTE THAT WE NEED TO (PROBABLY) COMPLETELY REDO OUR TESTS
+
 class WP_Test_Babble extends WP_UnitTestCase {
 
 	var $plugin_slug = 'babble';
