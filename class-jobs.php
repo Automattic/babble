@@ -577,6 +577,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 				list( $taxo, $term_id ) = explode( '|', $term_info );
 				$term = get_term( $term_id, $taxo );
+				$terms_data[$term_id]['slug'] = sanitize_title( $terms_data[$term_id]['slug'] );
 
 				update_post_meta( $job->ID, "bbl_term_{$term_id}", $terms_data[$term_id] );
 
