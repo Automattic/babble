@@ -401,7 +401,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 	public function admin_menu() {
 		# Remove the 'Add New' submenu for Translations.
-		remove_submenu_page( 'edit.php?post_type=bbl_job', 'post-new.php?post_type=bbl_job' );
+		//remove_submenu_page( 'edit.php?post_type=bbl_job', 'post-new.php?post_type=bbl_job' );
 	}
 
 	public function wp_before_admin_bar_render() {
