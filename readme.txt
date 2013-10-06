@@ -1,9 +1,8 @@
 === Babble ===
-Contributors: simonwheatley, cftp, johnbillion, scottsweb, imsimond
 Tags: translations
 Requires at least: 3.5.1
 Tested up to: 3.5.1
-Stable tag: Alpha 1.2
+Stable tag: Stable tag: Beta 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -11,7 +10,7 @@ A plugin to handle translating content into a variety of languages.
 
 == Description ==
 
-This plugin is at a proof of concept stage for translating post type content for the built
+This plugin is at a beta stage for translating post type content for the built
 in types of `post` and `page`. It is powering a live site at http://freespeechdebate.com/.
 
 The plugin was built with an aversion to both additional database tables, additional columns 
@@ -20,7 +19,9 @@ or column changes and a desire to keep additional queries to a minimum.
 There are a **lot** of `@FIXME` comments, expressing doubts, fears, uncertainties and 
 unknowns; feel free to weigh in on any of them.
 
-Please add bugs to https://github.com/cftp/babble/issues
+Please add bugs and contribute patches and pull requests to https://github.com/cftp/babble/issues
+
+Contributors: Simon Wheatley, John Blackbourn, Scott Evans, Simon Dickson, Marko Heijnen
 
 == Installation ==
 
@@ -35,15 +36,17 @@ Installation is fairly standard:
 
 == Screenshots ==
 
-1. Shows the Babble language switch menu in the admin area, showing the site in Hebrew and the options to switch to English or German
-2. Shows the Babble language switch menu while editing a post, where a German translation has been created and offering the option to create a Hebrew translation
-3. Shows the provisional URL structure on the frontend, and the collapsed Babble language switcher menu in the admin bar
+1. Trigger a translation from the post edit screen
+2. View the jobs in the translation queue
+3. Add the translation on the translation editor
 
 == Changelog ==
 
-= alpha 1.3 =
+= beta 1.3 =
 
-* BUGFIX: Don't sync deleting a posts metadata across the translation group (Fixes #93)
+* ENHANCEMENT: Translation job UI and workflow
+* ENHANCEMENT: Separation of admin language setting from the language of the post in the editor
+* Various fixes and enhancements
 
 = alpha 1.2 =
 
