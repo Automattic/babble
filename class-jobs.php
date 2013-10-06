@@ -520,6 +520,8 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( $edit_post_nonce and wp_verify_nonce( $edit_post_nonce, "bbl_translation_edit_post_{$job->ID}" ) ) {
 
 			$post_data = stripslashes_deep( $_POST['bbl_translation']['post'] );
+			if ( $post_data['post_name'] )
+				$post_data['post_name'] = sanitize_title( $post_data['post_name'] );
 			$post_info = get_post_meta( $job->ID, 'bbl_job_post', true );
 			list( $post_type, $post_id ) = explode( '|', $post_info );
 			$post = get_post( $post_id );

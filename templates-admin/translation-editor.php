@@ -39,6 +39,20 @@
 				</div>
 
 			<?php } ?>
+
+			<?php if ( !empty( $original->post_name ) or !empty( $translation->post_name ) ) { ?>
+
+				<div class="bbl-translation-section bbl-translation-section-post_name">
+					<div class="bbl-translation-property bbl-translation-property-post_name">
+						<input type="text" class="regular-text" name="bbl_translation[post][post_name]" value="<?php echo esc_attr( $translation->post_name ); ?>" placeholder="<?php echo esc_attr( apply_filters( 'enter_name_here', sprintf( __( 'Enter the %s slug here', 'babble' ), $original_cpto->labels->singular_name ), $original ) ); ?>">
+					</div>
+					<div class="bbl-translation-original bbl-translation-original-post_name">
+						<?php echo esc_html( $original->post_name ); ?>
+					</div>
+				</div>
+
+			<?php } ?>
+
 			<?php if ( !empty( $original->post_content ) or !empty( $translation->post_content ) ) { ?>
 
 				<?php
