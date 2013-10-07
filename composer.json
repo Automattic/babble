@@ -2,6 +2,7 @@
     "name": "cftp/babble",
     "description": "A WordPress plugin to handle translating content into a variety of languages.",
     "license": "GPL-2.0+",
+    "type": "wordpress-plugin",
     "authors": [
         {
             "name": "cftp",
@@ -9,6 +10,6 @@
         }
     ],
     "require": {
-
+        "composer/installers": "~1.0"
     }
 }
