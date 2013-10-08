@@ -20,6 +20,7 @@
 
 			$original    = $items['post']['original'];
 			$translation = $items['post']['translation'];
+			$original_cpto = get_post_type_object( $original->post_type );
 
 			do_action( 'bbl_translation_post_meta_boxes', 'bbl_translation_editor_post', $original, $translation );
 
