@@ -31,15 +31,10 @@
 <table class="wp-list-table widefat fixed babble_languages" cellspacing="0">
 	<thead>
 	<tr>
-		<th scope="col" id="cb" class="manage-column column-cb check-column">
-			<label class="screen-reader-text" for="header_check_all">
-				<?php _e( 'Active', 'babble' ); ?>
-			</label>
-			<input type="checkbox" id="header_check_all">
-		</th>
+		<th scope="col" id="language" class="manage-column column-language"><?php _e( 'Language', 'babble' ); ?></th>
+		<th scope="col" id="active" class="manage-column column-active"><?php _e( 'Active', 'babble' ); ?></th>
 		<th scope="col" id="public" class="manage-column column-public"><?php _e( 'Public', 'babble' ); ?></th>
 		<th scope="col" id="lang_code" class="manage-column column-language-code"><?php _e( 'Code', 'babble' ); ?></th>
-		<th scope="col" id="language" class="manage-column column-language"><?php _e( 'Name(s)', 'babble' ); ?></th>
 		<th scope="col" id="display_name" class="manage-column column-display_name"><?php _e( 'Display Name', 'babble' ); ?></th>
 		<th scope="col" id="url_prefix" class="manage-column column-url_prefix"><?php _e( 'URL Prefix', 'babble' ); ?></th>
 		<th scope="col" id="text_direction" class="manage-column column-text_direction"><?php _e( 'Text Direction', 'babble' ); ?></th>
@@ -47,53 +42,48 @@
 
 	<tfoot>
 	<tr>
-		<th scope="col" class="manage-column column-cb check-column">
-			<label class="screen-reader-text" for="footer_check_all">
-				<?php _e( 'Active', 'babble' ); ?>
-			</label>
-			<input type="checkbox" id="header_check_all">
-		</th>
+		<th scope="col" class="manage-column column-language"><?php _e( 'Language', 'babble' ); ?></th>
+		<th scope="col" class="manage-column column-active"><?php _e( 'Active', 'babble' ); ?></th>
 		<th scope="col" class="manage-column column-public"><?php _e( 'Public', 'babble' ); ?></th>
 		<th scope="col" class="manage-column column-language-code"><?php _e( 'Code', 'babble' ); ?></th>
-		<th scope="col" class="manage-column column-language"><?php _e( 'Name(s)', 'babble' ); ?></th>
 		<th scope="col" class="manage-column column-display_name"><?php _e( 'Display Name', 'babble' ); ?></th>
 		<th scope="col" class="manage-column column-url_prefix"><?php _e( 'URL Prefix', 'babble' ); ?></th>
 		<th scope="col" class="manage-column column-text_direction"><?php _e( 'Text Direction', 'babble' ); ?></th>
 	</tr>
 	</tfoot>
 
-	<tbody id="the-list" class="list:babble_languages">
+	<tbody id="the-list">
 		<?php foreach ( $langs as $lang ) : ?>
 		<tr id="language-<?php echo esc_attr( $lang->code ); ?>">
-			<th scope="row" class="manage-column column-cb check-column"><input type="checkbox" name="active_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="enable_<?php echo esc_attr( $lang->code ); ?>" <?php checked( $lang->active ); ?>></th>
-			<td scope="col" class="manage-column column-public">
+			<th scope="row" class="manage-column column-language">
+				<?php echo esc_html( $lang->name ); ?>
+			</th>
+			<td class="manage-column column-active">
+				<label for="enable_<?php echo esc_attr( $lang->code ); ?>" title="<?php echo esc_attr( sprintf( __( 'Enable "%s" on this site', 'babble' ), $lang->name ) ); ?>">
+					<input type="checkbox" name="active_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="enable_<?php echo esc_attr( $lang->code ); ?>" <?php checked( $lang->active ); ?>>
+				</label>
+			</td>
+			<td class="manage-column column-public">
 				<label for="public_<?php echo esc_attr( $lang->code ); ?>" title="<?php echo esc_attr( sprintf( __( 'Show "%s" on this site', 'babble' ), $lang->name ) ); ?>">
 					<input type="checkbox" name="public_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="public_<?php echo esc_attr( $lang->code ); ?>" <?php checked( in_array( $lang->code, $this->public_langs ) ); ?>>
 				</label>
 			</td>
-			<td scope="col" class="manage-column column-language-code">
-				<label for="enable_<?php echo esc_attr( $lang->code ); ?>" title="<?php echo esc_attr( sprintf( __( 'Enable "%s" on this site', 'babble' ), $lang->name ) ); ?>">
-					<?php echo esc_html( $lang->code ); ?>
-				</label>
+			<td class="manage-column column-language-code">
+				<?php echo esc_html( $lang->code ); ?>
 			</td>
-			<td scope="col" class="manage-column column-language">
-				<label for="enable_<?php echo esc_attr( $lang->code ); ?>" title="<?php echo esc_attr( sprintf( __( 'Enable "%s" on this site', 'babble' ), $lang->name ) ); ?>">
-					<?php echo esc_html( $lang->name ); ?>
-				</label>
-			</td>
-			<td scope="col" class="manage-column column-display_name">
+			<td class="manage-column column-display_name">
 				<label class="screen-reader-text" for="display_name_<?php echo esc_attr( $lang->code ); ?>">
 					<?php echo esc_html( sprintf( __( 'Display name for "%s"', 'babble' ), $lang->name ) ); ?>
 				</label>
 				<input type="text" name="display_name_<?php echo esc_attr( $lang->code ); ?>" value="<?php echo esc_attr( $lang->display_name ); ?>" id="display_name_<?php echo esc_attr( $lang->code ); ?>" class="<?php echo esc_attr( $lang->input_lang_class ); ?>">
 			</td>
-			<td scope="col" class="manage-column column-url_prefix">
+			<td class="manage-column column-url_prefix">
 				<label class="screen-reader-text" for="url_prefix_<?php echo esc_attr( $lang->code ); ?>">
 					<?php echo esc_html( sprintf( __( 'URL prefix for "%s"', 'babble' ), $lang->name ) ); ?>
 				</label>
 				<input type="text" name="url_prefix_<?php echo esc_attr( $lang->code ); ?>" value="<?php echo esc_attr( $lang->url_prefix ); ?>" id="url_prefix_<?php echo esc_attr( $lang->code ); ?>" class="small-text <?php echo esc_attr( $lang->url_prefix_error ); ?>">
 			</td>
-			<td scope="col" class="manage-column column-text_direction">
+			<td class="manage-column column-text_direction">
 				<?php if ( 'ltr' == $lang->text_direction ) : ?>
 					<?php _e( '<strong>Left</strong> to right', 'babble' ); ?>
 				<?php else : ?>
