@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Babble
-Plugin URI:  https://github.com/cftp/babble/
-Description: Now with Taxonomies!
-Version:     1.4
+Plugin URI:  http://babbleplugin.com/
+Description: Multilingual WordPress done right
+Version:     1.4.1-beta
 Author:      Code For The People
 Author URI:  http://codeforthepeople.com/
 Text Domain: babble
