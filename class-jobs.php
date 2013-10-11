@@ -137,7 +137,6 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function load_post_edit() {
-		$screen = get_current_screen();
 		$post_id = isset( $_GET[ 'post' ] ) ? absint( $_GET[ 'post' ] ) : false;
 		if ( ! $post_id )
 			$post_id = isset( $_POST[ 'post_ID' ] ) ? absint( $_POST[ 'post_ID' ] ) : false;
@@ -597,7 +596,7 @@ class Babble_Jobs extends Babble_Plugin {
 						'name' => $terms_data[$term->term_id]['name'],
 						'slug' => '',
 					);
-					$update = wp_update_term( absint( $trans->term_id ), $trans->taxonomy, $args );
+					wp_update_term( absint( $trans->term_id ), $trans->taxonomy, $args );
 
 				}
 
@@ -739,7 +738,6 @@ class Babble_Jobs extends Babble_Plugin {
 
 	public function metabox_post_translations( WP_Post $post, array $metabox ) {
 
-		$langs   = bbl_get_active_langs();
 		$trans   = bbl_get_post_translations( $post );
 		$jobs    = $this->get_post_jobs( $post );
 		$default = bbl_get_default_lang_code();

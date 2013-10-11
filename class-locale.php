@@ -124,7 +124,7 @@ class Babble_Locale {
 	 * @return string A mod_rewrite rules block
 	 **/
 	public function mod_rewrite_rules( $rules ) {
-		global $wp_rewrite, $wp_query;
+		global $wp_rewrite;
 		if ( $this->no_recursion )
 			return $rules;
 		$this->no_recursion = true;

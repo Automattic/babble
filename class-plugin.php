@@ -147,7 +147,7 @@ class Babble_Plugin {
 			$this->url = trailingslashit( $plugins_url ) . $this->folder . '/';
 		} else {
 			// WTF?
-			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugin_dir . ' or "themes" in ' . $file );
+			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugins_dir . ' or "themes" in ' . $file );
 		}
 
 		// Suffix for enqueuing
