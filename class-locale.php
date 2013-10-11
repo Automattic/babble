@@ -77,10 +77,8 @@ class Babble_Locale {
 		add_action( 'admin_notices', array( & $this, 'admin_notices' ) );
 		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
 		add_action( 'pre_comment_on_post', array( & $this, 'pre_comment_on_post' ) );
-		#add_action( 'admin_bar_menu', array( $this, 'action_admin_bar_menu' ), -999 );
 		add_filter( 'body_class', array( & $this, 'body_class' ) );
 		add_filter( 'locale', array( & $this, 'set_locale' ) );
-		#add_filter( 'load_textdomain_mofile', array( $this, 'filter_override_mofile' ), 1, 2 );
 		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
 		add_filter( 'post_class', array( & $this, 'post_class' ), null, 3 );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
@@ -177,51 +175,6 @@ class Babble_Locale {
 		if ( empty( $home_path['path'] ) || '/' == $home_path['path'] )
 			$new_rules[ 'robots\.txt$' ] = $wp_rewrite->index . '?robots=1';
 	    return $new_rules;
-	}
-
-	public function action_admin_bar_menu( WP_Admin_Bar $wp_admin_bar ) {
-
-		# this isn't used
-		# @TODO delete
-
-		if ( is_admin() )
-			return;
-
-		$interface_lang = $this->get_interface_lang();
-		$content_lang   = $this->get_content_lang();
-
-		if ( $interface_lang == $content_lang )
-			return;
-
-		$mofile = WP_LANG_DIR . "/{$interface_lang}.mo";
-
-		# doesn't work because original strings take precedence
-		$load = load_textdomain( $content_lang, $mofile );
-
-	}
-
-	/**
-	 * Hooks the 'load_textdomain_mofile' filter to load the content language mo files
-	 *
-	 * @param  string $mofile The mo file to load
-	 * @param  string $domain The textdomain
-	 * @return string The mo file to load
-	 **/
-	public function filter_override_mofile( $mofile, $domain ) {
-
-		# this isn't used
-		# @TODO delete
-
-		if ( $this->get_interface_lang() == $this->get_content_lang() )
-			return $mofile;
-
-		if ( false !== strpos( $mofile, 'wp-content/languages/' ) )
-			return $mofile;
-
-		$mofile = str_replace( $this->get_interface_lang(), $this->get_content_lang(), $mofile );
-
-		return $mofile;
-
 	}
 
 	/**
