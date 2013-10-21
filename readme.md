@@ -3,7 +3,7 @@
 * Tags: translations, translation, multilingual, i18n, l10n, localisation
 * Requires at least: 3.5.1
 * Tested up to: 3.7
-* Stable tag: 1.4.1
+* Stable tag: 1.4.2
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +55,10 @@ _View the jobs in the translation queue_
 _Add the translation on the translation editor_
 
 ## Changelog
+
+### 1.4.2
+
+* Fix the language switcher widget so it correctly displays language names
 
 ### 1.4.1
 

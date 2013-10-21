@@ -3,7 +3,7 @@
 Plugin Name: Babble
 Plugin URI:  http://babbleplugin.com/
 Description: Multilingual WordPress done right
-Version:     1.4.1
+Version:     1.4.2
 Author:      Code For The People
 Author URI:  http://codeforthepeople.com/
 Text Domain: babble
