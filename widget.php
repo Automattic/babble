@@ -46,14 +46,14 @@ class Babble_Widget extends WP_Widget {
 						ability to create one; so here's a link
 						to allow him/her to do so
 					*/
-					echo '<option ' . $selected . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang_display_name' ] ) . ' [' . __('Add') . ']</option>';
+					echo '<option ' . $selected . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . __('Add') . ']</option>';
 				}
 				elseif ( $item[ 'href'] ) {
 					/*
 						Means there is a translation of this page
 						into the language in question
 					*/
-					echo '<option ' . $selected . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang_display_name' ] ) . '</option>';
+					echo '<option ' . $selected . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . '</option>';
 				}
 				elseif ( 'on' === $instance['show_if_unavailable'] ) {
 					/*
@@ -65,7 +65,7 @@ class Babble_Widget extends WP_Widget {
 						and a bbl-no-translation class to the <div>
 						in case you want to 'grey it out' somehow
 					*/
-					echo '<option disabled class="' . esc_attr( $item[ 'class' ] ) . '" value="">' . esc_html( $item[ 'lang_display_name' ] ) . '</option>';
+					echo '<option disabled class="' . esc_attr( $item[ 'class' ] ) . '" value="">' . esc_html( $item[ 'lang' ]->display_name ) . '</option>';
 				}
 			endforeach;
 			echo '</select>';
@@ -82,14 +82,14 @@ class Babble_Widget extends WP_Widget {
 						ability to create one; so here's a link
 						to allow him/her to do so
 					*/
-					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" title="' . esc_attr( $item[ 'title' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang_display_name' ] ) . ' [' . __( 'Add', 'babble' ) . ']</a></li>';
+					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" title="' . esc_attr( $item[ 'title' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . __( 'Add', 'babble' ) . ']</a></li>';
 				}
 				elseif ( $item[ 'href'] ) {
 					/*
 						Means there is a translation of this page
 						into the language in question
 					*/
-					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" title="' . esc_attr( $item[ 'title' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang_display_name' ] ) . '</a></li>';
+					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" title="' . esc_attr( $item[ 'title' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . '</a></li>';
 				}
 				elseif ( 'on' === $instance['show_if_unavailable'] ) {
 					/*
@@ -101,7 +101,7 @@ class Babble_Widget extends WP_Widget {
 						and a bbl-no-translation class to the <div>
 						in case you want to 'grey it out' somehow
 					*/
-					echo '<li class="no-translation"><div class="bbl-no-translation">' . esc_html( $item[ 'lang_display_name' ] ) . '</div></li>';
+					echo '<li class="no-translation"><div class="bbl-no-translation">' . esc_html( $item[ 'lang' ]->display_name ) . '</div></li>';
 				}
 
 			endforeach;
