@@ -17,6 +17,10 @@ class Babble_Widget extends WP_Widget {
 
 	function widget( $args, $instance ) {
 
+		$args = array_merge( array(
+			'show_as' => 'dropdown',
+		), $args );
+
 		echo $args['before_widget'];
 
 		echo $args['before_title'] . __( 'Languages', 'babble' ) . $args['after_title'];
