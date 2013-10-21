@@ -184,6 +184,7 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -231,6 +232,7 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -263,6 +265,7 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -312,6 +315,7 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -344,6 +348,7 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -400,6 +405,7 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -431,6 +437,7 @@ class Babble_Switcher_Menu {
 			'href' => $href,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -459,6 +466,7 @@ class Babble_Switcher_Menu {
 			'href' => $href,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -501,6 +509,7 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 
@@ -532,6 +541,7 @@ class Babble_Switcher_Menu {
 			'id' => $lang->url_prefix,
 			'meta' => array( 'class' => strtolower( join( ' ', array_unique( $classes ) ) ) ),
 			'title' => $title,
+			'lang' => $lang,
 		);
 	}
 	
@@ -539,5 +549,3 @@ class Babble_Switcher_Menu {
 
 global $bbl_switcher_menu;
 $bbl_switcher_menu = new Babble_Switcher_Menu();
-
-?>
