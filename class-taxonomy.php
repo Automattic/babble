@@ -466,7 +466,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 						$_term = get_term( $term, $taxonomy );
 					else
 						$_term = get_term_by( 'name', $term, $taxonomy );
-					if ( is_wp_error( $_term ) ) {
+					if ( is_wp_error( $_term ) or empty( $_term ) ) {
 						continue;
 					}
 
