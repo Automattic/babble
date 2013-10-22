@@ -82,14 +82,14 @@ class Babble_Widget extends WP_Widget {
 						ability to create one; so here's a link
 						to allow him/her to do so
 					*/
-					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" title="' . esc_attr( $item[ 'title' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . __( 'Add', 'babble' ) . ']</a></li>';
+					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . __( 'Add', 'babble' ) . ']</a></li>';
 				}
 				elseif ( $item[ 'href'] ) {
 					/*
 						Means there is a translation of this page
 						into the language in question
 					*/
-					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" title="' . esc_attr( $item[ 'title' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . '</a></li>';
+					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . '</a></li>';
 				}
 				elseif ( 'on' === $instance['show_if_unavailable'] ) {
 					/*
