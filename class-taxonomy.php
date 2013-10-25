@@ -335,6 +335,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function get_terms( $terms ) {
 		foreach ( $terms as $term ) {
+			if ( empty( $term ) )
+				continue;
 			if ( isset( $this->taxonomies ) )
 				continue;
 			if ( isset( $this->taxonomies[ $term->taxonomy ] ) )
