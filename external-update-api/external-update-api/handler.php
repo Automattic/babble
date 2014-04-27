@@ -12,13 +12,25 @@ abstract class EUAPI_Handler {
 	/**
 	 * Class constructor
 	 *
-	 * @param  array $config Configuration for the handler.
-	 * @return void
+	 * @param array $config {
+	 *     Configuration for the handler.
+	 *
+	 *     @type string $file The EUAPI_Item file name.
+	 *     @type string $type The item type. Accepts 'plugin' or 'theme'.
+	 * }
 	 */
-	public function __construct( array $config = array() ) {
-		$defaults = array(
-			'timeout' => 5,
-		);
+	public function __construct( array $config ) {
+		$defaults = array();
+
+		if ( 'theme' === $config['type'] ) {
+			$defaults['folder_name'] = $config['file'];
+			$defaults['file_name']   = 'style.css';
+		} else if ( 'plugin' === $config['type'] ) {
+			$defaults['folder_name'] = dirname( $config['file'] );
+			$defaults['file_name']   = basename( $config['file'] );
+		}
+
+		// @TODO document this filter name
 		$this->config = apply_filters( "euapi_{$config['type']}_handler_config", array_merge( $defaults, $config ) );
 	}
 
@@ -50,9 +62,18 @@ abstract class EUAPI_Handler {
 	 * Fetch info about the latest version of the item.
 	 *
 	 * @abstract
-	 * @return EUAPI_info|WP_Error An EUAPI_Info object, or a WP_Error object on failure.
+	 * @return EUAPI_Info|WP_Error An EUAPI_Info object, or a WP_Error object on failure.
 	 */
 	abstract public function fetch_info();
+
+	/**
+	 * Fetch the upgrade notice for the item, typically from an external location.
+	 *
+	 * @return string|false Upgrade notice, or false on failure.
+	 */
+	public function fetch_upgrade_notice(){
+		return false;
+	}
 
 	/**
 	 * Get the current item's base file name (eg. my-plugin/my-plugin.php or my-theme/style.css).
@@ -72,10 +93,11 @@ abstract class EUAPI_Handler {
 	 */
 	final public function get_current_version() {
 
-		if ( isset( $this->item ) )
+		if ( isset( $this->item ) ) {
 			return $this->item->get_version();
-		else
+		} else {
 			return false;
+		}
 
 	}
 
@@ -87,10 +109,27 @@ abstract class EUAPI_Handler {
 	 */
 	final public function get_new_version() {
 
-		if ( !isset( $this->new_version ) )
+		if ( !isset( $this->new_version ) ) {
 			$this->new_version = $this->fetch_new_version();
+		}
 
 		return $this->new_version;
+
+	}
+
+	/**
+	 * Get the upgrade notice for the item.
+	 *
+	 * @author John Blackbourn
+	 * @return string|false Upgrade notice, or false on failure.
+	 */
+	final public function get_upgrade_notice() {
+
+		if ( !isset( $this->upgrade_notice ) ) {
+			$this->upgrade_notice = $this->fetch_upgrade_notice();
+		}
+
+		return $this->upgrade_notice;
 
 	}
 
@@ -102,8 +141,9 @@ abstract class EUAPI_Handler {
 	 */
 	final public function get_update() {
 
-		if ( isset( $this->update ) )
+		if ( isset( $this->update ) ) {
 			return $this->update;
+		}
 
 		$package = add_query_arg( array(
 			'_euapi_type' => $this->get_type(),
@@ -111,11 +151,12 @@ abstract class EUAPI_Handler {
 		), $this->get_package_url() );
 
 		return $this->update = new EUAPI_Update( array(
-			'slug'        => $this->get_file(),
-			'new_version' => $this->get_new_version(),
-			'url'         => $this->get_homepage_url(),
-			'package'     => $package,
-			'config'      => $this->get_config(),
+			'slug'           => $this->get_file(),
+			'new_version'    => $this->get_new_version(),
+			'upgrade_notice' => $this->get_upgrade_notice(),
+			'url'            => $this->get_homepage_url(),
+			'package'        => $package,
+			'config'         => $this->get_config(),
 		) );
 
 	}
@@ -124,12 +165,13 @@ abstract class EUAPI_Handler {
 	 * Get the info object for the item.
 	 *
 	 * @author John Blackbourn
-	 * @return EUAPI_info|WP_Error An EUAPI_Info object, or a WP_Error object on failure.
+	 * @return EUAPI_Info|WP_Error An EUAPI_Info object, or a WP_Error object on failure.
 	 */
 	final public function get_info() {
 
-		if ( !isset( $this->info ) )
+		if ( !isset( $this->info ) ) {
 			$this->info = $this->fetch_info();
+		}
 
 		return $this->info;
 
@@ -152,6 +194,9 @@ abstract class EUAPI_Handler {
 	 * @return string Handler type.
 	 */
 	final public function get_type() {
+		if ( !in_array( $this->config['type'], array( 'plugin', 'theme' ), true ) ) {
+			return 'plugin';
+		}
 		return $this->config['type'];
 	}
 

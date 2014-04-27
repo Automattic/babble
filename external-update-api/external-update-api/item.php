@@ -9,11 +9,11 @@ if ( ! class_exists( 'EUAPI_Item' ) ) :
  */
 abstract class EUAPI_Item {
 
-	function get_version() {
+	public function get_version() {
 		return $this->version;
 	}
 
-	function get_url() {
+	public function get_url() {
 		return $this->url;
 	}
 
