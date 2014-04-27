@@ -10,7 +10,7 @@ Text Domain: babble
 Domain Path: /languages/
 License:     GPL v2 or later
 
-Copyright 2013 Code For The People Ltd
+Copyright 2014 Code For The People Ltd
 
                 _____________
                /      ____   \

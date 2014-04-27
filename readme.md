@@ -56,6 +56,11 @@ _Add the translation on the translation editor_
 
 ## Changelog
 
+### 1.4.3
+
+* Fix the single post template names
+* Update the bundled External Update API library
+
 ### 1.4.2
 
 * Fix the language switcher widget so it correctly displays language names
