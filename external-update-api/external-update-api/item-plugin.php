@@ -10,9 +10,9 @@ if ( ! class_exists( 'EUAPI_Item_Plugin' ) ) :
  */
 class EUAPI_Item_Plugin extends EUAPI_Item {
 
-	var $type = 'plugin';
+	public $type = 'plugin';
 
-	function __construct( $plugin, array $data ) {
+	public function __construct( $plugin, array $data ) {
 
 		$this->file    = $plugin;
 		$this->url     = $data['PluginURI'];
