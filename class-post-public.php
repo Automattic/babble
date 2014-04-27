@@ -928,8 +928,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 
-		$templates[] = "single-{$this->get_base_post_type($post->post_type)}";
-		$templates[] = "single";
+		$templates[] = "single-{$this->get_base_post_type($post->post_type)}.php";
+		$templates[] = "single.php";
 		$template = get_query_template( 'single-gosts', $templates );
 
 		return $template;
