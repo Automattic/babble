@@ -19,8 +19,12 @@ class Babble_Updates extends Babble_Plugin {
 	 * Include the EUAPI if it's not already present.
 	 */
 	public function plugins_loaded() {
-		if ( !class_exists( 'EUAPI' ) )
-			include_once dirname( __FILE__ ) . '/external-update-api/external-update-api.php';
+		$dir = dirname( __FILE__ );
+		if ( !class_exists( 'EUAPI' ) ) {
+			include_once $dir . '/external-update-api/external-update-api.php';
+		}
+		register_activation_hook( $dir . '/babble.php',   'euapi_flush_transients' );
+		register_deactivation_hook( $dir . '/babble.php', 'euapi_flush_transients' );
 	}
 
 	/**
@@ -37,7 +41,9 @@ class Babble_Updates extends Babble_Plugin {
 				'type'       => $item->type,
 				'file'       => $item->file,
 				'github_url' => 'https://github.com/cftp/babble',
-				'sslverify'  => false,
+				'http'       => array(
+					'sslverify' => false,
+				),
 			) );
 
 		}
