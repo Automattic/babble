@@ -276,6 +276,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		if ( $this->no_recursion )
 			return;
+
 		$this->no_recursion = 'registered_post_type';
 
 		$langs = bbl_get_active_langs();
@@ -333,6 +334,10 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			$new_args['show_in_admin_bar'] = false;
 
+			if ( $lang->code != bbl_get_current_lang_code() ) {
+				$new_args['exclude_from_search'] = true;
+			}
+
 			$result = register_post_type( $new_post_type, $new_args );
 			if ( is_wp_error( $result ) ) {
 				error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
@@ -352,7 +357,15 @@ class Babble_Post_Public extends Babble_Plugin {
 				register_taxonomy_for_object_type( 'post_translation', $new_post_type );
 			}
 		}
+
+		// Exclude the post type if it doesn't belong to the current language.
+		if ( bbl_get_current_lang_code() != bbl_get_default_lang_code() ) {
+			$post_type_obj = get_post_type_object( $post_type );
+			$post_type_obj->exclude_from_search = true;
+		}
+
 		do_action( 'bbl_registered_shadow_post_types', $post_type );
+
 		$this->no_recursion = false;
 	}
 
@@ -1049,7 +1062,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			// Trigger the archive listing for the relevant shadow post type
 			// of 'post' for this language.
-			if ( bbl_get_default_lang_code() != $lang ) {
+			if ( bbl_get_default_lang_code() != $lang && empty( $query_vars['s'] ) ) {
 				$post_type = isset( $query_vars[ 'post_type' ] ) ? $query_vars[ 'post_type' ] : 'post';
 
 				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( $post_type, bbl_get_current_lang_code() );
