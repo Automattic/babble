@@ -334,6 +334,8 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			$new_args['show_in_admin_bar'] = false;
 
+			// Don't let the translated post types show up in the search if their
+			// language is not the current language.
 			if ( $lang->code != bbl_get_current_lang_code() ) {
 				$new_args['exclude_from_search'] = true;
 			}
@@ -358,7 +360,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 
-		// Exclude the post type if it doesn't belong to the current language.
+		// Exclude the registered post type from search if it's language isn't 
+		// the current language.
 		if ( bbl_get_current_lang_code() != bbl_get_default_lang_code() ) {
 			$post_type_obj = get_post_type_object( $post_type );
 			$post_type_obj->exclude_from_search = true;
