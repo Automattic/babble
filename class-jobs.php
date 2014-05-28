@@ -45,6 +45,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_filter( 'manage_bbl_job_posts_columns', 'filter_columns' );
 		$this->add_filter( 'bbl_translated_post_type', null, null, 2 );
 		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'get_edit_post_link', null, null, 3 );
 		$this->add_filter( 'post_updated_messages' );
 		$this->add_filter( 'wp_insert_post_empty_content', null, null, 2 );
 		$this->add_filter( 'admin_title', null, null, 2 );
@@ -309,6 +310,41 @@ class Babble_Jobs extends Babble_Plugin {
 			$query->set( 'meta_value', $job_term );
 		}
 
+	}
+
+	/**
+	 * Hooks the WP filter get_edit_post_link
+	 *
+	 * @filter get_edit_post_link
+	 * @param string $url The edit post link URL
+	 * @param int $post_ID The ID of the post to edit
+	 * @param string $context The link context.
+	 *
+	 * @return string The edit post link URL
+	 * @author Simon Wheatley
+	 **/
+	public function get_edit_post_link( $url, $post_ID, $context ) {
+		if ( $this->no_recursion ) {
+			return $url;
+		}
+		if ( bbl_get_default_lang_code() == bbl_get_post_lang_code( $post_ID ) ) {
+			return $url;
+		}
+
+		$completed_jobs = $this->get_completed_post_jobs( bbl_get_default_lang_post( $post_ID ) );
+		if ( ! isset( $completed_jobs[ bbl_get_current_lang_code() ] ) ) {
+			return $url;
+		}
+		$job = $completed_jobs[ bbl_get_current_lang_code() ];
+
+		if ( ! current_user_can( 'publish_post', $job->ID ) ) {
+			return $url;
+		}
+
+		$this->no_recursion = true;
+		$url = get_edit_post_link( $completed_jobs[ bbl_get_current_lang_code() ]->ID );
+		$this->no_recursion = false;
+		return $url;
 	}
 
 	public function edit_form_after_title() {
