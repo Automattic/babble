@@ -661,6 +661,7 @@ class Babble_Jobs extends Babble_Plugin {
 			'publicly_queryable' => false,
 			'show_ui'            => true,
 			'show_in_menu'       => true,
+			'menu_icon'          => 'dashicons-clipboard',
 			'query_var'          => false,
 			'labels'             => $labels,
 			'can_export'         => true,
