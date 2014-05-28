@@ -90,20 +90,23 @@ class Babble_Taxonomies extends Babble_Plugin {
 			return;
 		}
 
-		if ( $this->no_recursion )
+		if ( $this->no_recursion ) {
 			return;
+		}
 
 		$this->no_recursion = true;
 
-		if ( ! is_array( $object_type ) )
+		if ( ! is_array( $object_type ) ) {
 			$object_type = array_unique( (array) $object_type );
+		}
 
 		// Use the Babble term counting function, unless the taxonomy registrant
 		// has defined their own – in which case we'll just have to hope against 
 		// hope that it's Babble aware :S
 		// FIXME: Setting this in the following fashion seems hacky… I feel uncomfortable.
-		if ( empty( $GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback ) )
+		if ( empty( $GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback ) ) {
 			$GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback = array( & $this, 'update_post_term_count' );
+		}
 
 		// Untranslated taxonomies do not have shadow equivalents in each language,
 		// but do apply to the bast post_type and all it's shadow post_types.
@@ -181,12 +184,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	public function is_taxonomy_translated( $taxonomy ) {
-		if( in_array( $taxonomy, $this->ignored_taxonomies() ) )
+		if( in_array( $taxonomy, $this->ignored_taxonomies() ) ) {
 			return false;
+		}
 
 		// @FIXME: Remove this when menu's are translatable
-		if( 'nav_menu' == $taxonomy )
+		if( 'nav_menu' == $taxonomy ) {
 			return false;
+		}
 
 		return apply_filters( 'bbl_translated_taxonomy', true, $taxonomy );
 	}
@@ -235,8 +240,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function created_new_shadow_post( $new_post_id, $origin_post_id ) {
 		$new_post = get_post( $new_post_id );
-		if ( ! ( $origin_post = get_post( $origin_post_id ) ) )
+		if ( ! ( $origin_post = get_post( $origin_post_id ) ) ) {
 			return;
+		}
 		
 		if ( $this->no_recursion ) {
 			return;
@@ -282,12 +288,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function term_link( $termlink, $term, $taxonomy ) {
 		$taxonomy = strtolower( $taxonomy );
 		// No need to worry about the built in taxonomies
-		if ( 'post_tag' == $taxonomy || 'category' == $taxonomy || ! isset( $this->taxonomies[ $taxonomy ] ) )
+		if ( 'post_tag' == $taxonomy || 'category' == $taxonomy || ! isset( $this->taxonomies[ $taxonomy ] ) ) {
 			return $termlink;
+		}
 	
 		// Deal with our shadow taxonomies
-		if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) 
+		if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) {
 			return $termlink;
+		}
 	
 		// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
 		global $wp_rewrite;
@@ -300,11 +308,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 			}
 		}
 	
-		if ( !is_object($term) )
+		if ( !is_object($term) ) {
 			$term = new WP_Error('invalid_term', __('Empty Term', 'babble'));
+		}
 	
-		if ( is_wp_error( $term ) )
+		if ( is_wp_error( $term ) ) {
 			return $term;
+		}
 	
 		$termlink = $wp_rewrite->get_extra_permastruct($base_taxonomy);
 	
@@ -312,12 +322,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$t = get_taxonomy($base_taxonomy);
 	
 		if ( empty($termlink) ) {
-			if ( 'category' == $base_taxonomy )
+			if ( 'category' == $base_taxonomy ) {
 				$termlink = '?cat=' . $term->term_id;
-			elseif ( $t->query_var )
+			} elseif ( $t->query_var ) {
 				$termlink = "?$t->query_var=$slug";
-			else
+			} else {
 				$termlink = "?taxonomy=$base_taxonomy&term=$slug";
+			}
 			$termlink = home_url($termlink);
 		} else {
 			if ( $t->rewrite['hierarchical'] ) {
@@ -348,15 +359,19 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function get_terms( $terms ) {
 		foreach ( $terms as $term ) {
-			if ( empty( $term ) )
+			if ( empty( $term ) ) {
 				continue;
-			if ( isset( $this->taxonomies ) )
+			}
+			if ( isset( $this->taxonomies ) ) {
 				continue;
-			if ( isset( $this->taxonomies[ $term->taxonomy ] ) )
-				if ( ! $this->get_transid( $term->term_id ) )
+			}
+			if ( isset( $this->taxonomies[ $term->taxonomy ] ) ) {
+				if ( ! $this->get_transid( $term->term_id ) ) {
 					throw new exception( "ERROR: Translated term ID $term->term_id does not have a transid" );
-				else
+				} else {
 					continue;
+				}
+			}
 			if ( ! $this->get_transid( $term->term_id ) ) {
 				$this->set_transid( $term->term_id );
 			}
@@ -374,12 +389,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function parse_request( $wp ) {
 
-		if ( is_admin() )
+		if ( is_admin() ) {
 			return;
+		}
 
 		// Sequester the original query, in case we need it to get the default content later
-		if ( ! isset( $wp->query_vars[ 'bbl_tax_original_query' ] ) )
+		if ( ! isset( $wp->query_vars[ 'bbl_tax_original_query' ] ) ) {
 			$wp->query_vars[ 'bbl_tax_original_query' ] = $wp->query_vars;
+		}
 
 		$taxonomy 	= false;
 		$terms 		= false;
@@ -414,8 +431,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 					$taxonomy = get_taxonomy( $taxonomy );
 					$post_types = array_merge( $post_types, $taxonomy->object_type );
 					// Filter out the post_types not in this language
-					foreach ( $post_types as & $post_type )
+					foreach ( $post_types as & $post_type ) {
 						$post_type = bbl_get_post_type_in_lang( $post_type );
+					}
 					$post_types = array_unique( $post_types );
 				}
 				$wp->query_vars[ 'post_type' ] = $post_types;
@@ -449,8 +467,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append ) {
-		if ( $this->no_recursion )
+		if ( $this->no_recursion ) {
 			return;
+		}
 		$this->no_recursion = true;
 
 		// DO NOT SYNC THE TRANSID TAXONOMIES!!
@@ -466,18 +485,20 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 			foreach ( $translations as $lang_code => & $translation ) {
 
-				if ( bbl_get_post_lang_code( $object_id ) == $lang_code )
+				if ( bbl_get_post_lang_code( $object_id ) == $lang_code ) {
 					continue;
+				}
 
 				$translated_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, $lang_code );
 				$translated_terms = array();
 
 				foreach ( $terms as $term ) {
 
-					if ( is_int( $term ) )
+					if ( is_int( $term ) ) {
 						$_term = get_term( $term, $taxonomy );
-					else
+					} else {
 						$_term = get_term_by( 'name', $term, $taxonomy );
+					}
 					if ( is_wp_error( $_term ) or empty( $_term ) ) {
 						continue;
 					}
@@ -495,8 +516,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 			// Here we assume that this taxonomy is on a post type
 			$translations = bbl_get_post_translations( $object_id );
 			foreach ( $translations as $lang_code => & $translation ) {
-				if ( bbl_get_post_lang_code( $object_id ) == $lang_code )
+				if ( bbl_get_post_lang_code( $object_id ) == $lang_code ) {
 					continue;
+				}
 				wp_set_object_terms( $translation->ID, $terms, $taxonomy, $append );
 			}
 
@@ -514,22 +536,27 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function admin_body_class( $class ) {
 
 		$taxonomy = get_current_screen() ? get_current_screen()->taxonomy : null;
-		if ( $taxonomy )
+		if ( $taxonomy ) {
 			$class .= ' bbl-taxonomy-' . $taxonomy;
+		}
 
 		return $class;
 
 	}
 
 	public function bbl_translated_taxonomy( $translated, $taxonomy ) {
-		if ( 'term_translation' == $taxonomy )
+		if ( 'term_translation' == $taxonomy ) {
 			return false;
-		if ( 'nav_menu' == $taxonomy )
+		}
+		if ( 'nav_menu' == $taxonomy ) {
 			return false;
-		if ( 'link_category' == $taxonomy )
+		}
+		if ( 'link_category' == $taxonomy ) {
 			return false;
-		if ( 'post_format' == $taxonomy )
+		}
+		if ( 'post_format' == $taxonomy ) {
 			return false;
+		}
 		return $translated;
 	}
 
@@ -560,8 +587,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		$langs = bbl_get_active_langs();
 		$translations = array();
-		foreach ( $langs as $lang )
+		foreach ( $langs as $lang ) {
 			$translations[ $lang->code ] = false;
+		}
 
 		$transid = $this->get_transid( $term->term_id );
 		// I thought the fracking bug where the get_objects_in_term function returned integers
@@ -572,9 +600,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$base_taxonomy = isset( $this->taxonomies[ $taxonomy ] ) ? $this->taxonomies[ $taxonomy ] : $taxonomy ;
 		$taxonomies = array();
 		$taxonomies[] = $base_taxonomy;
-		foreach ( $this->lang_map as $lang_taxes )
-			if ( $lang_taxes[ $base_taxonomy ] )
+		foreach ( $this->lang_map as $lang_taxes ) {
+			if ( $lang_taxes[ $base_taxonomy ] ) {
 				$taxonomies[] = $lang_taxes[ $base_taxonomy ];
+			}
+		}
 
 		// Get all the translations in one cached DB query
 		$existing_terms = get_terms( $taxonomies, array( 'include' => $term_ids, 'hide_empty' => false ) );
@@ -582,8 +612,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Finally, we're ready to return the terms in this 
 		// translation group.
 		$terms = array();
-		foreach ( $existing_terms as $t )
+		foreach ( $existing_terms as $t ) {
 			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = $t;
+		}
 		return $terms;
 	}
 
@@ -617,12 +648,15 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @access public
 	 **/
 	public function get_new_term_translation_url( $default_term, $lang_code, $taxonomy = null ) {
-		if ( ! is_int( $default_term ) && is_null( $taxonomy ) )
+		if ( ! is_int( $default_term ) && is_null( $taxonomy ) ) {
 			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
-		if ( ! is_null( $taxonomy ) )
+		}
+		if ( ! is_null( $taxonomy ) ) {
 			$default_term = get_term( $default_term, $taxonomy );
-		if ( is_wp_error( $default_term ) )
+		}
+		if ( is_wp_error( $default_term ) ) {
 			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
+		}
 		$url = admin_url( 'post-new.php' );
 		$args = array( 
 			'bbl_origin_term' => $default_term->term_id,
@@ -641,12 +675,16 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return string The lang code
 	 **/
 	public function get_taxonomy_lang_code( $taxonomy ) {
-		if ( ! isset( $this->taxonomies[ $taxonomy ] ) )
+		if ( ! isset( $this->taxonomies[ $taxonomy ] ) ) {
 			return bbl_get_default_lang_code();
-		foreach ( $this->lang_map as $lang => $data )
-			foreach ( $data as $trans_tax )
-				if ( $taxonomy == $trans_tax )
+		}
+		foreach ( $this->lang_map as $lang => $data ) {
+			foreach ( $data as $trans_tax ) {
+				if ( $taxonomy == $trans_tax ) {
 					return $lang;
+				}
+			}
+		}
 		return false;
 	}
 
@@ -658,8 +696,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return string The name of the base taxonomy
 	 **/
 	public function get_base_taxonomy( $taxonomy ) {
-		if ( ! isset( $this->taxonomies[ $taxonomy ] ) )
+		if ( ! isset( $this->taxonomies[ $taxonomy ] ) ) {
 			return $taxonomy;
+		}
 		return $this->taxonomies[ $taxonomy ];
 	}
 
@@ -672,19 +711,23 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
 		// Some taxonomies are untranslated…
-		if ( ! $this->is_taxonomy_translated( $taxonomy ) )
+		if ( ! $this->is_taxonomy_translated( $taxonomy ) ) {
 			return $taxonomy;
+		}
 			
-		if ( ! $taxonomy )
+		if ( ! $taxonomy ) {
 			return false; // @FIXME: Should I actually be throwing an error here?
+		}
 
-		if ( is_null( $lang_code ) )
+		if ( is_null( $lang_code ) ) {
 			$lang_code = bbl_get_current_lang_code();
+		}
 
 		$base_taxonomy = $this->get_base_taxonomy( $taxonomy );
 
-		if ( bbl_get_default_lang_code() == $lang_code )
+		if ( bbl_get_default_lang_code() == $lang_code ) {
 			return $base_taxonomy;
+		}
 
 		return $this->lang_map[ $lang_code ][ $base_taxonomy ];
 	}
@@ -699,12 +742,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return string A translated slug
 	 **/
 	public function get_slug_in_lang( $slug, $lang_code = null ) {
-		if ( is_null( $lang_code ) )
+		if ( is_null( $lang_code ) ) {
 			$lang_code = bbl_get_current_lang_code();
+		}
 		$_slug = mb_strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug, $lang_code ) );
 		// @FIXME: For some languages the translation might be the same as the original
-		if ( $_slug &&  $_slug != $slug )
+		if ( $_slug &&  $_slug != $slug ) {
 			return $_slug;
+		}
 		// Do we need to check that the slug is unique at this point?
 		return mb_strtolower( "{$_slug}_{$lang_code}" );
 	}
@@ -761,17 +806,20 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$check_attachments = true;
 		}
 
-		if ( $object_types )
+		if ( $object_types ) {
 			$object_types = esc_sql( array_filter( $object_types, 'post_type_exists' ) );
+		}
 		foreach ( (array) $terms as $term ) {
 			$count = 0;
 
 			// Attachments can be 'inherit' status, we need to base count off the parent's status if so
-			if ( $check_attachments )
+			if ( $check_attachments ) {
 				$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships, $wpdb->posts p1 WHERE p1.ID = $wpdb->term_relationships.object_id AND ( post_status = 'publish' OR ( post_status = 'inherit' AND post_parent > 0 AND ( SELECT post_status FROM $wpdb->posts WHERE ID = p1.post_parent ) = 'publish' ) ) AND post_type = 'attachment' AND term_taxonomy_id = %d", $term ) );
+			}
 
-			if ( $object_types )
+			if ( $object_types ) {
 				$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships, $wpdb->posts WHERE $wpdb->posts.ID = $wpdb->term_relationships.object_id AND post_status = 'publish' AND post_type IN ('" . implode("', '", $object_types ) . "') AND term_taxonomy_id = %d", $term ) );
+			}
 
 			do_action( 'edit_term_taxonomy', $term, $taxonomy );
 			$wpdb->update( $wpdb->term_taxonomy, compact( 'count' ), array( 'term_taxonomy_id' => $term ) );
@@ -787,18 +835,21 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return int The transID the target term belongs to
 	 **/
 	public function get_transid( $target_term_id ) {
-		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) )
+		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) ) {
 			return $transid;
+		}
 
-		if ( ! $target_term_id )
+		if ( ! $target_term_id ) {
 			throw new exception( "Please specify a target term_id" );
+		}
 
 		$transids = wp_get_object_terms( $target_term_id, 'term_translation', array( 'fields' => 'ids' ) );
 		// "There can be only one" (so we'll just drop the others)
-		if ( isset( $transids[ 0 ] ) )
+		if ( isset( $transids[ 0 ] ) ) {
 			$transid = $transids[ 0 ];
-		else
+		} else {
 			$transid = $this->set_transid( $target_term_id );
+		}
 
 		wp_cache_add( $target_term_id, $transid, 'bbl_term_transids' );
 
@@ -814,21 +865,24 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return int The transID the target term belongs to
 	 **/
 	public function set_transid( $target_term_id, $transid = null ) {
-		if ( ! $target_term_id )
+		if ( ! $target_term_id ) {
 			throw new exception( "Please specify a target term_id" );
+		}
 
 		if ( ! $transid ) {
 			$transid_name = 'term_transid_' . uniqid();
 			$result = wp_insert_term( $transid_name, 'term_translation', array() );
-			if ( is_wp_error( $result ) )
+			if ( is_wp_error( $result ) ) {
 				error_log( "Problem creating a new Term TransID: " . print_r( $result, true ) );
-			else
+			} else {
 				$transid = $result[ 'term_id' ];
+			}
 		}
 
 		$result = wp_set_object_terms( $target_term_id, absint( $transid ), 'term_translation' );
-		if ( is_wp_error( $result ) )
+		if ( is_wp_error( $result ) ) {
 			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+		}
 
 		wp_cache_delete( $target_term_id, 'bbl_term_transids' );
 		
@@ -849,20 +903,24 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$nonce = isset( $_POST[ '_bbl_metabox_resync' ] ) ? $_POST[ '_bbl_metabox_resync' ] : false;
 		
 		
-		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) )
+		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) ) {
 			return;
+		}
 		
-		if ( ! $nonce )
+		if ( ! $nonce ) {
 			return;
+		}
 			
 		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
-		if ( $posted_id != $post_id )
+		if ( $posted_id != $post_id ) {
 			return;
+		}
 		// While we're at it, let's check the nonce
 		check_admin_referer( "bbl_resync_translation-$post_id", '_bbl_metabox_resync' );
 		
-		if ( $this->no_recursion )
+		if ( $this->no_recursion ) {
 			return;
+		}
 		$this->no_recursion = true;
 
 		$taxonomies = get_object_taxonomies( $post->post_type );
@@ -874,13 +932,15 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Now associate terms from synced taxonomies in from the origin post
 		foreach ( $taxonomies as $taxonomy ) {
 			$origin_taxonomy = $taxonomy;
-			if ( $this->is_taxonomy_translated( $taxonomy ) )
+			if ( $this->is_taxonomy_translated( $taxonomy ) ) {
 				$origin_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, bbl_get_default_lang_code() );
+			}
 			$term_ids = wp_get_object_terms( $origin_post->ID, $origin_taxonomy, array( 'fields' => 'ids' ) );
 			$term_ids = array_map( 'absint', $term_ids );
 			$result = wp_set_object_terms( $post_id, $term_ids, $taxonomy );
-			if ( is_wp_error( $result, true ) )
+			if ( is_wp_error( $result, true ) ) {
 				throw new exception( "Problem syncing terms: " . print_r( $terms, true ), " Error: " . print_r( $result, true ) );
+			}
 		}
 	}
 
