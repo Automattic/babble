@@ -746,6 +746,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$trans   = bbl_get_post_translations( $post );
 		$incomplete_jobs    = $this->get_incomplete_post_jobs( $post );
+		$completed_jobs    = $this->get_completed_post_jobs( $post );
 		$default = bbl_get_default_lang_code();
 
 		# The ability to create a translation of a post directly
@@ -756,14 +757,14 @@ class Babble_Jobs extends Babble_Plugin {
 
 		if ( !empty( $trans ) ) {
 
-			if ( !empty( $incomplete_jobs ) and $capable ) {
+			if ( !empty( $completed_jobs ) and $capable ) {
 				?><h4><?php _e( 'Complete:', 'babble' ); ?></h4><?php
 			}
 
-			foreach ( $trans as $lang_code => $translation ) {
+			foreach ( $completed_jobs as $lang_code => $job ) {
 				$lang = bbl_get_lang( $lang_code );
 				?>
-				<p><?php printf( '%s: <a href="%s">%s</a>', $lang->display_name, get_edit_post_link( $translation->ID ), __( 'View', 'babble' ) ); ?>
+				<p><?php printf( '%s: <a href="%s">%s</a>', $lang->display_name, get_edit_post_link( $job->ID ), __( 'View', 'babble' ) ); ?>
 				<?php
 			}
 
@@ -819,6 +820,18 @@ class Babble_Jobs extends Babble_Plugin {
 	public function get_incomplete_post_jobs( $post ) {
 		$post = get_post( $post );
 		return $this->get_object_jobs( $post->ID, 'post', $post->post_type, array( 'new', 'in-progress' ) );
+	}
+
+	/**
+	 * Return the array of completed jobs for a Post, keyed
+	 * by lang code.
+	 *
+	 * @param WP_Post|int $post A WP Post object or a post ID
+	 * @return array An array of WP Translation Job Post objects 
+	 */
+	public function get_completed_post_jobs( $post ) {
+		$post = get_post( $post );
+		return $this->get_object_jobs( $post->ID, 'post', $post->post_type, array( 'complete' ) );
 	}
 
 	/**
