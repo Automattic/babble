@@ -273,6 +273,11 @@ class Babble_Jobs extends Babble_Plugin {
 				# Cycle through post types with show_ui true, give edit_bbl_jobs cap to the user if they can edit any of the post types
 
 				foreach ( get_post_types( array( 'show_ui' => true ), 'objects' ) as $pto ) {
+					// Don't check the capability we already checked.
+					if ( $args[0] == $pto->cap->edit_posts ) {
+						continue;
+					}
+
 					if ( user_can( $user, $pto->cap->edit_posts ) ) {
 						$user_caps[$args[0]] = true;
 						break;
