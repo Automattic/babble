@@ -411,8 +411,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		if ( $taxonomy && $terms ) {
 
-			if ( ! is_array( $wp->query_vars[ 'tax_query' ] ) )
+			if ( ! isset( $wp->query_vars[ 'tax_query' ] ) || ! is_array( $wp->query_vars[ 'tax_query' ] ) ) {
 				$wp->query_vars[ 'tax_query' ] = array();
+			}
 		
 			$wp->query_vars[ 'tax_query' ][] = array(
 				'taxonomy' => $taxonomy,
