@@ -152,7 +152,7 @@ class Babble_Jobs extends Babble_Plugin {
 		// @TODO Check capabilities include editing a translation post
 		// - If not, the button shouldn't be on the Admin Bar
 		// - But we also need to not process at this point
-		$existing_jobs = $this->get_post_jobs( $canonical_post );
+		$existing_jobs = $this->get_incomplete_post_jobs( $canonical_post );
 		if ( isset( $existing_jobs[ $lang_code ] ) ) {
 			$url = get_edit_post_link( $existing_jobs[ $lang_code ], 'url' );
 			wp_redirect( $url );
@@ -745,7 +745,7 @@ class Babble_Jobs extends Babble_Plugin {
 	public function metabox_post_translations( WP_Post $post, array $metabox ) {
 
 		$trans   = bbl_get_post_translations( $post );
-		$jobs    = $this->get_post_jobs( $post );
+		$incomplete_jobs    = $this->get_incomplete_post_jobs( $post );
 		$default = bbl_get_default_lang_code();
 
 		# The ability to create a translation of a post directly
@@ -756,7 +756,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 		if ( !empty( $trans ) ) {
 
-			if ( !empty( $jobs ) and $capable ) {
+			if ( !empty( $incomplete_jobs ) and $capable ) {
 				?><h4><?php _e( 'Complete:', 'babble' ); ?></h4><?php
 			}
 
@@ -769,10 +769,10 @@ class Babble_Jobs extends Babble_Plugin {
 
 		}
 
-		if ( !empty( $jobs ) and $capable ) {
+		if ( !empty( $incomplete_jobs ) and $capable ) {
 
 			?><h4><?php _e( 'Pending:', 'babble' ); ?></h4><?php
-			foreach ( $jobs as $job ) {
+			foreach ( $incomplete_jobs as $job ) {
 				$lang = $this->get_job_language( $job );
 				$status = get_post_status_object( $job->post_status );
 				?>
@@ -810,15 +810,15 @@ class Babble_Jobs extends Babble_Plugin {
 	// ==============
 
 	/**
-	 * Return the array of jobs for a Post, keyed
+	 * Return the array of incomplete jobs for a Post, keyed
 	 * by lang code.
 	 *
 	 * @param WP_Post|int $post A WP Post object or a post ID
 	 * @return array An array of WP Translation Job Post objects 
 	 */
-	public function get_post_jobs( $post ) {
+	public function get_incomplete_post_jobs( $post ) {
 		$post = get_post( $post );
-		return $this->get_object_jobs( $post->ID, 'post', $post->post_type );
+		return $this->get_object_jobs( $post->ID, 'post', $post->post_type, array( 'new', 'in-progress' ) );
 	}
 
 	/**
@@ -842,14 +842,12 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @param string $name The post type name or the term's taxonomy name
 	 * @return array An array of translation job WP_Post objects
 	 */
-	public function get_object_jobs( $id, $type, $name ) {
+	public function get_object_jobs( $id, $type, $name, $statuses = array( 'new', 'in-progress', 'complete' ) ) {
 
 		$jobs = get_posts( array(
 			'bbl_translate'  => false,
 			'post_type'      => 'bbl_job',
-			'post_status'    => array(
-				'new', 'in-progress'
-			),
+			'post_status'    => $statuses,
 			'meta_key'       => "bbl_job_{$type}",
 			'meta_value'     => "{$name}|{$id}",
 			'posts_per_page' => -1,
