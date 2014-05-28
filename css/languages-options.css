@@ -1,29 +1,26 @@
-/* @override 
-	http://wp-bleeding.simonwheatley.co.uk/wp-content/plugins/babble/css/languages-options.css?ver=1
-*/
+
+table.babble_languages .column-active {
+	width: 10%;
+}
+
+table.babble_languages .column-public {
+	width: 10%;
+}
 
 table.babble_languages .column-language-code {
 	width: 10%;
 }
 
 table.babble_languages .column-language {
-	width: 30%;
-}
-
-table.babble_languages .check-column {
-	width: 5%;
-}
-
-table.babble_languages tbody th.check-column {
-	padding-bottom: 0;
+	width: 20%;
 }
 
 table.babble_languages .column-display_name {
-	width: 25%;
+	width: 20%;
 }
 
 table.babble_languages .column-url_prefix {
-	width: 10%;
+	width: 15%;
 }
 
 table.babble_languages .column-text_direction {

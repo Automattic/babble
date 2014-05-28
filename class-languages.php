@@ -93,6 +93,7 @@ class Babble_Languages extends Babble_Plugin {
 		$this->active_langs = $this->get_option( 'active_langs', array() );
 		$this->langs = $this->get_option( 'langs', array() );
 		$this->lang_prefs = $this->get_option( 'lang_prefs', array() );
+		$this->langs = $this->merge_lang_sets( $this->langs, $this->lang_prefs );
 		$this->default_lang = $this->get_option( 'default_lang', 'en_US' );
 		$this->public_langs = $this->get_option( 'public_langs', array( $this->default_lang ) );
 		// @FIXME: Add something in so the user gets setup with the single language they are currently using
@@ -105,11 +106,13 @@ class Babble_Languages extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP admin_notices action to warn the admin
-	 * if the permalinks aren't pretty enough.
+	 * if the available languages need to be set up.
 	 *
 	 * @return void
 	 **/
 	public function admin_notices() {
+		if ( get_current_screen()->id == 'settings_page_babble_languages' )
+			return;
 		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) ) {
 			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble setup:</strong> Please visit the <a href="%s">Available Languages settings</a> and setup your available languages and the default language.', 'babble' ), admin_url( 'options-general.php?page=babble_languages' ) ) );
 		}
@@ -121,7 +124,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function admin_menu() {
-		add_options_page( __( 'Available Languages', 'babble' ), __( 'Available Languages' ), 'manage_options', 'babble_languages', array( $this, 'options' ) );
+		add_options_page( __( 'Available Languages', 'babble' ), __( 'Available Languages' , 'babble'), 'manage_options', 'babble_languages', array( $this, 'options' ) );
 	}
 	
 	/**
@@ -158,7 +161,7 @@ class Babble_Languages extends Babble_Plugin {
 			$lang->input_lang_class = ( 'rtl' == $lang->text_direction ) ? 'lang-rtl' : 'lang-ltr' ;
 			$lang->display_name = ( @ isset( $_POST[ "display_name_$code" ] ) ) ? $_POST[ "display_name_$code" ] : @ $lang->display_name;
 			if ( ! $lang->display_name )
-				$lang->display_name = $lang->names;
+				$lang->display_name = $lang->name;
 			// Note any url_prefix errors
 			$lang->url_prefix_error = ( @ $this->errors[ "url_prefix_$code" ] ) ? 'babble-error' : '0' ;
 			// Flag the active languages
@@ -194,10 +197,11 @@ class Babble_Languages extends Babble_Plugin {
 	 * by URL prefix. A language object looks like:
 	 * 'ar' => 
 	 * 		object(stdClass)
-	 * 			public 'names' => string 'Arabic'
+	 * 			public 'name' => string 'Arabic'
 	 * 			public 'code' => string 'ar'
 	 * 			public 'url_prefix' => string 'ar'
 	 * 			public 'text_direction' => string 'rtl'
+	 * 			public 'display_name' => string 'Arabic'
 	 * 
 	 * @return array An array of Babble language objects
 	 **/
@@ -228,7 +232,6 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return object|boolean A Babble language object
 	 **/
 	public function get_lang( $lang_code ) {
-		global $bbl_locale;
 		if ( ! isset( $this->langs[ $lang_code ] ) )
 			return false;
 		return $this->langs[ $lang_code ];
@@ -259,7 +262,7 @@ class Babble_Languages extends Babble_Plugin {
 	/**
 	 * Returns the default language for this site.
 	 *
-	 * @return string The language object for the default language
+	 * @return object The language object for the default language
 	 **/
 	public function get_default_lang() {
 		return bbl_get_lang( $this->default_lang );
@@ -367,7 +370,6 @@ class Babble_Languages extends Babble_Plugin {
 				$active_langs[ $langs[ $code ]->url_prefix ] = $code;
 			if ( count( $active_langs ) < 2 ) {
 				$this->set_admin_error( __( 'You must set at least two languages as active.', 'babble' ) );
-				$this->errors[ 'active_langs' ];
 			} else {
 				$this->active_langs = $active_langs;
 				$this->update_option( 'active_langs', $this->active_langs );
@@ -375,14 +377,13 @@ class Babble_Languages extends Babble_Plugin {
 				$this->update_option( 'langs', $this->langs );
 			}
 			if ( ! isset( $_POST[ 'public_langs' ] ) ) {
-				$this->set_admin_error( __( 'You must set at least your default language as active.', 'babble' ) );
+				$this->set_admin_error( __( 'You must set at least your default language as public.', 'babble' ) );
 			} else {
 				$public_langs = (array) $_POST[ 'public_langs' ];
 				if ( ! in_array( @ $_POST[ 'default_lang' ], $public_langs ) )
-					$this->set_admin_error( __( 'You must set your default language as active.', 'babble' ) );
+					$this->set_admin_error( __( 'You must set your default language as public.', 'babble' ) );
 			}
 		}
-		
 		// Finish up, redirecting if we're all OK
 		if ( ! $this->errors ) {
 			// Save the public languages
@@ -407,7 +408,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * with an array of language objects which look like:
   	 * 'ar' => 
   	 * 		object(stdClass)
-  	 * 			public 'names' => string 'Arabic'
+  	 * 			public 'name' => string 'Arabic'
   	 * 			public 'code' => string 'ar'
   	 * 			public 'url_prefix' => string 'ar'
   	 * 			public 'text_direction' => string 'rtl'
@@ -417,21 +418,21 @@ class Babble_Languages extends Babble_Plugin {
 	protected function parse_available_languages() {
 		unset( $this->available_langs );
 		$this->available_langs = array();
-		foreach ( glob( WP_LANG_DIR . '/*.mo' ) as $mo_file ) {
-			preg_match( '/(([a-z]+)(_[a-z]+)?)\.mo$/i', $mo_file, $matches );
+		foreach ( get_available_languages() as $lang_code ) {
+			list( $prefix ) = explode( '_', $lang_code );
 			$lang = array(
-				'names' => $this->format_code_lang( $matches[ 2 ] ),
-				'code' => $matches[ 1 ],
-				'url_prefix' => $matches[ 2 ],
-				'text_direction' => $this->is_rtl( $matches[ 1 ] ),
+				'name' => $this->format_code_lang( $prefix ),
+				'code' => $lang_code,
+				'url_prefix' => $prefix,
+				'text_direction' => $this->is_rtl( $lang_code ),
 			);
 			// Cast to an object, in case we want to start using actual classes
 			// at some point in the future.
-			$this->available_langs[ $matches[ 1 ] ] = (object) $lang;
+			$this->available_langs[ $lang_code ] = (object) $lang;
 		}
 		// Add in US English, which is the default on WordPress and has no language files
 		$en = new stdClass;
-		$en->names = 'English; US';
+		$en->name = 'English (US)';
 		$en->code = 'en_US';
 		$en->url_prefix = 'en';
 		$en->text_direction = 'ltr';
@@ -463,7 +464,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * Return the language name for the provided language code.
 	 *
 	 * This method is an identical copy of format_code_lang 
-	 * in wp-admin/includes/ms.php
+	 * in wp-admin/includes/ms.php which is only available on Multisite.
 	 *
 	 * @FIXME: We end up with a load of anglicised names, which doesn't seem super-friendly, internationally speaking.
 	 * 
@@ -521,7 +522,7 @@ class Babble_Languages extends Babble_Plugin {
 
 		$this->langs = array( $locale => $this->available_langs[ $locale ] );
 		$this->langs[ $locale ]->url_prefix = $url_prefix;
-		$this->langs[ $locale ]->display_name = $this->langs[ $locale ]->names;
+		$this->langs[ $locale ]->display_name = $this->langs[ $locale ]->name;
 		$this->default_lang = $locale;
 		$this->public_langs = array( $locale );
 	}
@@ -529,5 +530,3 @@ class Babble_Languages extends Babble_Plugin {
 
 global $bbl_languages;
 $bbl_languages = new Babble_Languages();
-
-?>

@@ -44,21 +44,18 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function __construct() {
 		$this->setup( 'babble-taxonomy', 'plugin' );
-		if ( is_admin() ) {
-			$this->add_action( 'load-edit-tags.php', 'load_edit_term' );
-		}
-		$this->add_action( 'admin_notices' );
 		$this->add_action( 'bbl_created_new_shadow_post', 'created_new_shadow_post', null, 2 );
 		$this->add_action( 'bbl_registered_shadow_post_types', 'registered_shadow_post_types' );
-		$this->add_action( 'created_term', null, null, 3 );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'parse_request' );
 		$this->add_action( 'registered_taxonomy', null, null, 3 );
 		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_action( 'set_object_terms', null, null, 5 );
 		$this->add_filter( 'get_terms' );
-		$this->add_filter( 'posts_request' );
 		$this->add_filter( 'term_link', null, null, 3 );
+		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'admin_body_class' );
+
 	}
 	
 	// WP HOOKS
@@ -73,10 +70,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// This translation will connect each term with it's translated equivalents
 		register_taxonomy( 'term_translation', 'term', array(
 			'rewrite' => false,
-			'public' => true,
-			'show_ui' => true,
+			'public' => true,  # ?
+			'show_ui' => true, # ?
 			'show_in_nav_menus' => false,
-			'label' => __( 'Term Translation ID', 'bbl' ),
+			'label' => __( 'Term Translation ID', 'babble' ),
 		) );
 	}
 	
@@ -146,8 +143,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		unset( $args[ 'name' ] );
 		unset( $args[ 'object_type' ] );
 
-		$this->add_taxonomy_hooks( $taxonomy );
-
 		$slug = ( $args[ 'rewrite' ][ 'slug' ] ) ? $args[ 'rewrite' ][ 'slug' ] : $taxonomy;
 
 		foreach ( $langs as $lang ) {
@@ -175,7 +170,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
 			
-			$this->add_taxonomy_hooks( $new_taxonomy );
 		}
 		// bbl_stop_logging();
 
@@ -263,96 +257,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the dynamic WP load-edit-tags.php action which is fired when the 
-	 * term edit page is loaded.
-	 *
-	 * @return void
-	 **/
-	public function load_edit_term() {
-		$bbl_term_translation = isset( $_POST[ 'bbl_term_translation' ] ) ? $_POST[ 'bbl_term_translation' ] : false;
-		if ( ! $bbl_term_translation )
-			return;
-		$term_id = isset( $_POST[ 'tag_ID' ] ) ? (int) $_POST[ 'tag_ID' ] : false;
-		check_admin_referer( 'bbl_edit_' . $term_id, '_bbl_nonce' );
-		$transid = isset( $_POST[ 'bbl_term_translation' ] ) ? $_POST[ 'bbl_term_translation' ] : false;
-		if ( ! $transid ) {
-			$result = wp_insert_term( $transid_name, 'term_translation', array() );
-			if ( is_wp_error( $result ) )
-				throw new exception( "Problem creating a new Term TransID: " . print_r( $result, true ) );
-			else
-				$transid = (int) $result[ 'term_id' ];
-		}
-		$result = wp_set_object_terms( $term_id, $transid, 'term_translation' );
-	}
-
-	/**
-	 * Hook the WP created_term action to add in a transid if available.
-	 *
-	 * @param int $term_id The term ID for the term created
-	 * @param int $tt_id The term taxonomy ID for the term created
-	 * @param string $taxonomy The taxonomy for the term created 
-	 * @return void
-	 **/
-	public function created_term( $term_id, $tt_id, $taxonomy ) {
-		if ( 'term_translation' == $taxonomy )
-			return;
-		$nonce = @ $_POST[ '_bbl_nonce' ];
-		if ( ! $nonce )
-			return;
-		if ( wp_verify_nonce( $nonce, "bbl_edit_$term_id" ) )
-			throw new exception( "Failed nonce check" );
-		$transid = @ $_POST[ 'bbl_transid' ];
-		$this->set_transid( $term_id, $transid );
-	}
-
-	/**
-	 * Add some debug fields to all term edit screens.
-	 *
-	 * @param object $term A term object 
-	 * @return void
-	 **/
-	public function edit_term_form_fields( $term ) {
-		$screen = get_current_screen();
-		$taxonomy = $screen->taxonomy;
-		$transid = $this->get_transid( $term->term_id );
-		?>
-		<?php wp_nonce_field( 'bbl_edit_' . $term->term_id, '_bbl_nonce' ); ?>
-		<input type="hidden" name="bbl_term_translation" value="<?php echo esc_attr( $transid ); ?>" id="bbl_term_translation">
-		<?php
-	}
-	
-	/**
-	 * Hooks the WP $taxonomy . '_pre_edit_form' action to
-	 * add a notice above the form.
-	 *
-	 * @return void
-	 **/
-	public function admin_notices() {
-		$bbl_transid = ( isset( $_GET[ 'bbl_transid' ] ) ) ? (int) $_GET[ 'bbl_transid' ] : false;
-		$bbl_default_term = ( isset( $_GET[ 'bbl_default_term' ] ) ) ? (int) $_GET[ 'bbl_default_term' ] : false;
-		$taxonomy = ( isset( $_GET[ 'taxonomy' ] ) ) ? $_GET[ 'taxonomy' ] : false;
-		if ( ! $bbl_transid || ! $bbl_default_term )
-			return;
-		$default_term = get_term( $bbl_default_term, bbl_get_taxonomy_in_lang( $taxonomy, bbl_get_default_lang_code() ) );
-		echo '<div class="updated"><p>' . sprintf( __( 'Creating a translation of the term "%s".', 'babble' ), $default_term->name ) . '</p></div>';
-	}
-
-	/**
-	 * Hooks the WP $taxonomy . '_add_form_fields' action to add fields
-	 * to the add term request.
-	 *
-	 * @param string $taxonomy The taxonomy to add a term to 
-	 * @return void
-	 **/
-	public function add_term_form_fields( $taxonomy ) {
-		$transid = isset( $_REQUEST[ 'bbl_transid' ] ) ? (int) $_REQUEST[ 'bbl_transid' ] : '';
-		wp_nonce_field( 'bbl_add_tag_' . $transid, '_bbl_nonce' );
-		?>
-			<input type="hidden" name="bbl_transid" value="<?php echo esc_attr( $transid ); ?>" id="bbl_transid" />
-		<?php
-	}
-
-	/**
 	 * Hooks the WP save_post action to resync data
 	 * when requested.
 	 *
@@ -397,7 +301,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 	
 		if ( !is_object($term) )
-			$term = new WP_Error('invalid_term', __('Empty Term'));
+			$term = new WP_Error('invalid_term', __('Empty Term', 'babble'));
 	
 		if ( is_wp_error( $term ) )
 			return $term;
@@ -444,6 +348,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function get_terms( $terms ) {
 		foreach ( $terms as $term ) {
+			if ( empty( $term ) )
+				continue;
 			if ( isset( $this->taxonomies ) )
 				continue;
 			if ( isset( $this->taxonomies[ $term->taxonomy ] ) )
@@ -518,8 +424,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		if ( $taxonomy && $terms ) {
 
-			if ( ! is_array( $wp->query_vars[ 'tax_query' ] ) )
+			if ( ! isset( $wp->query_vars[ 'tax_query' ] ) || ! is_array( $wp->query_vars[ 'tax_query' ] ) ) {
 				$wp->query_vars[ 'tax_query' ] = array();
+			}
 		
 			$wp->query_vars[ 'tax_query' ][] = array(
 				'taxonomy' => $taxonomy,
@@ -571,7 +478,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 						$_term = get_term( $term, $taxonomy );
 					else
 						$_term = get_term_by( 'name', $term, $taxonomy );
-					if ( is_wp_error( $_term ) ) {
+					if ( is_wp_error( $_term ) or empty( $_term ) ) {
 						continue;
 					}
 
@@ -590,27 +497,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 			foreach ( $translations as $lang_code => & $translation ) {
 				if ( bbl_get_post_lang_code( $object_id ) == $lang_code )
 					continue;
-				bbl_stop_translating();
 				wp_set_object_terms( $translation->ID, $terms, $taxonomy, $append );
-				bbl_start_translating();
 			}
 
 		}
 
-
-
 		$this->no_recursion = false;
-	}
-
-	/**
-	 * Hooks posts_request.
-	 *
-	 * @param  
-	 * @return void
-	 **/
-	public function posts_request( $query ) {
-		// bbl_log( "Query: $query" );
-		return $query;
 	}
 	
 	// CALLBACKS
@@ -618,6 +510,28 @@ class Babble_Taxonomies extends Babble_Plugin {
 	
 	// PUBLIC METHODS
 	// ==============
+
+	public function admin_body_class( $class ) {
+
+		$taxonomy = get_current_screen() ? get_current_screen()->taxonomy : null;
+		if ( $taxonomy )
+			$class .= ' bbl-taxonomy-' . $taxonomy;
+
+		return $class;
+
+	}
+
+	public function bbl_translated_taxonomy( $translated, $taxonomy ) {
+		if ( 'term_translation' == $taxonomy )
+			return false;
+		if ( 'nav_menu' == $taxonomy )
+			return false;
+		if ( 'link_category' == $taxonomy )
+			return false;
+		if ( 'post_format' == $taxonomy )
+			return false;
+		return $translated;
+	}
 
 	/**
 	 * Provided with a taxonomy name, e.g. `post_tag`, and a language
@@ -633,10 +547,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 	/**
 	 * Get the terms which are the translations for the provided 
-	 * post ID. N.B. The returned array of term objects (and false 
-	 * values) will include the post for the post ID passed.
+	 * term ID. N.B. The returned array of term objects (and false 
+	 * values) will include the term for the term ID passed.
 	 * 
-	 * @FIXME: Should I filter out the term ID passed?
 	 * @FIXME: We should cache the translation groups, as we do for posts
 	 *
 	 * @param int|object $term Either a WP Term object, or a term_id 
@@ -669,7 +582,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Finally, we're ready to return the terms in this 
 		// translation group.
 		$terms = array();
-		$terms[ bbl_get_current_lang()->code ] = $term;
 		foreach ( $existing_terms as $t )
 			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = $t;
 		return $terms;
@@ -711,18 +623,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$default_term = get_term( $default_term, $taxonomy );
 		if ( is_wp_error( $default_term ) )
 			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
-		
-		bbl_switch_to_lang( $lang_code );
-		$transid = $this->get_transid( $default_term->term_id );
-		$url = admin_url( "/edit-tags.php?taxonomy=$taxonomy" );
+		$url = admin_url( 'post-new.php' );
 		$args = array( 
-			'taxonomy' => $this->lang_map[ $lang_code ][ $taxonomy ], 
-			'bbl_transid' => $transid, 
-			'bbl_default_term' => $default_term->term_id, 
-			'lang' => $lang_code,
+			'bbl_origin_term' => $default_term->term_id,
+			'bbl_origin_taxonomy' => $default_term->taxonomy,
+			'lang'            => $lang_code,
+			'post_type'       => 'bbl_job',
 		);
 		$url = add_query_arg( $args, $url );
-		bbl_restore_lang();
 		return $url;
 	}
 
@@ -793,14 +701,35 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_slug_in_lang( $slug, $lang_code = null ) {
 		if ( is_null( $lang_code ) )
 			$lang_code = bbl_get_current_lang_code();
-		$_slug = strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug, $lang_code ) );
+		$_slug = mb_strtolower( apply_filters( 'bbl_translate_taxonomy_slug', $slug, $lang_code ) );
 		// @FIXME: For some languages the translation might be the same as the original
 		if ( $_slug &&  $_slug != $slug )
 			return $_slug;
 		// Do we need to check that the slug is unique at this point?
-		return strtolower( "{$_slug}_{$lang_code}" );
+		return mb_strtolower( "{$_slug}_{$lang_code}" );
 	}
 	
+
+	public function initialise_translation( $origin_term, $taxonomy, $lang_code ) {
+
+		$new_taxonomy = $this->get_slug_in_lang( $taxonomy, $lang_code );
+
+		$transid = $this->get_transid( $origin_term->term_id );
+
+		// Insert translation:
+		$this->no_recursion = true;
+		$new_term_id = wp_insert_term( $origin_term->name . ' - ' . $lang_code, $new_taxonomy );
+		$this->no_recursion = false;
+
+		$new_term = get_term( $new_term_id['term_id'], $new_taxonomy );
+
+		// Assign transid to translation:
+		$this->set_transid( $new_term_id['term_id'], $transid );
+
+		return $new_term;
+
+	}
+
 	// PRIVATE/PROTECTED METHODS
 	// =========================
 
@@ -848,18 +777,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$wpdb->update( $wpdb->term_taxonomy, compact( 'count' ), array( 'term_taxonomy_id' => $term ) );
 			do_action( 'edited_term_taxonomy', $term, $taxonomy );
 		}
-	}
-
-	/**
-	 * Hooks up a taxonomy with all the actions/filters it needs.
-	 *
-	 * @param string $taxonomy The taxonomy in question 
-	 * @return void
-	 **/
-	protected function add_taxonomy_hooks( $taxonomy ) {
-		$this->add_action( $taxonomy . '_edit_form_fields', 'edit_term_form_fields' );
-		// $this->add_action( $taxonomy . '_pre_add_form', 'taxonomy_pre_add_form' );
-		$this->add_action( $taxonomy . '_add_form_fields', 'add_term_form_fields' );
 	}
 
 	/**
@@ -971,5 +888,3 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 global $bbl_taxonomies;
 $bbl_taxonomies = new Babble_Taxonomies();
-
-?>

@@ -7,7 +7,7 @@
  * @since Alpha 1
  */
 
-/*  Copyright 2011 Simon Wheatley
+/*  Copyright 2013 Code for the People
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,17 +25,41 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+
 /**
- * Returns the current language code.
+ * Returns the current content language code.
  *
  * @FIXME: Currently does not check for language validity, though perhaps we should check that elsewhere and redirect?
  *
  * @return string A language code
  * @access public
  **/
-function bbl_get_current_lang_code() {
+function bbl_get_current_content_lang_code() {
 	global $bbl_locale;
-	return $bbl_locale->get_lang();
+	return $bbl_locale->get_content_lang();
+}
+
+/**
+ * Returns the current interface language code.
+ *
+ * @FIXME: Currently does not check for language validity, though perhaps we should check that elsewhere and redirect?
+ *
+ * @return string A language code
+ * @access public
+ **/
+function bbl_get_current_interface_lang_code() {
+	global $bbl_locale;
+	return $bbl_locale->get_interface_lang();
+}
+
+/**
+ * Returns the current (content) language code.
+ *
+ * @return string A language code
+ * @access public
+ **/
+function bbl_get_current_lang_code() {
+	return bbl_get_current_content_lang_code();
 }
 
 /**
@@ -52,9 +76,9 @@ function bbl_is_public_lang( $lang_code ) {
 }
 
 /**
- * Set the current lang.
+ * Set the current (content) lang.
  * 
- * @uses Babble_Locale::switch_lang to do the actual work
+ * @uses Babble_Locale::switch_to_lang to do the actual work
  * @see switch_to_blog for similarities
  *
  * @param string $lang The language code to switch to 
@@ -80,18 +104,29 @@ function bbl_restore_lang() {
 
 /**
  * Get the terms which are the translations for the provided 
- * post ID. N.B. The returned array of term objects (and false 
- * values) will include the post for the post ID passed.
+ * term ID. N.B. The returned array of term objects (and false 
+ * values) will include the term for the term ID passed.
  * 
- * @FIXME: Should I filter out the term ID passed?
- *
  * @param int|object $term Either a WP Term object, or a term_id 
  * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
  * @access public
  **/
-function bbl_get_term_translations( $term, $taxonomy = null ) {
+function bbl_get_term_translations( $term, $taxonomy ) {
 	global $bbl_taxonomies;
 	return $bbl_taxonomies->get_term_translations( $term, $taxonomy );
+}
+
+/**
+ * Get the posts which are the translation jobs for the provided 
+ * term ID.
+ * 
+ * @param int|object $term Either a WP Term object, or a term_id 
+ * @return array An array keyed by the site languages, each key containing a WP Post object
+ * @access public
+ **/
+function bbl_get_term_jobs( $term, $taxonomy ) {
+	global $bbl_jobs;
+	return $bbl_jobs->get_term_jobs( $term, $taxonomy );
 }
 
 /**
@@ -155,6 +190,16 @@ function bbl_is_translated_taxonomy( $taxonomy ) {
 }
 
 /**
+ * Test whether a particular post type is translated or not.
+ * 
+ * @param string $post_type The name of the post type to check
+ * @return bool True if this is a translated post type
+ */
+function bbl_is_translated_post_type( $post_type ) {
+	return (bool) apply_filters( 'bbl_translated_post_type', true, $post_type );
+}
+
+/**
  * Returns a taxonomy slug translated into a particular language.
  *
  * @param string $slug The slug to translate
@@ -171,8 +216,6 @@ function bbl_get_taxonomy_slug_in_lang( $slug, $lang_code = null ) {
  * post ID. N.B. The returned array of post objects (and false 
  * values) will include the post for the post ID passed.
  * 
- * @FIXME: Should I filter out the post ID passed?
- *
  * @param int|object $post Either a WP Post object, or a post ID 
  * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
  * @access public
@@ -180,6 +223,19 @@ function bbl_get_taxonomy_slug_in_lang( $slug, $lang_code = null ) {
 function bbl_get_post_translations( $post ) {
 	global $bbl_post_public;
 	return $bbl_post_public->get_post_translations( $post );
+}
+
+/**
+ * Get the posts which are the translation jobs for the provided 
+ * post ID.
+ * 
+ * @param int|object $post Either a WP Post object, or a post ID 
+ * @return array Either an array keyed by the site languages, each key containing a WP Post object
+ * @access public
+ **/
+function bbl_get_post_jobs( $post ) {
+	global $bbl_jobs;
+	return $bbl_jobs->get_post_jobs( $post );
 }
 
 /**
@@ -236,6 +292,8 @@ function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
 	return $bbl_post_public->get_post_type_in_lang( $original_post_type, $lang_code );
 }
 
+add_filter( 'bbl_get_content_post_type', 'bbl_get_post_type_in_lang' );
+
 /**
  * Is the query for a single page or translation or a single page?
  *
@@ -273,6 +331,20 @@ function bbl_is_page( $page = '' ) {
 function bbl_get_post_in_lang( $post, $lang_code, $fallback = true ) {
 	global $bbl_post_public;
 	return $bbl_post_public->get_post_in_lang( $post, $lang_code, $fallback );
+}
+
+/**
+ * Returns the term in a particular language
+ *
+ * @param int|object $term Either a term object, or a term ID 
+ * @param string $taxonomy The term taxonomy
+ * @param string $lang_code The language code for the required language 
+ * @param boolean $fallback If true: if a term is not available, fallback to the default language content (defaults to true)
+ * @return object|boolean The term object, or if $fallback was false and no term then returns false
+ **/
+function bbl_get_term_in_lang( $term, $taxonomy, $lang_code, $fallback = true ) {
+	global $bbl_taxonomies;
+	return $bbl_taxonomies->get_term_in_lang( $term, $taxonomy, $lang_code, $fallback );
 }
 
 /**
@@ -410,10 +482,11 @@ function bbl_get_shadow_post_types( $base_post_type ) {
  * language object looks like:
  * 'ar' => 
  * 		object(stdClass)
- * 			public 'names' => string 'Arabic'
+ * 			public 'name' => string 'Arabic'
  * 			public 'code' => string 'ar'
  * 			public 'url_prefix' => string 'ar'
  * 			public 'text_direction' => string 'rtl'
+ * 			public 'display_name' => string 'Arabic'
  * 
  * @uses Babble_Languages::get_active_langs to do the actual work
  *
@@ -459,9 +532,9 @@ function bbl_get_default_lang_code() {
 }
 
 /**
- * Returns the default language code for this site.
+ * Returns the default language for this site.
  *
- * @return string A language code, e.g. "he_IL"
+ * @return object A language object
  **/
 function bbl_get_default_lang() {
 	global $bbl_languages;
@@ -531,41 +604,6 @@ function bbl_get_prefix_from_lang_code( $lang_code ) {
 function bbl_get_switcher_links( $id_prefix = '' ) {
 	global $bbl_switcher_menu;
 	return $bbl_switcher_menu->get_switcher_links( $id_prefix );
-}
-
-// @TODO: EUGH. GLOBALS. UGLY. Get rid of the $bbl_translating global, perhaps replace with mini class?
-
-global $bbl_translating;
-$bbl_translating = true;
-
-/**
- * Start doing translation.
- *
- * @return void 
- **/
-function bbl_start_translating() {
-	global $bbl_translating;
-	$bbl_translating = true;
-}
-
-/**
- * Stop doing any translation.
- *
- * @return void 
- **/
-function bbl_stop_translating() {
-	global $bbl_translating;
-	$bbl_translating = false;
-}
-
-/**
- * Should we be doing any translation.
- *
- * @return boolean True for yes 
- **/
-function bbl_translating() {
-	global $bbl_translating;
-	return $bbl_translating;
 }
 
 /**
