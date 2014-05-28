@@ -22,3 +22,9 @@ Whether you want to fix a bug or implement a new feature, the process is much th
 It doesn't matter if the code isn't perfect. The idea is to get it reviewed early and iterate on it.
 
 Please follow the [WordPress Coding Standards](http://make.wordpress.org/core/handbook/coding-standards/).
+
+Licence
+-------
+
+The Babble plugin is released under the [GPLv2 or later](http://www.gnu.org/licenses/gpl-2.0.html), 
+by contributing code to Babble you grant its use under the GNU General Public License v2 (or later).
