@@ -210,7 +210,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$object_type = (array) $post_type;
 		
 		foreach ( $taxonomies as $taxonomy ) {
-			// @TODO: This is very nearly copy pasted from registered_taxonomy above, abstract the code into a joint function
 			// Untranslated taxonomies do not have shadow equivalents in each language,
 			// but do apply to the bast post_type and all it's shadow post_types.
 			if ( ! $this->is_taxonomy_translated( $taxonomy ) ) {
