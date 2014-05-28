@@ -31,6 +31,8 @@ unknowns; feel free to weigh in on any of them.
 
 Please add bugs and contribute patches and pull requests to https://github.com/cftp/babble/issues
 
+**Pull requests on the *develop* branch, please, not the master branch.**
+
 Contributors: Simon Wheatley, John Blackbourn, Scott Evans, Simon Dickson, Marko Heijnen, Tom Nowell, Gary Jones, Emyr Thomas
 
 ## Installation
