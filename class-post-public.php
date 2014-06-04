@@ -1273,20 +1273,27 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Returns the equivalent post_type in the specified language.
 	 *
-	 * @param string $taxonomy A post_type to return in a given language
+	 * @param string $post_type A post_type to return in a given language
 	 * @param string $lang_code The language code for the required language 
-	 * @return boolean|string The equivalent post_type name, or false if it doesn't exist
+	 * @return string The equivalent post_type name, or given post_type if it doesn't exist
 	 **/
 	public function get_post_type_in_lang( $post_type, $lang_code ) {
 		$base_post_type = $this->get_base_post_type( $post_type );
-		if ( bbl_get_default_lang_code() == $lang_code )
+
+		if ( bbl_get_default_lang_code() == $lang_code ) {
 			return $base_post_type;
-		// Some post types are untranslated…
-		if ( ! apply_filters( 'bbl_translated_post_type', true, $post_type ) )
-			return $post_type;
-		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
-			return false;
 		}
+
+		// Some post types are untranslated…
+		if ( ! bbl_is_translated_post_type( $post_type ) ) {
+			return $post_type;
+		}
+
+		// Return the original post type if we couldn't find it in our array
+		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
+			return $post_type;;
+		}
+
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];
 	}
 
