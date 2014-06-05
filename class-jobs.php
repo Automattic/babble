@@ -376,8 +376,10 @@ class Babble_Jobs extends Babble_Plugin {
 				foreach ( $terms as $term ) {
 
 					$term_translation = get_post_meta( $job->ID, "bbl_term_{$term->term_id}", true );
-					if ( empty( $term_translation ) )
-						$term_translation = array();
+
+					if ( empty( $term_translation ) ) {
+						$term_translation = array( 'name' => '', 'slug' => '' );
+					}
 
 					$items['terms'][$taxo][] = array(
 						'original'    => $term,
