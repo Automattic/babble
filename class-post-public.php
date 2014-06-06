@@ -1291,7 +1291,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// Return the original post type if we couldn't find it in our array
 		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
-			return $post_type;;
+			return $post_type;
 		}
 
 		return $this->lang_map2[ $lang_code ][ $base_post_type ];
