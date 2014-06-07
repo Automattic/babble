@@ -72,7 +72,8 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	function __construct() {
-		global $wpdb;
+		add_action( 'plugins_loaded', array( & $this, 'plugins_loaded' ) );
+
 		add_action( 'admin_init', array( & $this, 'admin_init' ) );
 		add_action( 'admin_notices', array( & $this, 'admin_notices' ) );
 		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
@@ -83,6 +84,10 @@ class Babble_Locale {
 		add_filter( 'post_class', array( & $this, 'post_class' ), null, 3 );
 		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
 		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
+	}
+
+	public function plugins_loaded() {
+		global $wpdb;
 
 		# @TODO this exposes the $wpdb prefix. We should set the cookie path to the site path instead
 		# (example.com/site or site.example.com) so the cookie is only set for the current site on a multisite install
@@ -96,7 +101,7 @@ class Babble_Locale {
 	 *
 	 * @return void
 	 **/
-	public function admin_init(  ) {
+	public function admin_init() {
 		add_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
 		$this->maybe_update();
 		$this->maybe_set_cookie_content_lang();
