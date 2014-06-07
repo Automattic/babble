@@ -80,13 +80,6 @@ class Babble_Plugin {
 	 * @var string
 	 **/
 	protected $url;
-
-	/**
-	 * The name of the directory containing this plugin, e.g. "my-plugin"
-	 *
-	 * @var string
-	 **/
-	protected $folder;
 	
 	/**
 	 * Useful for switching between debug and compressed scripts.
@@ -123,7 +116,7 @@ class Babble_Plugin {
 		// Attempt to handle a Windows
 		$ds = ( defined( 'DIRECTORY_SEPARATOR' ) ) ? DIRECTORY_SEPARATOR : '\\';
 		$file = str_replace( $ds, '/', __FILE__ );
-		$plugins_dir = str_replace( $ds, '/', WP_PLUGIN_DIR );
+		$plugins_dir = str_replace( $ds, '/', dirname( __FILE__ ) );
 		// Setup the dir and url for this plugin/theme
 		if ( 'theme' == $type ) {
 			// This is a theme
@@ -132,8 +125,8 @@ class Babble_Plugin {
 			$this->url = get_stylesheet_directory_uri();
 		} elseif ( stripos( $file, $plugins_dir ) !== false || 'plugin' == $type ) {
 			// This is a plugin
-			$this->folder = trim( basename( dirname( $file ) ), '/' );
 			$this->type = 'plugin';
+
 			// Allow someone to override the assumptions we're making here about where 
 			// the plugin is held. For example, if this plugin is included as part of 
 			// the files for a theme, in wp-content/themes/[your theme]/plugins/ then
@@ -142,9 +135,9 @@ class Babble_Plugin {
 			// N.B. Because this code is running when the file is required, other plugins
 			// may not be loaded and able to hook these filters!
 			$plugins_dir = apply_filters( 'sil_plugins_dir', $plugins_dir, $this->name );
-			$plugins_url = apply_filters( 'sil_plugins_url', plugins_url(), $this->name );
-			$this->dir = trailingslashit( $plugins_dir ) . $this->folder . '/';
-			$this->url = trailingslashit( $plugins_url ) . $this->folder . '/';
+			$plugins_url = apply_filters( 'sil_plugins_url', plugins_url( '', __FILE__ ), $this->name );
+			$this->dir = trailingslashit( $plugins_dir );
+			$this->url = trailingslashit( $plugins_url );
 		} else {
 			// WTF?
 			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugins_dir . ' or "themes" in ' . $file );
