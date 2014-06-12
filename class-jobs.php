@@ -240,20 +240,23 @@ class Babble_Jobs extends Babble_Plugin {
 
 				$job = get_post( $args[2] );
 
-				if ( !$job or ( 'bbl_job' != $job->post_type ) )
+				if ( ! $job or ( 'bbl_job' != $job->post_type ) ) {
 					break;
+				}
 
 				$objects = $this->get_job_objects( $job );
 				$pto     = get_post_type_object( $job->post_type );
 				$cap     = str_replace( 'bbl_job', 'post', $args[0] );
 
-				if ( isset( $objects['post'] ) ) {
+				if ( isset( $objects['post'] ) && $objects['post']->post_type != 'bbl_job' ) {
 
 					# This directly maps the ability to edit/delete/publish the job with the ability to do the same to the job's post:
+
 					$can = user_can( $user, $cap, $objects['post']->ID );
 					foreach ( $required_caps as $required ) {
-						if ( !isset( $user_caps[$required] ) )
+						if ( ! isset( $user_caps[$required] ) ) {
 							$user_caps[$required] = $can;
+						}
 					}
 
 				} else { # else if isset object terms
