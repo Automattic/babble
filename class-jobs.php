@@ -26,30 +26,31 @@ class Babble_Jobs extends Babble_Plugin {
 	public function __construct() {
 		$this->setup( 'babble-job', 'plugin' );
 		
-		$this->add_action( 'init', 'init_early', 0 );
-		$this->add_action( 'admin_init' );
-		$this->add_action( 'edit_form_after_title' );
 		$this->add_action( 'add_meta_boxes' );
-		$this->add_action( 'bbl_translation_post_meta_boxes', null, 10, 3 );
-		$this->add_action( 'bbl_translation_terms_meta_boxes', null, 10, 2 );
-		$this->add_action( 'bbl_translation_submit_meta_boxes', null, 10, 2 );
-		$this->add_action( 'save_post', null, null, 2 );
-		$this->add_action( 'save_post', 'save_job', null, 2 );
-		$this->add_action( 'manage_bbl_job_posts_custom_column', 'action_column', null, 2 );
 		$this->add_action( 'add_meta_boxes_bbl_job', null, 999 );
-		$this->add_action( 'load-post.php', 'load_post_edit' );
-		$this->add_action( 'pre_get_posts' );
+		$this->add_action( 'admin_init' );
 		$this->add_action( 'admin_menu' );
+		$this->add_action( 'bbl_translation_post_meta_boxes', null, 10, 3 );
+		$this->add_action( 'bbl_translation_submit_meta_boxes', null, 10, 2 );
+		$this->add_action( 'bbl_translation_terms_meta_boxes', null, 10, 2 );
+		$this->add_action( 'edit_form_after_title' );
+		$this->add_action( 'init', 'init_early', 0 );
+		$this->add_action( 'load-post.php', 'load_post_edit' );
+		$this->add_action( 'manage_bbl_job_posts_custom_column', 'action_column', null, 2 );
+		$this->add_action( 'pre_get_posts' );
+		$this->add_action( 'save_post', 'save_job', null, 2 );
+		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_action( 'wp_before_admin_bar_render' );
 
-		$this->add_filter( 'manage_bbl_job_posts_columns', 'filter_columns' );
+		$this->add_filter( 'admin_title', null, null, 2 );
 		$this->add_filter( 'bbl_translated_post_type', null, null, 2 );
 		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'get_edit_post_link', null, null, 3 );
+		$this->add_filter( 'manage_bbl_job_posts_columns', 'filter_columns' );
 		$this->add_filter( 'post_updated_messages' );
-		$this->add_filter( 'wp_insert_post_empty_content', null, null, 2 );
-		$this->add_filter( 'admin_title', null, null, 2 );
 		$this->add_filter( 'query_vars' );
 		$this->add_filter( 'user_has_cap', null, null, 3 );
+		$this->add_filter( 'wp_insert_post_empty_content', null, null, 2 );
 
 		$this->version = 1.1;
 	}
@@ -152,7 +153,7 @@ class Babble_Jobs extends Babble_Plugin {
 		// @TODO Check capabilities include editing a translation post
 		// - If not, the button shouldn't be on the Admin Bar
 		// - But we also need to not process at this point
-		$existing_jobs = $this->get_post_jobs( $canonical_post );
+		$existing_jobs = $this->get_incomplete_post_jobs( $canonical_post );
 		if ( isset( $existing_jobs[ $lang_code ] ) ) {
 			$url = get_edit_post_link( $existing_jobs[ $lang_code ], 'url' );
 			wp_redirect( $url );
@@ -312,6 +313,41 @@ class Babble_Jobs extends Babble_Plugin {
 			$query->set( 'meta_value', $job_term );
 		}
 
+	}
+
+	/**
+	 * Hooks the WP filter get_edit_post_link
+	 *
+	 * @filter get_edit_post_link
+	 * @param string $url The edit post link URL
+	 * @param int $post_ID The ID of the post to edit
+	 * @param string $context The link context.
+	 *
+	 * @return string The edit post link URL
+	 * @author Simon Wheatley
+	 **/
+	public function get_edit_post_link( $url, $post_ID, $context ) {
+		if ( $this->no_recursion ) {
+			return $url;
+		}
+		if ( bbl_get_default_lang_code() == bbl_get_post_lang_code( $post_ID ) ) {
+			return $url;
+		}
+
+		$completed_jobs = $this->get_completed_post_jobs( bbl_get_default_lang_post( $post_ID ) );
+		if ( ! isset( $completed_jobs[ bbl_get_current_lang_code() ] ) ) {
+			return $url;
+		}
+		$job = $completed_jobs[ bbl_get_current_lang_code() ];
+
+		if ( ! current_user_can( 'publish_post', $job->ID ) ) {
+			return $url;
+		}
+
+		$this->no_recursion = true;
+		$url = get_edit_post_link( $completed_jobs[ bbl_get_current_lang_code() ]->ID );
+		$this->no_recursion = false;
+		return $url;
 	}
 
 	public function edit_form_after_title() {
@@ -748,7 +784,8 @@ class Babble_Jobs extends Babble_Plugin {
 	public function metabox_post_translations( WP_Post $post, array $metabox ) {
 
 		$trans   = bbl_get_post_translations( $post );
-		$jobs    = $this->get_post_jobs( $post );
+		$incomplete_jobs    = $this->get_incomplete_post_jobs( $post );
+		$completed_jobs    = $this->get_completed_post_jobs( $post );
 		$default = bbl_get_default_lang_code();
 
 		# The ability to create a translation of a post directly
@@ -759,23 +796,23 @@ class Babble_Jobs extends Babble_Plugin {
 
 		if ( !empty( $trans ) ) {
 
-			if ( !empty( $jobs ) and $capable ) {
+			if ( !empty( $completed_jobs ) and $capable ) {
 				?><h4><?php _e( 'Complete:', 'babble' ); ?></h4><?php
 			}
 
-			foreach ( $trans as $lang_code => $translation ) {
+			foreach ( $completed_jobs as $lang_code => $job ) {
 				$lang = bbl_get_lang( $lang_code );
 				?>
-				<p><?php printf( '%s: <a href="%s">%s</a>', $lang->display_name, get_edit_post_link( $translation->ID ), __( 'View', 'babble' ) ); ?>
+				<p><?php printf( '%s: <a href="%s">%s</a>', $lang->display_name, get_edit_post_link( $job->ID ), __( 'View', 'babble' ) ); ?>
 				<?php
 			}
 
 		}
 
-		if ( !empty( $jobs ) and $capable ) {
+		if ( !empty( $incomplete_jobs ) and $capable ) {
 
 			?><h4><?php _e( 'Pending:', 'babble' ); ?></h4><?php
-			foreach ( $jobs as $job ) {
+			foreach ( $incomplete_jobs as $job ) {
 				$lang = $this->get_job_language( $job );
 				$status = get_post_status_object( $job->post_status );
 				?>
@@ -813,15 +850,27 @@ class Babble_Jobs extends Babble_Plugin {
 	// ==============
 
 	/**
-	 * Return the array of jobs for a Post, keyed
+	 * Return the array of incomplete jobs for a Post, keyed
 	 * by lang code.
 	 *
 	 * @param WP_Post|int $post A WP Post object or a post ID
 	 * @return array An array of WP Translation Job Post objects 
 	 */
-	public function get_post_jobs( $post ) {
+	public function get_incomplete_post_jobs( $post ) {
 		$post = get_post( $post );
-		return $this->get_object_jobs( $post->ID, 'post', $post->post_type );
+		return $this->get_object_jobs( $post->ID, 'post', $post->post_type, array( 'new', 'in-progress' ) );
+	}
+
+	/**
+	 * Return the array of completed jobs for a Post, keyed
+	 * by lang code.
+	 *
+	 * @param WP_Post|int $post A WP Post object or a post ID
+	 * @return array An array of WP Translation Job Post objects 
+	 */
+	public function get_completed_post_jobs( $post ) {
+		$post = get_post( $post );
+		return $this->get_object_jobs( $post->ID, 'post', $post->post_type, array( 'complete' ) );
 	}
 
 	/**
@@ -845,14 +894,12 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @param string $name The post type name or the term's taxonomy name
 	 * @return array An array of translation job WP_Post objects
 	 */
-	public function get_object_jobs( $id, $type, $name ) {
+	public function get_object_jobs( $id, $type, $name, $statuses = array( 'new', 'in-progress', 'complete' ) ) {
 
 		$jobs = get_posts( array(
 			'bbl_translate'  => false,
 			'post_type'      => 'bbl_job',
-			'post_status'    => array(
-				'new', 'in-progress'
-			),
+			'post_status'    => $statuses,
 			'meta_key'       => "bbl_job_{$type}",
 			'meta_value'     => "{$name}|{$id}",
 			'posts_per_page' => -1,

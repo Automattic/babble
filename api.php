@@ -233,9 +233,9 @@ function bbl_get_post_translations( $post ) {
  * @return array Either an array keyed by the site languages, each key containing a WP Post object
  * @access public
  **/
-function bbl_get_post_jobs( $post ) {
+function bbl_get_incomplete_post_jobs( $post ) {
 	global $bbl_jobs;
-	return $bbl_jobs->get_post_jobs( $post );
+	return $bbl_jobs->get_incomplete_post_jobs( $post );
 }
 
 /**
