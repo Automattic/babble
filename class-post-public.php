@@ -7,17 +7,17 @@
  * @since 0.1
  */
 class Babble_Post_Public extends Babble_Plugin {
-	
+
 	/**
-	 * A simple flag to stop infinite recursion when syncing 
+	 * A simple flag to stop infinite recursion when syncing
 	 * post meta places.
 	 *
 	 * @var boolean
 	 **/
 	protected $no_meta_recursion;
-	
+
 	/**
-	 * A simple flag to stop infinite recursion in various 
+	 * A simple flag to stop infinite recursion in various
 	 * places (except for post meta).
 	 *
 	 * @var boolean
@@ -51,17 +51,17 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @var int
 	 **/
 	protected $version;
-	
+
 	/**
 	 * An array of query_vars and slugs for our shadow post types,
-	 * we use changes to this to determine if rewrite rules 
+	 * we use changes to this to determine if rewrite rules
 	 * need flushing.
 	 *
 	 * @var array
 	 **/
 	protected $slugs_and_vars;
 
-	
+
 	/**
 	 * An array of Post IDs for posts that are in the process of
 	 * being deleted.
@@ -77,7 +77,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @var array
 	 **/
 	protected $unique_meta_keys;
-	
+
 	public function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
 
@@ -116,7 +116,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->initiate();
 	}
 	/**
-	 * Initiates 
+	 * Initiates
 	 *
 	 * @return void
 	 **/
@@ -145,7 +145,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP admin_init action to 
+	 * Hooks the WP admin_init action to
 	 *
 	 * @return void
 	 **/
@@ -228,7 +228,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP load-post-new.php action to stop translators
-	 * creating new posts in languages other than the default. 
+	 * creating new posts in languages other than the default.
 	 *
 	 * @return void
 	 **/
@@ -258,9 +258,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP registered_post_type action. 
+	 * Hooks the WP registered_post_type action.
 	 *
-	 * @param string $post_type The post type which has just been registered. 
+	 * @param string $post_type The post type which has just been registered.
 	 * @param object $args The arguments with which the post type was registered
 	 * @return void
 	 **/
@@ -313,10 +313,10 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
-				
+
 
 			// @FIXME: We are in danger of a post_type name being longer than 20 chars
-			// I would prefer to keep the post_type human readable, as human devs and sysadmins always 
+			// I would prefer to keep the post_type human readable, as human devs and sysadmins always
 			// end up needing to read this kind of thing.
 			// @FIXME: Should I be sanitising these values?
 			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
@@ -327,7 +327,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_slug_in_lang( $slug, $lang, $args );
 				$new_args[ 'has_archive' ] = $this->get_slug_in_lang( $archive_slug, $lang );
 			}
-			$this->slugs_and_vars[ $lang->code . '_' . $post_type ] = array( 
+			$this->slugs_and_vars[ $lang->code . '_' . $post_type ] = array(
 				'query_var' => $new_args[ 'query_var' ],
 				'has_archive' => $new_args[ 'has_archive' ],
 			);
@@ -354,13 +354,13 @@ class Babble_Post_Public extends Babble_Plugin {
 
 				// This will not work until init has run at the early priority used
 				// to register the post_translation taxonomy. However we catch all the
-				// post_types registered before the hook runs, so we don't miss any 
+				// post_types registered before the hook runs, so we don't miss any
 				// (take a look at where we register post_translation for more info).
 				register_taxonomy_for_object_type( 'post_translation', $new_post_type );
 			}
 		}
 
-		// Exclude the registered post type from search if it's language isn't 
+		// Exclude the registered post type from search if it's language isn't
 		// the current language.
 		if ( bbl_get_current_lang_code() != bbl_get_default_lang_code() ) {
 			$post_type_obj = get_post_type_object( $post_type );
@@ -416,7 +416,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				continue;
 			add_post_meta( $translation->ID, $meta_key, $meta_value, $unique );
 		}
-		
+
 		$this->no_meta_recursion = false;
 	}
 
@@ -445,7 +445,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				continue;
 			update_post_meta( $translation->ID, $meta_key, $meta_value );
 		}
-		
+
 		$this->updated_post_meta = false;
 	}
 
@@ -460,9 +460,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function deleted_post_meta( $meta_id, $post_id, $meta_key, $meta_value ) {
-		
+
 		// When we are deleting posts, we don't want to sync
-		// the metadata deletion across the other posts in 
+		// the metadata deletion across the other posts in
 		// the same translation group
 		if ( in_array( $post_id, $this->deleting_post_ids ) )
 			return;
@@ -481,7 +481,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				continue;
 			delete_post_meta( $translation->ID, $meta_key );
 		}
-		
+
 		$this->no_meta_recursion = false;
 	}
 
@@ -507,12 +507,12 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( $this->is_media_manager() ) {
 			return;
 		}
-		
+
 		$query->query_vars = $this->translate_query_vars( $query->query_vars );
 	}
 
 	/**
-	 * Hooks the WP parse_request action 
+	 * Hooks the WP parse_request action
 	 *
 	 * FIXME: Should I be extending and replacing the WP class?
 	 *
@@ -533,19 +533,19 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP the_posts filter on WP_Query. 
-	 * 
+	 * Hooks the WP the_posts filter on WP_Query.
+	 *
 	 * Check the post_title, post_excerpt, post_content and substitute from
 	 * the default language where appropriate.
 	 *
-	 * @param array $posts The posts retrieved by WP_Query, passed by reference 
-	 * @param WP_Query $wp_query The WP_Query, passed by reference 
+	 * @param array $posts The posts retrieved by WP_Query, passed by reference
+	 * @param WP_Query $wp_query The WP_Query, passed by reference
 	 * @return array The posts
 	 **/
 	public function the_posts( array $posts, WP_Query & $wp_query ) {
 		if ( is_admin() )
 			return $posts;
-		
+
 		// Get fallback content in the default language
 		$subs_index = array();
 		foreach ( $posts as & $post ) {
@@ -582,9 +582,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Hooks the WP body_class filter to add classes to the
 	 * body element.
 	 *
-	 * @param array $classes An array of class strings, poss with some indexes containing more than one space separated class 
+	 * @param array $classes An array of class strings, poss with some indexes containing more than one space separated class
 	 * @param string|array $class One or more classes which have been added to the class list.
-	 * @return array An array of class strings, poss with some indexes containing more than one space separated class 
+	 * @return array An array of class strings, poss with some indexes containing more than one space separated class
 	 **/
 	public function body_class( array $classes, $class ) {
 		// Shadow post_type archives also get the post_type class for
@@ -597,23 +597,23 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP post_type_link filter 
+	 * Hooks the WP post_type_link filter
 	 *
-	 * @param string $post_link The permalink 
+	 * @param string $post_link The permalink
 	 * @param object $post The WP Post object being linked to
 	 * @return string The permalink
 	 **/
 	public function post_type_link( $post_link, $post, $leavename ) {
 		global $wp_rewrite;
-	
+
 		// Regular ol' post types, and other types added by other plugins, etc
 		if ( 'post' == $post->post_type || 'page' == $post->post_type || ! isset( $this->post_types[ $post->post_type ] ) )
 			return user_trailingslashit( $post_link );
-	
+
 		// Deal with our shadow post types
-		if ( ! ( $base_post_type = $this->get_base_post_type( $post->post_type ) ) ) 
+		if ( ! ( $base_post_type = $this->get_base_post_type( $post->post_type ) ) )
 			return user_trailingslashit( $post_link );
-	
+
 		// Deal with post_types shadowing the post post_type
 		if ( 'post' == $base_post_type ) {
 			// @FIXME: Probably move this into another function
@@ -633,15 +633,15 @@ class Babble_Post_Public extends Babble_Plugin {
 				'%author%',
 				'%pagename%',
 			);
-	
+
 			$post_link = get_option('permalink_structure');
-	
+
 			// @FIXME: Should I somehow fake this, so plugin authors who hook it still get some consequence?
 			// $post_link = apply_filters('pre_post_link', $post_link, $post, $leavename);
-	
+
 			if ( '' != $post_link && ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) ) ) {
 				$unixtime = strtotime($post->post_date);
-	
+
 				$category = '';
 				if ( strpos($post_link, '%category%') !== false ) {
 					$cats = get_the_category($post->ID);
@@ -658,13 +658,13 @@ class Babble_Post_Public extends Babble_Plugin {
 						$category = is_wp_error( $default_category ) ? '' : $default_category->slug;
 					}
 				}
-	
+
 				$author = '';
 				if ( strpos($post_link, '%author%') !== false ) {
 					$authordata = get_userdata($post->post_author);
 					$author = $authordata->user_nicename;
 				}
-	
+
 				$date = explode(" ",date('Y m d H i s', $unixtime));
 				$rewritereplace =
 				array(
@@ -690,37 +690,37 @@ class Babble_Post_Public extends Babble_Plugin {
 			} else { // if they're not using the fancy permalink option the link won't work. Known bug. :)
 				return $post_link;
 			}
-	
+
 		} else if ( 'page' == $base_post_type ) {
 			return get_page_link( $post->ID, $leavename );
 		}
-	
+
 		return user_trailingslashit( $post_link );
 	}
 
 	/**
 	 * Hooks the get_sample_permalink filter to provide a correct sample permalink
 	 * in situations where the post_name has been hacked for a particular context.
-	 * 
+	 *
 	 * @filter get_sample_permalink (not yet in existence, see http://core.trac.wordpress.org/attachment/ticket/22338)
-	 * 
+	 *
 	 * @param array $permalink The array, like array( $permalink, $post_name )
 	 * @param string $title A desired title (could be null)
 	 * @param string $name A desired post name (could be null)
-	 * @param int $id The Post ID 
-	 * @param object $post A (hacked) Post object 
+	 * @param int $id The Post ID
+	 * @param object $post A (hacked) Post object
 	 * @return array The array, like array( $permalink, $post_name )
 	 */
 	public function get_sample_permalink( $permalink, $title, $name, $id, $post ) {
 		$permalink[ 0 ] = $this->post_type_link( $permalink[ 0 ], $post, $leavename );
 		return $permalink;
 	}
-	
+
 	/**
 	 * Hooks the WP page_link filter to ensure correct virtual language directory prefix, etc.
 	 *
 	 * @param string $link The permalink for the page
-	 * @param int $id The ID for the post represented by this permalink 
+	 * @param int $id The ID for the post represented by this permalink
 	 * @return string
 	 **/
 	public function page_link( $link, $post_id ) {
@@ -752,7 +752,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Hooks the WP post_type_archive_link filter to return the correct
 	 * post type archive link for the current language.
 	 *
-	 * @param string $link The link to the post type archive (probably wrong for this language) 
+	 * @param string $link The link to the post type archive (probably wrong for this language)
 	 * @param string $post_type The post_type we need an archive for (though we'll probably need to use a translated (shadow) post_type)
 	 * @return string A URL for the translated (shadow) post_type archive
 	 **/
@@ -766,7 +766,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_switch_to_lang( bbl_get_current_lang_code() );
 		$link = get_post_type_archive_link( $lang_post_type );
 		bbl_restore_lang();
-		
+
 		$this->no_recursion = false;
 		return $link;
 	}
@@ -777,7 +777,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 *
 	 * Occasionally called directly by within this class.
 	 *
-	 * @param int $post_id The ID of the post to clear the caches for 
+	 * @param int $post_id The ID of the post to clear the caches for
 	 * @return void
 	 **/
 	function clean_post_cache( $post_id ) {
@@ -792,8 +792,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP post_updated action to ensure that the 
-	 * required properties are copied to the other posts in 
+	 * Hooks the WP post_updated action to ensure that the
+	 * required properties are copied to the other posts in
 	 * this translation group.
 	 *
 	 * @param int $post_id The ID of the post being updated
@@ -830,7 +830,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			);
 			wp_update_post( $post_data );
 		}
-		
+
 		$this->no_recursion = false;
 	}
 
@@ -838,8 +838,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Hooks the WP transition_post_status action which fires whenever
 	 * a post status changes through use of wp_transition_post_status.
 	 *
-	 * @param string $new_status The new status 
-	 * @param string $old_status The old status 
+	 * @param string $new_status The new status
+	 * @param string $old_status The old status
 	 * @param object $post The post object
 	 * @return void
 	 **/
@@ -864,7 +864,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				wp_update_post( $postdata );
 			}
 		}
-			
+
 		$this->no_recursion = false;
 	}
 
@@ -872,7 +872,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Hooks the WP add_menu_classes filter to fixup the side
 	 * admin menu.
 	 *
-	 * @param array $menu The WP admin menu 
+	 * @param array $menu The WP admin menu
 	 * @return array The WP admin menu
 	 **/
 	public function add_menu_classes( $menu ) {
@@ -903,10 +903,10 @@ class Babble_Post_Public extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP filter single_template to deal with the shadow post
-	 * types for pages and singular templates, ensuring they use the 
+	 * types for pages and singular templates, ensuring they use the
 	 * right template.
 	 *
-	 * @param string $template Path to a template file 
+	 * @param string $template Path to a template file
 	 * @return Path to a template file
 	 **/
 	public function single_template( $template ) {
@@ -952,7 +952,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the bbl_sync_meta_key filter from this class which checks 
+	 * Hooks the bbl_sync_meta_key filter from this class which checks
 	 * if a meta_key should be synced. If we return false, it won't be.
 	 *
 	 * @TODO correct inline docs
@@ -974,7 +974,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Hooks the WP manage_posts_columns filter to add our “link” column.
 	 *
 	 * @param array $cols The columns for this post type lists table
-	 * @param string $post_type The post type for this lists table 
+	 * @param string $post_type The post type for this lists table
 	 * @return array The columns
 	 **/
 	public function manage_posts_columns( array $columns, $post_type ) {
@@ -1085,7 +1085,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Do I need to change $wp->matched query? I think $wp->matched_rule is fine?
 		// @FIXME: Danger of post type slugs clashing??
 		if ( isset( $query_vars[ 'pagename' ] ) && $query_vars[ 'pagename' ] ) {
-			// Substitute post_type for 
+			// Substitute post_type for
 			$query_vars[ 'name' ] = $query_vars[ 'pagename' ];
 			$query_vars[ bbl_get_post_type_in_lang( 'page', $query_vars[ 'lang' ] ) ] = $query_vars[ 'pagename' ];
 			$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
@@ -1103,7 +1103,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 			unset( $query_vars[ 'page' ] );
 			unset( $query_vars[ 'pagename' ] );
-		} elseif ( isset( $query_vars[ 'year' ] ) && $query_vars[ 'year' ] ) { 
+		} elseif ( isset( $query_vars[ 'year' ] ) && $query_vars[ 'year' ] ) {
 			// @FIXME: This is not a reliable way to detect queries for the 'post' post_type.
 			$query_vars[ 'post_type' ] =  bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
 		} elseif ( isset( $query_vars[ 'post_type' ] ) ) {
@@ -1127,7 +1127,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Discover whether a post is set as the front page
 	 * for the site in a particular language.
 	 *
-	 * @param int $post_id The ID of a post 
+	 * @param int $post_id The ID of a post
 	 * @return boolean True if this post is used as the front page of the site for a language
 	 **/
 	public function is_language_front_page( $post_id = null, $lang_code = null ) {
@@ -1135,11 +1135,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		 	return false;
 
 		$post = get_post( $post_id );
-		// If we have a lang code, and it doesn't match the requested post lang then this 
+		// If we have a lang code, and it doesn't match the requested post lang then this
 		// is not the right front page
 		if ( ! is_null( $lang_code ) && $lang_code != $this->get_post_lang_code( $post->ID ) )
 			return false;
-		
+
 		$front_page_transid = $this->get_transid( get_option( 'page_on_front' ) );
 		$this_transid = $this->get_transid( get_the_ID() );
 		if ( $front_page_transid != $this_transid )
@@ -1151,7 +1151,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Return the language code for the language a given post is written for/in.
 	 *
-	 * @param int|object $post Either a WP Post object, or a post ID 
+	 * @param int|object $post Either a WP Post object, or a post ID
 	 * @return string|object Either a language code, or a WP_Error object
 	 * @access public
 	 **/
@@ -1169,15 +1169,15 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * particular language.
 	 *
 	 * @param int|object $default_post The post in the default language to create a new translation for, either WP Post object or post ID
-	 * @param string $lang The language code 
+	 * @param string $lang The language code
 	 * @return string The admin URL to create the new translation
 	 **/
 	public function get_new_post_translation_url( $default_post, $lang_code ) {
 		$default_post = get_post( $default_post );
 		$url = admin_url( 'post-new.php' );
-		$args = array( 
-			'bbl_origin_post' => $default_post->ID, 
-			'lang'            => $lang_code, 
+		$args = array(
+			'bbl_origin_post' => $default_post->ID,
+			'lang'            => $lang_code,
 			'post_type'       => 'bbl_job',
 		);
 		$url = add_query_arg( $args, $url );
@@ -1185,10 +1185,10 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Returns the post ID for the post in the default language from which 
+	 * Returns the post ID for the post in the default language from which
 	 * this post was translated.
 	 *
-	 * @param int|WP_Post $post Either a WP Post object, or a post ID 
+	 * @param int|WP_Post $post Either a WP Post object, or a post ID
 	 * @return int The ID of the default language equivalent post
 	 **/
 	public function get_default_lang_post( $post ) {
@@ -1200,11 +1200,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Get the posts which are the translations for the provided 
-	 * post ID. N.B. The returned array of post objects (and false 
+	 * Get the posts which are the translations for the provided
+	 * post ID. N.B. The returned array of post objects (and false
 	 * values) will include the post for the post ID passed.
-	 * 
-	 * @param int|WP_Post $post Either a WP Post object, or a post ID 
+	 *
+	 * @param int|WP_Post $post Either a WP Post object, or a post ID
 	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Post object
 	 **/
 	public function get_post_translations( $post ) {
@@ -1246,10 +1246,10 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Return the base post type (in the default language) for a 
+	 * Return the base post type (in the default language) for a
 	 * provided post type.
 	 *
-	 * @param string $post_type The name of a post type 
+	 * @param string $post_type The name of a post type
 	 * @return string The name of the base post type
 	 **/
 	public function get_base_post_type( $post_type ) {
@@ -1274,7 +1274,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns the equivalent post_type in the specified language.
 	 *
 	 * @param string $taxonomy A post_type to return in a given language
-	 * @param string $lang_code The language code for the required language 
+	 * @param string $lang_code The language code for the required language
 	 * @return boolean|string The equivalent post_type name, or false if it doesn't exist
 	 **/
 	public function get_post_type_in_lang( $post_type, $lang_code ) {
@@ -1294,7 +1294,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns an array of all the shadow post types associated with
 	 * this post type.
 	 *
-	 * @param string $base_post_type The post type to look up shadow post types for 
+	 * @param string $base_post_type The post type to look up shadow post types for
 	 * @return array The names of all the related shadow post types
 	 **/
 	public function get_shadow_post_types( $base_post_type ) {
@@ -1311,8 +1311,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns the post in a particular language, or the fallback content
 	 * if there's no post available.
 	 *
-	 * @param int|WP_Post $post Either a WP Post object, or a post ID 
-	 * @param string $lang_code The language code for the required language 
+	 * @param int|WP_Post $post Either a WP Post object, or a post ID
+	 * @param string $lang_code The language code for the required language
 	 * @param boolean $fallback If true: if a post is not available, fallback to the default language content (defaults to true)
 	 * @return object|boolean The WP Post object, or if $fallback was false and no post then returns false
 	 **/
@@ -1343,7 +1343,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		// FIXME: Do we need to check that the slug is unique at this point?
 		return mb_strtolower( "{$_slug}_{$lang->code}" );
 	}
-	
+
 	// PRIVATE/PROTECTED METHODS
 	// =========================
 
@@ -1379,8 +1379,8 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Copy various properties from one post to another.
 	 *
-	 * @param int $source_id The source post, to copy FROM 
-	 * @param int $target_id The target post, to copy TO 
+	 * @param int $source_id The source post, to copy FROM
+	 * @param int $target_id The target post, to copy TO
 	 * @return void
 	 **/
 	public function sync_properties( $source_id, $target_id ) {
@@ -1409,7 +1409,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			'menu_order' => $source_post->menu_order,
 			'post_mime_type' => $source_post->post_mime_type,
 		);
-		
+
 		if ( $target_parent_post )
 			$postdata[ 'post_parent' ] = $target_parent_post->ID;
 		else
@@ -1446,7 +1446,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		foreach ( $current_metas as $current_meta_key => & $current_meta_values ) {
 			// Some metadata shouldn't be synced, this filter allows a dev to return
 			// false if the particular meta_key is one which shouldn't be synced.
-			// If you find a core meta_key which is currently synced and should NOT be, 
+			// If you find a core meta_key which is currently synced and should NOT be,
 			// please submit a patch to the sync_meta_key method on this class. Thanks.
 			if ( apply_filters( 'bbl_sync_meta_key', true, $current_meta_key ) )
 				delete_post_meta( $post_id, $current_meta_key );
@@ -1454,7 +1454,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// Now add meta in again from the origin post
 		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
-		
+
 		$metas = get_post_meta( $origin_post->ID );
 		if ( ! $metas )
 			return;
@@ -1474,10 +1474,10 @@ class Babble_Post_Public extends Babble_Plugin {
 	}
 
 	/**
-	 * Get the transID for this post, this is an identifier linking all the translations 
+	 * Get the transID for this post, this is an identifier linking all the translations
 	 * for a single piece of content together.
 	 *
-	 * Marked private as we may change how translations are linked. Please use API, or 
+	 * Marked private as we may change how translations are linked. Please use API, or
 	 * raise an issue.
 	 *
 	 * @param int|object $post The WP Post object, or the ID of a post
@@ -1504,7 +1504,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				$transid = $this->set_transid( $post );
 			}
 		}
-		
+
 		if ( ! $transid ) {
 			return false;
 		}
@@ -1517,7 +1517,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	/**
 	 * Create and assign a new TransID to a post.
 	 *
-	 * @param int|object $post Either a Post ID or a WP Post object 
+	 * @param int|object $post Either a Post ID or a WP Post object
 	 * @param string $transid (optional) A transid to associate with the post
 	 * @return string The transid which has just been set
 	 * @access private
@@ -1542,7 +1542,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
 
 		$this->clean_post_cache( $post->ID );
-		
+
 		return $transid;
 	}
 
@@ -1555,7 +1555,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * I need to access a list of all features supported by a post
 	 * type, in order to shadow it for the various translations,
 	 * and there's no core function to allow me to do this.
-	 * 
+	 *
 	 * @TODO: Raise a Trac ticket for adding this functionality to the post type API
 	 *
 	 * @param string $post_type The name of the post type for which to get the features supported
@@ -1586,7 +1586,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Are we viewing the (3.5+) media manager?
 	 *
@@ -1603,7 +1603,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Remove over-synced post metas.
 	 *
@@ -1611,12 +1611,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected function prune_post_meta() {
 		global $wpdb;
-		$meta_keys = array( 
-			'_thumbnail_id', 
+		$meta_keys = array(
+			'_thumbnail_id',
 			'_wp_old_slug' ,
-			'_wp_page_template', 
+			'_wp_page_template',
 			'_wp_trash_meta_status',
-			'_wp_trash_meta_time', 
+			'_wp_trash_meta_time',
 		);
 		foreach ( $meta_keys as $meta_key ) {
 			$prepared_sql = $wpdb->prepare( "SELECT COUNT(*) AS count, post_id, meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key = %s GROUP BY post_id, meta_key, meta_value HAVING count > 1", $meta_key );
@@ -1630,9 +1630,9 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 		}
 	}
-	
+
 	/**
-	 * Checks the DB structure is up to date, rewrite rules, 
+	 * Checks the DB structure is up to date, rewrite rules,
 	 * theme image size options are set, etc.
 	 *
 	 * @return void
@@ -1690,7 +1690,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		";
 		return (bool) count( $wpdb->get_results( $sql ) );
 	}
-	
+
 
 }
 
