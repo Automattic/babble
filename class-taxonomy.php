@@ -54,6 +54,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'term_link', null, null, 3 );
 		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'taxonomy_template' );
 		$this->add_filter( 'admin_body_class' );
 
 	}
@@ -524,6 +525,51 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP filter single_template to deal with the shadow post
+	 * types for pages and singular templates, ensuring they use the 
+	 * right template.
+	 *
+	 * @param string $template Path to a template file 
+	 * @return Path to a template file
+	 **/
+	public function taxonomy_template( $template ) {
+		if( bbl_is_default_lang() ) {
+			return $template;
+		}
+
+		$taxonomy      = get_queried_object();
+		$base_taxonomy = $this->get_base_taxonomy( $taxonomy->taxonomy );
+
+		if ( 'category' == $base_taxonomy ) {
+			if ( ! empty( $category->slug ) ) {
+				$templates[] = "category-{$category->slug}.php";
+				$templates[] = "category-{$category->term_id}.php";
+			}
+
+			$templates[] = 'category.php';
+		}
+		else if ( 'tag' == $base_taxonomy ) {
+			if ( ! empty( $tag->slug ) ) {
+				$templates[] = "tag-{$tag->slug}.php";
+				$templates[] = "tag-{$tag->term_id}.php";
+			}
+			$templates[] = 'tag.php';
+		}
+		else {
+			if ( ! empty( $term->slug ) ) {
+				$taxonomy    = $term->taxonomy;
+				$templates[] = "taxonomy-$taxonomy-{$term->slug}.php";
+				$templates[] = "taxonomy-$taxonomy.php";
+			}
+			$templates[] = 'taxonomy.php';
+		}
+
+		$template = get_query_template( 'bbl-taxonomy', $templates );
+
+		return $template;
 	}
 	
 	// CALLBACKS
