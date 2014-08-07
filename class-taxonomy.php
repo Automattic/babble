@@ -54,6 +54,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'term_link', null, null, 3 );
 		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'body_class', null, null, 2 );
 		$this->add_filter( 'taxonomy_template' );
 		$this->add_filter( 'admin_body_class' );
 
@@ -525,6 +526,44 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP body_class filter to add classes to the
+	 * body element.
+	 *
+	 * @param array $classes An array of class strings, poss with some indexes containing more than one space separated class 
+	 * @param string|array $class One or more classes which have been added to the class list.
+	 * @return array An array of class strings, poss with some indexes containing more than one space separated class 
+	 **/
+	public function body_class( array $classes, $class ) {
+		if ( is_tax() ) {
+			$taxonomy      = get_queried_object();
+			$base_taxonomy = bbl_get_term_in_lang( get_queried_object(), $taxonomy->taxonomy, bbl_get_default_lang_code() );
+
+			if ( 'category' == $base_taxonomy->taxonomy ) {
+				$classes[] = 'category';
+
+				if ( isset( $base_taxonomy->term_id ) ) {
+					$classes[] = 'category-' . sanitize_html_class( $base_taxonomy->slug, $base_taxonomy->term_id );
+					$classes[] = 'category-' . $base_taxonomy->term_id;
+				}
+			} elseif ( 'tag' == $base_taxonomy->taxonomy ) {
+				$classes[] = 'tag';
+
+				if ( isset( $base_taxonomy->term_id ) ) {
+					$classes[] = 'tag-' . sanitize_html_class( $base_taxonomy->slug, $base_taxonomy->term_id );
+					$classes[] = 'tag-' . $base_taxonomy->term_id;
+				}
+			} else {
+				if ( isset( $base_taxonomy->term_id ) ) {
+					$classes[] = 'tax-' . sanitize_html_class( $base_taxonomy->taxonomy );
+					$classes[] = 'term-' . sanitize_html_class( $base_taxonomy->slug, $base_taxonomy->term_id );
+					$classes[] = 'term-' . $base_taxonomy->term_id;
+				}
+			}
+		}
+		return $classes;
 	}
 
 	/**
