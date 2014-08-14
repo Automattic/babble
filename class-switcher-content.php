@@ -90,10 +90,10 @@ class Babble_Switcher_Menu {
 
 		if ( is_singular() || is_single() || $editing_post ) {
 			$this->translations = bbl_get_post_translations( get_the_ID() );
-			$this->jobs         = bbl_get_post_jobs( get_the_ID() );
+			$this->jobs         = bbl_get_incomplete_post_jobs( get_the_ID() );
 		} else if ( 'page' == get_option( 'show_on_front' ) && is_home() ) {
 			$this->translations = bbl_get_post_translations( get_option( 'page_for_posts' ) );
-			$this->jobs         = bbl_get_post_jobs( get_option( 'page_for_posts' ) );
+			$this->jobs         = bbl_get_incomplete_post_jobs( get_option( 'page_for_posts' ) );
 		} else if ( ( !is_admin() and ( is_tax() || is_category() ) ) || $editing_term ) {
 			if ( isset( $_REQUEST[ 'tag_ID' ] ) )
 				$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
