@@ -413,7 +413,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			unset( $wp->query_vars[ 'tag' ] );
 		} else if ( isset( $wp->query_vars[ 'category_name' ] ) ) {
 			$taxonomy = $this->get_taxonomy_in_lang( 'category', $wp->query_vars[ 'lang' ] );
-			$terms = $wp->query_vars[ 'category_name' ];
+			$terms = wp_basename( $wp->query_vars[ 'category_name' ] );
 			unset( $wp->query_vars[ 'category_name' ] );
 		} else {
 			$taxonomies = array();
