@@ -54,6 +54,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$this->add_filter( 'get_terms' );
 		$this->add_filter( 'term_link', null, null, 3 );
 		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
+		$this->add_filter( 'body_class', null, null, 2 );
+		$this->add_filter( 'taxonomy_template' );
 		$this->add_filter( 'admin_body_class' );
 
 	}
@@ -524,6 +526,88 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		$this->no_recursion = false;
+	}
+
+	/**
+	 * Hooks the WP body_class filter to add classes to the
+	 * body element.
+	 *
+	 * @param array $classes An array of class strings, poss with some indexes containing more than one space separated class 
+	 * @param string|array $class One or more classes which have been added to the class list.
+	 * @return array An array of class strings, poss with some indexes containing more than one space separated class 
+	 **/
+	public function body_class( array $classes, $class ) {
+		if ( is_tax() ) {
+			$taxonomy      = get_queried_object();
+			$base_taxonomy = bbl_get_term_in_lang( get_queried_object(), $taxonomy->taxonomy, bbl_get_default_lang_code() );
+
+			if ( 'category' == $base_taxonomy->taxonomy ) {
+				$classes[] = 'category';
+
+				if ( isset( $base_taxonomy->term_id ) ) {
+					$classes[] = 'category-' . sanitize_html_class( $base_taxonomy->slug, $base_taxonomy->term_id );
+					$classes[] = 'category-' . $base_taxonomy->term_id;
+				}
+			} elseif ( 'post_tag' == $base_taxonomy->taxonomy ) {
+				$classes[] = 'tag';
+
+				if ( isset( $base_taxonomy->term_id ) ) {
+					$classes[] = 'tag-' . sanitize_html_class( $base_taxonomy->slug, $base_taxonomy->term_id );
+					$classes[] = 'tag-' . $base_taxonomy->term_id;
+				}
+			} else {
+				if ( isset( $base_taxonomy->term_id ) ) {
+					$classes[] = 'tax-' . sanitize_html_class( $base_taxonomy->taxonomy );
+					$classes[] = 'term-' . sanitize_html_class( $base_taxonomy->slug, $base_taxonomy->term_id );
+					$classes[] = 'term-' . $base_taxonomy->term_id;
+				}
+			}
+		}
+		return $classes;
+	}
+
+	/**
+	 * Hooks the WP filter taxonomy_template to deal with the shadow terms,
+	 * ensuring they use the right template.
+	 *
+	 * @param string $template Path to a template file 
+	 * @return Path to a template file
+	 **/
+	public function taxonomy_template( $template ) {
+		if( bbl_is_default_lang() ) {
+			return $template;
+		}
+
+		$term          = get_queried_object();
+		$base_taxonomy = $this->get_base_taxonomy( $term->taxonomy );
+
+		if ( 'category' == $base_taxonomy ) {
+			if ( ! empty( $term->slug ) ) {
+				$templates[] = "category-{$term->slug}.php";
+				$templates[] = "category-{$term->term_id}.php";
+			}
+
+			$templates[] = 'category.php';
+		}
+		else if ( 'post_tag' == $base_taxonomy ) {
+			if ( ! empty( $term->slug ) ) {
+				$templates[] = "tag-{$term->slug}.php";
+				$templates[] = "tag-{$term->term_id}.php";
+			}
+			$templates[] = 'tag.php';
+		}
+		else {
+			if ( ! empty( $term->slug ) ) {
+				$taxonomy    = $term->taxonomy;
+				$templates[] = "taxonomy-$taxonomy-{$term->slug}.php";
+				$templates[] = "taxonomy-$taxonomy.php";
+			}
+			$templates[] = 'taxonomy.php';
+		}
+
+		$template = get_query_template( 'bbl-taxonomy', $templates );
+
+		return $template;
 	}
 	
 	// CALLBACKS
