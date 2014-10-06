@@ -548,7 +548,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 					$classes[] = 'category-' . sanitize_html_class( $base_taxonomy->slug, $base_taxonomy->term_id );
 					$classes[] = 'category-' . $base_taxonomy->term_id;
 				}
-			} elseif ( 'tag' == $base_taxonomy->taxonomy ) {
+			} elseif ( 'post_tag' == $base_taxonomy->taxonomy ) {
 				$classes[] = 'tag';
 
 				if ( isset( $base_taxonomy->term_id ) ) {
@@ -567,9 +567,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP filter single_template to deal with the shadow post
-	 * types for pages and singular templates, ensuring they use the 
-	 * right template.
+	 * Hooks the WP filter taxonomy_template to deal with the shadow terms,
+	 * ensuring they use the right template.
 	 *
 	 * @param string $template Path to a template file 
 	 * @return Path to a template file
@@ -579,21 +578,21 @@ class Babble_Taxonomies extends Babble_Plugin {
 			return $template;
 		}
 
-		$taxonomy      = get_queried_object();
-		$base_taxonomy = $this->get_base_taxonomy( $taxonomy->taxonomy );
+		$term          = get_queried_object();
+		$base_taxonomy = $this->get_base_taxonomy( $term->taxonomy );
 
 		if ( 'category' == $base_taxonomy ) {
-			if ( ! empty( $category->slug ) ) {
-				$templates[] = "category-{$category->slug}.php";
-				$templates[] = "category-{$category->term_id}.php";
+			if ( ! empty( $term->slug ) ) {
+				$templates[] = "category-{$term->slug}.php";
+				$templates[] = "category-{$term->term_id}.php";
 			}
 
 			$templates[] = 'category.php';
 		}
-		else if ( 'tag' == $base_taxonomy ) {
-			if ( ! empty( $tag->slug ) ) {
-				$templates[] = "tag-{$tag->slug}.php";
-				$templates[] = "tag-{$tag->term_id}.php";
+		else if ( 'post_tag' == $base_taxonomy ) {
+			if ( ! empty( $term->slug ) ) {
+				$templates[] = "tag-{$term->slug}.php";
+				$templates[] = "tag-{$term->term_id}.php";
 			}
 			$templates[] = 'tag.php';
 		}
