@@ -68,7 +68,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function init_early() {
 		// This translation will connect each term with it's translated equivalents
-		register_taxonomy( 'term_translation', null, array(
+		register_taxonomy( 'term_translation', array(), array(
 			'rewrite' => false,
 			'public' => false,
 			'show_ui' => false,
