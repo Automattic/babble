@@ -152,6 +152,7 @@ class Babble_Locale {
 	 **/
 	public function internal_rewrite_rules_filter( $rules ){
 		global $wp_rewrite;
+
 		// Some rules need to be at the root of the site, without a
 		// language prefix, e.g. http://www.example.com/humans.txt. 
 		// The following filter allows plugin and theme devs to add 
@@ -160,25 +161,40 @@ class Babble_Locale {
 			'humans\.txt$',
 			'robots\.txt$',
 		) );
+
 	    foreach( (array) $rules as $regex => $query ) {
 			if ( in_array( $regex, $non_translated_rewrite_rules ) ) {
 				$new_rules[ $regex ] = $query;
 				continue;
 			}
-			$new_rules[ '[a-zA-Z_]+/' . $regex ] = $query;
+
+			if ( substr( $regex, 0, 1 ) == '^' ) {
+				$new_rules[ '^[a-zA-Z_]+/' . substr( $regex, 1 ) ] = $query;
+			}
+			else {
+				$new_rules[ '[a-zA-Z_]+/' . $regex ] = $query;
+			}
 		}
+
 		// The WP robots.txt rewrite rule will not have worked, as the
 		// code objects to the language prefix. Here we add it in again.
 		$hooked = false;
+
 		if ( has_filter( 'home_url' ) ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 			$hooked = true;
 		}
+
 		$home_path = parse_url( home_url() );
-		if ( $hooked )
+
+		if ( $hooked ) {
 			add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
-		if ( empty( $home_path['path'] ) || '/' == $home_path['path'] )
+		}
+
+		if ( empty( $home_path['path'] ) || '/' == $home_path['path'] ) {
 			$new_rules[ 'robots\.txt$' ] = $wp_rewrite->index . '?robots=1';
+		}
+
 	    return $new_rules;
 	}
 
