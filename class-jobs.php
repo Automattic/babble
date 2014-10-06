@@ -354,8 +354,9 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$screen = get_current_screen();
 
-		if ( 'bbl_job' != $screen->post_type )
+		if ( 'bbl_job' != $screen->post_type ) {
 			return;
+		}
 
 		$job   = get_post();
 		$items = $objects = $vars = array();
@@ -369,8 +370,11 @@ class Babble_Jobs extends Babble_Plugin {
 				$post  = get_post( absint( $_GET['bbl_origin_post' ] ) );
 				$terms = $this->get_post_terms_to_translate( $post, $_GET['lang'] );
 				$objects['post'] = $post;
-				if ( !empty( $terms ) )
+
+				if ( !empty( $terms ) ) {
 					$objects['terms'] = $terms;
+				}
+
 				$vars['origin_post'] = $post->ID;
 
 			} else if ( isset( $_GET['bbl_origin_term'] ) and isset( $_GET['bbl_origin_taxonomy'] ) ) {
@@ -392,8 +396,10 @@ class Babble_Jobs extends Babble_Plugin {
 
 			$post = $objects['post'];
 			$post_translation = get_post_meta( $job->ID, "bbl_post_{$post->ID}", true );
-			if ( empty( $post_translation ) )
-				$post_translation = array();
+
+			if ( empty( $post_translation ) ) {
+				$post_translation = get_default_post_to_edit( $post->post_type );
+			}
 
 			$items['post'] = array(
 				'original'    => $post,
@@ -409,8 +415,10 @@ class Babble_Jobs extends Babble_Plugin {
 				foreach ( $terms as $term ) {
 
 					$term_translation = get_post_meta( $job->ID, "bbl_term_{$term->term_id}", true );
-					if ( empty( $term_translation ) )
-						$term_translation = array();
+
+					if ( empty( $term_translation ) ) {
+						$term_translation = array( 'name' => '', 'slug' => '' );
+					}
 
 					$items['terms'][$taxo][] = array(
 						'original'    => $term,
@@ -427,10 +435,13 @@ class Babble_Jobs extends Babble_Plugin {
 			'in-progress' => get_post_status_object( 'in-progress' )->label,
 		);
 
-		if ( ( 'pending' == $job->post_status ) or !current_user_can( 'publish_post', $job->ID ) )
+		if ( ( 'pending' == $job->post_status ) or !current_user_can( 'publish_post', $job->ID ) ) {
 			$statuses['pending'] = get_post_status_object( 'pending' )->label;
-		if ( current_user_can( 'publish_post', $job->ID ) )
+		}
+
+		if ( current_user_can( 'publish_post', $job->ID ) ) {
 			$statuses['complete'] = get_post_status_object( 'complete' )->label;
+		}
 
 		$statuses = apply_filters( 'bbl_job_statuses', $statuses, $job, $objects );
 
