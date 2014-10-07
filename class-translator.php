@@ -38,7 +38,6 @@ class Babble_Translator extends Babble_Plugin {
 		switch ( get_option( $option, 0 ) ) {
 
 			case 0:
-			default:
 
 				if ( !$role = get_role( 'translator' ) )
 					$role = add_role( 'translator', $role_name );

@@ -349,14 +349,18 @@ class Babble_Plugin {
 	public function _admin_notices() {
 		$notices = $this->get_option( 'admin_notices' );
 		$errors = $this->get_option( 'admin_errors' );
-		if ( $errors )
-			foreach ( $errors as $error )
+		if ( $errors ) {
+			foreach ( $errors as $error ) {
 				$this->render_admin_error( $error );
-		$this->delete_option( 'admin_errors' );
-		if ( $notices )
-			foreach ( $notices as $notice )
+				$this->delete_option( 'admin_errors' );
+			}
+		}
+		if ( $notices ) {
+			foreach ( $notices as $notice ) {
 				$this->render_admin_notice( $notice );
-		$this->delete_option( 'admin_notices' );
+				$this->delete_option( 'admin_notices' );
+			}
+		}
 	}
 	
 	/**
