@@ -169,7 +169,7 @@ class Bbl_Comment_Query {
 		);
 
 		$this->query_vars = wp_parse_args( $query_vars, $defaults );
-		do_action_ref_array( 'pre_get_comments', array( &$this ) );
+		do_action_ref_array( 'pre_get_comments', array( $this ) );
 		extract( $this->query_vars, EXTR_SKIP );
 
 		// $args can be whatever, only use the args defined in defaults to compute the key
@@ -300,7 +300,7 @@ class Bbl_Comment_Query {
 		}
 
 		$pieces = array( 'fields', 'join', 'where', 'orderby', 'order', 'limits' );
-		$clauses = apply_filters_ref_array( 'comments_clauses', array( compact( $pieces ), &$this ) );
+		$clauses = apply_filters_ref_array( 'comments_clauses', array( compact( $pieces ), $this ) );
 		foreach ( $pieces as $piece )
 			$$piece = isset( $clauses[ $piece ] ) ? $clauses[ $piece ] : '';
 
@@ -310,7 +310,7 @@ class Bbl_Comment_Query {
 			return $wpdb->get_var( $query );
 
 		$comments = $wpdb->get_results( $query );
-		$comments = apply_filters_ref_array( 'the_comments', array( $comments, &$this ) );
+		$comments = apply_filters_ref_array( 'the_comments', array( $comments, $this ) );
 
 		wp_cache_add( $cache_key, $comments, 'comment' );
 

@@ -107,7 +107,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// hope that it's Babble aware :S
 		// FIXME: Setting this in the following fashion seems hacky… I feel uncomfortable.
 		if ( empty( $GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback ) ) {
-			$GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback = array( & $this, 'update_post_term_count' );
+			$GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback = array( $this, 'update_post_term_count' );
 		}
 
 		// Untranslated taxonomies do not have shadow equivalents in each language,

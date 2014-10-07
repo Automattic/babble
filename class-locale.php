@@ -72,18 +72,18 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	function __construct() {
-		add_action( 'plugins_loaded', array( & $this, 'plugins_loaded' ) );
+		add_action( 'plugins_loaded',                  array( $this, 'plugins_loaded' ) );
+		add_action( 'admin_init',                      array( $this, 'admin_init' ) );
+		add_action( 'admin_notices',                   array( $this, 'admin_notices' ) );
+		add_action( 'parse_request',                   array( $this, 'parse_request_early' ), 0 );
+		add_action( 'pre_comment_on_post',             array( $this, 'pre_comment_on_post' ) );
 
-		add_action( 'admin_init', array( & $this, 'admin_init' ) );
-		add_action( 'admin_notices', array( & $this, 'admin_notices' ) );
-		add_action( 'parse_request', array( & $this, 'parse_request_early' ), 0 );
-		add_action( 'pre_comment_on_post', array( & $this, 'pre_comment_on_post' ) );
-		add_filter( 'body_class', array( & $this, 'body_class' ) );
-		add_filter( 'locale', array( & $this, 'set_locale' ) );
-		add_filter( 'mod_rewrite_rules', array( & $this, 'mod_rewrite_rules' ) );
-		add_filter( 'post_class', array( & $this, 'post_class' ), null, 3 );
-		add_filter( 'pre_update_option_rewrite_rules', array( & $this, 'internal_rewrite_rules_filter' ) );
-		add_filter( 'query_vars', array( & $this, 'query_vars' ) );
+		add_filter( 'body_class',                      array( $this, 'body_class' ) );
+		add_filter( 'locale',                          array( $this, 'set_locale' ) );
+		add_filter( 'mod_rewrite_rules',               array( $this, 'mod_rewrite_rules' ) );
+		add_filter( 'post_class',                      array( $this, 'post_class' ), null, 3 );
+		add_filter( 'pre_update_option_rewrite_rules', array( $this, 'internal_rewrite_rules_filter' ) );
+		add_filter( 'query_vars',                      array( $this, 'query_vars' ) );
 	}
 
 	public function plugins_loaded() {
@@ -102,7 +102,7 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	public function admin_init() {
-		add_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
+		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 		$this->maybe_update();
 		$this->maybe_set_cookie_content_lang();
 		$this->maybe_set_cookie_interface_lang();
@@ -134,9 +134,9 @@ class Babble_Locale {
 		// We need the WP_Rewrite mod_rewrite_rules method to run
 		// home_url without a lang query var set, or it generates 
 		// an inaccurate RewriteBase and last RewriteRule.
-		remove_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
+		remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 		$rules = $wp_rewrite->mod_rewrite_rules();
-		add_filter( 'home_url', array( & $this, 'home_url' ), null, 2 );
+		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 		$this->no_recursion = false;
 		return $rules;
 	}
