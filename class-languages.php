@@ -499,22 +499,21 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return void
 	 **/
 	protected function set_defaults() {
-		// WPLANG is defined in wp-config.
-		if ( defined( 'WPLANG' ) )
-			$locale = WPLANG;
 
-		// If multisite, check options.
-		if ( is_multisite() && !defined('WP_INSTALLING') ) {
-			$ms_locale = get_option('WPLANG');
-			if ( $ms_locale === false )
-				$ms_locale = get_site_option('WPLANG');
+		$locale = get_option( 'WPLANG' );
 
-			if ( $ms_locale !== false )
-				$locale = $ms_locale;
+		if ( empty( $locale ) and is_multisite() ) {
+			$locale = get_site_option( 'WPLANG' );
 		}
 
-		if ( empty( $locale ) )
+		if ( empty( $locale ) and defined( 'WPLANG' ) ) {
+			// The WPLANG constant is deprecated since WordPress 4.0.
+			$locale = WPLANG;
+		}
+
+		if ( empty( $locale ) ) {
 			$locale = 'en_US';
+		}
 
 		$url_prefix = strtolower( substr( $locale, 0, 2 ) );
 
