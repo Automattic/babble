@@ -88,7 +88,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_action( 'before_delete_post', 'clean_post_cache' );
 		$this->add_action( 'deleted_post', 'clean_post_cache' );
 		$this->add_action( 'deleted_post_meta', null, null, 4 );
-		$this->add_action( 'init', 'init_late', 9999 );
 		$this->add_action( 'load-post-new.php', 'load_post_new' );
 		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
 		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
@@ -208,22 +207,6 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		return $new_post;
 
-	}
-
-	/**
-	 * Hooks the WP init action really really late.
-	 *
-	 * @TODO we should performance profile this. Two calls to serialise two potentially large objects might be slow.
-	 *
-	 * @return void
-	 **/
-	public function init_late() {
-		$old_serialised = serialize( get_option( 'bbl_rewrites', 'NOTHING' ) );
-		$new_serialised = serialize( $this->slugs_and_vars );
-		if ( $old_serialised != $new_serialised ) {
-			flush_rewrite_rules();
-			update_option( 'bbl_rewrites', unserialize( $new_serialised ) );
-		}
 	}
 
 	/**
