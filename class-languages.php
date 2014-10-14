@@ -133,7 +133,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function load_options() {
-		wp_enqueue_style( 'babble_languages_options', $this->url( '/css/languages-options.css' ), null, $this->version );
+		wp_enqueue_style( 'babble_languages_options', $this->url( '/css/languages-options.css' ), null, filemtime( $this->dir( 'css/languages-options.css' ) ) );
 		$this->maybe_process_languages();
 	}
 	

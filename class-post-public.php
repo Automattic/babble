@@ -168,7 +168,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			'is_default_lang' => (bool) ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ),
 			'is_bbl_post_type' => (bool) ( 0 === strpos( $post_type, 'bbl_' ) ),
 		);
-		wp_enqueue_script( 'post-public-admin', $this->url( '/js/post-public-admin.js' ), array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'post-public-admin', $this->url( 'js/post-public-admin.js' ), array( 'jquery' ), filemtime( $this->dir( 'js/post-public-admin.js' ) ) );
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
 	}
 
