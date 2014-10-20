@@ -72,7 +72,7 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	function __construct() {
-		add_action( 'plugins_loaded',                  array( $this, 'plugins_loaded' ) );
+		add_action( 'plugins_loaded',                  array( $this, 'plugins_loaded' ), 0 );
 		add_action( 'admin_init',                      array( $this, 'admin_init' ) );
 		add_action( 'admin_notices',                   array( $this, 'admin_notices' ) );
 		add_action( 'parse_request',                   array( $this, 'parse_request_early' ), 0 );
@@ -207,19 +207,24 @@ class Babble_Locale {
 	public function set_locale( $locale ) {
 		// Deal with the special case of wp-comments-post.php
 		if ( false !== stristr( $_SERVER[ 'REQUEST_URI' ], 'wp-comments-post.php' ) ) {
+			// @TODO we should be able to hook into an action here (pre_comment_post) rather than looking at the URL.
 			if ( $comment_post_ID = ( isset( $_POST[ 'comment_post_ID' ] ) ) ? (int) $_POST[ 'comment_post_ID' ] : false ) {
-				$this->set_content_lang( bbl_get_post_lang_code( $comment_post_ID ) );
+				if ( ! isset( $this->content_lang ) ) {
+					$this->set_content_lang( bbl_get_post_lang_code( $comment_post_ID ) );
+				}
 				return $this->content_lang;
 			}
 		}
 
-		#if ( is_admin() ) {
-			if ( isset( $this->interface_lang ) )
+		if ( is_admin() ) {
+			if ( isset( $this->interface_lang ) ) {
 				return $this->interface_lang;
-		#} else {
-		#	if ( isset( $this->content_lang ) )
-		#		return $this->content_lang;
-		#}
+			}
+		} else {
+			if ( isset( $this->content_lang ) ) {
+				return $this->content_lang;
+			}
+		}
 
 		if ( is_admin() ) {
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
@@ -251,10 +256,10 @@ class Babble_Locale {
 		if ( ! isset( $this->interface_lang ) || ! $this->interface_lang )
 			$this->set_interface_lang( bbl_get_default_lang_code() );
 
-		#if ( is_admin() )
+		if ( is_admin() )
 			return $this->interface_lang;
-		#else
-		#	return $this->content_lang;
+		else
+			return $this->content_lang;
 	}
 
 	/**
@@ -331,7 +336,6 @@ class Babble_Locale {
 	 **/
 	public function body_class( array $classes ) {
 		$lang = bbl_get_current_lang();
-		$classes[] = 'bbl-' . $lang->text_direction;
 		$classes[] = 'bbl-' . $lang->text_direction;
 		# @TODO I don't think this class should be included:
 		$classes[] = 'bbl-' . sanitize_title( $lang->name );
