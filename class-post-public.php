@@ -294,6 +294,8 @@ class Babble_Post_Public extends Babble_Plugin {
 			if ( ! is_string( $args[ 'has_archive' ] ) )
 				$archive_slug = $slug;
 
+		$current_lang_code = bbl_get_current_lang_code();
+
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
 
@@ -319,7 +321,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			// Don't let the translated post types show up in the search if their
 			// language is not the current language.
-			if ( $lang->code != bbl_get_current_lang_code() ) {
+			if ( $lang->code != $current_lang_code ) {
 				$new_args['exclude_from_search'] = true;
 			}
 
@@ -345,7 +347,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		// Exclude the registered post type from search if it's language isn't
 		// the current language.
-		if ( bbl_get_current_lang_code() != bbl_get_default_lang_code() ) {
+		if ( $current_lang_code != bbl_get_default_lang_code() ) {
 			$post_type_obj = get_post_type_object( $post_type );
 			$post_type_obj->exclude_from_search = true;
 		}
