@@ -869,10 +869,12 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function add_menu_classes( $menu ) {
 		global $submenu;
+		$lang = bbl_get_current_lang_code();
+		$default = bbl_get_default_lang_code();
 		// Remove "new post" links from submenu(s) for non-default languages
-		foreach ( $submenu as $parent => $items ) {
-			foreach ( $items as $key => $item ) {
-				if ( bbl_get_current_lang_code() != bbl_get_default_lang_code() ) {
+		if ( $lang != $default ) {
+			foreach ( $submenu as $parent => $items ) {
+				foreach ( $items as $key => $item ) {
 					if ( 'post-new.php' == substr( $item[ 2 ], 0, 12 ) ) {
 						unset( $submenu[ $parent ][ $key ] );
 					}
