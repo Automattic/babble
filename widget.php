@@ -7,6 +7,11 @@ function babble_widget() {
 
 class Babble_Widget extends WP_Widget {
 
+	public $defaults = array(
+		'show_if_unavailable' => 'off',
+		'show_as'             => 'dropdown',
+	);
+
 	function __construct() {
 		parent::__construct(
 			'bbl_widget', // Base ID
@@ -115,18 +120,18 @@ class Babble_Widget extends WP_Widget {
 
 	function update( $new_instance, $old_instance ) {
 
-		$instance = $old_instance;
-		$instance['show_as'] = strip_tags( $new_instance['show_as'] );
-		$instance['show_if_unavailable'] = strip_tags( $new_instance['show_if_unavailable'] );
-		return $instance;
+		$new_instance = array_merge( $this->defaults, $new_instance );
+		$new_instance['show_as'] = strip_tags( $new_instance['show_as'] );
+		$new_instance['show_if_unavailable'] = strip_tags( $new_instance['show_if_unavailable'] );
+
+		return $new_instance;
 
 	}
 
 	function form( $instance ) {
 
 		global $wpdb;
-		$defaults = array( 'show_if_unavailable' => 'off' );
-		$instance = wp_parse_args( $instance, $defaults );
+		$instance = wp_parse_args( $instance, $this->defaults );
 
 		?>
 		<p>
