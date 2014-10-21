@@ -226,29 +226,29 @@ class Babble_Locale {
 			}
 		}
 
+		// $current_user = wp_get_current_user();
+		if ( $lang = $this->get_cookie_interface_lang() ) {
+			$this->set_interface_lang( $lang );
+		}
+
+		// $current_user = wp_get_current_user();
+		if ( $lang = $this->get_cookie_content_lang() ) {
+			$this->set_content_lang( $lang );
+		}
+
 		if ( is_admin() ) {
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 			if ( isset( $_POST[ 'interface_lang' ] ) ) {
 				$this->set_interface_lang( $_POST[ 'interface_lang' ] );
-			} else {
-				// $current_user = wp_get_current_user();
-				if ( $lang = $this->get_cookie_interface_lang() )
-					$this->set_interface_lang( $lang );
 			}
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
 			if ( isset( $_GET[ 'lang' ] ) ) {
 				$this->set_content_lang( $_GET[ 'lang' ] );
-			} else {
-				// $current_user = wp_get_current_user();
-				if ( $lang = $this->get_cookie_content_lang() )
-					$this->set_content_lang( $lang );
 			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
 			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
 				$this->set_content_lang_from_prefix( $matches[ 0 ] );
-			if ( $lang = $this->get_cookie_content_lang() )
-				$this->set_interface_lang( $lang );
 		}
 
 		if ( ! isset( $this->content_lang ) || ! $this->content_lang )

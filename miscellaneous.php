@@ -11,6 +11,34 @@
  * @since Alpha 1.1
  */
 
+if ( !is_admin() ) {
+	foreach ( array( 'admin_bar_init', 'admin_bar_menu' ) as $hook ) {
+		add_action( $hook, 'bbl_load_interface_textdomain', -9999 );
+	}
+	foreach ( array( 'add_admin_bar_menus', 'wp_after_admin_bar_render' ) as $hook ) {
+		add_action( $hook, 'bbl_load_content_textdomain', 9999 );
+	}
+}
+
+/**
+ * Load the textdomain for Babble's interface language.
+ *
+ * This is used to attempt to ensure the interface language is used for the admin toolbar. Effective for core, but not themes or plugins which add items to the admin toolbar.
+ */
+function bbl_load_interface_textdomain() {
+	load_default_textdomain( bbl_get_current_interface_lang_code() );
+	$GLOBALS['wp_locale'] = new WP_Locale();
+}
+
+/**
+ * Load the textdomain for Babble's content language.
+ *
+ */
+function bbl_load_content_textdomain() {
+	load_default_textdomain( bbl_get_current_content_lang_code() );
+	$GLOBALS['wp_locale'] = new WP_Locale();
+}
+
 /**
  * Hooks the WP admin_init action to redirect any requests accessing
  * content which is not in the current language.
