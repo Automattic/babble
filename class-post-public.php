@@ -306,6 +306,13 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: Should I be sanitising these values?
 			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
 
+			if ( strlen( $new_post_type ) > 20 ) {
+				trigger_error( sprintf( __( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
+					esc_html( $post_type ),
+					20
+				) );
+			}
+
 			if ( false !== $args[ 'rewrite' ] ) {
 				if ( ! is_array( $new_args[ 'rewrite' ] ) )
 					$new_args[ 'rewrite' ] = array();
