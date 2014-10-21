@@ -12,6 +12,44 @@
  */
 
 /**
+ * Hooks the WP admin_init action to redirect any requests accessing
+ * content which is not in the current language.
+ *
+ * @return void
+ **/
+function bbl_admin_init() {
+	global $pagenow;
+
+	$taxonomy = isset( $_GET[ 'taxonomy' ] ) ? $_GET[ 'taxonomy' ] : false;
+	$post_type = isset( $_GET[ 'post_type' ] ) ? $_GET[ 'post_type' ] : false;
+
+	// Deal with the special URL case of the listing screens for vanilla posts
+	if ( ! $post_type && 'edit.php' == $pagenow )
+		$post_type = 'post';
+
+	$cur_lang_code = bbl_get_current_lang_code();
+
+	if ( $taxonomy ) {
+		$new_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, $cur_lang_code );
+		if ( $taxonomy != $new_taxonomy ) {
+			$url = add_query_arg( array( 'taxonomy' => $new_taxonomy ) );
+			wp_redirect( $url );
+			exit;
+		}
+	}
+	if ( $post_type ) {
+		$new_post_type = bbl_get_post_type_in_lang( $post_type, $cur_lang_code );
+		if ( $post_type != $new_post_type ) {
+			$url = add_query_arg( array( 'post_type' => $new_post_type ) );
+			wp_redirect( $url );
+			exit;
+		}
+	}
+}
+add_action( 'admin_init', 'bbl_admin_init' );
+
+
+/**
  * Replicates the core comments_template function, but uses the API
  * to fetch the comments and includes more filters.
  * 
