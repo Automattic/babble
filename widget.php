@@ -143,7 +143,7 @@ class Babble_Widget extends WP_Widget {
 		</p>
 		<p>
 			<input id="<?php echo $this->get_field_id('show_if_unavailable'); ?>" name="<?php echo $this->get_field_name('show_if_unavailable'); ?>" type="checkbox" <?php checked( 'on', $instance['show_if_unavailable'] ); ?> />
-			<label for="<?php echo $this->get_field_id('show_if_unavailable'); ?>"><?php _e('Show all languages in widget, even if there is no translation / equivalent page?', 'babble'); ?></label>
+			<label for="<?php echo $this->get_field_id('show_if_unavailable'); ?>"><?php _e('Show all languages in widget, even if there is no translation', 'babble'); ?></label>
 		</p>
 		<p class="description">
 			<?php _e("Don't worry: if there's no equivalent page, the link won't be clickable.","babble"); ?>
