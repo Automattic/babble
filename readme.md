@@ -2,8 +2,8 @@
 
 * Tags: translations, translation, multilingual, i18n, l10n, localisation
 * Requires at least: 3.5.1
-* Tested up to: 3.6.1
-* Stable tag: 1.4.3
+* Tested up to: 4.0
+* Stable tag: 1.4.4
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,16 @@ _View the jobs in the translation queue_
 _Add the translation on the translation editor_
 
 ## Changelog
+
+### 1.4.4
+
+* Load the interface textdomain when loading and displaying the admin toolbar on the front end.
+* Correctly set the interface language and content language separately from each other.
+* The WPLANG constant is deprecated since WP 4.0. We now give preference to the WPLANG option when setting the defaults.
+* Fix registration of 'term_translation' taxonomy.
+* Fix breaking rewrite rules starting with ^.
+* Various corrections to templates and body classes.
+* Various smaller bug fixes.
 
 ### 1.4.3
 
