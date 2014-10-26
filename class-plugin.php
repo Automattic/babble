@@ -105,9 +105,13 @@ class Babble_Plugin {
 	/**
 	 * Initiate!
 	 *
+	 * @param string $name The name of this plugin
+	 * @param null|string $type Whether this is a theme, or a plugin
+	 *
+	 * @throws exception
 	 * @return void
 	 * @author Simon Wheatley
-	 **/
+	 */
 	public function setup( $name = '', $type = null ) {
 		if ( ! $name )
 			throw new exception( "Please pass the name parameter into the setup method." );
@@ -190,7 +194,7 @@ class Babble_Plugin {
 	/**
 	 * Register a WordPress filter and map it back to the calling object
 	 *
-	 * @param string $action Name of the action
+	 * @param string $filter Name of the action
 	 * @param string $function Function name (optional)
 	 * @param int $priority WordPress priority (optional)
 	 * @param int $accepted_args Number of arguments the function accepts (optional)
@@ -205,7 +209,7 @@ class Babble_Plugin {
 	/**
 	 * De-register a WordPress filter and map it back to the calling object
 	 *
-	 * @param string $action Name of the action
+	 * @param string $filter Name of the action
 	 * @param string $function Function name (optional)
 	 * @param int $priority WordPress priority (optional)
 	 * @param int $accepted_args Number of arguments the function accepts (optional)
@@ -310,8 +314,8 @@ class Babble_Plugin {
 	/**
 	 * Returns a section of user display code, returning the rendered markup.
 	 *
-	 * @param string $ug_name Name of the admin file (without extension)
-	 * @param string $array Array of variable name=>value that is available to the display code (optional)
+	 * @param string $template_file Name of the admin file (without extension)
+	 * @param string $vars Array of variable name=>value that is available to the display code (optional)
 	 * @return void
 	 * @author © John Godley
 	 **/
@@ -326,8 +330,8 @@ class Babble_Plugin {
 	/**
 	 * Returns a section of user display code, returning the rendered markup.
 	 *
-	 * @param string $ug_name Name of the admin file (without extension)
-	 * @param string $array Array of variable name=>value that is available to the display code (optional)
+	 * @param string $template_file Name of the admin file (without extension)
+	 * @param string $vars Array of variable name=>value that is available to the display code (optional)
 	 * @return void
 	 * @author © John Godley
 	 **/
@@ -452,7 +456,7 @@ class Babble_Plugin {
 	 * @param int $page The type of edit page on which to show the box (post, page, link).
 	 * @param string $function Function name (optional)
 	 * @param string $context e.g. 'advanced' or 'core' (optional)
-	 * @param int $priority Priority, rough effect on the ordering (optional)
+	 * @param string $priority Priority, rough effect on the ordering (optional)
 	 * @param mixed $args Some arguments to pass to the callback function as part of a larger object (optional)
 	 * @return void
 	 * @author © John Godley
@@ -471,7 +475,7 @@ class Babble_Plugin {
 	 * theirs depending on which order the plugins are included and/or ran.
 	 *
 	 * @param string $tag Shortcode tag to be searched in post content.
-	 * @param callable $func Hook to run when shortcode is found.
+	 * @param callable $function Hook to run when shortcode is found.
 	 */
 	protected function add_shortcode( $tag, $function = null ) {
 		add_shortcode( $tag, array( $this, $function == '' ? $tag : $function ) );
