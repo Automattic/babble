@@ -174,6 +174,7 @@ class Babble_Languages extends Babble_Plugin {
 		$vars[ 'langs' ] = $langs;
 		$vars[ 'default_lang' ] = $this->default_lang;
 		$vars[ 'active_langs' ] = $this->get_active_langs();
+		$vars[ 'installable_langs' ] = $this->get_installable_langs();
 		$this->render_admin( 'options-available-languages.php', $vars );
 	}
 	
@@ -384,6 +385,14 @@ class Babble_Languages extends Babble_Plugin {
 					$this->set_admin_error( __( 'You must set your default language as public.', 'babble' ) );
 			}
 		}
+		// Add new language
+		if ( @ $_POST['add_lang'] ) {
+			require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+			$download = wp_download_language_pack( $_POST['add_lang'] );
+			if ( ! $download ) {
+				$this->set_admin_error( __( 'The selected language could not be added.', 'babble' ) );
+			}
+		}
 		// Finish up, redirecting if we're all OK
 		if ( ! $this->errors ) {
 			// Save the public languages
@@ -524,6 +533,51 @@ class Babble_Languages extends Babble_Plugin {
 		$this->langs[ $locale ]->display_name = $this->langs[ $locale ]->name;
 		$this->default_lang = $locale;
 		$this->public_langs = array( $locale );
+	}
+
+	/**
+	 * Check if we can install language packs.
+	 *
+	 * As long as this plugin supports WordPress versions below 4.0.0,
+	 * we should check for availability of the translations api.
+	 * If the translations api is available, use its
+	 * wp_can_install_language_pack function.
+	 *
+	 * @see wp_can_install_language_pack()
+	 *
+	 * @return bool
+	 **/
+	protected function can_install_language_pack() {
+		if ( ! file_exists( ABSPATH . 'wp-admin/includes/translation-install.php' ) ) {
+			return false;
+		}
+		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+		return wp_can_install_language_pack();
+	}
+
+	/**
+	 * Return an array of languages which can be installed via the
+	 * translations api, minus the already available languages.
+	 *
+	 * @see get_available_languages()
+	 * @see wp_get_available_translations()
+	 *
+	 * @return array
+	 **/
+	protected function get_installable_langs() {
+
+		if ( ! $this->can_install_language_pack() ) {
+			return array();
+		}
+
+		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+
+		// Refresh the current languages
+		$this->parse_available_languages();
+		// Merge in our previously set language settings
+		$langs = $this->merge_lang_sets( $this->available_langs, $this->lang_prefs );
+		$available_translations = wp_get_available_translations();
+		return array_diff_key( $available_translations, $langs );
 	}
 }
 

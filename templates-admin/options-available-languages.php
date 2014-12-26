@@ -95,6 +95,18 @@
 	</tbody>
 </table>
 
+<?php if ( $installable_langs ) { ?>
+	<p>
+		<label for="add_lang"><?php esc_html_e( 'Add New Language', 'babble' ); ?></label>
+		<select name="add_lang">
+			<option disabled="disabled" selected="selected"><?php esc_html_e( 'Select Language', 'babble' ); ?></option>
+			<?php foreach ( $installable_langs as $lang ) { ?>
+				<option value="<?php echo esc_attr( $lang['language'] ); ?>"><?php echo esc_html( $lang['native_name'] ); ?></option>
+			<?php } ?>
+		</select>
+	</p>
+<?php } ?>
+
 <?php submit_button( __( 'Save Changes', 'babble' ) ); ?>
 
 </form>
