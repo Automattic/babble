@@ -835,7 +835,7 @@ class Babble_Jobs extends Babble_Plugin {
 				'bbl_job_post' => "{$post->post_type}|{$post->ID}",
 			);
 			?>
-			<p><a href="<?php echo add_query_arg( $args, admin_url( 'edit.php' ) ); ?>"><?php _e( 'View pending translation jobs &raquo;', 'babble' ); ?></a></p>
+			<p><a href="<?php echo esc_url( add_query_arg( $args, admin_url( 'edit.php' ) ) ); ?>"><?php _e( 'View pending translation jobs &raquo;', 'babble' ); ?></a></p>
 			<?php
 
 		} else if ( $capable ) {

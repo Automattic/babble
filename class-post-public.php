@@ -303,8 +303,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: We are in danger of a post_type name being longer than 20 chars
 			// I would prefer to keep the post_type human readable, as human devs and sysadmins always
 			// end up needing to read this kind of thing.
-			// @FIXME: Should I be sanitising these values?
-			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
+			$new_post_type = sanitize_key( strtolower( "{$post_type}_{$lang->code}" ) );
 
 			if ( strlen( $new_post_type ) > 20 ) {
 				trigger_error( sprintf( __( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
@@ -996,9 +995,9 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
-		$edit_link = add_query_arg( array( 'lang' => bbl_get_default_lang_code() ), $edit_link );
+		$edit_link = esc_url( add_query_arg( array( 'lang' => bbl_get_default_lang_code() ), $edit_link ) );
 		bbl_switch_to_lang( bbl_get_default_lang_code() );
-		$view_link = get_permalink( $default_post->ID );
+		$view_link = esc_url( get_permalink( $default_post->ID ) );
 		bbl_restore_lang();
 		$edit_title = esc_attr( sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
 		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
