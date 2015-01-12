@@ -181,7 +181,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			$referer = $_SERVER[ 'HTTP_REFERER' ];
 			$lang = bbl_get_current_lang_code();
 			$origin_lang = bbl_get_post_lang_code( $origin_id );
-			error_log( "Babble: $user->user_login has changed {$postdata[ 'ID' ]} parent from $current_post->post_parent ($current_post->post_type) to {$postdata[ 'post_parent' ]}. \tOrigin: $origin_id. Origin lang: $origin_lang. IP $remote_ip. User lang: $lang. Referer $referer." );
+			bbl_log( "Babble: $user->user_login has changed {$postdata[ 'ID' ]} parent from $current_post->post_parent ($current_post->post_type) to {$postdata[ 'post_parent' ]}. \tOrigin: $origin_id. Origin lang: $origin_lang. IP $remote_ip. User lang: $lang. Referer $referer." );
 		}
 		return $postdata;
 	}

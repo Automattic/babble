@@ -594,11 +594,11 @@ class Babble_Locale {
 			return;
 
 		if ( $version < 1 ) {
-			error_log( "Babble Locale: Flushing rewrite rules" );
+			bbl_log( "Babble Locale: Flushing rewrite rules" );
 			flush_rewrite_rules();
 		}
 
-		error_log( "Babble Locale: Done updates" );
+		bbl_log( "Babble Locale: Done updates" );
 		update_option( $option_name, $this->version );
 	}
 
