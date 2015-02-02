@@ -108,6 +108,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->add_filter( 'post_type_link', null, null, 3 );
 		$this->add_filter( 'get_sample_permalink', null, null, 5 );
 		$this->add_filter( 'single_template' );
+		$this->add_filter( 'archive_template' );
 		$this->add_filter( 'the_posts', null, null, 2 );
 		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
 		$this->add_filter( 'admin_body_class' );
@@ -941,6 +942,34 @@ class Babble_Post_Public extends Babble_Plugin {
 		$templates[] = "single-{$this->get_base_post_type($post->post_type)}.php";
 		$templates[] = "single.php";
 		$template = get_query_template( 'bbl-single', $templates );
+
+		return $template;
+	}
+
+	/**
+	 * Hooks the WP filter archive_template to deal with the shadow post
+	 * types for archive templates, ensuring they use the
+	 * right template.
+	 *
+	 * @param string $template Path to a template file
+	 * @return Path to a template file
+	 **/
+	function archive_template( $template ) {
+		if ( bbl_is_default_lang() ) {
+			return $template;
+		}
+		if ( $this->no_recursion ) {
+			return $template;
+		}
+		$this->no_recursion = true;
+		$original_post_type = reset( array_filter( (array) get_query_var( 'post_type' ) ) );
+		$post_types         = $this->get_base_post_type( $original_post_type );
+		$templates          = array();
+		$templates[ ]       = "archive-{$post_types}.php";
+		$templates[ ]       = "archive-{$original_post_type}.php";
+		$templates[ ]       = 'archive.php';
+		$template           = get_query_template( 'archive', $templates );
+		$this->no_recursion = false;
 
 		return $template;
 	}
