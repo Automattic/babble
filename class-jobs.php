@@ -679,7 +679,12 @@ class Babble_Jobs extends Babble_Plugin {
 		# @TODO individual language selection when marking post as translation ready
 		$langs       = bbl_get_active_langs();
 		$lang_codes  = wp_list_pluck( $langs, 'code' );
-		$this->create_post_jobs( $post->ID, $lang_codes );
+		$jobs = $this->create_post_jobs( $post->ID, $lang_codes );
+
+		/**
+		 * Fires when post ready for transaltion
+		 */
+		do_action( 'babble_post_ready_for_translation', $post_id, $post, $jobs );
 	}
 
 	/**
