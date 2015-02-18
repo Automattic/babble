@@ -236,30 +236,46 @@ class Babble_Locale {
 			$this->set_content_lang( $lang );
 		}
 
-		if ( is_admin() ) {
+		if ( defined('DOING_AJAX') && DOING_AJAX ) {
+			$parts = parse_url( esc_url_raw( $_SERVER['HTTP_REFERER'] ) );
+
+			$_SERVER['REQUEST_URI'] = $parts['path'];
+
+			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) ) {
+				$this->set_interface_lang( bbl_get_lang_from_prefix( $matches[ 0 ] ) );
+			}
+		}
+		else if ( is_admin() ) {
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 			if ( isset( $_POST[ 'interface_lang' ] ) ) {
 				$this->set_interface_lang( $_POST[ 'interface_lang' ] );
 			}
+
 			// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
 			if ( isset( $_GET[ 'lang' ] ) ) {
 				$this->set_content_lang( $_GET[ 'lang' ] );
 			}
 		} else { // Front end
 			// @FIXME: Should probably check the available languages here
-			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
+			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) ) {
 				$this->set_content_lang_from_prefix( $matches[ 0 ] );
+			}
 		}
 
-		if ( ! isset( $this->content_lang ) || ! $this->content_lang )
+		if ( ! isset( $this->content_lang ) || ! $this->content_lang ) {
 			$this->set_content_lang( bbl_get_default_lang_code() );
-		if ( ! isset( $this->interface_lang ) || ! $this->interface_lang )
-			$this->set_interface_lang( bbl_get_default_lang_code() );
+		}
 
-		if ( is_admin() )
+		if ( ! isset( $this->interface_lang ) || ! $this->interface_lang ) {
+			$this->set_interface_lang( bbl_get_default_lang_code() );
+		}
+
+		if ( is_admin() ) {
 			return $this->interface_lang;
-		else
+		}
+		else {
 			return $this->content_lang;
+		}
 	}
 
 	/**
