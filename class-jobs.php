@@ -33,6 +33,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_action( 'bbl_translation_post_meta_boxes', null, 10, 3 );
 		$this->add_action( 'bbl_translation_submit_meta_boxes', null, 10, 2 );
 		$this->add_action( 'bbl_translation_terms_meta_boxes', null, 10, 2 );
+		$this->add_action( 'bbl_translation_meta_meta_boxes', null, 10, 2 );
 		$this->add_action( 'edit_form_after_title' );
 		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_action( 'load-post.php', 'load_post_edit' );
@@ -207,6 +208,7 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( is_admin() ) {
 			$vars[] = 'bbl_job_post';
 			$vars[] = 'bbl_job_term';
+			$vars[] = 'bbl_job_meta';
 		}
 		return $vars;
 	}
@@ -310,6 +312,9 @@ class Babble_Jobs extends Babble_Plugin {
 		} else if ( $job_term = $query->get( 'bbl_job_term' ) ) {
 			$query->set( 'meta_key', 'bbl_job_term' );
 			$query->set( 'meta_value', $job_term );
+		} else if ( $job_meta = $query->get( 'bbl_job_meta' ) ) {
+			$query->set( 'meta_key', 'bbl_job_meta' );
+			$query->set( 'meta_value', $job_meta );
 		}
 
 	}
@@ -368,10 +373,15 @@ class Babble_Jobs extends Babble_Plugin {
 
 				$post  = get_post( absint( $_GET['bbl_origin_post' ] ) );
 				$terms = $this->get_post_terms_to_translate( $post, $_GET['lang'] );
+				$meta  = $this->get_post_meta_to_translate( $post, $_GET['lang'] );
 				$objects['post'] = $post;
 
 				if ( !empty( $terms ) ) {
 					$objects['terms'] = $terms;
+				}
+
+				if ( !empty( $meta ) ) {
+					$objects['meta'] = $meta;
 				}
 
 				$vars['origin_post'] = $post->ID;
@@ -404,6 +414,25 @@ class Babble_Jobs extends Babble_Plugin {
 				'original'    => $post,
 				'translation' => (object) $post_translation,
 			);
+
+		}
+
+		if ( isset( $objects['meta'] ) ) {
+
+			foreach ( $objects['meta'] as $meta_key => $meta_field ) {
+
+				$meta_translation = get_post_meta( $job->ID, "bbl_meta_{$meta_key}", true );
+
+				if ( empty( $meta_translation ) ) {
+					$meta_translation = '';
+				}
+
+				$items['meta'][$meta_key] = array(
+					'original'    => $meta_field,
+					'translation' => $meta_translation,
+				);
+
+			}
 
 		}
 
@@ -494,6 +523,17 @@ class Babble_Jobs extends Babble_Plugin {
 
 	}
 
+	public function bbl_translation_meta_meta_boxes( $type, $items ) {
+
+		$i = 0;
+
+		foreach ( $items as $meta_key => $meta_field ) {
+			add_meta_box( "meta_{$i}", esc_html( $meta_field['original']->get_title() ), array( $this, 'metabox_translation_meta' ), $type, $meta_key );
+			$i++;
+		}
+
+	}
+
 	public function bbl_translation_submit_meta_boxes( $type, $job ) {
 
 		add_meta_box( 'bbl_job_submit', __( 'Save Translation' , 'babble'), array( $this, 'metabox_translation_submit' ), $type, 'submit' );
@@ -505,6 +545,14 @@ class Babble_Jobs extends Babble_Plugin {
 		$vars = $items;
 
 		$this->render_admin( 'translation-editor-terms.php', $vars );
+
+	}
+
+	public function metabox_translation_meta( array $items ) {
+
+		$vars = $items;
+
+		$this->render_admin( 'translation-editor-meta.php', $vars );
 
 	}
 
@@ -535,6 +583,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$edit_post_nonce   = isset( $_POST[ '_bbl_translation_edit_post' ] ) ? $_POST[ '_bbl_translation_edit_post' ] : false;
 		$edit_terms_nonce  = isset( $_POST[ '_bbl_translation_edit_terms' ] ) ? $_POST[ '_bbl_translation_edit_terms' ] : false;
+		$edit_meta_nonce   = isset( $_POST[ '_bbl_translation_edit_meta' ] ) ? $_POST[ '_bbl_translation_edit_meta' ] : false;
 		$origin_post_nonce = isset( $_POST[ '_bbl_translation_origin_post' ] ) ? $_POST[ '_bbl_translation_origin_post' ] : false;
 		$origin_term_nonce = isset( $_POST[ '_bbl_translation_origin_term' ] ) ? $_POST[ '_bbl_translation_origin_term' ] : false;
 		$lang_code_nonce   = isset( $_POST[ '_bbl_translation_lang_code' ] ) ? $_POST[ '_bbl_translation_lang_code' ] : false;
@@ -557,6 +606,10 @@ class Babble_Jobs extends Babble_Plugin {
 				foreach ( $this->get_post_terms_to_translate( $origin_post->ID, $lang_code ) as $taxo => $terms ) {
 					foreach ( $terms as $term_id => $term )
 						add_post_meta( $job->ID, 'bbl_job_term', "{$taxo}|{$term_id}", false );
+				}
+
+				foreach ( $this->get_post_meta_to_translate( $origin_post->ID, $lang_code ) as $key => $field ) {
+					add_post_meta( $job->ID, 'bbl_job_meta', $key, false );
 				}
 
 			}
@@ -616,6 +669,24 @@ class Babble_Jobs extends Babble_Plugin {
 						'post_status' => 'in-progress',
 					), true );
 					$this->no_recursion = false;
+
+				}
+
+			}
+
+			if ( $edit_meta_nonce and wp_verify_nonce( $edit_meta_nonce, "bbl_translation_edit_meta_{$job->ID}" ) ) {
+
+				$meta_data = stripslashes_deep( $_POST['bbl_translation']['meta'] );
+
+				foreach ( $meta_data as $meta_key => $meta_value ) {
+
+					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $meta_value );
+
+					if ( 'complete' == $job->post_status ) {
+						if ( current_user_can( 'publish_post', $job->ID ) ) {
+							update_post_meta( $trans->ID, $meta_key, $meta_value );
+						}
+					}
 
 				}
 
@@ -968,6 +1039,8 @@ class Babble_Jobs extends Babble_Plugin {
 		$job   = get_post( $job );
 		$post  = get_post_meta( $job->ID, 'bbl_job_post', true );
 		$terms = get_post_meta( $job->ID, 'bbl_job_term', false );
+		$meta  = get_post_meta( $job->ID, 'bbl_job_meta', false );
+		$lang  = $this->get_job_language( $job );
 
 		$return = array();
 
@@ -983,6 +1056,18 @@ class Babble_Jobs extends Babble_Plugin {
 			foreach ( $terms as $term ) {
 				list( $taxonomy, $term_id ) = explode( '|', $term );
 				$return['terms'][$taxonomy][] = get_term( $term_id, $taxonomy );
+			}
+
+		}
+
+		if ( !empty( $meta ) ) {
+
+			$post = get_post_meta( $job->ID, 'bbl_job_post', true );
+			list( $post_type, $post_id ) = explode( '|', $post );
+			$post = get_post( $post_id );
+
+			foreach ( $this->get_post_meta_to_translate( $post, $lang->code ) as $meta_key => $meta_field ) {
+				$return['meta'][$meta_key] = $meta_field;
 			}
 
 		}
@@ -1028,6 +1113,10 @@ class Babble_Jobs extends Babble_Plugin {
 					add_post_meta( $job, 'bbl_job_term', "{$taxo}|{$term_id}", false );
 			}
 
+			foreach ( $this->get_post_meta_to_translate( $post, $lang_code ) as $key => $field ) {
+				add_post_meta( $job, 'bbl_job_meta', $key, false );
+			}
+
 		}
 
 		return $jobs;
@@ -1062,6 +1151,43 @@ class Babble_Jobs extends Babble_Plugin {
 
 		return $trans_terms;
 
+	}
+
+	/**
+	 * @TODO [get_post_meta_to_translate description]
+	 *
+	 * @param  WP_Post $post_id  A post object.
+	 * @param  string $lang_code The language code for the translation job for this post.
+	 * @return array             An array of post meta keys which should be translated for this post.
+	 */
+	public function get_post_meta_to_translate( WP_Post $post, $lang_code ) {
+		$meta = get_post_meta( $post->ID );
+
+		if ( empty( $meta ) ) {
+			return array();
+		}
+
+		$fields = $this->get_translated_meta_fields( $post );
+
+		return array_intersect_key( $fields, $meta );
+	}
+
+	/**
+	 * @TODO [get_translated_meta_fields description]
+	 *
+	 * @param  WP_Post             A post object.
+	 * @return Babble_Meta_Field[] An array of Babble meta field handlers.
+	 */
+	public function get_translated_meta_fields( WP_Post $post ) {
+		$fields = (array) apply_filters( 'bbl_translated_meta_fields', array(), $post );
+
+		foreach ( $fields as $key => $field ) {
+			if ( ! ( $field instanceof Babble_Meta_Field ) ) {
+				unset( $fields[ $key ] );
+			}
+		}
+
+		return $fields;
 	}
 
 	// PRIVATE/PROTECTED METHODS

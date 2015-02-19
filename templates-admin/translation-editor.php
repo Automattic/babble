@@ -116,6 +116,25 @@
 
 	<?php } ?>
 
+	<?php if ( isset( $items['meta'] ) ) { ?>
+
+		<?php
+
+		wp_nonce_field( "bbl_translation_edit_meta_{$job->ID}", '_bbl_translation_edit_meta' );
+
+		do_action( 'bbl_translation_meta_meta_boxes', 'bbl_translation_editor_meta', $items['meta'] );
+
+		?>
+		<div class="bbl-translation-item bbl-translation-item-meta">
+			<?php
+			foreach ( $items['meta'] as $meta_key => $meta ) {
+				do_meta_boxes( 'bbl_translation_editor_meta', $meta_key, compact( 'meta_key', 'meta' ) );
+			}
+			?>
+		</div>
+
+	<?php } ?>
+
 	<div class="bbl-translation-submit">
 
 		<select name="post_status">
