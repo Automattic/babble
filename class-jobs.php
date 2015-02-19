@@ -1154,7 +1154,8 @@ class Babble_Jobs extends Babble_Plugin {
 	}
 
 	/**
-	 * @TODO [get_post_meta_to_translate description]
+	 * Return an array of a post's meta fields which are to be translated. The array keys are the post meta keys and the
+	 * array values are the meta value for that key.
 	 *
 	 * @param  WP_Post $post_id  A post object.
 	 * @param  string $lang_code The language code for the translation job for this post.
@@ -1173,7 +1174,8 @@ class Babble_Jobs extends Babble_Plugin {
 	}
 
 	/**
-	 * @TODO [get_translated_meta_fields description]
+	 * Return an array of meta field keys which should be translated. Array contains `Babble_Meta_Field` objects with
+	 * the meta keys as the array keys.
 	 *
 	 * @param  WP_Post             A post object.
 	 * @return Babble_Meta_Field[] An array of Babble meta field handlers.
