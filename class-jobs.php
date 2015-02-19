@@ -603,12 +603,12 @@ class Babble_Jobs extends Babble_Plugin {
 			if ( $origin_post = get_post( absint( $_POST['bbl_origin_post'] ) ) ) {
 				add_post_meta( $job->ID, 'bbl_job_post', "{$origin_post->post_type}|{$origin_post->ID}", true );
 
-				foreach ( $this->get_post_terms_to_translate( $origin_post->ID, $lang_code ) as $taxo => $terms ) {
+				foreach ( $this->get_post_terms_to_translate( $origin_post, $lang_code ) as $taxo => $terms ) {
 					foreach ( $terms as $term_id => $term )
 						add_post_meta( $job->ID, 'bbl_job_term', "{$taxo}|{$term_id}", false );
 				}
 
-				foreach ( $this->get_post_meta_to_translate( $origin_post->ID, $lang_code ) as $key => $field ) {
+				foreach ( $this->get_post_meta_to_translate( $origin_post, $lang_code ) as $key => $field ) {
 					add_post_meta( $job->ID, 'bbl_job_meta', $key, false );
 				}
 
@@ -1108,7 +1108,7 @@ class Babble_Jobs extends Babble_Plugin {
 			add_post_meta( $job, 'bbl_job_post', "{$post->post_type}|{$post->ID}", true );
 			wp_set_object_terms( $job, $lang_code, 'bbl_job_language' );
 
-			foreach ( $this->get_post_terms_to_translate( $post->ID, $lang_code ) as $taxo => $terms ) {
+			foreach ( $this->get_post_terms_to_translate( $post, $lang_code ) as $taxo => $terms ) {
 				foreach ( $terms as $term_id => $term )
 					add_post_meta( $job, 'bbl_job_term', "{$taxo}|{$term_id}", false );
 			}
