@@ -1192,19 +1192,6 @@ class Babble_Jobs extends Babble_Plugin {
 		return $fields;
 	}
 
-	// PRIVATE/PROTECTED METHODS
-	// =========================
-
-	/**
-	 * Called by admin_init, this method ensures we are all up to date and 
-	 * so on.
-	 *
-	 * @return void
-	 **/
-	protected function upgrade() {
-		
-	}
-
 }
 
 global $bbl_jobs;
