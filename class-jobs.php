@@ -1081,7 +1081,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 *
 	 * @param int $post_id The ID of the post to create translation jobs for
 	 * @param array $lang_codes The language codes to create translation jobs of this post for
-	 * @return array An array of Translation Job posts
+	 * @return array An array of Translation Job post IDs
 	 **/
 	public function create_post_jobs( $post_id, array $lang_codes ) {
 		$post = get_post( $post_id );
