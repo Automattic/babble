@@ -72,9 +72,6 @@
 						<?php wp_editor( $original->post_content, 'original_post_content', array(
 							'textarea_name' => 'bbl_original[post][post_content]',
 							'media_buttons' => false,
-							'quicktags'     => array(
-								'buttons' => true,
-							),
 							'tinymce'       => array(
 								'readonly' => 1,
 							),
