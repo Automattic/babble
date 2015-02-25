@@ -324,8 +324,6 @@ class Babble_Post_Public extends Babble_Plugin {
 				'has_archive' => $new_args[ 'has_archive' ],
 			);
 
-			$new_args['show_in_admin_bar'] = false;
-
 			// Don't let the translated post types show up in the search if their
 			// language is not the current language.
 			if ( $lang->code != $current_lang_code ) {
