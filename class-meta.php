@@ -7,11 +7,12 @@
  */
 abstract class Babble_Meta_Field {
 	
-	public function __construct( WP_Post $post, $meta_key, $meta_title ) {
+	public function __construct( WP_Post $post, $meta_key, $meta_title, array $args = array() ) {
 		$this->post       = $post;
 		$this->meta_key   = $meta_key;
 		$this->meta_title = $meta_title;
 		$this->meta_value = get_post_meta( $this->post->ID, $this->meta_key, true );
+		$this->args       = $args;
 	}
 
 	abstract public function get_input( $name, $value );
