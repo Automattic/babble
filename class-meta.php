@@ -64,3 +64,36 @@ class Babble_Meta_Field_Textarea extends Babble_Meta_Field {
 	}
 
 }
+
+class Babble_Meta_Field_Editor extends Babble_Meta_Field {
+
+	public function get_input( $name, $value ) {
+		$args = array(
+			'textarea_name' => $name,
+		);
+
+		# see _WP_Editors()::parse_settings() for available editor settings
+		if ( !empty( $this->args['editor_settings'] ) ) {
+			$args = array_merge( $args, $this->args['editor_settings'] );
+		}
+
+		ob_start();
+		wp_editor( $value, sprintf( 'meta-input-%s', $this->get_key() ), $args );
+		return ob_get_clean();
+	}
+
+	public function get_output() {
+		$args = array(
+			'textarea_name' => 'doesnotmatter',
+			'media_buttons' => false,
+			'tinymce'       => array(
+				'readonly' => 1,
+			),
+		);
+
+		ob_start();
+		wp_editor( $this->get_value(), sprintf( 'meta-output-%s', $this->get_key() ), $args );
+		return ob_get_clean();
+	}
+
+}
