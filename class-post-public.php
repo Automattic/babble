@@ -328,6 +328,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			// language is not the current language.
 			if ( $lang->code != $current_lang_code ) {
 				$new_args['exclude_from_search'] = true;
+				$new_args['capabilities']['create_posts'] = 'do_not_allow';
 			}
 
 			$result = register_post_type( $new_post_type, $new_args );
