@@ -30,6 +30,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_action( 'add_meta_boxes_bbl_job', null, 999 );
 		$this->add_action( 'admin_init' );
 		$this->add_action( 'admin_menu' );
+		$this->add_action( 'babble_create_empty_translation', 'create_empty_translation' );
 		$this->add_action( 'bbl_translation_post_meta_boxes', null, 10, 3 );
 		$this->add_action( 'bbl_translation_submit_meta_boxes', null, 10, 2 );
 		$this->add_action( 'bbl_translation_terms_meta_boxes', null, 10, 2 );
@@ -1077,6 +1078,38 @@ class Babble_Jobs extends Babble_Plugin {
 	}
 
 	/**
+	 * Create empty translations of a post for all languages. Called via WP-Cron on the `babble_create_empty_translation` hook.
+	 *
+	 * @param  array  $args Args array containing a `post_id` element.
+	 */
+	public function create_empty_translation( array $args ) {
+		global $bbl_post_public;
+
+		if ( !$post = get_post( $args['post_id'] ) ) {
+			return;
+		}
+
+		foreach ( bbl_get_active_langs() as $lang ) {
+
+			if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang->code, false ) ) {
+				$trans = $bbl_post_public->initialise_translation( $post, $lang->code );
+			}
+
+			$post_data = array(
+				'ID'          => $trans->ID,
+				'post_status' => $post->post_status,
+				'post_name'   => $post->post_name,
+			);
+
+			$this->no_recursion = true;
+			wp_update_post( $post_data, true );
+			$this->no_recursion = false;
+
+		}
+
+	}
+
+	/**
 	 * Create some translation jobs.
 	 *
 	 * @param int $post_id The ID of the post to create translation jobs for
@@ -1084,8 +1117,6 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @return array An array of Translation Job post IDs
 	 **/
 	public function create_post_jobs( $post_id, array $lang_codes ) {
-		global $bbl_post_public;
-
 		$post = get_post( $post_id );
 
 		// @TODO Validate that the $post is in the default language, otherwise fail
@@ -1098,18 +1129,11 @@ class Babble_Jobs extends Babble_Plugin {
 
 			if ( apply_filters( 'bbl_create_empty_translation', false, $post ) ) {
 
-				if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang_code, false ) ) {
-					$trans = $bbl_post_public->initialise_translation( $post, $lang_code );
-				}
-
-				$post_data                = array();
-				$post_data['ID']          = $trans->ID;
-				$post_data['post_status'] = $post->post_status;
-				$post_data['post_name']   = $post->post_name;
-
-				$this->no_recursion = true;
-				wp_update_post( $post_data, true );
-				$this->no_recursion = false;
+				wp_schedule_single_event( time(), 'babble_create_empty_translation', array(
+					array(
+						'post_id' => $post->ID,
+					)
+				) );
 
 			}
 
