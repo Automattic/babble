@@ -1348,35 +1348,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	// =========================
 
 	/**
-	 * Save the checkbox indicating text directionality.
-	 *
-	 * @TODO this needs to move into the translation jobs class
-	 *
-	 * @param int $post_id The ID of the post
-	 * @param object $post The post object itself
-	 * @return void
-	 **/
-	function save_text_directionality( $post_id, $post ) {
-		if ( ! isset( $_POST[ '_bbl_default_text_direction' ] ) )
-			return;
-
-		if ( 'revision' == $post->post_type )
-			return;
-
-		if ( $this->no_recursion )
-			return;
-		$this->no_recursion = 'save_text_directionality';
-
-		check_admin_referer( "bbl_default_text_direction-{$post->ID}", '_bbl_default_text_direction' );
-		if ( isset( $_POST[ 'bbl_default_text_direction' ] ) && (bool) $_POST[ 'bbl_default_text_direction' ] )
-			update_post_meta( $post_id, '_bbl_default_text_direction', true );
-		else
-			delete_post_meta( $post_id, '_bbl_default_text_direction' );
-
-		$this->no_recursion = false;
-	}
-
-	/**
 	 * Copy various properties from one post to another.
 	 *
 	 * @param int $source_id The source post, to copy FROM

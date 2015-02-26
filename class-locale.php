@@ -358,7 +358,7 @@ class Babble_Locale {
 		$post = get_post( $post_id );
 		$post_lang_code = bbl_get_post_lang_code( $post );
 		$lang = bbl_get_lang( $post_lang_code );
-		if ( get_post_meta( $post->ID, '_bbl_default_text_direction', true ) ) {
+		if ( self::use_default_text_direction( $post ) ) {
 			$default_lang = bbl_get_default_lang();
 			$classes[] = 'bbl-post-' . $default_lang->text_direction;
 		} else {
@@ -375,6 +375,21 @@ class Babble_Locale {
 
 	// Public Methods
 	// --------------
+
+	/**
+	 * Return whether the post should use the default language's text direction or not.
+	 *
+	 * @param  WP_Post $post The post object.
+	 * @return bool          True if the post should use the default language text direction. False if not.
+	 */
+	public static function use_default_text_direction( WP_Post $post ) {
+		if ( get_post_meta( $post->ID, '_bbl_default_text_direction', true ) ) {
+			return true;
+		} else if ( empty( $post->post_content ) ) {
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Get the current (content) lang for this class, which is also the
