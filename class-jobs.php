@@ -1084,6 +1084,8 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @return array An array of Translation Job post IDs
 	 **/
 	public function create_post_jobs( $post_id, array $lang_codes ) {
+		global $bbl_post_public;
+
 		$post = get_post( $post_id );
 
 		// @TODO Validate that the $post is in the default language, otherwise fail
@@ -1093,6 +1095,23 @@ class Babble_Jobs extends Babble_Plugin {
 
 			if ( bbl_get_default_lang_code() == $lang_code )
 				continue;
+
+			if ( apply_filters( 'bbl_create_empty_translation', false, $post ) ) {
+
+				if ( !$trans = $bbl_post_public->get_post_in_lang( $post, $lang_code, false ) ) {
+					$trans = $bbl_post_public->initialise_translation( $post, $lang_code );
+				}
+
+				$post_data                = array();
+				$post_data['ID']          = $trans->ID;
+				$post_data['post_status'] = $post->post_status;
+				$post_data['post_name']   = $post->post_name;
+
+				$this->no_recursion = true;
+				wp_update_post( $post_data, true );
+				$this->no_recursion = false;
+
+			}
 
 			$this->no_recursion = true;
 			$job = wp_insert_post( array(
