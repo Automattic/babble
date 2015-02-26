@@ -3,14 +3,14 @@
 Plugin Name: Babble
 Plugin URI:  http://babbleplugin.com/
 Description: Multilingual WordPress done right
-Version:     1.4.4
-Author:      Code For The People
-Author URI:  http://codeforthepeople.com/
+Version:     1.5
+Author:      Automattic
+Author URI:  https://automattic.com/
 Text Domain: babble
 Domain Path: /languages/
 License:     GPL v2 or later
 
-Copyright 2014 Code For The People Ltd
+Copyright 2011-2015 Simon Wheatley, Code For The People Ltd, & Automattic Ltd
 
                 _____________
                /      ____   \
