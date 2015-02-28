@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Babble Translation Fields
+Plugin Name: Babble: Translation Fields
 Plugin URI:  http://babbleplugin.com/
 Description: Support for translating meta fields in various popular plugins.
 Version:     1.0
