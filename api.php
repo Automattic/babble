@@ -629,15 +629,15 @@ function bbl_stop_logging() {
 /**
  * Log a message.
  *
- * @param string $msg Log this message 
+ * @param string $msg Log this message
+ * @param bool $force If false, logging must have been initiated with bbl_start_logging
  * @return void
  **/
-function bbl_log( $msg ) {
+function bbl_log( $msg, $force = false ) {
 	global $bbl_log;
-	if ( $bbl_log )
+	if ( $bbl_log || $force ) {
 		$bbl_log->log( $msg );
-	else
-		error_log( "Full Babble logging unavailable: $msg" );
+	}
 }
 
 /**

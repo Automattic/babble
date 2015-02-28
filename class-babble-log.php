@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Manages the locale currently set for the site.
+ *
  *
  * @package Babble
  * @since Alpha 1
@@ -38,8 +38,9 @@ class Babble_Log {
 	 * @return void
 	 **/
 	public function log( $msg ) {
-		if ( $this->logging )
+		if ( $this->logging && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "[$this->session] BABBLE LOG: $msg" );
+		}
 	}
 
 }
