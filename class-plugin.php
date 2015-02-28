@@ -140,7 +140,7 @@ class Babble_Plugin {
 			$this->url = trailingslashit( $plugins_url );
 		} else {
 			// WTF?
-			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugins_dir . ' or "themes" in ' . $file );
+			bbl_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugins_dir . ' or "themes" in ' . $file, true );
 		}
 
 		// Suffix for enqueuing
@@ -302,7 +302,7 @@ class Babble_Plugin {
 			require( $this->dir( "templates-admin/$template_file" ) );
 		} else {
 			$msg = sprintf( __( "This plugin admin template could not be found: %s" ), $this->dir( "templates-admin/$template_file" ) );
-			error_log( "Plugin template error: $msg" );
+			bbl_log( "Plugin template error: $msg", true );
 			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
 		}
 	}
@@ -440,7 +440,7 @@ class Babble_Plugin {
 			return $this->dir( "templates/$template_file" );
 		// Oh dear. We can't find the template.
 		$msg = sprintf( __( "This plugin template could not be found, perhaps you need to hook `sil_plugins_dir` and `sil_plugins_url`: %s" ), $this->dir( "templates/$template_file" ) );
-		error_log( "Template error: $msg" );
+		bbl_log( "Template error: $msg", true );
 		echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
 	}
 	
