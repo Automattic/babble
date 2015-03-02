@@ -649,5 +649,3 @@ function bbl_is_logging() {
 	global $bbl_log;
 	return $bbl_log->logging;
 }
-
-?>

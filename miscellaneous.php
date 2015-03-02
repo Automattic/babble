@@ -383,5 +383,3 @@ class Bbl_Comment_Query {
 		return $comments;
 	}
 }
-
-?>

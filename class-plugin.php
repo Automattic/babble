@@ -599,8 +599,6 @@ class Babble_Plugin {
 		$excerpt .= ($use_dotdotdot) ? '…' : '';
 		return $excerpt;
 	}
-	
 
-} // END Babble_Plugin class 
 
-?>
+} // END Babble_Plugin class

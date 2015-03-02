@@ -10,5 +10,3 @@ class SortPosts {
 		return ( $m->post_type < $n->post_type ) ? -1 : 1;
 	}
 }
-
-?>
