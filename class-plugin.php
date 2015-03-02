@@ -169,7 +169,7 @@ class Babble_Plugin {
 		$mofile = $this->dir( "/locale/$locale.mo" );
 		load_textdomain( $this->name, $mofile );
 	}
-	
+
 	/**
 	 * Register a WordPress action and map it back to the calling object
 	 *
@@ -264,29 +264,6 @@ class Babble_Plugin {
 	}
 
 	/**
-	 * Renders a template, looking first for the template file in the theme directory
-	 * and afterwards in this plugin's /theme/ directory.
-	 *
-	 * @return void
-	 * @author Simon Wheatley
-	 **/
-	protected function render( $template_file, $vars = null ) {
-		// Maybe override the template with our own file
-		$template_file = $this->locate_template( $template_file );
-		// Ensure we have the same vars as regular WP templates
-		global $posts, $post, $wp_did_header, $wp_did_template_redirect, $wp_query, $wp_rewrite, $wpdb, $wp_version, $wp, $id, $comment, $user_ID;
-
-		if ( is_array($wp_query->query_vars) )
-			extract($wp_query->query_vars, EXTR_SKIP);
-
-		// Plus our specific template vars
-		if ( is_array( $vars ) )
-			extract( $vars );
-		
-		require( $template_file );
-	}
-
-	/**
 	 * Renders an admin template from this plugin's /templates-admin/ directory.
 	 *
 	 * @return void
@@ -306,39 +283,7 @@ class Babble_Plugin {
 			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
 		}
 	}
-	
-	/**
-	 * Returns a section of user display code, returning the rendered markup.
-	 *
-	 * @param string $ug_name Name of the admin file (without extension)
-	 * @param string $array Array of variable name=>value that is available to the display code (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	protected function capture( $template_file, $vars = null ) {
-		ob_start();
-		$this->render( $template_file, $vars );
-		$output = ob_get_contents();
-		ob_end_clean();
-		return $output;
-	}
-	
-	/**
-	 * Returns a section of user display code, returning the rendered markup.
-	 *
-	 * @param string $ug_name Name of the admin file (without extension)
-	 * @param string $array Array of variable name=>value that is available to the display code (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	protected function capture_admin( $template_file, $vars = null ) {
-		ob_start();
-		$this->render_admin( $template_file, $vars );
-		$output = ob_get_contents();
-		ob_end_clean();
-		return $output;
-	}
-	
+
 	/**
 	 * Hooks the WP admin_notices action to render any notices
 	 * that have been set with the set_admin_notice method.
