@@ -555,5 +555,3 @@ class Babble_Plugin {
 
 
 } // END Babble_Plugin class
-
-?>
