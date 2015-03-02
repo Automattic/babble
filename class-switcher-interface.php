@@ -7,10 +7,10 @@
  * @since 1.4
  */
 class Babble_Switcher_Interface extends Babble_Plugin {
-	
+
 	// PUBLIC METHODS
 	// ==============
-	
+
 	public function __construct() {
 		$this->setup( 'babble-switcher-interface', 'plugin' );
 

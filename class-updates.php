@@ -7,7 +7,7 @@
  * @since 1.4.1
  */
 class Babble_Updates extends Babble_Plugin {
-	
+
 	public function __construct() {
 		$this->setup( 'babble-updates', 'plugin' );
 

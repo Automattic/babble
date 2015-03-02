@@ -7,16 +7,16 @@
  * @since Alpha 1.2
  */
 class Babble_Taxonomies extends Babble_Plugin {
-	
+
 	/**
 	 * A simple flag to stop infinite recursion in various places.
 	 *
 	 * @var boolean
 	 **/
 	protected $no_recursion;
-	
+
 	/**
-	 * The current version for purposes of rewrite rules, any 
+	 * The current version for purposes of rewrite rules, any
 	 * DB updates, cache busting, etc
 	 *
 	 * @var int
@@ -36,7 +36,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @var array
 	 **/
 	protected $lang_map;
-	
+
 	/**
 	 * Setup any add_action or add_filter calls. Initiate properties.
 	 *
@@ -78,11 +78,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 			'label' => __( 'Term Translation ID', 'babble' ),
 		) );
 	}
-	
+
 	/**
-	 * Hooks the WP registered_taxonomy action 
+	 * Hooks the WP registered_taxonomy action
 	 *
-	 * @param string $taxonomy The name of the newly registered taxonomy 
+	 * @param string $taxonomy The name of the newly registered taxonomy
 	 * @param string|array $args The object_type(s)
 	 * @param array $args The args passed to register the taxonomy
 	 * @return void
@@ -103,7 +103,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		// Use the Babble term counting function, unless the taxonomy registrant
-		// has defined their own – in which case we'll just have to hope against 
+		// has defined their own – in which case we'll just have to hope against
 		// hope that it's Babble aware :S
 		// FIXME: Setting this in the following fashion seems hacky… I feel uncomfortable.
 		if ( empty( $GLOBALS[ 'wp_taxonomies' ][ $taxonomy ]->update_count_callback ) ) {
@@ -172,9 +172,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 			if ( ! isset( $this->lang_map[ $lang->code ] ) || ! is_array( $this->lang_map[ $lang->code ] ) )
 				$this->lang_map[ $lang->code ] = array();
 			$this->lang_map[ $lang->code ][ $taxonomy ] = $new_taxonomy;
-			
+
 			register_taxonomy( $new_taxonomy, $new_object_type, $new_args );
-			
+
 		}
 		// bbl_stop_logging();
 
@@ -201,16 +201,16 @@ class Babble_Taxonomies extends Babble_Plugin {
 	/**
 	 * Hooks the WP bbl_registered_shadow_post_types action to check that we've applied
 	 * all untranslated taxonomies to the shadow post types created for this base
-	 * post type. 
-	 * 
-	 * @param string $post_type The post type for which the shadow post types have been registered. 
+	 * post type.
+	 *
+	 * @param string $post_type The post type for which the shadow post types have been registered.
 	 * @return void
 	 **/
 	public function registered_shadow_post_types( $post_type ) {
 		$taxonomies = get_object_taxonomies( $post_type );
 
 		$object_type = (array) $post_type;
-		
+
 		foreach ( $taxonomies as $taxonomy ) {
 			// Untranslated taxonomies do not have shadow equivalents in each language,
 			// but do apply to the bast post_type and all it's shadow post_types.
@@ -244,12 +244,12 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( ! ( $origin_post = get_post( $origin_post_id ) ) ) {
 			return;
 		}
-		
+
 		if ( $this->no_recursion ) {
 			return;
 		}
 		$this->no_recursion = true;
-		
+
 		$taxonomies = get_object_taxonomies( $origin_post->post_type );
 
 		foreach ( $taxonomies as $taxonomy ) {
@@ -268,7 +268,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * when requested.
 	 *
 	 * @param int $post_id The ID of the WP post
-	 * @param object $post The WP Post object 
+	 * @param object $post The WP Post object
 	 * @return void
 	 **/
 	public function save_post( $post_id, $post ) {
@@ -277,13 +277,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 	/**
 	 * Hooks the WordPress term_link filter to provide functions to provide
-	 * appropriate links for the shadow taxonomies. 
+	 * appropriate links for the shadow taxonomies.
 	 *
 	 * @see get_term_link from whence much of this was copied
 	 *
 	 * @param string $termlink The currently generated term URL
 	 * @param object $term The WordPress term object we're generating a link for
-	 * @param string $taxonomy The 
+	 * @param string $taxonomy The
 	 * @return string The term link
 	 **/
 	public function term_link( $termlink, $term, $taxonomy ) {
@@ -292,15 +292,15 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( 'post_tag' == $taxonomy || 'category' == $taxonomy || ! isset( $this->taxonomies[ $taxonomy ] ) ) {
 			return $termlink;
 		}
-	
+
 		// Deal with our shadow taxonomies
 		if ( ! ( $base_taxonomy = $this->get_base_taxonomy( $taxonomy ) ) ) {
 			return $termlink;
 		}
-	
+
 		// START copying from get_term_link, replacing $taxonomy with $base_taxonomy
 		global $wp_rewrite;
-	
+
 		if ( !is_object($term) ) {
 			if ( is_int($term) ) {
 				$term = &get_term($term, $base_taxonomy);
@@ -308,20 +308,20 @@ class Babble_Taxonomies extends Babble_Plugin {
 				$term = &get_term_by('slug', $term, $base_taxonomy);
 			}
 		}
-	
+
 		if ( !is_object($term) ) {
 			$term = new WP_Error('invalid_term', __('Empty Term', 'babble'));
 		}
-	
+
 		if ( is_wp_error( $term ) ) {
 			return $term;
 		}
-	
+
 		$termlink = $wp_rewrite->get_extra_permastruct($base_taxonomy);
-	
+
 		$slug = $term->slug;
 		$t = get_taxonomy($base_taxonomy);
-	
+
 		if ( empty($termlink) ) {
 			if ( 'category' == $base_taxonomy ) {
 				$termlink = '?cat=' . $term->term_id;
@@ -348,14 +348,14 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$termlink = home_url( user_trailingslashit($termlink, 'category') );
 		}
 		// STOP copying from get_term_link
-	
+
 		return $termlink;
 	}
 
 	/**
 	 * Hooks the WP get_terms filter to ensure the terms all have transids.
 	 *
-	 * @param array $terms The terms which have been got 
+	 * @param array $terms The terms which have been got
 	 * @return array The terms which were got
 	 **/
 	public function get_terms( $terms ) {
@@ -381,7 +381,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP parse_request action 
+	 * Hooks the WP parse_request action
 	 *
 	 * FIXME: Should I be extending and replacing the WP class?
 	 *
@@ -425,7 +425,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 					break;
 				}
 			}
-			
+
 			if ( $taxonomies ) {
 				$post_types = array();
 				foreach ( $taxonomies as $taxonomy ) {
@@ -446,13 +446,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 			if ( ! isset( $wp->query_vars[ 'tax_query' ] ) || ! is_array( $wp->query_vars[ 'tax_query' ] ) ) {
 				$wp->query_vars[ 'tax_query' ] = array();
 			}
-		
+
 			$wp->query_vars[ 'tax_query' ][] = array(
 				'taxonomy' => $taxonomy,
 				'field' => 'slug',
 				'terms' => $terms,
 			);
-		
+
 		}
 	}
 
@@ -480,7 +480,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		if ( $this->is_taxonomy_translated( $taxonomy ) ) {
-			
+
 			// Here we assume that this taxonomy is on a post type
 			$translations = bbl_get_post_translations( $object_id );
 
@@ -511,7 +511,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 				$result = wp_set_object_terms( $translation->ID, $translated_terms, $translated_taxonomy, $append );
 			}
-			
+
 		} else {
 
 			// Here we assume that this taxonomy is on a post type
@@ -532,9 +532,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * Hooks the WP body_class filter to add classes to the
 	 * body element.
 	 *
-	 * @param array $classes An array of class strings, poss with some indexes containing more than one space separated class 
+	 * @param array $classes An array of class strings, poss with some indexes containing more than one space separated class
 	 * @param string|array $class One or more classes which have been added to the class list.
-	 * @return array An array of class strings, poss with some indexes containing more than one space separated class 
+	 * @return array An array of class strings, poss with some indexes containing more than one space separated class
 	 **/
 	public function body_class( array $classes, $class ) {
 		if ( is_tax() ) {
@@ -570,7 +570,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * Hooks the WP filter taxonomy_template to deal with the shadow terms,
 	 * ensuring they use the right template.
 	 *
-	 * @param string $template Path to a template file 
+	 * @param string $template Path to a template file
 	 * @return Path to a template file
 	 **/
 	public function taxonomy_template( $template ) {
@@ -609,10 +609,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		return $template;
 	}
-	
+
 	// CALLBACKS
 	// =========
-	
+
 	// PUBLIC METHODS
 	// ==============
 
@@ -647,7 +647,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * Provided with a taxonomy name, e.g. `post_tag`, and a language
 	 * code, will return the shadow taxonomy in that language.
 	 *
-	 * @param string $taxonomy The origin taxonomy 
+	 * @param string $taxonomy The origin taxonomy
 	 * @param string $lang_code The target language code
 	 * @return string The taxonomy name in that language
 	 **/
@@ -656,13 +656,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
-	 * Get the terms which are the translations for the provided 
-	 * term ID. N.B. The returned array of term objects (and false 
+	 * Get the terms which are the translations for the provided
+	 * term ID. N.B. The returned array of term objects (and false
 	 * values) will include the term for the term ID passed.
-	 * 
+	 *
 	 * @FIXME: We should cache the translation groups, as we do for posts
 	 *
-	 * @param int|object $term Either a WP Term object, or a term_id 
+	 * @param int|object $term Either a WP Term object, or a term_id
 	 * @return array Either an array keyed by the site languages, each key containing false (if no translation) or a WP Term object
 	 **/
 	public function get_term_translations( $term, $taxonomy ) {
@@ -692,7 +692,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Get all the translations in one cached DB query
 		$existing_terms = get_terms( $taxonomies, array( 'include' => $term_ids, 'hide_empty' => false ) );
 
-		// Finally, we're ready to return the terms in this 
+		// Finally, we're ready to return the terms in this
 		// translation group.
 		$terms = array();
 		foreach ( $existing_terms as $t ) {
@@ -705,8 +705,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * Returns the term in a particular language, or the fallback content
 	 * if there's no term available.
 	 *
-	 * @param int|object $term Either a WP Term object, or a term_id 
-	 * @param string $lang_code The language code for the required language 
+	 * @param int|object $term Either a WP Term object, or a term_id
+	 * @param string $lang_code The language code for the required language
 	 * @param boolean $fallback If true: if a term is not available, fallback to the default language content (defaults to true)
 	 * @return object|boolean The WP Term object, or if $fallback was false and no post then returns false
 	 **/
@@ -726,7 +726,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * particular language.
 	 *
 	 * @param int|object $default_term The term in the default language to create a new translation for, either WP Post object or post ID
-	 * @param string $lang The language code 
+	 * @param string $lang The language code
 	 * @return string The admin URL to create the new translation
 	 * @access public
 	 **/
@@ -741,7 +741,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
 		}
 		$url = admin_url( 'post-new.php' );
-		$args = array( 
+		$args = array(
 			'bbl_origin_term' => $default_term->term_id,
 			'bbl_origin_taxonomy' => $default_term->taxonomy,
 			'lang'            => $lang_code,
@@ -754,7 +754,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	/**
 	 * Returns the language code associated with a particular taxonomy.
 	 *
-	 * @param string $taxonomy The taxonomy to get the language for 
+	 * @param string $taxonomy The taxonomy to get the language for
 	 * @return string The lang code
 	 **/
 	public function get_taxonomy_lang_code( $taxonomy ) {
@@ -772,10 +772,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
-	 * Return the base taxonomy (in the default language) for a 
+	 * Return the base taxonomy (in the default language) for a
 	 * provided taxonomy.
 	 *
-	 * @param string $taxonomy The name of a taxonomy 
+	 * @param string $taxonomy The name of a taxonomy
 	 * @return string The name of the base taxonomy
 	 **/
 	public function get_base_taxonomy( $taxonomy ) {
@@ -797,7 +797,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		if ( ! $this->is_taxonomy_translated( $taxonomy ) ) {
 			return $taxonomy;
 		}
-			
+
 		if ( ! $taxonomy ) {
 			return false; // @FIXME: Should I actually be throwing an error here?
 		}
@@ -836,7 +836,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// Do we need to check that the slug is unique at this point?
 		return mb_strtolower( "{$_slug}_{$lang_code}" );
 	}
-	
+
 
 	public function initialise_translation( $origin_term, $taxonomy, $lang_code ) {
 
@@ -862,7 +862,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	// =========================
 
 	/**
-	 * Will update term count based on object types of the current 
+	 * Will update term count based on object types of the current
 	 * taxonomy. Will only count the post(s) in the default language.
 	 *
 	 * Private function for the default callback for post_tag and category
@@ -911,10 +911,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
-	 * Return the translation group ID (a term ID) that the given term ID 
+	 * Return the translation group ID (a term ID) that the given term ID
 	 * belongs to.
 	 *
-	 * @param int $target_term_id The term ID to find the translation group for 
+	 * @param int $target_term_id The term ID to find the translation group for
 	 * @return int The transID the target term belongs to
 	 **/
 	public function get_transid( $target_term_id ) {
@@ -940,11 +940,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 	}
 
 	/**
-	 * Set the translation group ID (a term ID) that the given term ID 
+	 * Set the translation group ID (a term ID) that the given term ID
 	 * belongs to.
 	 *
 	 * @param int $target_term_id The term ID to set the translation group for
-	 * @param int $translation_group_id The ID of the translation group to add this 
+	 * @param int $translation_group_id The ID of the translation group to add this
 	 * @return int The transID the target term belongs to
 	 **/
 	public function set_transid( $target_term_id, $transid = null ) {
@@ -968,39 +968,39 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		wp_cache_delete( $target_term_id, 'bbl_term_transids' );
-		
+
 		return $transid;
 	}
 
 	/**
-	 * Checks for the relevant POSTed field, then 
+	 * Checks for the relevant POSTed field, then
 	 * resyncs the terms.
 	 *
 	 * @param int $post_id The ID of the WP post
-	 * @param object $post The WP Post object 
+	 * @param object $post The WP Post object
 	 * @return void
 	 **/
 	protected function maybe_resync_terms( $post_id, $post ) {
 		// Check that the fields were included on the screen, we
 		// can do this by checking for the presence of the nonce.
 		$nonce = isset( $_POST[ '_bbl_metabox_resync' ] ) ? $_POST[ '_bbl_metabox_resync' ] : false;
-		
-		
+
+
 		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) ) {
 			return;
 		}
-		
+
 		if ( ! $nonce ) {
 			return;
 		}
-			
+
 		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
 		if ( $posted_id != $post_id ) {
 			return;
 		}
 		// While we're at it, let's check the nonce
 		check_admin_referer( "bbl_resync_translation-$post_id", '_bbl_metabox_resync' );
-		
+
 		if ( $this->no_recursion ) {
 			return;
 		}

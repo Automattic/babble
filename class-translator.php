@@ -6,7 +6,7 @@
  * @since 1.4
  */
 class Babble_Translator extends Babble_Plugin {
-    
+
 	/**
 	 * A version number used for cachebusting, rewrite rule
 	 * flushing, etc.
@@ -24,7 +24,7 @@ class Babble_Translator extends Babble_Plugin {
     }
 
 	/**
-	 * Called by admin_init, this method ensures we are all up to date and 
+	 * Called by admin_init, this method ensures we are all up to date and
 	 * so on.
 	 *
 	 * @return void

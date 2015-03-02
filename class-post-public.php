@@ -1268,7 +1268,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns the equivalent post_type in the specified language.
 	 *
 	 * @param string $post_type A post_type to return in a given language
-	 * @param string $lang_code The language code for the required language 
+	 * @param string $lang_code The language code for the required language
 	 * @return string The equivalent post_type name, or given post_type if it doesn't exist
 	 **/
 	public function get_post_type_in_lang( $post_type, $lang_code ) {
