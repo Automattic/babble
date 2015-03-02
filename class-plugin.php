@@ -169,53 +169,6 @@ class Babble_Plugin {
 		$mofile = $this->dir( "/locale/$locale.mo" );
 		load_textdomain( $this->name, $mofile );
 	}
-	
-	/**
-	 * Register a WordPress action and map it back to the calling object
-	 *
-	 * @param string $action Name of the action
-	 * @param string $function Function name (optional)
-	 * @param int $priority WordPress priority (optional)
-	 * @param int $accepted_args Number of arguments the function accepts (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function add_action ($action, $function = '', $priority = 10, $accepted_args = 1) {
-		if ( $priority === null )
-			$priority = 10;
-		add_action ($action, array ($this, $function == '' ? $action : $function), $priority, $accepted_args);
-	}
-
-
-	/**
-	 * Register a WordPress filter and map it back to the calling object
-	 *
-	 * @param string $action Name of the action
-	 * @param string $function Function name (optional)
-	 * @param int $priority WordPress priority (optional)
-	 * @param int $accepted_args Number of arguments the function accepts (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function add_filter ($filter, $function = '', $priority = 10, $accepted_args = 1) {
-		add_filter ($filter, array ($this, $function == '' ? $filter : $function), $priority, $accepted_args);
-	}
-
-
-	/**
-	 * De-register a WordPress filter and map it back to the calling object
-	 *
-	 * @param string $action Name of the action
-	 * @param string $function Function name (optional)
-	 * @param int $priority WordPress priority (optional)
-	 * @param int $accepted_args Number of arguments the function accepts (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function remove_filter ($filter, $function = '', $priority = 10, $accepted_args = 1) {
-		remove_filter ($filter, array ($this, $function == '' ? $filter : $function), $priority, $accepted_args);
-	}
-
 
 	/**
 	 * Special activation function that takes into account the plugin directory
