@@ -45,18 +45,18 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 **/
 	function __construct() {
 		$this->setup( 'babble-tgt', 'plugin' );
-		$this->add_action( 'admin_menu' );
-		$this->add_action( 'load-post-new.php', 'load_post' );
-		$this->add_action( 'load-post.php', 'load_post' );
-		$this->add_action( 'load-tools_page_btgt', 'load_tools_page' );
-		$this->add_action( 'save_post', null, null, 2 );
-		$this->add_filter( 'bbl_metaboxes_for_translators', 'metaboxes_for_translators' );
-		$this->add_filter( 'bbl_pre_sync_properties', 'pre_sync_properties', null, 2 );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'load-post-new.php', array( $this, 'load_post' ) );
+		add_action( 'load-post.php', array( $this, 'load_post' ) );
+		add_action( 'load-tools_page_btgt', array( $this, 'load_tools_page' ) );
+		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
+		add_filter( 'bbl_metaboxes_for_translators', array( $this, 'metaboxes_for_translators' ) );
+		add_filter( 'bbl_pre_sync_properties', array( $this, 'pre_sync_properties' ), 10, 2 );
 	}
-	
+
 	// HOOKS AND ALL THAT
 	// ==================
-	
+
 	/**
 	 * Hooks the WP admin_menu action to add a menu to
 	 * the Tools section.

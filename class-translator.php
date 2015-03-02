@@ -14,11 +14,11 @@ class Babble_Translator extends Babble_Plugin {
 	 * @var float
 	 **/
 	protected $version;
-	
+
     public function __construct() {
         $this->setup( 'babble-translator', 'plugin' );
-        
-        $this->add_action( 'admin_init', 'maybe_upgrade' );
+
+        add_action( 'admin_init', array( $this, 'maybe_upgrade' ) );
 
 		$this->version = 1;
     }

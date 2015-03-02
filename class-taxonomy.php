@@ -44,22 +44,21 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 **/
 	public function __construct() {
 		$this->setup( 'babble-taxonomy', 'plugin' );
-		$this->add_action( 'bbl_created_new_shadow_post', 'created_new_shadow_post', null, 2 );
-		$this->add_action( 'bbl_registered_shadow_post_types', 'registered_shadow_post_types' );
-		$this->add_action( 'init', 'init_early', 0 );
-		$this->add_action( 'parse_request' );
-		$this->add_action( 'registered_taxonomy', null, null, 3 );
-		$this->add_action( 'save_post', null, null, 2 );
-		$this->add_action( 'set_object_terms', null, null, 5 );
-		$this->add_filter( 'get_terms' );
-		$this->add_filter( 'term_link', null, null, 3 );
-		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
-		$this->add_filter( 'body_class', null, null, 2 );
-		$this->add_filter( 'taxonomy_template' );
-		$this->add_filter( 'admin_body_class' );
-
+		add_action( 'bbl_created_new_shadow_post', array( $this, 'created_new_shadow_post' ), 10, 2 );
+		add_action( 'bbl_registered_shadow_post_types', array( $this, 'registered_shadow_post_types' ) );
+		add_action( 'init', array( $this, 'init_early' ), 0 );
+		add_action( 'parse_request', array( $this, 'parse_request' ) );
+		add_action( 'registered_taxonomy', array( $this, 'registered_taxonomy' ), 10, 3 );
+		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
+		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 5 );
+		add_filter( 'get_terms', array( $this, 'get_terms' ) );
+		add_filter( 'term_link', array( $this, 'term_link' ), 10, 3 );
+		add_filter( 'bbl_translated_taxonomy', array( $this, 'bbl_translated_taxonomy' ), 10, 2 );
+		add_filter( 'body_class', array( $this, 'body_class' ), 10, 2 );
+		add_filter( 'taxonomy_template', array( $this, 'taxonomy_template' ) );
+		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 	}
-	
+
 	// WP HOOKS
 	// ========
 

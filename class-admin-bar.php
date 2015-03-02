@@ -7,10 +7,10 @@
  * @since 0.2
  */
 class Babble_Admin_bar extends Babble_Plugin {
-	
+
 	function __construct() {
 		$this->setup( 'babble-switcher-menu', 'plugin' );
-		$this->add_action( 'admin_bar_menu', null, 100 );
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 10, 100 );
 	}
 
 	/**

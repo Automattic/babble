@@ -11,9 +11,9 @@ class Babble_Comment extends Babble_Plugin {
 	public function __construct() {
 		$this->setup( 'babble-comment', 'plugin' );
 
-		$this->add_filter( 'comments_template_args' );
-		$this->add_filter( 'preprocess_comment' );
-		$this->add_filter( 'get_comments_number', null, null, 2 );
+		add_filter( 'comments_template_args', array( $this, 'comments_template_args' ) );
+		add_filter( 'preprocess_comment', array( $this, 'preprocess_comment' ) );
+		add_filter( 'get_comments_number', array( $this, 'get_comments_number' ), 10, 2 );
 	}
 
 	/**

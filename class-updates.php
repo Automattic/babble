@@ -11,8 +11,8 @@ class Babble_Updates extends Babble_Plugin {
 	public function __construct() {
 		$this->setup( 'babble-updates', 'plugin' );
 
-		$this->add_action( 'plugins_loaded' );
-		$this->add_filter( 'euapi_plugin_handler', null, 10, 2 );
+		add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ) );
+		add_filter( 'euapi_plugin_handler', array( $this, 'euapi_plugin_handler' ), 10, 2 );
 	}
 
 	/**

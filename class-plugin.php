@@ -145,13 +145,13 @@ class Babble_Plugin {
 
 		// Suffix for enqueuing
 		$this->suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '.dev' : '';
-		
+
 		if ( is_admin() ) {
 			// Admin notices
-			$this->add_action( 'admin_notices', '_admin_notices' );
+			add_action( 'admin_notices', array( $this, '_admin_notices' ) );
 		}
 
-		$this->add_action( 'init', 'load_locale' );
+		add_action( 'init', array( $this, 'load_locale' ) );
 	}
 
 	/**
