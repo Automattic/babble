@@ -7,7 +7,7 @@
  * @since 1.4
  */
 class Babble_Jobs extends Babble_Plugin {
-	
+
 	/**
 	 * A version number used for cachebusting, rewrite rule
 	 * flushing, etc.
@@ -128,14 +128,14 @@ class Babble_Jobs extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP action load-post.php to detect people
-	 * trying to edit translated posts, and instead kick 
+	 * trying to edit translated posts, and instead kick
 	 * redirect them to an existing translation job or
 	 * create a translation job and direct them to that.
 	 *
 	 * @TODO this should be in the post-public class
-	 * 
+	 *
 	 * @action load-post.php
-	 * 
+	 *
 	 * @return void
 	 **/
 	public function load_post_edit() {
@@ -496,7 +496,7 @@ class Babble_Jobs extends Babble_Plugin {
 	/**
 	 * undocumented function
 	 *
-	 * @param  
+	 * @param
 	 * @return void
 	 **/
 	public function add_meta_boxes( $post_type ) {
@@ -936,7 +936,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * by lang code.
 	 *
 	 * @param WP_Post|int $post A WP Post object or a post ID
-	 * @return array An array of WP Translation Job Post objects 
+	 * @return array An array of WP Translation Job Post objects
 	 */
 	public function get_incomplete_post_jobs( $post ) {
 		$post = get_post( $post );
@@ -948,7 +948,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * by lang code.
 	 *
 	 * @param WP_Post|int $post A WP Post object or a post ID
-	 * @return array An array of WP Translation Job Post objects 
+	 * @return array An array of WP Translation Job Post objects
 	 */
 	public function get_completed_post_jobs( $post ) {
 		$post = get_post( $post );
@@ -960,7 +960,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * by lang code.
 	 *
 	 * @param object $term A WP Term object or a term ID
-	 * @return array An array of WP Translation Job Post objects 
+	 * @return array An array of WP Translation Job Post objects
 	 */
 	public function get_term_jobs( $term, $taxonomy ) {
 		$term = get_term( $term, $taxonomy );
