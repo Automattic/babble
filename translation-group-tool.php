@@ -260,5 +260,3 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 } // END BabbleTranslationGroupTool class
 
 $bbl_translation_group_tool = new BabbleTranslationGroupTool();
-
-?>
