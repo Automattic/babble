@@ -453,7 +453,7 @@ class Babble_Languages extends Babble_Plugin {
 	protected function is_rtl( $lang ) {
 		$locale_file = WP_LANG_DIR . "/$lang.php";
 		if ( ( 0 === validate_file( $lang ) ) && is_readable( $locale_file ) ) {
-			$locale_file_code = file_get_contents( $locale_file );
+			$locale_file_code = wpcom_vip_file_get_contents( $locale_file );
 			// Regex to find something looking like: $text_direction = 'rtl';
 			return ( (bool) preg_match( '/\$text_direction\s?=\s?[\'|"]rtl[\'|"]\s?;/i', $locale_file_code ) ) ? 'rtl' : 'ltr';
 		}
