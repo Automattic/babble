@@ -7,7 +7,7 @@
  * @since Alpha 1
  */
 class Babble_Log {
-	
+
 	/**
 	 * Whether to log or not.
 	 *
@@ -16,13 +16,13 @@ class Babble_Log {
 	public $logging = false;
 
 	/**
-	 * A unique ID so we can identify different sessions in 
+	 * A unique ID so we can identify different sessions in
 	 * the error log.
 	 *
 	 * @var string
 	 **/
 	protected $session;
-	
+
 	/**
 	 * Construction time!
 	 *
@@ -33,7 +33,7 @@ class Babble_Log {
 	}
 
 	/**
-	 * Hooks the WP admin_init action 
+	 * Hooks the WP admin_init action
 	 *
 	 * @return void
 	 **/
