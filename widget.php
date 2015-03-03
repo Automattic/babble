@@ -26,9 +26,9 @@ class Babble_Widget extends WP_Widget {
 			'show_as' => 'dropdown',
 		), $args );
 
-		echo $args['before_widget'];
+		echo esc_html( $args['before_widget'] );
 
-		echo $args['before_title'] . __( 'Languages', 'babble' ) . $args['after_title'];
+		echo esc_html( $args['before_title'] . __( 'Languages', 'babble' ) . $args['after_title'] );
 
 		$list = bbl_get_switcher_links();
 
@@ -51,14 +51,14 @@ class Babble_Widget extends WP_Widget {
 						ability to create one; so here's a link
 						to allow him/her to do so
 					*/
-					echo '<option ' . $selected . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . __('Add') . ']</option>';
+					echo '<option ' . esc_attr( $selected ) . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . __('Add') . ']</option>';
 				}
 				elseif ( $item[ 'href'] ) {
 					/*
 						Means there is a translation of this page
 						into the language in question
 					*/
-					echo '<option ' . $selected . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . '</option>';
+					echo '<option ' . esc_attr( $selected ) . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . '</option>';
 				}
 				elseif ( 'on' === $instance['show_if_unavailable'] ) {
 					/*
@@ -115,7 +115,7 @@ class Babble_Widget extends WP_Widget {
 
 		}
 
-		echo $args['after_widget'];
+		echo esc_html( $args['after_widget'] );
 	}
 
 	function update( $new_instance, $old_instance ) {
@@ -136,14 +136,14 @@ class Babble_Widget extends WP_Widget {
 		?>
 		<p>
 			<?php _e('Show as:','babble'); ?>
-			<select id="<?php echo $this->get_field_id('show_as'); ?>" name="<?php echo $this->get_field_name('show_as'); ?>">
+			<select id="<?php echo esc_attr( $this->get_field_id( 'show_as' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name('show_as') ); ?>">
 				<option value="dropdown" <?php selected( $instance['show_as'],'dropdown' ); ?>><?php _e('Dropdown','babble'); ?></option>
 				<option value="list" <?php selected( $instance['show_as'],'list' ); ?>><?php _e('List','babble'); ?></option>
 			</select>
 		</p>
 		<p>
-			<input id="<?php echo $this->get_field_id('show_if_unavailable'); ?>" name="<?php echo $this->get_field_name('show_if_unavailable'); ?>" type="checkbox" <?php checked( 'on', $instance['show_if_unavailable'] ); ?> />
-			<label for="<?php echo $this->get_field_id('show_if_unavailable'); ?>"><?php _e('Show all languages in widget, even if there is no translation', 'babble'); ?></label>
+			<input id="<?php echo esc_attr( $this->get_field_id( 'show_if_unavailable' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_if_unavailable' ) ); ?>" type="checkbox" <?php checked( 'on', $instance['show_if_unavailable'] ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_if_unavailable' ) ); ?>"><?php _e('Show all languages in widget, even if there is no translation', 'babble'); ?></label>
 		</p>
 		<p class="description">
 			<?php _e("Don't worry: if there's no equivalent page, the link won't be clickable.","babble"); ?>

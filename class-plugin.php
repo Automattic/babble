@@ -324,7 +324,7 @@ class Babble_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	protected function render_admin_notice( $notice ) {
-		echo "<div class='updated'><p>$notice</p></div>";
+		echo "<div class='updated'><p>" . esc_html( $notice ) . "</p></div>";
 	}
 
 	/**
@@ -335,7 +335,7 @@ class Babble_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	protected function render_admin_error( $error ) {
-		echo "<div class='error'><p>$error</p></div>";
+		echo "<div class='error'><p>" . esc_html( $error ) . "</p></div>";
 	}
 
 	/**

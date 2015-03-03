@@ -999,9 +999,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_switch_to_lang( bbl_get_default_lang_code() );
 		$view_link = get_permalink( $default_post->ID );
 		bbl_restore_lang();
-		$edit_title = esc_attr( sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		echo "<a href='$view_link' title='$view_title'>" . __( 'View', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'Edit', 'babble' ) . "</a>";
+		$edit_title = sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) );
+		$view_title = sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) );
+		echo "<a href='" . esc_url( $view_link ) . "' title='" . esc_attr( $view_title ) . "'>" . __( 'View', 'babble' ) . "</a> | <a href='" . esc_url( $edit_link ) . "' title='" . esc_attr( $edit_title ) . "'>" . __( 'Edit', 'babble' ) . "</a>";
 	}
 
 	// PUBLIC METHODS
