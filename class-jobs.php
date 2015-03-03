@@ -885,7 +885,7 @@ class Babble_Jobs extends Babble_Plugin {
 			foreach ( $completed_jobs as $lang_code => $job ) {
 				$lang = bbl_get_lang( $lang_code );
 				?>
-				<p><?php printf( '%s: <a href="%s">%s</a>', $lang->display_name, get_edit_post_link( $job->ID ), __( 'View', 'babble' ) ); ?>
+				<p><?php printf( '%s: <a href="%s">%s</a>', esc_html( $lang->display_name ), esc_url( get_edit_post_link( $job->ID ) ), __( 'View', 'babble' ) ); ?>
 				<?php
 			}
 
@@ -898,7 +898,7 @@ class Babble_Jobs extends Babble_Plugin {
 				$lang = $this->get_job_language( $job );
 				$status = get_post_status_object( $job->post_status );
 				?>
-				<p><?php printf( '%s (%s)', $lang->display_name, $status->label ); ?>
+				<p><?php printf( '%s (%s)', esc_html( $lang->display_name ), esc_html( $status->label ) ); ?>
 				<?php
 			}
 
@@ -907,7 +907,7 @@ class Babble_Jobs extends Babble_Plugin {
 				'bbl_job_post' => "{$post->post_type}|{$post->ID}",
 			);
 			?>
-			<p><a href="<?php echo add_query_arg( $args, admin_url( 'edit.php' ) ); ?>"><?php _e( 'View pending translation jobs &raquo;', 'babble' ); ?></a></p>
+			<p><a href="<?php echo esc_url( add_query_arg( $args, admin_url( 'edit.php' ) ) ); ?>"><?php _e( 'View pending translation jobs &raquo;', 'babble' ); ?></a></p>
 			<?php
 
 		} else if ( $capable ) {
