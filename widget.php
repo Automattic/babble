@@ -26,9 +26,9 @@ class Babble_Widget extends WP_Widget {
 			'show_as' => 'dropdown',
 		), $args );
 
-		echo esc_html( $args['before_widget'] );
+		echo $args['before_widget'];
 
-		echo esc_html( $args['before_title'] . __( 'Languages', 'babble' ) . $args['after_title'] );
+		echo $args['before_title'] . __( 'Languages', 'babble' ) . $args['after_title'];
 
 		$list = bbl_get_switcher_links();
 
@@ -115,7 +115,7 @@ class Babble_Widget extends WP_Widget {
 
 		}
 
-		echo esc_html( $args['after_widget'] );
+		echo $args['after_widget'];
 	}
 
 	function update( $new_instance, $old_instance ) {
