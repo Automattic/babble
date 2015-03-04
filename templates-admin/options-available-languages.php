@@ -1,4 +1,4 @@
-<?php 
+<?php
 	/**
 	 * HTML template for the Available Languages screen in the admin area.
 	 *
@@ -12,9 +12,9 @@
 
 <form action="" method="post">
 
-<?php 
+<?php
 	// @FIXME: This contains no element, like a post ID in a publish/update post nonce, which is unique to this request
-	wp_nonce_field( 'babble_lang_prefs', '_babble_nonce' ); 
+	wp_nonce_field( 'babble_lang_prefs', '_babble_nonce' );
 ?>
 
 <p><?php _e( 'Please select the languages you wish to translate this site into. You should select at least two, and select "Save Changes" below the languages table.', 'babble' ); ?></p>

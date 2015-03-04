@@ -31,7 +31,7 @@ $bbl_translating = true;
 /**
  * Start doing translation.
  *
- * @return void 
+ * @return void
  **/
 function bbl_start_translating() {
 	global $bbl_translating;
@@ -42,7 +42,7 @@ function bbl_start_translating() {
 /**
  * Stop doing any translation.
  *
- * @return void 
+ * @return void
  **/
 function bbl_stop_translating() {
 	global $bbl_translating;
@@ -53,7 +53,7 @@ function bbl_stop_translating() {
 /**
  * Should we be doing any translation.
  *
- * @return boolean True for yes 
+ * @return boolean True for yes
  **/
 function bbl_translating() {
 	global $bbl_translating;

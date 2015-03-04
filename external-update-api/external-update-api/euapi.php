@@ -483,7 +483,7 @@ class EUAPI {
 	 * Parse a plugin or theme file to fetch its header values.
 	 *
 	 * Based on WordPress' `get_file_data()` function.
-	 * 
+	 *
 	 * @param  string $content     The file content.
 	 * @param  array  $all_headers The headers to return.
 	 * @return array               The header values.
@@ -513,7 +513,7 @@ class EUAPI {
 
 	/**
 	 * Pre-load our handlers so the plugin/theme update filters can function.
-	 * 
+	 *
 	 * @param  bool|WP_Error $default    Default return value for the update. Usually boolean true.
 	 * @param  array         $hook_extra Extra arguments passed to hooked filters.
 	 * @return bool|WP_Error             Boolean true or a WP_Error object.
@@ -532,7 +532,7 @@ class EUAPI {
 
 	/**
 	 * If we have a handler for this update, do some post-processing after the update.
-	 * 
+	 *
 	 * @param  bool|WP_Error $default    Default return value for the update. Usually boolean true.
 	 * @param  array         $hook_extra Extra arguments passed to hooked filters.
 	 * @param  array         $result     Installation result data.
@@ -574,7 +574,7 @@ class EUAPI {
 
 	/**
 	 * Singleton instantiator.
-	 * 
+	 *
 	 * @return EUAPI Our instance of the EUAPI class.
 	 */
 	public static function init() {
@@ -590,7 +590,7 @@ class EUAPI {
 
 	/**
 	 * Eat our own dog food. Handle updates to EUAPI through GitHub.
-	 * 
+	 *
 	 * @param  EUAPI_Handler|null $handler The handler object for this item, or null if a handler isn't set.
 	 * @param  EUAPI_Item         $item    The item in question.
 	 * @return EUAPI_Handler|null The handler for this item, or null.

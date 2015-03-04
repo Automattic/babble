@@ -6,7 +6,7 @@
  * @since 1.5
  */
 abstract class Babble_Meta_Field {
-	
+
 	public function __construct( WP_Post $post, $meta_key, $meta_title, array $args = array() ) {
 		$this->post       = $post;
 		$this->meta_key   = $meta_key;
