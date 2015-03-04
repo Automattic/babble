@@ -256,7 +256,7 @@ class Babble_Plugin {
 		} else {
 			$msg = sprintf( __( "This plugin admin template could not be found: %s" ), $this->dir( "templates-admin/$template_file" ) );
 			bbl_log( "Plugin template error: $msg", true );
-			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
+			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>" . esc_html( $msg ) . "</p>";
 		}
 	}
 
@@ -394,7 +394,7 @@ class Babble_Plugin {
 		// Oh dear. We can't find the template.
 		$msg = sprintf( __( "This plugin template could not be found, perhaps you need to hook `sil_plugins_dir` and `sil_plugins_url`: %s" ), $this->dir( "templates/$template_file" ) );
 		bbl_log( "Template error: $msg", true );
-		echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
+		echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>" . esc_html( $msg ) . "</p>";
 	}
 
 	/**
