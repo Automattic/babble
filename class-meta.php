@@ -18,7 +18,7 @@ abstract class Babble_Meta_Field {
 	abstract public function get_input( $name, $value );
 
 	public function get_output() {
-		return esc_html( $this->get_value() );
+		return $this->get_value();
 	}
 
 	public function get_title() {
@@ -60,7 +60,7 @@ class Babble_Meta_Field_Textarea extends Babble_Meta_Field {
 	}
 
 	public function get_output() {
-		return nl2br( esc_html( $this->get_value() ) );
+		return $this->get_value();
 	}
 
 }
