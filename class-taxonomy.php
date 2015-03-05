@@ -74,7 +74,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			'public' => false,
 			'show_ui' => false,
 			'show_in_nav_menus' => false,
-			'label' => esc_html__( 'Term Translation ID', 'babble' ),
+			'label' => __( 'Term Translation ID', 'babble' ),
 		) );
 	}
 
