@@ -30,12 +30,12 @@
 	<div>
 		<form action="" method="get">
 			<input type="hidden" name="page" value="btgt" />
-			<p><?php _e( 'Show only the following statuses:', 'babble' ); ?></p>
+			<p><?php esc_html_e( 'Show only the following statuses:', 'babble' ); ?></p>
 			<p><?php
 				$stati = get_post_stati( null, 'objects' );
 				$selected_stati = ( isset( $_GET[ 'bbl_stati' ] ) ) ? $_GET[ 'bbl_stati' ] : array( 'publish', 'private', 'draft', 'private', 'future', 'pending' );
 				foreach ( $stati as $status => $status_obj ) : ?>
-				<label for="status-<?php echo esc_attr( $status ); ?>"><input type="checkbox" name="bbl_stati[]" value="<?php echo esc_attr( $status ); ?>" id="status-<?php echo esc_attr( $status ); ?>" <?php checked( in_array( $status, $selected_stati ) ); ?> /> <?php echo esc_html( $status_obj->label ); ?> (<?php echo esc_html( $status_obj->public ) ? __( 'public', 'babble' ) : __( 'hidden', 'babble' ); ?>)</label><br />
+				<label for="status-<?php echo esc_attr( $status ); ?>"><input type="checkbox" name="bbl_stati[]" value="<?php echo esc_attr( $status ); ?>" id="status-<?php echo esc_attr( $status ); ?>" <?php checked( in_array( $status, $selected_stati ) ); ?> /> <?php echo esc_html( $status_obj->label ); ?> (<?php echo esc_html( $status_obj->public ) ? esc_html__( 'public', 'babble' ) : esc_html__( 'hidden', 'babble' ); ?>)</label><br />
 			<?php endforeach; ?></p>
 			<?php submit_button( __( 'Filter', 'babble' ) ); ?>
 		</form>

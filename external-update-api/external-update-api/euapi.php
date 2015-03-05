@@ -98,7 +98,7 @@ class EUAPI {
 		switch ( $version ) {
 
 			case 1.0:
-				_doing_it_wrong( __METHOD__, sprintf( __( 'External Update API is not compatible with version %s of the WordPress Plugin API. Please update to the latest version of WordPress.', 'euapi' ), $version ), 0.4 );
+				_doing_it_wrong( __METHOD__, sprintf( esc_html__( 'External Update API is not compatible with version %s of the WordPress Plugin API. Please update to the latest version of WordPress.', 'euapi' ), $version ), 0.4 );
 				return $args;
 				break;
 
@@ -157,7 +157,7 @@ class EUAPI {
 		switch ( $version ) {
 
 			case 1.0:
-				_doing_it_wrong( __METHOD__, sprintf( __( 'External Update API is not compatible with version %s of the WordPress Theme API. Please update to the latest version of WordPress.', 'euapi' ), $version ), 0.4 );
+				_doing_it_wrong( __METHOD__, sprintf( esc_html__( 'External Update API is not compatible with version %s of the WordPress Theme API. Please update to the latest version of WordPress.', 'euapi' ), $version ), 0.4 );
 				return $args;
 				break;
 

@@ -74,7 +74,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			'public' => false,
 			'show_ui' => false,
 			'show_in_nav_menus' => false,
-			'label' => __( 'Term Translation ID', 'babble' ),
+			'label' => esc_html__( 'Term Translation ID', 'babble' ),
 		) );
 	}
 
@@ -309,7 +309,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		if ( !is_object($term) ) {
-			$term = new WP_Error('invalid_term', __('Empty Term', 'babble'));
+			$term = new WP_Error( 'invalid_term', esc_html__( 'Empty Term', 'babble' ) );
 		}
 
 		if ( is_wp_error( $term ) ) {
