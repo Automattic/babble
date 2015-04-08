@@ -580,7 +580,7 @@ class Babble_Locale {
 	 * @return string A language code
 	 **/
 	protected function get_cookie_content_lang() {
-		return ( isset( $_COOKIE[ $this->content_lang_cookie ] ) ) ? $_COOKIE[ $this->content_lang_cookie ] : '';
+		return ( isset( $this->content_lang_cookie ) && isset( $_COOKIE[ $this->content_lang_cookie ] ) ) ? $_COOKIE[ $this->content_lang_cookie ] : '';
 	}
 
 	/**
@@ -591,7 +591,7 @@ class Babble_Locale {
 	 * @return string A language code
 	 **/
 	protected function get_cookie_interface_lang() {
-		return ( isset( $_COOKIE[ $this->interface_lang_cookie] ) ) ? $_COOKIE[ $this->interface_lang_cookie ] : '';
+		return ( isset( $this->interface_lang_cookie] ) && isset( $_COOKIE[ $this->interface_lang_cookie ] ) ) ? $_COOKIE[ $this->interface_lang_cookie ] : '';
 	}
 
 	/**
