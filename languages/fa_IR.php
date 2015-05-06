@@ -1,1 +1,2 @@
-<?php $text_direction = "rtl"; ?>
+<?php
+	$text_direction = "rtl";
