@@ -54,6 +54,8 @@ $WP_CLI core config --dbname=wordpress --dbuser=wordpress --dbpass=password <<PH
 define( 'WORDPRESS_FAKE_MAIL_DIR', '${WORDPRESS_FAKE_MAIL_DIR}' );
 PHP
 $WP_CLI core install --url=local.wordpress.dev --title="WordPress Testing" --admin_user=admin --admin_password=password --admin_email=testing@example.invalid
+# Babble specific language installation, can be removed with https://github.com/Automattic/babble/pull/201
+$WP_CLI eval "require_once( ABSPATH . 'wp-admin/includes/translation-install.php' ); wp_download_language_pack( 'de_DE' );  wp_download_language_pack( 'pt_BR' );  wp_download_language_pack( 'ar' );"
 cp -pr $TRAVIS_BUILD_DIR $WORDPRESS_SITE_DIR/wp-content/plugins/
 ls -al $WORDPRESS_SITE_DIR/wp-content/plugins/
 
