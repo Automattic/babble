@@ -62,7 +62,7 @@ class FeatureContext extends MinkContext {
 
 		if (!preg_match($regex, $request_uri)) {
 			$message = sprintf('Current request URI "%s" does not match the regex "%s".', $request_uri, $regex);
-			throw new ExpectationException($message, $session);
+			throw new \Behat\Mink\Exception\ExpectationException($message, $session);
 		}
 	}
 
