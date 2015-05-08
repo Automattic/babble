@@ -37,7 +37,7 @@ class FeatureContext extends MinkContext {
 	}
 
 	/**
-	 * @When /^I am logged in to WordPress as "([^"]+)" with the password "([^"]+)" and I am on "([^"]+)"$/
+	 * @When /^I am logged in as "([^"]+)" with the password "([^"]+)" and I am on "([^"]+)"$/
 	 */
 	public function wpLogin( $username, $password, $redirect_to ) {
 		$session = $this->getSession();
