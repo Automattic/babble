@@ -42,6 +42,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$this->add_action( 'pre_get_posts' );
 		$this->add_action( 'save_post', 'save_job', null, 2 );
 		$this->add_action( 'save_post', null, null, 2 );
+		$this->add_action( 'before_delete_post', 'clean_post_jobs_cache_on_delete_job', null, 2 );
 		$this->add_action( 'wp_before_admin_bar_render' );
 
 		$this->add_filter( 'admin_title', null, null, 2 );
@@ -1015,6 +1016,35 @@ class Babble_Jobs extends Babble_Plugin {
 
 		return $return;
 
+	}
+
+	/**
+	 * Clean the caches for an object's jobs.
+	 *
+	 * @param int The ID of the object (eg. post ID or term ID)
+	 * @param string $type Either 'term' or 'post'
+	 * @param string $name The post type name or the term's taxonomy name
+	 */
+	public function clean_object_jobs_cache( $id, $type, $name ) {
+
+		wp_cache_delete( "{$id}|{$type}|{$name}", 'bbl_object_jobs' );
+	}
+
+	/**
+	 * Clean a post's jobs cache when a job is deleted.
+	 *
+	 * Hooks in on before_delete_post
+	 *
+	 * @param int $post_id
+	 */
+	public function clean_post_jobs_cache_on_delete_job( $post_id ) {
+
+		if ( get_post_type( $post_id ) !== 'bbl_job' ) {
+			return;
+		}
+
+		$objects = $this->get_job_objects( $post_id );
+		$this->clean_object_jobs_cache( $objects['post']->ID, 'post', $objects['post']->post_type );
 	}
 
 	public function get_job_language( $job ) {
