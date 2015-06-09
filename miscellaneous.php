@@ -378,7 +378,7 @@ class Bbl_Comment_Query {
 		$comments = $wpdb->get_results( $query );
 		$comments = apply_filters_ref_array( 'the_comments', array( $comments, $this ) );
 
-		wp_cache_add( $cache_key, $comments, 'comment' );
+		wp_cache_set( $cache_key, $comments, 'comment' );
 
 		return $comments;
 	}

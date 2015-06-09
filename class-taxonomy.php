@@ -934,7 +934,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 			$transid = $this->set_transid( $target_term_id );
 		}
 
-		wp_cache_add( $target_term_id, $transid, 'bbl_term_transids' );
+		wp_cache_set( $target_term_id, $transid, 'bbl_term_transids' );
 
 		return $transid;
 	}
