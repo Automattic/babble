@@ -999,6 +999,7 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( empty( $jobs ) )
 			return array();
 
+		$jobs = array_map( 'get_post', $jobs );
 		$return = array();
 
 		foreach ( $jobs as $job ) {
