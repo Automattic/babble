@@ -393,7 +393,7 @@ class Babble_Languages extends Babble_Plugin {
 			// Now set a reassuring message and redirect back to the clean settings page
 			$this->set_admin_notice( __( 'Your language settings have been saved.', 'babble' ) );
 			$url = admin_url( 'options-general.php?page=babble_languages' );
-			wp_redirect( $url );
+			wp_safe_redirect( $url );
 			exit;
 		}
 	}
