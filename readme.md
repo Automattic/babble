@@ -58,7 +58,7 @@ _Add the translation on the translation editor_
 
 ## Changelog
 
-### 1.5
+### 1.5.1
 
 * Fix for not syncing when updating post meta (#261)
 
