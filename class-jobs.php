@@ -1177,6 +1177,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 		}
 
+		wp_cache_delete( "{$post->ID}|post|$post->post_type", 'bbl_object_jobs' );
+
 		return $jobs;
 	}
 
