@@ -3,7 +3,7 @@
 * Tags: translations, translation, multilingual, i18n, l10n, localisation
 * Requires at least: 3.5.1
 * Tested up to: 4.1.1
-* Stable tag: 1.5
+* Stable tag: 1.5.1
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,10 @@ _View the jobs in the translation queue_
 _Add the translation on the translation editor_
 
 ## Changelog
+
+### 1.5
+
+* Fix for not syncing when updating post meta (#261)
 
 ### 1.5
 
