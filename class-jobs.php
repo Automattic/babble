@@ -978,14 +978,23 @@ class Babble_Jobs extends Babble_Plugin {
 	 */
 	public function get_object_jobs( $id, $type, $name, $statuses = array( 'new', 'in-progress', 'complete' ) ) {
 
-		$jobs = get_posts( array(
-			'bbl_translate'  => false,
-			'post_type'      => 'bbl_job',
-			'post_status'    => $statuses,
-			'meta_key'       => "bbl_job_{$type}",
-			'meta_value'     => "{$name}|{$id}",
-			'posts_per_page' => -1,
-		) );
+		$cache_key  = "{$id}|{$type}|{$name}";
+
+		$jobs = wp_cache_get( $cache_key, 'bbl_object_jobs' );
+
+		if ( false === $post_ids ) {
+			$jobs = get_posts( array(
+				'bbl_translate'  => false,
+				'post_type'      => 'bbl_job',
+				'post_status'    => 'any',
+				'meta_key'       => "bbl_job_{$type}",
+				'meta_value'     => "{$name}|{$id}",
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			) );
+
+			wp_cache_set( $cache_key, $jobs, 'bbl_object_jobs' );
+		}
 
 		if ( empty( $jobs ) )
 			return array();
@@ -993,6 +1002,12 @@ class Babble_Jobs extends Babble_Plugin {
 		$return = array();
 
 		foreach ( $jobs as $job ) {
+
+			// Filter out any jobs not in the requested status.
+			if ( ! in_array( get_post_status( $job ), $statuses ) ) {
+				continue;
+			}
+
 			if ( $lang = $this->get_job_language( $job ) )
 				$return[$lang->code] = $job;
 		}
