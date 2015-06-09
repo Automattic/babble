@@ -982,7 +982,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 		$jobs = wp_cache_get( $cache_key, 'bbl_object_jobs' );
 
-		if ( false === $post_ids ) {
+		if ( false === $jobs ) {
 			$jobs = get_posts( array(
 				'bbl_translate'  => false,
 				'post_type'      => 'bbl_job',
