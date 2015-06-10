@@ -1205,8 +1205,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
 
-		if ( $translations = wp_cache_get( $transid, 'bbl_post_translations' ) ) {
-			return $translations;
+		$translations = wp_cache_get( $transid, 'bbl_post_translation_ids' );
+
+		if ( false !== $translations ) {
+			return array_map( 'get_post', $translations );
 		}
 
 		# @TODO A transid should never be a wp_error. Check and fix.
