@@ -56,6 +56,12 @@ _View the jobs in the translation queue_
 ![Add the translation on the translation editor](screenshot-3.png "Add the translation on the translation editor")     
 _Add the translation on the translation editor_
 
+## Contributing and Testing ##
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for information on contributing.
+
+Please see [the tests readme](tests/README.md) for information on running the unit test suite.
+
 ## Changelog
 
 ### 1.5
