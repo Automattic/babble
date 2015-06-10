@@ -1223,20 +1223,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		foreach ( $langs as $lang )
 			$post_types[] = bbl_get_post_type_in_lang( $post->post_type, $lang->code );
 
-		// Get all the translations in one cached DB query
-		$args = array(
-			// We want a clean listing, without any particular language
-			'bbl_translate' => false,
-			'include' => $post_ids,
-			'post_type' => $post_types,
-			'post_status' => array( 'publish', 'pending', 'draft', 'future' ),
-		);
-		$posts = get_posts( $args );
 		$translations = array();
-		foreach ( $posts as $post )
-			$translations[ $this->get_post_lang_code( $post ) ] = $post;
+		foreach ( $post_ids as $post_id )
+			$translations[ $this->get_post_lang_code( $post_id ) ] = $post_id;
 
-		wp_cache_add( $transid, $translations, 'bbl_post_translations' );
+		wp_cache_add( $transid, $translations, 'bbl_post_translation_ids' );
 
 		return $translations;
 	}
