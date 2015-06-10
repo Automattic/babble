@@ -11,9 +11,6 @@ php:
     - hhvm
 
 env:
-    # trunk:
-    - WP_VERSION=latest WP_MULTISITE=0
-    - WP_VERSION=latest WP_MULTISITE=1
     # latest stable:
     - WP_VERSION=4.2 WP_MULTISITE=0
     - WP_VERSION=4.2 WP_MULTISITE=1
@@ -23,6 +20,14 @@ env:
     # earliest supported:
     - WP_VERSION=3.5 WP_MULTISITE=0
     - WP_VERSION=3.5 WP_MULTISITE=1
+
+matrix:
+    exclude:
+        # don't test 3.5 on hiphop:
+        - php: hhvm
+          env: WP_VERSION=3.5 WP_MULTISITE=0
+        - php: hhvm
+          env: WP_VERSION=3.5 WP_MULTISITE=1
 
 install:
     - composer install
