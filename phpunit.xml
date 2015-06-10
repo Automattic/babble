@@ -16,6 +16,7 @@
 			<directory suffix=".php">./</directory>
 			<exclude>
 				<directory>./bin</directory>
+				<directory>./features</directory>
 				<directory>./languages</directory>
 				<directory>./node_modules</directory>
 				<directory>./svn</directory>
