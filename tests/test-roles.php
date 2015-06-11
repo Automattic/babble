@@ -1,6 +1,6 @@
 <?php
 
-class Roles_Test extends WP_UnitTestCase {
+class Roles_Test extends Babble_UnitTestCase {
 
 	function setUp() {
 
@@ -34,12 +34,6 @@ class Roles_Test extends WP_UnitTestCase {
 			) );
 			grant_super_admin( $this->super->ID );
 		}
-
-		// Force the install/upgrade routines for each Babble class to run.
-		remove_action( 'admin_init', '_maybe_update_core' );
-		remove_action( 'admin_init', '_maybe_update_plugins' );
-		remove_action( 'admin_init', '_maybe_update_themes' );
-		do_action( 'admin_init' );
 
 	}
 
