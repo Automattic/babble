@@ -16,20 +16,7 @@ WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 
 set -ex
 
-download() {
-    if [ `which curl` ]; then
-        curl -s "$1" > "$2";
-    elif [ `which wget` ]; then
-        wget -nv -O "$2" "$1"
-    fi
-}
-
 install_wp() {
-
-	if [ -d $WP_CORE_DIR ]; then
-		return;
-	fi
-
 	mkdir -p $WP_CORE_DIR
 
 	if [ $WP_VERSION == 'latest' ]; then 
@@ -38,10 +25,10 @@ install_wp() {
 		local ARCHIVE_NAME="wordpress-$WP_VERSION"
 	fi
 
-	download https://wordpress.org/${ARCHIVE_NAME}.tar.gz  /tmp/wordpress.tar.gz
+	wget -nv -O /tmp/wordpress.tar.gz https://wordpress.org/${ARCHIVE_NAME}.tar.gz
 	tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C $WP_CORE_DIR
 
-	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php
+	wget -nv -O $WP_CORE_DIR/wp-content/db.php https://raw.github.com/markoheijnen/wp-mysqli/master/db.php
 }
 
 install_test_suite() {
@@ -52,24 +39,17 @@ install_test_suite() {
 		local ioption='-i'
 	fi
 
-	# set up testing suite if it doesn't yet exist
-	if [ ! "$(ls -A $WP_TESTS_DIR)" ]; then
-		# set up testing suite
-		mkdir -p $WP_TESTS_DIR
-		svn co --quiet http://develop.svn.wordpress.org/trunk/tests/phpunit/includes/ $WP_TESTS_DIR
-	fi
-
+	# set up testing suite
+	mkdir -p $WP_TESTS_DIR
 	cd $WP_TESTS_DIR
+	svn co --quiet https://develop.svn.wordpress.org/trunk/tests/phpunit/includes/
 
-	if [ ! -f wp-tests-config.php ]; then
-		download https://develop.svn.wordpress.org/trunk/wp-tests-config-sample.php wp-tests-config.php
-		sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR':" wp-tests-config.php
-		sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" wp-tests-config.php
-		sed $ioption "s/yourusernamehere/$DB_USER/" wp-tests-config.php
-		sed $ioption "s/yourpasswordhere/$DB_PASS/" wp-tests-config.php
-		sed $ioption "s|localhost|${DB_HOST}|" wp-tests-config.php
-	fi
-
+	wget -nv -O wp-tests-config.php https://develop.svn.wordpress.org/trunk/wp-tests-config-sample.php
+	sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR':" wp-tests-config.php
+	sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" wp-tests-config.php
+	sed $ioption "s/yourusernamehere/$DB_USER/" wp-tests-config.php
+	sed $ioption "s/yourpasswordhere/$DB_PASS/" wp-tests-config.php
+	sed $ioption "s|localhost|${DB_HOST}|" wp-tests-config.php
 }
 
 install_db() {
