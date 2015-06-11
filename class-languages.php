@@ -275,7 +275,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return bool|string A URL prefix, as set by the admin when editing the lang prefs, or false if no language
 	 **/
 	public function get_url_prefix_from_code( $code ) {
-		if ( ! isset( $this->langs[ $code ]->url_prefix ) )
+		if ( ! isset( $this->langs[ $code ] ) || ! isset( $this->langs[ $code ]->url_prefix ) )
 			return false;
 		return $this->langs[ $code ]->url_prefix;
 	}
