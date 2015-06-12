@@ -18,16 +18,8 @@ env:
     - WP_VERSION=4.1 WP_MULTISITE=0
     - WP_VERSION=4.1 WP_MULTISITE=1
     # earliest supported:
-    - WP_VERSION=3.5 WP_MULTISITE=0
-    - WP_VERSION=3.5 WP_MULTISITE=1
-
-matrix:
-    exclude:
-        # don't test 3.5 on hiphop:
-        - php: hhvm
-          env: WP_VERSION=3.5 WP_MULTISITE=0
-        - php: hhvm
-          env: WP_VERSION=3.5 WP_MULTISITE=1
+    - WP_VERSION=4.0 WP_MULTISITE=0
+    - WP_VERSION=4.0 WP_MULTISITE=1
 
 install:
     - composer install
