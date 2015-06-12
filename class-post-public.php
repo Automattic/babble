@@ -1051,7 +1051,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: Cater for front pages which don't list the posts
 			if ( 'page' == get_option('show_on_front') && $page_on_front = get_option('page_on_front') ) {
 				// @TODO: Get translated page ID
-				$query_vars[ 'p' ] = $this->get_post_in_lang( $page_on_front, bbl_get_current_lang_code() )->ID;
+				$query_vars[ 'page_id' ] = $this->get_post_in_lang( $page_on_front, bbl_get_current_lang_code() )->ID;
 				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
 				return $query_vars;
 			}
