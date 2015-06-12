@@ -2,7 +2,7 @@
 
 Contributors: Automattic, simonwheatley
 Tags: translations, translation, multilingual, i18n, l10n, localisation
-Requires at least: 3.5.1
+Requires at least: 4.0.0
 Tested up to: 4.2.1
 Stable tag: 1.5
 License: GPLv2 or later
