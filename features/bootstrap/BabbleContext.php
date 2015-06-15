@@ -2,7 +2,8 @@
 
 use Behat\Behat\Context\ClosuredContextInterface,
 	Behat\Behat\Context\TranslatedContextInterface,
-	Behat\Behat\Context\BehatContext,
+	Behat\Behat\Context\Context,
+	Behat\Behat\Context\SnippetAcceptingContext,
 	Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode,
 	Behat\Gherkin\Node\TableNode;
@@ -10,16 +11,19 @@ use Behat\Gherkin\Node\PyStringNode,
 use Behat\MinkExtension\Context\MinkContext;
 use WebDriver\Exception\NoAlertOpenError;
 
+use Johnbillion\WordPressExtension\Context\WordPressContext;
+
 if ( getenv('WORDPRESS_FAKE_MAIL_DIR') ) {
 	define( 'WORDPRESS_FAKE_MAIL_DIR', getenv('WORDPRESS_FAKE_MAIL_DIR') );
 } else {
+	// @TODO fix:
 	define( 'WORDPRESS_FAKE_MAIL_DIR', '/Users/simonwheatley/Vagrants/vvv/www/wordpress-default/mail/' );
 }
 
 /**
- * Features context.
+ * Babble feature context.
  */
-class FeatureContext extends MinkContext {
+class BabbleContext extends WordPressContext implements Context, SnippetAcceptingContext {
 
 	/**
 	 * @Then /echo debugging information/
