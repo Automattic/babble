@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Functions and (mainly) hooks which don't fit in the various 
+ * Functions and (mainly) hooks which don't fit in the various
  * classes for whatever reason. Consider these various things
  * Private access, for this plugin only, please.
  *
@@ -80,7 +80,7 @@ add_action( 'admin_init', 'bbl_admin_init' );
 /**
  * Replicates the core comments_template function, but uses the API
  * to fetch the comments and includes more filters.
- * 
+ *
  * Loads the comment template specified in $file.
  *
  * Will not display the comments template if not on single post or page, or if
@@ -101,7 +101,7 @@ add_action( 'admin_init', 'bbl_admin_init' );
  * @uses $wpdb
  * @uses $post
  * @uses $withcomments Will not try to get the comments if the post has none.
- * 
+ *
  * @see comments_template()
  *
  * @param string $file Optional, default '/comments.php'. The file to load
@@ -142,11 +142,11 @@ function bbl_comments_template( $file = '/comments.php', $separate_comments = fa
 	$comment_author_url = esc_url($commenter['comment_author_url']);
 
 	$query = new Bbl_Comment_Query;
-	$args = array( 
+	$args = array(
 		'order' => 'ASC',
-		'post_id' => $post->ID, 
-		'status' => 'approve', 
-		'status' => 'approve', 
+		'post_id' => $post->ID,
+		'status' => 'approve',
+		'status' => 'approve',
 	);
 	if ( $user_ID) {
 		$args[ 'unapproved_user_id' ] = $user_ID;
@@ -263,7 +263,7 @@ class Bbl_Comment_Query {
 		if ( $show_unapproved ) {
 			$where .= ' ( ';
 		}
-		
+
 		if ( 'hold' == $status )
 			$where .= "comment_approved = '0'";
 		elseif ( 'approve' == $status )
@@ -285,7 +285,7 @@ class Bbl_Comment_Query {
 				$where .= $wpdb->prepare( ' AND user_id = %d', $unapproved_user_id );
 			$where .= ' ) ) ';
 		}
-		
+
 		$order = ( 'ASC' == strtoupper($order) ) ? 'ASC' : 'DESC';
 
 		if ( ! empty( $orderby ) ) {
@@ -339,7 +339,7 @@ class Bbl_Comment_Query {
 		} else if ( '' != $post__in ) {
 			$_post__in = implode(',', array_map( 'absint', $post__in ));
 			$where .= " AND comment_post_ID IN ($_post__in)";
-		} 
+		}
 		if ( '' !== $author_email )
 			$where .= $wpdb->prepare( ' AND comment_author_email = %s', $author_email );
 		if ( '' !== $karma )
@@ -383,5 +383,3 @@ class Bbl_Comment_Query {
 		return $comments;
 	}
 }
-
-?>

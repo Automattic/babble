@@ -426,15 +426,25 @@ class Babble_Locale {
 	 * Set the current (content) lang for this class, and in Query Vars.
 	 *
 	 * @param string $lang The language code to switch to 
-	 * @return void
+	 * @return bool Whether the switch was successful
 	 **/
 	public function switch_to_lang( $lang ) {
 		// @FIXME: Need to validate language here
-		if ( ! is_array( $this->lang_stack ) )
+
+		$stacked = $this->content_lang;
+		$set     = $this->set_content_lang( $lang );
+
+		if ( ! $set ) {
+			return false;
+		}
+
+		if ( ! is_array( $this->lang_stack ) ) {
 			$this->lang_stack = array();
-		$this->lang_stack[] = $this->content_lang;
-		$this->set_content_lang( $lang );
+		}
+		$this->lang_stack[] = $stacked;
+		
 		set_query_var( 'lang', $this->content_lang );
+		return true;
 	}
 	
 	/**
@@ -454,16 +464,19 @@ class Babble_Locale {
 	 * Set the content language code and URL prefix for any 
 	 * subsequent requests.
 	 *
-	 * @FIXME: Currently we don't check that the language is valid
-	 *
 	 * @param string $code A language code
 	 * @return void
 	 **/
 	protected function set_content_lang( $code ) {
 		global $bbl_languages;
 		// Set the content language in the application
+		$url_prefix = $bbl_languages->get_url_prefix_from_code( $code );
+		if ( ! $url_prefix ) {
+			return false;
+		}
 		$this->content_lang = $code;
-		$this->url_prefix = $bbl_languages->get_url_prefix_from_code( $this->content_lang );
+		$this->url_prefix   = $url_prefix;
+		return true;
 	}
 
 	/**
@@ -609,11 +622,11 @@ class Babble_Locale {
 			return;
 
 		if ( $version < 1 ) {
-			error_log( "Babble Locale: Flushing rewrite rules" );
+			bbl_log( "Babble Locale: Flushing rewrite rules", true );
 			flush_rewrite_rules();
 		}
 
-		error_log( "Babble Locale: Done updates" );
+		bbl_log( "Babble Locale: Done updates", true );
 		update_option( $option_name, $this->version );
 	}
 

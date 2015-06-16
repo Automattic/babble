@@ -188,7 +188,6 @@ class Babble_Languages extends Babble_Plugin {
 	 **/
 	public function set_active_langs( $lang_codes ) {
 		$this->parse_available_languages();
-		error_log( "SW: WP_LANG_DIR: " . WP_LANG_DIR );
 		$this->active_langs = $lang_codes;
 	}
 
@@ -275,7 +274,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return bool|string A URL prefix, as set by the admin when editing the lang prefs, or false if no language
 	 **/
 	public function get_url_prefix_from_code( $code ) {
-		if ( ! isset( $this->langs[ $code ]->url_prefix ) )
+		if ( ! isset( $this->langs[ $code ] ) || ! isset( $this->langs[ $code ]->url_prefix ) )
 			return false;
 		return $this->langs[ $code ]->url_prefix;
 	}
@@ -357,9 +356,6 @@ class Babble_Languages extends Babble_Plugin {
 			}
 			$lang_prefs[ $code ] = $lang_pref;
 		}
-		
-		error_log( "SW: Available langs: " . print_r( $this->available_langs, true ) );
-		error_log( "SW: Lang prefs: " . print_r( $lang_prefs, true ) );
 		
 		// Now save the active languages, i.e. the selected languages
 		
