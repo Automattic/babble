@@ -21,8 +21,12 @@ env:
     - WP_VERSION=4.0 WP_MULTISITE=0
     - WP_VERSION=4.0 WP_MULTISITE=1
 
+install:
+    - bash bin/install.sh
+
 before_script:
     - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION 
 
 script:
     - phpunit
+    - bash bin/script.sh
