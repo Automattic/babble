@@ -81,12 +81,12 @@ function bbl_is_public_lang( $lang_code ) {
  * @uses Babble_Locale::switch_to_lang to do the actual work
  * @see switch_to_blog for similarities
  *
- * @param string $lang The language code to switch to
- * @return void
+ * @param string $lang The language code to switch to 
+ * @return bool Whether the switch was successful
  **/
 function bbl_switch_to_lang( $lang ) {
 	global $bbl_locale;
-	$bbl_locale->switch_to_lang( $lang );
+	return $bbl_locale->switch_to_lang( $lang );
 }
 
 /**
