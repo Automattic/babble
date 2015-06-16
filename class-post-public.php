@@ -437,7 +437,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			update_post_meta( $translation->ID, $meta_key, $meta_value );
 		}
 
-		$this->updated_post_meta = false;
+		$this->no_meta_recursion = false;
 	}
 
 	/**
@@ -1459,8 +1459,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	function get_transid( $post, $create = true ) {
 		$post = get_post( $post );
 
-		if ( ! $post->ID )
+		if ( ! $post ) {
 			return false;
+		}
 
 		if ( $transid = wp_cache_get( $post->ID, 'bbl_post_transids' ) ) {
 			return $transid;
