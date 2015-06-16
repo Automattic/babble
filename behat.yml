@@ -9,7 +9,7 @@ default:
       connection:
         db: 'wordpress_test'
         username: 'root'
-        password: 'rofl'
+        password: ''
       symlink:
         from: '%paths.base%'
         to: '%paths.base%/vendor/wordpress/wp-content/plugins/babble'
