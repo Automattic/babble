@@ -1459,8 +1459,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	function get_transid( $post, $create = true ) {
 		$post = get_post( $post );
 
-		if ( ! $post->ID )
+		if ( ! $post ) {
 			return false;
+		}
 
 		if ( $transid = wp_cache_get( $post->ID, 'bbl_post_transids' ) ) {
 			return $transid;
