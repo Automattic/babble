@@ -552,9 +552,6 @@ class Babble_Locale {
 		$pathinfo = trim($pathinfo, '/');
 		$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
 		$pathinfo = trim($pathinfo, '/');
-		$self = trim($self, '/');
-		$self = preg_replace("|^$home_path|", '', $self);
-		$self = trim($self, '/');
 
 		// The requested permalink is in $pathinfo for path info requests and
 		//  $req_uri for other requests.
