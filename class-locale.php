@@ -21,14 +21,14 @@ class Babble_Locale {
 	 *
 	 * @var string
 	 **/
-	protected $content_lang;
+	public $content_lang;
 
 	/**
 	 * The interface language for the current request.
 	 *
 	 * @var string
 	 **/
-	protected $interface_lang;
+	public $interface_lang;
 
 	/**
 	 * The locale for the current request.
