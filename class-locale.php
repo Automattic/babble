@@ -278,6 +278,15 @@ class Babble_Locale {
 			exit;
 		}
 		// Otherwise, simply set the lang for this request
+
+		if ( ! isset( $this->content_lang ) ) {
+			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) ) {
+				$this->set_content_lang_from_prefix( $matches[ 0 ] );
+			} else {
+				$this->set_content_lang_from_prefix( bbl_get_default_lang_url_prefix() );
+			}
+		}
+
 		$wp->query_vars[ 'lang' ] = $this->content_lang;
 		$wp->query_vars[ 'lang_url_prefix' ] = $this->url_prefix;
 	}
@@ -523,7 +532,7 @@ class Babble_Locale {
 		$req_uri_array = explode('?', $req_uri);
 		$req_uri = $req_uri_array[0];
 		$self = $_SERVER['PHP_SELF'];
-		$home_path = parse_url(home_url());
+		$home_path = parse_url( get_option( 'home' ) );
 		if ( isset($home_path['path']) )
 			$home_path = $home_path['path'];
 		else
