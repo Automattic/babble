@@ -322,6 +322,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$slug = $term->slug;
 		$t = get_taxonomy($base_taxonomy);
 	
+		$lang = $this->get_taxonomy_lang_code( $taxonomy );
+		bbl_switch_to_lang( $lang );
+
 		if ( empty($termlink) ) {
 			if ( 'category' == $base_taxonomy ) {
 				$termlink = '?cat=' . $term->term_id;
@@ -347,6 +350,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 			}
 			$termlink = home_url( user_trailingslashit($termlink, 'category') );
 		}
+
+		bbl_restore_lang();
+
 		// STOP copying from get_term_link
 	
 		return $termlink;
