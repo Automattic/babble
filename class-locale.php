@@ -515,56 +515,28 @@ class Babble_Locale {
 	}
 
 	/**
-	 * Get the request string for the request, using code copied 
-	 * straight from WP->parse_request.
+	 * Get the request string for the request.
 	 *
 	 * @return string The request
 	 **/
 	protected function get_request_string() {
 		global $wp_rewrite;
-		// @FIXME: Copying a huge hunk of code from WP->parse_request here, feels ugly.
-		// START: Huge hunk of WP->parse_request
-		if ( isset($_SERVER['PATH_INFO']) )
-			$pathinfo = $_SERVER['PATH_INFO'];
-		else
-			$pathinfo = '';
-		$pathinfo_array = explode('?', $pathinfo);
-		$pathinfo = str_replace("%", "%25", $pathinfo_array[0]);
-		$req_uri = $_SERVER['REQUEST_URI'];
-		$req_uri_array = explode('?', $req_uri);
-		$req_uri = $req_uri_array[0];
-		$self = $_SERVER['PHP_SELF'];
-		$home_path = parse_url( get_option( 'home' ) );
-		if ( isset($home_path['path']) )
-			$home_path = $home_path['path'];
-		else
-			$home_path = '';
-		$home_path = trim($home_path, '/');
 
-		// Trim path info from the end and the leading home path from the
-		// front.  For path info requests, this leaves us with the requesting
-		// filename, if any.  For 404 requests, this leaves us with the
-		// requested permalink.
-		$req_uri = str_replace($pathinfo, '', $req_uri);
-		$req_uri = trim($req_uri, '/');
-		$req_uri = preg_replace("|^$home_path|", '', $req_uri);
-		$req_uri = trim($req_uri, '/');
-		$pathinfo = trim($pathinfo, '/');
-		$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
-		$pathinfo = trim($pathinfo, '/');
+		list( $req_uri ) = explode( '?', $_SERVER['REQUEST_URI'] );
+		$home_path       = trim( parse_url( get_option( 'home' ), PHP_URL_PATH ), '/' );
+		$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
 
-		// The requested permalink is in $pathinfo for path info requests and
-		//  $req_uri for other requests.
-		if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
-			$request = $pathinfo;
-		} else {
-			// If the request uri is the index, blank it out so that we don't try to match it against a rule.
-			if ( is_object( $wp_rewrite ) && $req_uri == $wp_rewrite->index )
-				$req_uri = '';
-			$request = $req_uri;
+		// Trim path info from the end and the leading home path from the front.
+		$req_uri = trim( $req_uri, '/' );
+		$req_uri = preg_replace( $home_path_regex, '', $req_uri );
+		$req_uri = trim( $req_uri, '/' );
+
+		// If the request uri is the index, blank it out so that we don't try to match it against a rule.
+		if ( is_object( $wp_rewrite ) && $req_uri === $wp_rewrite->index ) {
+			$req_uri = '';
 		}
-		// END: Huge hunk of WP->parse_request
-		return $request;
+
+		return $req_uri;
 	}
 
 	/**
