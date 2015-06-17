@@ -82,7 +82,7 @@ class Babble_Locale {
 		add_filter( 'locale',                          array( $this, 'set_locale' ) );
 		add_filter( 'mod_rewrite_rules',               array( $this, 'mod_rewrite_rules' ) );
 		add_filter( 'post_class',                      array( $this, 'post_class' ), null, 3 );
-		add_filter( 'pre_update_option_rewrite_rules', array( $this, 'internal_rewrite_rules_filter' ) );
+		add_filter( 'rewrite_rules_array',             array( $this, 'filter_rewrite_rules_array' ), 999 );
 		add_filter( 'query_vars',                      array( $this, 'query_vars' ) );
 	}
 
@@ -142,15 +142,15 @@ class Babble_Locale {
 	}
 	
 	/**
-	 * Hooks the WP pre_update_option_rewrite_rules filter to add 
+	 * Hooks the WP `rewrite_rules_array` filter to add 
 	 * a prefix to the URL to pick up the virtual sub-dir specifying
 	 * the language. The redirect portion can and should remain perfectly
 	 * ignorant of it though, as we change it in parse_request.
 	 * 
-	 * @param array $langs The language codes
-	 * @return array An array of language codes utilised for this site. 
+	 * @param  array $rules The rewrite rules.
+	 * @return array        The updated rewrite rules with language prefixes.
 	 **/
-	public function internal_rewrite_rules_filter( $rules ){
+	public function filter_rewrite_rules_array( array $rules ){
 		global $wp_rewrite;
 
 		// Some rules need to be at the root of the site, without a
@@ -161,6 +161,8 @@ class Babble_Locale {
 			'humans\.txt$',
 			'robots\.txt$',
 		) );
+
+		$new_rules = array();
 
 	    foreach( (array) $rules as $regex => $query ) {
 			if ( in_array( $regex, $non_translated_rewrite_rules ) ) {
