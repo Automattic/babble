@@ -1234,7 +1234,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		foreach ( $posts as $post )
 			$translations[ $this->get_post_lang_code( $post ) ] = $post;
 
-		wp_cache_add( $transid, $translations, 'bbl_post_translations' );
+		wp_cache_set( $transid, $translations, 'bbl_post_translations' );
 
 		return $translations;
 	}
@@ -1482,7 +1482,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return false;
 		}
 
-		wp_cache_add( $post->ID, $transid, 'bbl_post_transids' );
+		wp_cache_set( $post->ID, $transid, 'bbl_post_transids' );
 
 		return $transid;
 	}
