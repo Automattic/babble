@@ -31,7 +31,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	protected $taxonomies;
 
 	/**
-	 * The languages represented by each of the shadow taxonomies.
+	 * A structure describing the shadow taxonomies that correspond to a given language and taxonomy.
 	 *
 	 * @var array
 	 **/

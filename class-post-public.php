@@ -39,11 +39,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected $post_type_map;
 
 	/**
-	 * Another structure describing the languages served by various post types.
+	 * A structure describing the shadow post types that correspond to a given language and post type.
 	 *
 	 * @var array
 	 **/
-	protected $lang_map2;
+	protected $lang_map;
 
 	/**
 	 * A version number to use for cache busting, database updates, etc
@@ -338,10 +338,9 @@ class Babble_Post_Public extends Babble_Plugin {
 				$this->post_types[ $new_post_type ] = $post_type;
 				$this->post_type_map[ $new_post_type ] = $lang->code;
 
-				// @TODO: Refactor the $this::lang_map array so we can use this new structure instead
-				if ( ! isset( $this->lang_map2[ $lang->code ] ) || ! is_array( $this->lang_map2[ $lang->code ] ) )
-					$this->lang_map2[ $lang->code ] = array();
-				$this->lang_map2[ $lang->code ][ $post_type ] = $new_post_type;
+				if ( ! isset( $this->lang_map[ $lang->code ] ) || ! is_array( $this->lang_map[ $lang->code ] ) )
+					$this->lang_map[ $lang->code ] = array();
+				$this->lang_map[ $lang->code ][ $post_type ] = $new_post_type;
 
 				// This will not work until init has run at the early priority used
 				// to register the post_translation taxonomy. However we catch all the
@@ -1285,11 +1284,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// Return the original post type if we couldn't find it in our array
-		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
+		if ( ! isset( $this->lang_map[ $lang_code ][ $base_post_type ] ) ) {
 			return $post_type;
 		}
 
-		return $this->lang_map2[ $lang_code ][ $base_post_type ];
+		return $this->lang_map[ $lang_code ][ $base_post_type ];
 	}
 
 	/**
@@ -1303,8 +1302,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post_types = array();
 		$langs = bbl_get_active_langs();
 		foreach ( $langs as $lang ) {
-			if ( isset( $this->lang_map2[ $lang->code ][ $base_post_type ] ) )
-				$post_types[] = $this->lang_map2[ $lang->code ][ $base_post_type ];
+			if ( isset( $this->lang_map[ $lang->code ][ $base_post_type ] ) )
+				$post_types[] = $this->lang_map[ $lang->code ][ $base_post_type ];
 		}
 		return $post_types;
 	}
