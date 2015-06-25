@@ -911,15 +911,15 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * belongs to.
 	 *
 	 * @param int $target_term_id The term ID to find the translation group for 
-	 * @return int The transID the target term belongs to
+	 * @return int|false The transID the target term belongs to, boolean false on failure
 	 **/
 	public function get_transid( $target_term_id ) {
-		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) ) {
-			return $transid;
+		if ( ! $target_term_id ) {
+			return false;
 		}
 
-		if ( ! $target_term_id ) {
-			throw new exception( "Please specify a target term_id" );
+		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) ) {
+			return $transid;
 		}
 
 		$transids = wp_get_object_terms( $target_term_id, 'term_translation', array( 'fields' => 'ids' ) );
@@ -941,11 +941,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 *
 	 * @param int $target_term_id The term ID to set the translation group for
 	 * @param int $translation_group_id The ID of the translation group to add this 
-	 * @return int The transID the target term belongs to
+	 * @return int|false The transID the target term belongs to, false on failure
 	 **/
 	public function set_transid( $target_term_id, $transid = null ) {
 		if ( ! $target_term_id ) {
-			throw new exception( "Please specify a target term_id" );
+			return false;
 		}
 
 		if ( ! $transid ) {
