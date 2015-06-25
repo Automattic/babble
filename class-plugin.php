@@ -108,9 +108,7 @@ class Babble_Plugin {
 	 * @return void
 	 * @author Simon Wheatley
 	 **/
-	public function setup( $name = '', $type = null ) {
-		if ( ! $name )
-			throw new exception( "Please pass the name parameter into the setup method." );
+	public function setup( $name, $type = null ) {
 		$this->name = $name;
 
 		// Attempt to handle a Windows
