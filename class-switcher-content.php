@@ -218,6 +218,9 @@ class Babble_Switcher_Menu {
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
 		}
+		if ( is_wp_error( $href ) ) {
+			return;
+		}
 		$href = apply_filters( 'bbl_switch_admin_term_link', $href, $lang, $this->translations );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
 		$classes[] = 'bbl-admin';
@@ -496,6 +499,9 @@ class Babble_Switcher_Menu {
 			$title = sprintf( __( 'Create for %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
+		}
+		if ( is_wp_error( $href ) ) {
+			return;
 		}
 		$href = apply_filters( 'bbl_switch_taxonomy_archive_link', $href, $lang, $this->translations );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";

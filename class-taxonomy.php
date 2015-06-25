@@ -726,19 +726,15 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * particular language.
 	 *
 	 * @param int|object $default_term The term in the default language to create a new translation for, either WP Post object or post ID
-	 * @param string $lang The language code 
-	 * @return string The admin URL to create the new translation
+	 * @param string $lang_code The language code 
+	 * @param string $taxonomy The taxonomy name
+	 * @return string|WP_Error The admin URL to create the new translation, a `WP_Error` object on failure
 	 * @access public
 	 **/
-	public function get_new_term_translation_url( $default_term, $lang_code, $taxonomy = null ) {
-		if ( ! is_int( $default_term ) && is_null( $taxonomy ) ) {
-			throw new exception( 'get_new_term_translation_url: Cannot get term from term_id without taxonomy' );
-		}
-		if ( ! is_null( $taxonomy ) ) {
-			$default_term = get_term( $default_term, $taxonomy );
-		}
+	public function get_new_term_translation_url( $default_term, $lang_code, $taxonomy ) {
+		$default_term = get_term( $default_term, $taxonomy );
 		if ( is_wp_error( $default_term ) ) {
-			throw new exception( 'get_new_term_translation_url: Error getting term from term_id and taxonomy: ' . print_r( $default_term, true ) );
+			return $default_term;
 		}
 		$url = admin_url( 'post-new.php' );
 		$args = array( 
