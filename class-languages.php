@@ -215,12 +215,13 @@ class Babble_Languages extends Babble_Plugin {
 	 * Given a lang object or lang code, this checks whether the
 	 * language is public or not.
 	 * 
-	 * @param string $lang_code A language code
+	 * @param string|object $lang_code A language code or a language object
 	 * @return boolean True if public
 	 **/
 	public function is_public_lang( $lang_code ) {
-		if ( ! is_string( $lang_code ) )
-			throw new exception( 'Please provide a lang_code for the is_public_lang method.' );
+		if ( is_object( $lang_code ) and ! empty( $lang_code->lang ) ) {
+			$lang_code = $lang_code->lang;
+		}
 		return in_array( $lang_code, $this->public_langs );
 	}
 
