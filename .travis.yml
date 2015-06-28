@@ -21,6 +21,11 @@ env:
     - WP_VERSION=4.0 WP_MULTISITE=0
     - WP_VERSION=4.0 WP_MULTISITE=1
 
+matrix:
+    allow_failures:
+        # allow failures on PHP 7 for now:
+        - php: 5.6
+
 install:
     - bash bin/install.sh
 
