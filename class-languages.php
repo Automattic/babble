@@ -180,17 +180,6 @@ class Babble_Languages extends Babble_Plugin {
 	// PUBLIC METHODS
 	// ==============
 
-	/**
-	 * Set the active language objects for the current site, keyed
-	 * by URL prefix.
-	 * 
-	 * @return array An array of Babble language objects
-	 **/
-	public function set_active_langs( $lang_codes ) {
-		$this->parse_available_languages();
-		$this->active_langs = $lang_codes;
-	}
-
  	/**
 	 * Return the active language objects for the current site, keyed
 	 * by URL prefix. A language object looks like:

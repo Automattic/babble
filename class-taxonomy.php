@@ -322,6 +322,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 		$slug = $term->slug;
 		$t = get_taxonomy($base_taxonomy);
 	
+		$lang = $this->get_taxonomy_lang_code( $taxonomy );
+		bbl_switch_to_lang( $lang );
+
 		if ( empty($termlink) ) {
 			if ( 'category' == $base_taxonomy ) {
 				$termlink = '?cat=' . $term->term_id;
@@ -347,6 +350,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 			}
 			$termlink = home_url( user_trailingslashit($termlink, 'category') );
 		}
+
+		bbl_restore_lang();
+
 		// STOP copying from get_term_link
 	
 		return $termlink;
@@ -401,13 +407,8 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		$taxonomy 	= false;
 		$terms 		= false;
-
+		$lang_code  = bbl_get_current_lang_code();
 		$taxonomies = get_taxonomies( null, 'objects' );
-		$lang_taxonomies = array();
-		foreach ( $taxonomies as $taxonomy => $tax_obj ) {
-			$tax = $this->get_taxonomy_in_lang( $taxonomy, bbl_get_current_lang_code() );
-			$lang_taxonomies[ $tax_obj->rewrite[ 'slug' ] ] = $tax;
-		}
 
 		if ( isset( $wp->query_vars[ 'tag' ] ) ) {
 			$taxonomy = $this->get_taxonomy_in_lang( 'post_tag', $wp->query_vars[ 'lang' ] );
@@ -419,6 +420,13 @@ class Babble_Taxonomies extends Babble_Plugin {
 			unset( $wp->query_vars[ 'category_name' ] );
 		} else {
 			$taxonomies = array();
+			$lang_taxonomies = array();
+
+			foreach ( $taxonomies as $taxonomy => $tax_obj ) {
+				$tax = $this->get_taxonomy_in_lang( $taxonomy, $lang_code );
+				$lang_taxonomies[ $tax_obj->rewrite[ 'slug' ] ] = $tax;
+			}
+
 			foreach ( $lang_taxonomies as $slug => $tax ) {
 				if ( isset( $wp->query_vars[ $slug ] ) ) {
 					$taxonomies[] = $tax;
@@ -504,12 +512,15 @@ class Babble_Taxonomies extends Babble_Plugin {
 						continue;
 					}
 
-					$translated_term = $this->get_term_in_lang( $_term->term_id, $taxonomy, $lang_code, false );
-					$translated_terms[] = (int) $translated_term->term_id;
+					if ( $translated_term = $this->get_term_in_lang( $_term->term_id, $taxonomy, $lang_code, false ) ) {
+						$translated_terms[] = (int) $translated_term->term_id;
+					}
 
 				}
 
-				$result = wp_set_object_terms( $translation->ID, $translated_terms, $translated_taxonomy, $append );
+				if ( $translated_terms ) {
+					$result = wp_set_object_terms( $translation->ID, $translated_terms, $translated_taxonomy, $append );
+				}
 			}
 			
 		} else {
