@@ -29,4 +29,4 @@ Start PHP's built-in web server by executing the following:
 
 To run the tests, execute the following:
 
-    ./bin/behat --profile=local
+    ./bin/behat
