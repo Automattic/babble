@@ -32,18 +32,18 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected $post_types;
 
 	/**
-	 * A structure describing the languages served by various post types.
+	 * A structure describing the locales correlating to post types.
+	 *
+	 * @var array
+	 **/
+	protected $post_type_map;
+
+	/**
+	 * A structure describing the shadow post types that correspond to a given language and post type.
 	 *
 	 * @var array
 	 **/
 	protected $lang_map;
-
-	/**
-	 * Another structure describing the languages served by various post types.
-	 *
-	 * @var array
-	 **/
-	protected $lang_map2;
 
 	/**
 	 * A version number to use for cache busting, database updates, etc
@@ -120,7 +120,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function initiate() {
-		$this->lang_map = array();
+		$this->post_type_map = array();
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
 		$this->no_meta_recursion = false;
@@ -336,12 +336,11 @@ class Babble_Post_Public extends Babble_Plugin {
 				bbl_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ), true );
 			} else {
 				$this->post_types[ $new_post_type ] = $post_type;
-				$this->lang_map[ $new_post_type ] = $lang->code;
+				$this->post_type_map[ $new_post_type ] = $lang->code;
 
-				// @TODO: Refactor the $this::lang_map array so we can use this new structure instead
-				if ( ! isset( $this->lang_map2[ $lang->code ] ) || ! is_array( $this->lang_map2[ $lang->code ] ) )
-					$this->lang_map2[ $lang->code ] = array();
-				$this->lang_map2[ $lang->code ][ $post_type ] = $new_post_type;
+				if ( ! isset( $this->lang_map[ $lang->code ] ) || ! is_array( $this->lang_map[ $lang->code ] ) )
+					$this->lang_map[ $lang->code ] = array();
+				$this->lang_map[ $lang->code ][ $post_type ] = $new_post_type;
 
 				// This will not work until init has run at the early priority used
 				// to register the post_translation taxonomy. However we catch all the
@@ -1152,8 +1151,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post = get_post( $post );
 		if ( ! $post )
 			return new WP_Error( 'bbl_invalid_post', __( 'Invalid Post passed to get_post_lang_code', 'babble' ) );
-		if ( isset( $this->lang_map[ $post->post_type ] ) )
-			return $this->lang_map[ $post->post_type ];
+		if ( isset( $this->post_type_map[ $post->post_type ] ) ) {
+			return $this->post_type_map[ $post->post_type ];
+		}
 		return bbl_get_default_lang_code();
 	}
 
@@ -1284,11 +1284,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// Return the original post type if we couldn't find it in our array
-		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
+		if ( ! isset( $this->lang_map[ $lang_code ][ $base_post_type ] ) ) {
 			return $post_type;
 		}
 
-		return $this->lang_map2[ $lang_code ][ $base_post_type ];
+		return $this->lang_map[ $lang_code ][ $base_post_type ];
 	}
 
 	/**
@@ -1302,8 +1302,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post_types = array();
 		$langs = bbl_get_active_langs();
 		foreach ( $langs as $lang ) {
-			if ( isset( $this->lang_map2[ $lang->code ][ $base_post_type ] ) )
-				$post_types[] = $this->lang_map2[ $lang->code ][ $base_post_type ];
+			if ( isset( $this->lang_map[ $lang->code ][ $base_post_type ] ) )
+				$post_types[] = $this->lang_map[ $lang->code ][ $base_post_type ];
 		}
 		return $post_types;
 	}
