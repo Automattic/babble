@@ -276,7 +276,7 @@ class Babble_Locale {
 		// If this is the site root, redirect to default language homepage 
 		if ( ! $wp->request ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
-			wp_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
+			wp_safe_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
 			exit;
 		}
 		// Otherwise, simply set the lang for this request
