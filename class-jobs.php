@@ -158,7 +158,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$existing_jobs = $this->get_incomplete_post_jobs( $canonical_post );
 		if ( isset( $existing_jobs[ $lang_code ] ) ) {
 			$url = get_edit_post_link( $existing_jobs[ $lang_code ], 'url' );
-			wp_redirect( $url );
+			wp_safe_redirect( $url );
 			exit;
 		}
 		// Create a new translation job for the current language
@@ -166,7 +166,7 @@ class Babble_Jobs extends Babble_Plugin {
 		$jobs = $this->create_post_jobs( $canonical_post, $lang_codes );
 		// Redirect to the translation job
 		$url = get_edit_post_link( $jobs[0], 'url' );
-		wp_redirect( $url );
+		wp_safe_redirect( $url );
 		exit;
 	}
 
