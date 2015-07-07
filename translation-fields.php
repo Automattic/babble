@@ -29,11 +29,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 function bbl_wpseo_meta_fields( array $fields, WP_Post $post ) {
 	if ( class_exists( 'WPSEO_Meta' ) ) {
 
-		$focuskw  = WPSEO_Meta::$meta_prefix . 'focuskw';
 		$title    = WPSEO_Meta::$meta_prefix . 'title';
 		$metadesc = WPSEO_Meta::$meta_prefix . 'metadesc';
 
-		$fields[ $focuskw ]  = new Babble_Meta_Field_Text( $post, $focuskw, _x( 'SEO Focus Keyword', 'WordPress SEO plugin meta field', 'babble' ) );
 		$fields[ $title ]    = new Babble_Meta_Field_Text( $post, $title, _x( 'SEO Title', 'WordPress SEO plugin meta field', 'babble' ) );
 		$fields[ $metadesc ] = new Babble_Meta_Field_Textarea( $post, $metadesc, _x( 'Meta Description', 'WordPress SEO plugin meta field', 'babble' ) );
 
