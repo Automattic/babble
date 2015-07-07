@@ -21,14 +21,14 @@ class Babble_Locale {
 	 *
 	 * @var string
 	 **/
-	protected $content_lang;
+	public $content_lang;
 
 	/**
 	 * The interface language for the current request.
 	 *
 	 * @var string
 	 **/
-	protected $interface_lang;
+	public $interface_lang;
 
 	/**
 	 * The locale for the current request.
@@ -82,7 +82,7 @@ class Babble_Locale {
 		add_filter( 'locale',                          array( $this, 'set_locale' ) );
 		add_filter( 'mod_rewrite_rules',               array( $this, 'mod_rewrite_rules' ) );
 		add_filter( 'post_class',                      array( $this, 'post_class' ), null, 3 );
-		add_filter( 'pre_update_option_rewrite_rules', array( $this, 'internal_rewrite_rules_filter' ) );
+		add_filter( 'rewrite_rules_array',             array( $this, 'filter_rewrite_rules_array' ), 999 );
 		add_filter( 'query_vars',                      array( $this, 'query_vars' ) );
 	}
 
@@ -142,15 +142,15 @@ class Babble_Locale {
 	}
 	
 	/**
-	 * Hooks the WP pre_update_option_rewrite_rules filter to add 
+	 * Hooks the WP `rewrite_rules_array` filter to add 
 	 * a prefix to the URL to pick up the virtual sub-dir specifying
 	 * the language. The redirect portion can and should remain perfectly
 	 * ignorant of it though, as we change it in parse_request.
 	 * 
-	 * @param array $langs The language codes
-	 * @return array An array of language codes utilised for this site. 
+	 * @param  array $rules The rewrite rules.
+	 * @return array        The updated rewrite rules with language prefixes.
 	 **/
-	public function internal_rewrite_rules_filter( $rules ){
+	public function filter_rewrite_rules_array( array $rules ){
 		global $wp_rewrite;
 
 		// Some rules need to be at the root of the site, without a
@@ -161,6 +161,8 @@ class Babble_Locale {
 			'humans\.txt$',
 			'robots\.txt$',
 		) );
+
+		$new_rules = array();
 
 	    foreach( (array) $rules as $regex => $query ) {
 			if ( in_array( $regex, $non_translated_rewrite_rules ) ) {
@@ -274,10 +276,19 @@ class Babble_Locale {
 		// If this is the site root, redirect to default language homepage 
 		if ( ! $wp->request ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
-			wp_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
+			wp_safe_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
 			exit;
 		}
 		// Otherwise, simply set the lang for this request
+
+		if ( ! isset( $this->content_lang ) ) {
+			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) ) {
+				$this->set_content_lang_from_prefix( $matches[ 0 ] );
+			} else {
+				$this->set_content_lang_from_prefix( bbl_get_default_lang_url_prefix() );
+			}
+		}
+
 		$wp->query_vars[ 'lang' ] = $this->content_lang;
 		$wp->query_vars[ 'lang_url_prefix' ] = $this->url_prefix;
 	}
@@ -523,7 +534,7 @@ class Babble_Locale {
 		$req_uri_array = explode('?', $req_uri);
 		$req_uri = $req_uri_array[0];
 		$self = $_SERVER['PHP_SELF'];
-		$home_path = parse_url(home_url());
+		$home_path = parse_url( get_option( 'home' ) );
 		if ( isset($home_path['path']) )
 			$home_path = $home_path['path'];
 		else
@@ -541,9 +552,6 @@ class Babble_Locale {
 		$pathinfo = trim($pathinfo, '/');
 		$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
 		$pathinfo = trim($pathinfo, '/');
-		$self = trim($self, '/');
-		$self = preg_replace("|^$home_path|", '', $self);
-		$self = trim($self, '/');
 
 		// The requested permalink is in $pathinfo for path info requests and
 		//  $req_uri for other requests.

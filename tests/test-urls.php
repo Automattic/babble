@@ -3,9 +3,9 @@
 class Test_URLs extends Babble_UnitTestCase {
 
 	public function setUp() {
-		parent::setUp();
-
 		$this->install_languages();
+
+		parent::setUp();
 	}
 
 	public function test_home_url() {
