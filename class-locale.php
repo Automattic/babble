@@ -89,11 +89,8 @@ class Babble_Locale {
 	public function plugins_loaded() {
 		global $wpdb;
 
-		# @TODO this exposes the $wpdb prefix. We should set the cookie path to the site path instead
-		# (example.com/site or site.example.com) so the cookie is only set for the current site on a multisite install
-		# @TODO actually, both of these should be user preferences, not cookies.
-		$this->content_lang_cookie   = $wpdb->prefix . '_bbl_content_lang_' . COOKIEHASH;
-		$this->interface_lang_cookie = $wpdb->prefix . '_bbl_interface_lang_' . COOKIEHASH;
+		$this->content_lang_cookie   = 'wp-bbl_content_lang_' . COOKIEHASH;
+		$this->interface_lang_cookie = 'wp-bbl_interface_lang_' . COOKIEHASH;
 	}
 
 	/**
@@ -572,12 +569,15 @@ class Babble_Locale {
 	 * as we cannot get userdata at the set_locale action, which is where 
 	 * we need to read the user's language.
 	 *
+	 * In addition, we can't use WordPress' user settings because these are stored
+	 * on a per-network basis, not on a per-blog basis.
+	 *
 	 * @return void
 	 **/
 	protected function maybe_set_cookie_content_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
 		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : false )
-			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
 	}
 
 	/**
@@ -585,12 +585,29 @@ class Babble_Locale {
 	 * as we cannot get userdata at the set_locale action, which is where 
 	 * we need to read the user's language.
 	 *
+	 * In addition, we can't use WordPress' user settings because these are stored
+	 * on a per-network basis, not on a per-blog basis.
+	 *
 	 * @return void
 	 **/
 	protected function maybe_set_cookie_interface_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 		if ( $requested_lang = ( isset( $_POST[ 'interface_lang' ] ) ) ? $_POST[ 'interface_lang' ] : false )
-			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
+	}
+
+	/**
+	 * Return the cookie path for this blog. Babble stores some cookies on a per-blog basis, so their path needs to be
+	 * set specific to the blog. 
+	 *
+	 * @return string The cookie path for the current blog.
+	 */
+	public static function get_cookie_path() {
+		if ( is_multisite() ) {
+			return get_blog_details()->path;
+		} else {
+			return COOKIEPATH;
+		}
 	}
 
 	/**
