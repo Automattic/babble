@@ -198,7 +198,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->set_transid( $new_post, $transid );
 
 		// Copy all the metadata across
-		$this->sync_post_meta( $new_post->ID );
+		$this->sync_post_meta( $new_post->ID, $origin_post );
 
 		// Copy the various core post properties across
 		$this->sync_properties( $origin_post->ID, $new_post->ID );
@@ -1223,7 +1223,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		foreach ( $post_ids as $post_id )
 			$translations[ $this->get_post_lang_code( $post_id ) ] = $post_id;
 
-		wp_cache_add( $transid, $translations, 'bbl_post_translation_ids' );
+		wp_cache_set( $transid, $translations, 'bbl_post_translation_ids' );
 
 		return array_map( 'get_post', $translations );
 	}
@@ -1394,10 +1394,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Resync all (synced) post meta data from the post in
 	 * the default language to this post.
 	 *
-	 * @param $int The post ID to sync TO
+	 * @param int         $post_id     The post ID to sync TO.
+	 * @param int|WP_Post $origin_post The post ID or object to sync FROM.
 	 * @return void
 	 **/
-	function sync_post_meta( $post_id ) {
+	function sync_post_meta( $post_id, $origin_post = null ) {
 		if ( $this->no_meta_recursion )
 			return;
 		$this->no_meta_recursion = 'updated_post_meta';
@@ -1414,7 +1415,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// Now add meta in again from the origin post
-		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		if ( $origin_post ) {
+			$origin_post = get_post( $origin_post );
+		} else {
+			$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		}
 
 		$metas = get_post_meta( $origin_post->ID );
 		if ( ! $metas )
@@ -1471,7 +1476,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return false;
 		}
 
-		wp_cache_add( $post->ID, $transid, 'bbl_post_transids' );
+		wp_cache_set( $post->ID, $transid, 'bbl_post_transids' );
 
 		return $transid;
 	}
