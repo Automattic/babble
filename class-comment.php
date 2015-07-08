@@ -8,7 +8,7 @@
  */
 class Babble_Comment extends Babble_Plugin {
 
-	public function __construct() {
+	public function __construct()
 		$this->setup( 'babble-comment', 'plugin' );
 
 		$this->add_filter( 'comments_template_args' );
