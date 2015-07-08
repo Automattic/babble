@@ -541,7 +541,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$subs_index = array();
 		foreach ( $posts as & $post ) {
 			if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
-				if ( $default_post = bbl_get_default_lang_post( $post->ID ) )
+				if ( $default_post = $this->get_default_lang_post( $post->ID ) )
 					$subs_index[ $post->ID ] = $default_post->ID;
 			}
 			if ( ! $this->get_transid( $post ) && bbl_get_default_lang_code() == bbl_get_post_lang_code( $post ) )
@@ -1187,7 +1187,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function get_default_lang_post( $post ) {
 		$post = get_post( $post );
-		$translations = bbl_get_post_translations( $post->ID );
+		$translations = $this->get_post_translations( $post->ID );
 		if ( isset( $translations[ bbl_get_default_lang_code() ] ) )
 			return $translations[ bbl_get_default_lang_code() ];
 		return false;
