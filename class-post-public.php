@@ -1225,6 +1225,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			$post_types[] = bbl_get_post_type_in_lang( $post->post_type, $lang->code );
 
 		$translations = array();
+		$post_ids = array_filter( $post_ids );
 		foreach ( $post_ids as $post_id )
 			$translations[ $this->get_post_lang_code( $post_id ) ] = $post_id;
 
