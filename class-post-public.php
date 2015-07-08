@@ -541,7 +541,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$subs_index = array();
 		foreach ( $posts as & $post ) {
 			if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
-				if ( $default_post = bbl_get_default_lang_post( $post->ID ) )
+				if ( $default_post = $this->get_default_lang_post( $post->ID ) )
 					$subs_index[ $post->ID ] = $default_post->ID;
 			}
 			if ( ! $this->get_transid( $post ) && bbl_get_default_lang_code() == bbl_get_post_lang_code( $post ) )
@@ -780,6 +780,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		}
 		wp_cache_delete( $transid, 'bbl_post_translations' );
+		wp_cache_delete( $transid, 'bbl_post_translation_ids' );
 	}
 
 	/**
@@ -1186,7 +1187,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function get_default_lang_post( $post ) {
 		$post = get_post( $post );
-		$translations = bbl_get_post_translations( $post->ID );
+		$translations = $this->get_post_translations( $post->ID );
 		if ( isset( $translations[ bbl_get_default_lang_code() ] ) )
 			return $translations[ bbl_get_default_lang_code() ];
 		return false;
@@ -1205,8 +1206,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
 
-		if ( $translations = wp_cache_get( $transid, 'bbl_post_translations' ) ) {
-			return $translations;
+		$translations = wp_cache_get( $transid, 'bbl_post_translation_ids' );
+
+		if ( false !== $translations ) {
+			return array_map( 'get_post', $translations );
 		}
 
 		# @TODO A transid should never be a wp_error. Check and fix.
@@ -1215,28 +1218,14 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
 
-		// Work out all the translated equivalent post types
-		$post_types = array();
-		$langs = bbl_get_active_langs();
-		foreach ( $langs as $lang )
-			$post_types[] = bbl_get_post_type_in_lang( $post->post_type, $lang->code );
-
-		// Get all the translations in one cached DB query
-		$args = array(
-			// We want a clean listing, without any particular language
-			'bbl_translate' => false,
-			'include' => $post_ids,
-			'post_type' => $post_types,
-			'post_status' => array( 'publish', 'pending', 'draft', 'future' ),
-		);
-		$posts = get_posts( $args );
 		$translations = array();
-		foreach ( $posts as $post )
-			$translations[ $this->get_post_lang_code( $post ) ] = $post;
+		$post_ids = array_filter( $post_ids );
+		foreach ( $post_ids as $post_id )
+			$translations[ $this->get_post_lang_code( $post_id ) ] = $post_id;
 
-		wp_cache_set( $transid, $translations, 'bbl_post_translations' );
+		wp_cache_set( $transid, $translations, 'bbl_post_translation_ids' );
 
-		return $translations;
+		return array_map( 'get_post', $translations );
 	}
 
 	/**
@@ -1515,6 +1504,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 			// Delete anything in there currently
 			wp_cache_delete( $transid, 'bbl_post_translations' );
+			wp_cache_delete( $transid, 'bbl_post_translation_ids' );
 		}
 		$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
 		if ( is_wp_error( $result ) ) {
