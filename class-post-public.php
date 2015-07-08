@@ -1230,7 +1230,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 		wp_cache_add( $transid, $translations, 'bbl_post_translation_ids' );
 
-		return $translations;
+		return array_map( 'get_post', $translations );
 	}
 
 	/**
