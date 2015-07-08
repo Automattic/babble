@@ -114,7 +114,7 @@ class Babble_Languages extends Babble_Plugin {
 		if ( get_current_screen()->id == 'settings_page_babble_languages' )
 			return;
 		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) ) {
-			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble setup:</strong> Please visit the <a href="%s">Available Languages settings</a> and setup your available languages and the default language.', 'babble' ), admin_url( 'options-general.php?page=babble_languages' ) ) );
+			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble setup:</strong> Please visit the <a href="%s">Available Languages settings</a> and setup your available languages and the default language.', 'babble' ), esc_url( admin_url( 'options-general.php?page=babble_languages' ) ) ) );
 		}
 	}
 

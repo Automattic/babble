@@ -81,36 +81,36 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
 
-		$this->add_action( 'added_post_meta', null, null, 4 );
-		$this->add_action( 'admin_init' );
-		$this->add_action( 'clean_post_cache' );
-		$this->add_action( 'body_class', null, null, 2 );
-		$this->add_action( 'before_delete_post', 'clean_post_cache' );
-		$this->add_action( 'deleted_post', 'clean_post_cache' );
-		$this->add_action( 'deleted_post_meta', null, null, 4 );
-		$this->add_action( 'load-post-new.php', 'load_post_new' );
-		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
-		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
-		$this->add_action( 'parse_request' );
-		$this->add_action( 'post_updated' );
-		$this->add_action( 'pre_get_posts', null, 11 );
-		$this->add_action( 'registered_post_type', null, null, 2 );
-		$this->add_action( 'transition_post_status', null, null, 3 );
-		$this->add_action( 'updated_post_meta', null, null, 4 );
-		$this->add_action( 'wp_before_admin_bar_render' );
-		$this->add_filter( 'add_menu_classes' );
-		$this->add_filter( 'add_post_metadata', null, null, 5 );
-		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
-		$this->add_filter( 'manage_posts_columns', 'manage_posts_columns', null, 2 );
-		$this->add_filter( 'page_link', null, null, 2 );
-		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
-		$this->add_filter( 'post_type_archive_link', null, null, 2 );
-		$this->add_filter( 'post_type_link', null, null, 3 );
-		$this->add_filter( 'get_sample_permalink', null, null, 5 );
-		$this->add_filter( 'single_template' );
-		$this->add_filter( 'the_posts', null, null, 2 );
-		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
-		$this->add_filter( 'admin_body_class' );
+		add_action( 'added_post_meta', array( $this, 'added_post_meta' ), 10, 4 );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'clean_post_cache', array( $this, 'clean_post_cache' ) );
+		add_action( 'body_class', array( $this, 'body_class' ), 10, 2 );
+		add_action( 'before_delete_post', array( $this, 'clean_post_cache' ) );
+		add_action( 'deleted_post', array( $this, 'clean_post_cache' ) );
+		add_action( 'deleted_post_meta', array( $this, 'deleted_post_meta' ), 10, 4 );
+		add_action( 'load-post-new.php', array( $this, 'load_post_new' ) );
+		add_action( 'manage_pages_custom_column', array( $this, 'manage_posts_custom_column' ), 10, 2 );
+		add_action( 'manage_posts_custom_column', array( $this, 'manage_posts_custom_column' ), 10, 2 );
+		add_action( 'parse_request', array( $this, 'parse_request' ) );
+		add_action( 'post_updated', array( $this, 'post_updated' ) );
+		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ), 11 );
+		add_action( 'registered_post_type', array( $this, 'registered_post_type' ), 10, 2 );
+		add_action( 'transition_post_status', array( $this, 'transition_post_status' ), 10, 3 );
+		add_action( 'updated_post_meta', array( $this, 'updated_post_meta' ), 10, 4 );
+		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ) );
+		add_filter( 'add_menu_classes', array( $this, 'add_menu_classes' ) );
+		add_filter( 'add_post_metadata', array( $this, 'add_post_metadata' ), 10, 5 );
+		add_filter( 'bbl_sync_meta_key', array( $this, 'sync_meta_key' ), 10, 2 );
+		add_filter( 'manage_posts_columns', array( $this, 'manage_posts_columns' ), 10, 2 );
+		add_filter( 'page_link', array( $this, 'page_link' ), 10, 2 );
+		add_filter( 'post_link', array( $this, 'post_type_link' ), 10, 3 );
+		add_filter( 'post_type_archive_link', array( $this, 'post_type_archive_link' ), 10, 2 );
+		add_filter( 'post_type_link', array( $this, 'post_type_link' ), 10, 3 );
+		add_filter( 'get_sample_permalink', array( $this, 'get_sample_permalink' ), 10, 5 );
+		add_filter( 'single_template', array( $this, 'single_template' ) );
+		add_filter( 'the_posts', array( $this, 'the_posts' ), 10, 2 );
+		add_filter( 'bbl_translated_taxonomy', array( $this, 'bbl_translated_taxonomy' ), 10, 2 );
+		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 		$this->initiate();
 	}
@@ -224,7 +224,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( !bbl_is_translated_post_type( $screen->post_type ) )
 			return;
 
-		wp_die( __( 'You can only create content in your site\'s default language. Please consult your editorial team.', 'babble' ), '', array( 'back_link' => true ) );
+		wp_die( esc_html__( 'You can only create content in your site\'s default language. Please consult your editorial team.', 'babble' ), '', array( 'back_link' => true ) );
 	}
 
 	/**
@@ -307,7 +307,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
 
 			if ( strlen( $new_post_type ) > 20 ) {
-				trigger_error( sprintf( __( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
+				trigger_error( sprintf( esc_html__( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
 					esc_html( $post_type ),
 					20
 				) );
@@ -992,7 +992,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$default_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
 		if ( ! $default_post ) {
-			echo '<em style="color: #bc0b0b">' . __( 'No link', 'babble' ) . '</em>';
+			echo '<em style="color: #bc0b0b">' . esc_html__( 'No link', 'babble' ) . '</em>';
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
@@ -1000,9 +1000,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_switch_to_lang( bbl_get_default_lang_code() );
 		$view_link = get_permalink( $default_post->ID );
 		bbl_restore_lang();
-		$edit_title = esc_attr( sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		echo "<a href='$view_link' title='$view_title'>" . __( 'View', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'Edit', 'babble' ) . "</a>";
+		$edit_title = sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) );
+		$view_title = sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) );
+		echo "<a href='" . esc_url( $view_link ) . "' title='" . esc_attr( $view_title ) . "'>" . esc_html__( 'View', 'babble' ) . "</a> | <a href='" . esc_url( $edit_link ) . "' title='" . esc_attr( $edit_title ) . "'>" . esc_html__( 'Edit', 'babble' ) . "</a>";
 	}
 
 	// PUBLIC METHODS
@@ -1257,7 +1257,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns the equivalent post_type in the specified language.
 	 *
 	 * @param string $post_type A post_type to return in a given language
-	 * @param string $lang_code The language code for the required language 
+	 * @param string $lang_code The language code for the required language
 	 * @return string The equivalent post_type name, or given post_type if it doesn't exist
 	 **/
 	public function get_post_type_in_lang( $post_type, $lang_code ) {
