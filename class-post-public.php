@@ -1218,12 +1218,6 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
 
-		// Work out all the translated equivalent post types
-		$post_types = array();
-		$langs = bbl_get_active_langs();
-		foreach ( $langs as $lang )
-			$post_types[] = bbl_get_post_type_in_lang( $post->post_type, $lang->code );
-
 		$translations = array();
 		$post_ids = array_filter( $post_ids );
 		foreach ( $post_ids as $post_id )
