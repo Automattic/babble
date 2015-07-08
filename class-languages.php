@@ -7,22 +7,22 @@
  * @since Alpha 1.1
  */
 class Babble_Languages extends Babble_Plugin {
-
+	
 	/**
 	 * The languages available within the system.
 	 *
 	 * @var array
 	 **/
 	protected $available_langs;
-
+	
 	/**
-	 * The language preferences set for this site,
+	 * The language preferences set for this site, 
 	 * i.e. url prefixes and display names.
 	 *
 	 * @var array
 	 **/
 	protected $lang_prefs;
-
+	
 	/**
 	 * An array of language codes, keyed by language prefix
 	 * for all the languages selected as ACTIVE for this site.
@@ -32,7 +32,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @var array
 	 **/
 	protected $active_langs;
-
+	
 	/**
 	 * An array of language codes, keyed by language prefix
 	 * for all the languages selected as PUBLIC for this site.
@@ -50,22 +50,22 @@ class Babble_Languages extends Babble_Plugin {
 	 * @var string
 	 **/
 	protected $default_lang;
-
+	
 	/**
-	 * The current version for purposes of rewrite rules, any
+	 * The current version for purposes of rewrite rules, any 
 	 * DB updates, cache busting, etc
 	 *
 	 * @var int
 	 **/
 	protected $version = 1;
-
+	
 	/**
 	 * Any fields to show errors on, currently only used by URL Prefix fields.
 	 *
 	 * @var array
 	 **/
 	protected $errors;
-
+	
 	/**
 	 * Setup any add_action or add_filter calls. Initiate properties.
 	 *
@@ -73,9 +73,9 @@ class Babble_Languages extends Babble_Plugin {
 	 **/
 	public function __construct() {
 		$this->setup( 'babble-languages', 'plugin' );
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-		add_action( 'load-settings_page_babble_languages', array( $this, 'load_options' ) );
+		$this->add_action( 'admin_menu', 'admin_menu' );
+		$this->add_action( 'admin_notices', 'admin_notices' );
+		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );
 
 
 		$this->initiate();
@@ -100,7 +100,7 @@ class Babble_Languages extends Babble_Plugin {
 		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) )
 			$this->set_defaults();
 	}
-
+	
 	// WP HOOKS
 	// ========
 
@@ -119,14 +119,14 @@ class Babble_Languages extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP admin_menu action
+	 * Hooks the WP admin_menu action 
 	 *
 	 * @return void
 	 **/
 	public function admin_menu() {
 		add_options_page( __( 'Available Languages', 'babble' ), __( 'Available Languages' , 'babble'), 'manage_options', 'babble_languages', array( $this, 'options' ) );
 	}
-
+	
 	/**
 	 * Hooks the load action for the options page.
 	 *
@@ -136,7 +136,7 @@ class Babble_Languages extends Babble_Plugin {
 		wp_enqueue_style( 'babble_languages_options', $this->url( '/css/languages-options.css' ), null, filemtime( $this->dir( 'css/languages-options.css' ) ) );
 		$this->maybe_process_languages();
 	}
-
+	
 	// CALLBACKS
 	// =========
 
@@ -168,7 +168,7 @@ class Babble_Languages extends Babble_Plugin {
 			$lang->active = false;
 			if ( in_array( $code, $this->active_langs ) )
 				$lang->active = true;
-
+			
 		}
 		$vars = array();
 		$vars[ 'langs' ] = $langs;
@@ -176,32 +176,21 @@ class Babble_Languages extends Babble_Plugin {
 		$vars[ 'active_langs' ] = $this->get_active_langs();
 		$this->render_admin( 'options-available-languages.php', $vars );
 	}
-
+	
 	// PUBLIC METHODS
 	// ==============
-
-	/**
-	 * Set the active language objects for the current site, keyed
-	 * by URL prefix.
-	 *
-	 * @return array An array of Babble language objects
-	 **/
-	public function set_active_langs( $lang_codes ) {
-		$this->parse_available_languages();
-		$this->active_langs = $lang_codes;
-	}
 
  	/**
 	 * Return the active language objects for the current site, keyed
 	 * by URL prefix. A language object looks like:
-	 * 'ar' =>
+	 * 'ar' => 
 	 * 		object(stdClass)
 	 * 			public 'name' => string 'Arabic'
 	 * 			public 'code' => string 'ar'
 	 * 			public 'url_prefix' => string 'ar'
 	 * 			public 'text_direction' => string 'rtl'
 	 * 			public 'display_name' => string 'Arabic'
-	 *
+	 * 
 	 * @return array An array of Babble language objects
 	 **/
 	public function get_active_langs() {
@@ -214,7 +203,7 @@ class Babble_Languages extends Babble_Plugin {
 	/**
 	 * Given a lang object or lang code, this checks whether the
 	 * language is public or not.
-	 *
+	 * 
 	 * @param string $lang_code A language code
 	 * @return boolean True if public
 	 **/
@@ -227,7 +216,7 @@ class Babble_Languages extends Babble_Plugin {
 	/**
  	 * Returns the requested language object.
 	 *
-	 * @param string $code A language code, e.g. "fr_BE"
+	 * @param string $code A language code, e.g. "fr_BE" 
 	 * @return object|boolean A Babble language object
 	 **/
 	public function get_lang( $lang_code ) {
@@ -266,11 +255,11 @@ class Babble_Languages extends Babble_Plugin {
 	public function get_default_lang() {
 		return bbl_get_lang( $this->default_lang );
 	}
-
+	
 	/**
 	 * Given a language code, return the URL prefix.
 	 *
-	 * @param string $code A language code, e.g. "fr_BE"
+	 * @param string $code A language code, e.g. "fr_BE" 
 	 * @return bool|string A URL prefix, as set by the admin when editing the lang prefs, or false if no language
 	 **/
 	public function get_url_prefix_from_code( $code ) {
@@ -278,7 +267,7 @@ class Babble_Languages extends Babble_Plugin {
 			return false;
 		return $this->langs[ $code ]->url_prefix;
 	}
-
+	
 	/**
 	 * Given a URL prefix, return the language code.
 	 *
@@ -290,16 +279,16 @@ class Babble_Languages extends Babble_Plugin {
 			return false;
 		return $this->active_langs[ $url_prefix ];
 	}
-
+	
 	// PRIVATE/PROTECTED METHODS
 	// =========================
 
 	/**
 	 * Merge two arrays of language objects. If a language exists in
-	 * $langs_b that doesn't in $langs_a, it will be added to the
+	 * $langs_b that doesn't in $langs_a, it will be added to the 
 	 * final array. If a language has a property in both arrays, the
 	 * property value from $langs_b will overwrite the property value
-	 * in $langs_a. If a language in $langs_b has a property that
+	 * in $langs_a. If a language in $langs_b has a property that 
 	 * doesn't exist in $langs_a then it will be added to that
 	 * language in the final array.
 	 *
@@ -323,7 +312,7 @@ class Babble_Languages extends Babble_Plugin {
 		}
 		return $langs;
 	}
-
+	
 	/**
 	 * Checks if there is a POSTed request to process. Checks it's properly
 	 * nonced up. Processes it. Redirects if there's no errors.
@@ -356,9 +345,9 @@ class Babble_Languages extends Babble_Plugin {
 			}
 			$lang_prefs[ $code ] = $lang_pref;
 		}
-
+		
 		// Now save the active languages, i.e. the selected languages
-
+		
 		if ( ! $this->errors ) {
 			$langs = $this->merge_lang_sets( $this->available_langs, $this->lang_prefs );
 			$active_langs = array();
@@ -384,7 +373,7 @@ class Babble_Languages extends Babble_Plugin {
 		if ( ! $this->errors ) {
 			// Save the public languages
 			$this->update_option( 'public_langs', $public_langs );
-
+			
 			// First the default language
 			$default_lang = @ $_POST[ 'default_lang' ];
 			$this->update_option( 'default_lang', $default_lang );
@@ -393,22 +382,22 @@ class Babble_Languages extends Babble_Plugin {
 			// Now set a reassuring message and redirect back to the clean settings page
 			$this->set_admin_notice( __( 'Your language settings have been saved.', 'babble' ) );
 			$url = admin_url( 'options-general.php?page=babble_languages' );
-			wp_redirect( $url );
+			wp_safe_redirect( $url );
 			exit;
 		}
 	}
-
+	
 	/**
-	 * Parse the files in wp-content/languages and work out what
+	 * Parse the files in wp-content/languages and work out what 
 	 * languages we've got available. Populates self::available_langs
 	 * with an array of language objects which look like:
-  	 * 'ar' =>
+  	 * 'ar' => 
   	 * 		object(stdClass)
   	 * 			public 'name' => string 'Arabic'
   	 * 			public 'code' => string 'ar'
   	 * 			public 'url_prefix' => string 'ar'
   	 * 			public 'text_direction' => string 'rtl'
- 	 *
+ 	 * 
 	 * @return void
 	 **/
 	protected function parse_available_languages() {
@@ -437,10 +426,10 @@ class Babble_Languages extends Babble_Plugin {
 		ksort( $this->available_langs );
 		$this->update_option( 'available_langs', $this->available_langs );
 	}
-
+	
 	/**
-	 * Parse (DON'T require or include) the [lang_code].php locale file in the languages
-	 * directory to work if the specified language is right to left. (We can't include or
+	 * Parse (DON'T require or include) the [lang_code].php locale file in the languages 
+	 * directory to work if the specified language is right to left. (We can't include or 
 	 * require because it may contain function names which clash with other locale files.)
 	 *
 	 * @param string $lang The language code to retrieve RTL info for
@@ -455,15 +444,15 @@ class Babble_Languages extends Babble_Plugin {
 		}
 		return 'ltr';
 	}
-
+	
 	/**
 	 * Return the language name for the provided language code.
 	 *
-	 * This method is an identical copy of format_code_lang
+	 * This method is an identical copy of format_code_lang 
 	 * in wp-admin/includes/ms.php which is only available on Multisite.
 	 *
 	 * @FIXME: We end up with a load of anglicised names, which doesn't seem super-friendly, internationally speaking.
-	 *
+	 * 
 	 * @see format_code_lang()
 	 *
 	 * @param string $lang_short The language short code, e.g. 'en' (not 'en_GB')

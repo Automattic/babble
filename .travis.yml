@@ -25,7 +25,5 @@ before_script:
     - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
 script:
-    # PHP Linting
-    - if [[ "$WP_VERSION" == "latest" ]]; then find . -name \*.php -not -path "./vendor/*" -print0 | xargs -0 -n 1 -P 4 php -d display_errors=stderr -l > /dev/null; fi;
-
+    - if [[ "$WP_VERSION" == "latest" ]]; then if find . -not \( -path ./vendor -prune \) -not \( -path ./features -prune \) -name "*.php" -exec php -l {} \; | grep "^[Parse error|Fatal error]"; then exit 1; fi; fi;
     - phpunit

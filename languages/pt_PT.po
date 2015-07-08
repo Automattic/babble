@@ -1,0 +1,346 @@
+# Translation of Babble in Portuguese (Portugal)
+# This file is distributed under the same license as the Babble package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2015-03-04 20:26-0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 1.7.4\n"
+"Project-Id-Version: Babble\n"
+"POT-Creation-Date: \n"
+"Last-Translator: Luis Martins <luis.martins@multiweb.pt>\n"
+"Language-Team: \n"
+"Language: pt_PT\n"
+
+#: class-jobs.php:50
+msgid "Status"
+msgstr "Estado"
+
+#: class-jobs.php:51
+msgid "Details"
+msgstr "Detalhes"
+
+#: class-jobs.php:63
+msgctxt "translation jobs general name"
+msgid "Jobs"
+msgstr "Tarefas"
+
+#: class-jobs.php:64
+msgctxt "translation jobs singular name"
+msgid "Job"
+msgstr "Tarefa"
+
+#: class-jobs.php:65
+msgctxt "translation job"
+msgid "Add New"
+msgstr "Adicionar Nova"
+
+#: class-jobs.php:66
+msgctxt "translation job"
+msgid "Create New Job"
+msgstr "Criar Nova Tarefa"
+
+#: class-jobs.php:67
+msgctxt "translation job"
+msgid "Edit Job"
+msgstr "Editar Tarefa"
+
+#: class-jobs.php:68
+msgctxt "translation job"
+msgid "New Job"
+msgstr "Nova Tarefa"
+
+#: class-jobs.php:69
+msgctxt "translation job"
+msgid "View Job"
+msgstr "Ver Tarefa"
+
+#: class-jobs.php:70
+msgctxt "translation job"
+msgid "Search Jobs"
+msgstr "Pesquisar Tarefas"
+
+#: class-jobs.php:71
+msgctxt "translation job"
+msgid "No jobs found."
+msgstr "Nenhuma tarefa encontrada."
+
+#: class-jobs.php:72
+msgctxt "translation job"
+msgid "No jobs found in Trash."
+msgstr "Nenhuma tarefa encontrada no lixo."
+
+#: class-jobs.php:73
+msgctxt "translation job"
+msgid "All Jobs"
+msgstr "Todos as Tarefas"
+
+#: class-jobs.php:76
+msgid "Content, both posts and taxonomy terms, which need to be translated."
+msgstr "Conteúdo a aguardar tradução, incluindo posts e termos de taxonomia."
+
+#: class-jobs.php:88
+msgctxt "statuses of translation jobs, general name"
+msgid "Statuses"
+msgstr "Estados"
+
+#: class-jobs.php:89
+msgctxt "statuses of translation jobs, singular name"
+msgid "Status"
+msgstr "Estado"
+
+#: class-jobs.php:90
+msgctxt "status of translation jobs"
+msgid "Status"
+msgstr "Estado"
+
+#: class-jobs.php:91
+msgctxt "status of translation jobs"
+msgid "Popular Statuses"
+msgstr "Estados Frequentes"
+
+#: class-jobs.php:92
+msgctxt "status of translation jobs"
+msgid "All Statuses"
+msgstr "Todos os Estados"
+
+#: class-jobs.php:93
+msgctxt "status of translation jobs"
+msgid "Edit Status"
+msgstr "Editar Estado"
+
+#: class-jobs.php:94
+msgctxt "status of translation jobs"
+msgid "View Status"
+msgstr "Ver Estado"
+
+#: class-jobs.php:95
+msgctxt "status of translation jobs"
+msgid "Update Status"
+msgstr "Atualizar Estado"
+
+#: class-jobs.php:96
+msgctxt "status of translation jobs"
+msgid "Add New Status"
+msgstr "Adicionar Estado"
+
+#: class-jobs.php:97
+msgctxt "status of translation jobs"
+msgid "New Status Name"
+msgstr "Novo Nome de Estado"
+
+#: class-jobs.php:98
+msgctxt "status of translation jobs"
+msgid "Separate statuses with commas"
+msgstr "Separar estados com vírgulas"
+
+#: class-jobs.php:99
+msgctxt "status of translation jobs"
+msgid "Add or remove statuses"
+msgstr "Adicionar ou remover estados"
+
+#: class-jobs.php:100
+msgctxt "status of translation jobs"
+msgid "Choose from the most used statuses"
+msgstr "Escolher a partir dos estados mais frequentes"
+
+#: class-jobs.php:110
+msgctxt "language for translation jobs, general name"
+msgid "Languages"
+msgstr "Idiomas"
+
+#: class-jobs.php:111 class-jobs.php:112
+msgctxt "language for translation jobs, general name"
+msgid "Language"
+msgstr "Idioma"
+
+#: class-jobs.php:113
+msgctxt "language for translation jobs, general name"
+msgid "Popular Languages"
+msgstr "Idiomas Populares"
+
+#: class-jobs.php:114
+msgctxt "language for translation jobs, general name"
+msgid "All Languages"
+msgstr "Todas os Idiomas"
+
+#: class-jobs.php:115
+msgctxt "language for translation jobs, general name"
+msgid "Edit Language"
+msgstr "Editar Idioma"
+
+#: class-jobs.php:116
+msgctxt "language for translation jobs, general name"
+msgid "View Language"
+msgstr "Ver Idioma"
+
+#: class-jobs.php:117
+msgctxt "language for translation jobs, general name"
+msgid "Update Language"
+msgstr "Atualizar Idioma"
+
+#: class-jobs.php:118
+msgctxt "language for translation jobs, general name"
+msgid "Add New Language"
+msgstr "Adicionar novo Idioma"
+
+#: class-jobs.php:119
+msgctxt "language for translation jobs, general name"
+msgid "New Language Name"
+msgstr "Nome Novo Idioma"
+
+#: class-jobs.php:120
+msgctxt "language for translation jobs, general name"
+msgid "Separate languages with commas"
+msgstr "Separar Idiomas por vírgulas"
+
+#: class-jobs.php:121
+msgctxt "language for translation jobs, general name"
+msgid "Add or remove languages"
+msgstr "Adicionar ou remover idiomas"
+
+#: class-jobs.php:122
+msgctxt "language for translation jobs, general name"
+msgid "Choose from the most used languages"
+msgstr "Escolher a partir dos idiomas mais usados"
+
+#: class-jobs.php:145 class-jobs.php:215
+msgid "Save"
+msgstr "Guardar"
+
+#: class-languages.php:90
+msgid "<strong>Babble problem:</strong> Please visit the <a href=\"%s\">Available Languages settings</a> and setup your available languages and the default language."
+msgstr "<strong>Problema no Babble:</strong> Por favor, visite <a href=\"%s\">Definições de Idiomas disponíveis</a> e configure os idiomas disponíveis e idioma pré-definido."
+
+#: class-languages.php:100 templates-admin/options-available-languages.php:11
+msgid "Available Languages"
+msgstr "Idiomas Disponíveis"
+
+#: class-languages.php:290
+msgid "The languages \"%1$s\" and \"%2$s\" are using the same URL Prefix. Each URL prefix should be unique."
+msgstr "Os idiomas \"%1$s\" e \"%2$s\" utilizam o mesmo prefixo de URL. Cada prefixo de URL deve ser único."
+
+#: class-languages.php:311
+msgid "You must set at least two languages as active."
+msgstr "Deve ter pelo menos dois idiomas activos."
+
+#: class-languages.php:332
+msgid "Your language settings have been saved."
+msgstr "As definições de idiomas foram guardadas."
+
+#: class-locale.php:91
+msgid "<strong>Babble problem:</strong> Fancy permalinks are disabled. Please enable them in order to have language prefixed URLs work correctly."
+msgstr "<strong>Problema no Babble:</strong> Por favor verifique a configuração de Links Permanentes para permitir que os prefixos de URL funcionem correctamente."
+
+#: class-plugin.php:311
+msgid "This plugin admin template could not be found: %s"
+msgstr "O template de administração deste plugin não foi encontrado: %s"
+
+#: class-plugin.php:445
+msgid "This plugin template could not be found, perhaps you need to hook `sil_plugins_dir` and `sil_plugins_url`: %s"
+msgstr "O template de administração deste plugin não foi encontrado, talvez precise de ligar a `sil_plugins_dir` e `sil_plugins_url`: %s"
+
+#: class-post-public.php:142 class-taxonomy.php:83
+msgid "Term Translation ID"
+msgstr "ID de tradução do Termo"
+
+#: class-post-public.php:157
+msgid "Post Translation ID"
+msgstr "ID de tradução do Post"
+
+#: class-post-public.php:988
+msgid "Invalid Post"
+msgstr "Post Inválido"
+
+#: class-switcher-menu.php:149 class-switcher-menu.php:181
+#: class-switcher-menu.php:221 class-switcher-menu.php:250
+#: class-switcher-menu.php:295 class-switcher-menu.php:326
+#: class-switcher-menu.php:366 class-switcher-menu.php:395
+#: class-switcher-menu.php:424 class-switcher-menu.php:463
+msgid "Switch to %s"
+msgstr "Troar para %s"
+
+#: class-switcher-menu.php:187 class-switcher-menu.php:257
+#: class-switcher-menu.php:333 class-switcher-menu.php:431
+msgid "Create for %s"
+msgstr "Criar para %s"
+
+#: class-taxonomy.php:375
+msgid "Empty Term"
+msgstr "Esvaziar Termo"
+
+#: templates-admin/options-available-languages.php:20
+msgid "Please select the languages you wish to translate this site into, you should select at least two, and select \"Save Changes\" below the languages table."
+msgstr "Por favor seleccione os idiomas para os quais tenciona traduzir este site. Deverá seleccionar pelo menos dois, e escolher \"Guardar Alterações\" abaixo da tabela de idiomas."
+
+#: templates-admin/options-available-languages.php:23
+msgid "Default language:"
+msgstr "Idioma pré-definido:"
+
+#: templates-admin/options-available-languages.php:36
+#: templates-admin/options-available-languages.php:51
+msgid "Active"
+msgstr "Activo"
+
+#: templates-admin/options-available-languages.php:40
+#: templates-admin/options-available-languages.php:55
+msgid "Code"
+msgstr "Código"
+
+#: templates-admin/options-available-languages.php:41
+#: templates-admin/options-available-languages.php:56
+msgid "Name(s)"
+msgstr "Nome(s)"
+
+#: templates-admin/options-available-languages.php:42
+#: templates-admin/options-available-languages.php:57
+msgid "Display Name"
+msgstr "Mostrar Nome"
+
+#: templates-admin/options-available-languages.php:43
+#: templates-admin/options-available-languages.php:58
+msgid "URL Prefix"
+msgstr "Prefixo URL"
+
+#: templates-admin/options-available-languages.php:44
+#: templates-admin/options-available-languages.php:59
+msgid "Text Direction"
+msgstr "Direcção do Texto"
+
+#: templates-admin/options-available-languages.php:68
+#: templates-admin/options-available-languages.php:73
+msgid "Enable \"%s\" on this site"
+msgstr "Activar \"%s\" neste site"
+
+#: templates-admin/options-available-languages.php:79
+msgid "Display name for \"%s\""
+msgstr "Nome de exibição para \"%s\""
+
+#: templates-admin/options-available-languages.php:85
+msgid "URL prefix for \"%s\""
+msgstr "Prefixo URL para \"%s\""
+
+#: templates-admin/options-available-languages.php:91
+msgid "<strong>Left</strong> to right"
+msgstr "<strong>Esquerda</strong> para Direita"
+
+#: templates-admin/options-available-languages.php:93
+msgid "<strong>Right</strong> to left"
+msgstr "<strong>Direita</strong> para Esquerda"
+
+msgid "Babble"
+msgstr "Babble"
+
+msgid "http://simonwheatley.co.uk/wordpress/babble"
+msgstr "http://simonwheatley.co.uk/wordpress/babble"
+
+msgid "Now with Taxonomies!"
+msgstr "Agora com Taxonomias!"
+
+msgid "Simon Wheatley"
+msgstr "Simon Wheatley"
+
+msgid "http://simonwheatley.co.uk/wordpress/"
+msgstr "http://simonwheatley.co.uk/wordpress/"
