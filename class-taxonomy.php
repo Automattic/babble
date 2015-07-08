@@ -354,9 +354,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				continue;
 			}
 			if ( isset( $this->taxonomies[ $term->taxonomy ] ) ) {
-				if ( ! $this->get_transid( $term->term_id ) ) {
-					throw new exception( "ERROR: Translated term ID $term->term_id does not have a transid" );
-				} else {
+				if ( $this->get_transid( $term->term_id ) ) {
 					continue;
 				}
 			}
