@@ -3,7 +3,7 @@
 Plugin Name: Babble
 Plugin URI:  http://babbleplugin.com/
 Description: Multilingual WordPress done right
-Version:     1.5
+Version:     1.5.1
 Author:      Automattic
 Author URI:  https://automattic.com/
 Text Domain: babble
@@ -72,6 +72,5 @@ require_once 'class-switcher-content.php';
 require_once 'class-switcher-interface.php';
 require_once 'class-admin-bar.php';
 require_once 'class-translator.php';
-require_once 'class-updates.php';
 
 require_once 'miscellaneous.php';

@@ -198,7 +198,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->set_transid( $new_post, $transid );
 
 		// Copy all the metadata across
-		$this->sync_post_meta( $new_post->ID );
+		$this->sync_post_meta( $new_post->ID, $origin_post );
 
 		// Copy the various core post properties across
 		$this->sync_properties( $origin_post->ID, $new_post->ID );
@@ -437,7 +437,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			update_post_meta( $translation->ID, $meta_key, $meta_value );
 		}
 
-		$this->updated_post_meta = false;
+		$this->no_meta_recursion = false;
 	}
 
 	/**
@@ -1234,7 +1234,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		foreach ( $posts as $post )
 			$translations[ $this->get_post_lang_code( $post ) ] = $post;
 
-		wp_cache_add( $transid, $translations, 'bbl_post_translations' );
+		wp_cache_set( $transid, $translations, 'bbl_post_translations' );
 
 		return $translations;
 	}
@@ -1405,10 +1405,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Resync all (synced) post meta data from the post in
 	 * the default language to this post.
 	 *
-	 * @param $int The post ID to sync TO
+	 * @param int         $post_id     The post ID to sync TO.
+	 * @param int|WP_Post $origin_post The post ID or object to sync FROM.
 	 * @return void
 	 **/
-	function sync_post_meta( $post_id ) {
+	function sync_post_meta( $post_id, $origin_post = null ) {
 		if ( $this->no_meta_recursion )
 			return;
 		$this->no_meta_recursion = 'updated_post_meta';
@@ -1425,7 +1426,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// Now add meta in again from the origin post
-		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		if ( $origin_post ) {
+			$origin_post = get_post( $origin_post );
+		} else {
+			$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		}
 
 		$metas = get_post_meta( $origin_post->ID );
 		if ( ! $metas )
@@ -1459,8 +1464,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	function get_transid( $post, $create = true ) {
 		$post = get_post( $post );
 
-		if ( ! $post->ID )
+		if ( ! $post ) {
 			return false;
+		}
 
 		if ( $transid = wp_cache_get( $post->ID, 'bbl_post_transids' ) ) {
 			return $transid;
@@ -1481,7 +1487,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return false;
 		}
 
-		wp_cache_add( $post->ID, $transid, 'bbl_post_transids' );
+		wp_cache_set( $post->ID, $transid, 'bbl_post_transids' );
 
 		return $transid;
 	}

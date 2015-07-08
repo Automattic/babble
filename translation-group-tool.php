@@ -103,7 +103,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		);
 		$url = add_query_arg( $args, admin_url( 'tools.php' ) );
 		$url .= '#' . $_GET[ 'anchor' ];
-		wp_redirect( $url );
+		wp_safe_redirect( $url );
 	}
 
 	/**
