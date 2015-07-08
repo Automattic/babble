@@ -779,6 +779,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! $transid = $this->get_transid( $post_id, false ) ) {
 			return;
 		}
+		wp_cache_delete( $transid, 'bbl_post_translations' );
 		wp_cache_delete( $transid, 'bbl_post_translation_ids' );
 	}
 
@@ -1502,6 +1503,7 @@ class Babble_Post_Public extends Babble_Plugin {
 				$transid = $result['term_id'];
 			}
 			// Delete anything in there currently
+			wp_cache_delete( $transid, 'bbl_post_translations' );
 			wp_cache_delete( $transid, 'bbl_post_translation_ids' );
 		}
 		$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
