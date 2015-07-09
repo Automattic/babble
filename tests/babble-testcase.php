@@ -79,6 +79,7 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 		$languages = array(
 			'fr' => 'fr_FR',
 			'uk' => 'en_GB',
+			'ar' => 'ar',
 		);
 
 		foreach ( $languages as $url_prefix => $lang ) {

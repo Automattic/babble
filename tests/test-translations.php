@@ -38,6 +38,19 @@ class Test_Translations extends Babble_UnitTestCase {
 
 		$this->assertEquals( $wpdb->num_queries, $queries );
 
+		// Add a new translation
+		$ar = $this->create_post_translation( $en, 'ar' );
+
+		// Ensure translations are correctly updated
+		$translations = bbl_get_post_translations( $en->ID );
+
+		$this->assertEquals( array(
+			'en_US' => get_post( $en->ID ),
+			'en_GB' => get_post( $uk->ID ),
+			'fr_FR' => get_post( $fr->ID ),
+			'ar'    => get_post( $ar->ID ),
+		), $translations );
+
 	}
 
 	public function test_term_translations() {
@@ -77,6 +90,19 @@ class Test_Translations extends Babble_UnitTestCase {
 		), $translations );
 
 		$this->assertEquals( $wpdb->num_queries, $queries );
+
+		// Add a new translation
+		$ar = $this->create_term_translation( $en, 'ar' );
+
+		// Ensure translations are correctly updated
+		$translations = bbl_get_term_translations( $en->term_id, $en->taxonomy );
+
+		$this->assertEquals( array(
+			'en_US' => get_term( $en->term_id, $en->taxonomy ),
+			'en_GB' => get_term( $uk->term_id, $uk->taxonomy ),
+			'fr_FR' => get_term( $fr->term_id, $fr->taxonomy ),
+			'ar'    => get_term( $ar->term_id, $ar->taxonomy ),
+		), $translations );
 
 	}
 
