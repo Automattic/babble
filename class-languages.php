@@ -153,21 +153,37 @@ class Babble_Languages extends Babble_Plugin {
 		$langs = $this->merge_lang_sets( $this->available_langs, $this->lang_prefs );
 		// Merge in any POSTed field values
 		foreach ( $langs as $code => & $lang ) {
-			$lang->url_prefix = ( @ isset( $_POST[ 'url_prefix_' . $code ] ) ) ? $_POST[ "url_prefix_$code" ] : @ $lang->url_prefix;
-			if ( ! $lang->url_prefix )
-				$lang->url_prefix = $lang->url_prefix;
-			$lang->text_direction = $lang->text_direction;
+			if ( ! empty( $_POST[ "url_prefix_$code" ] ) ) {
+				$lang->url_prefix = $_POST[ "url_prefix_$code" ];
+			} else if ( empty( $lang->url_prefix ) ) {
+				$parts = explode( '_', $lang->code );
+				$lang->url_prefix = $parts[0];
+			}
+			if ( ! in_array( $lang->text_direction, array( 'ltr', 'rtl' ) ) ) {
+				// @TODO is this needed?
+				$lang->text_direction = 'ltr';
+			}
 			// This line must come after the text direction value is set
 			$lang->input_lang_class = ( 'rtl' == $lang->text_direction ) ? 'lang-rtl' : 'lang-ltr' ;
-			$lang->display_name = ( @ isset( $_POST[ "display_name_$code" ] ) ) ? $_POST[ "display_name_$code" ] : @ $lang->display_name;
-			if ( ! $lang->display_name )
+
+			if ( ! empty( $_POST[ "display_name_$code" ] ) ) {
+				$lang->display_name = $_POST[ "display_name_$code" ];
+			} else if ( empty( $lang->display_name ) ) {
 				$lang->display_name = $lang->name;
+			}
+
 			// Note any url_prefix errors
-			$lang->url_prefix_error = ( @ $this->errors[ "url_prefix_$code" ] ) ? 'babble-error' : '0' ;
+			if ( ! empty( $this->errors[ "url_prefix_$code" ] ) ) {
+				$lang->url_prefix_error = 'babble-error';
+			} else {
+				$lang->url_prefix_error = '0';
+			}
+
 			// Flag the active languages
 			$lang->active = false;
-			if ( in_array( $code, $this->active_langs ) )
+			if ( in_array( $code, $this->active_langs ) ) {
 				$lang->active = true;
+			}
 			
 		}
 		$vars = array();
@@ -204,12 +220,13 @@ class Babble_Languages extends Babble_Plugin {
 	 * Given a lang object or lang code, this checks whether the
 	 * language is public or not.
 	 * 
-	 * @param string $lang_code A language code
+	 * @param string|object $lang_code A language code or a language object
 	 * @return boolean True if public
 	 **/
 	public function is_public_lang( $lang_code ) {
-		if ( ! is_string( $lang_code ) )
-			throw new exception( 'Please provide a lang_code for the is_public_lang method.' );
+		if ( is_object( $lang_code ) and ! empty( $lang_code->lang ) ) {
+			$lang_code = $lang_code->lang;
+		}
 		return in_array( $lang_code, $this->public_langs );
 	}
 
@@ -330,8 +347,19 @@ class Babble_Languages extends Babble_Plugin {
 		$url_prefixes = array();
 		foreach ( $this->available_langs as $code => $lang ) {
 			$lang_pref = new stdClass;
-			$lang_pref->display_name = @ $_POST[ 'display_name_' . $code ];
-			$lang_pref->url_prefix = @ $_POST[ 'url_prefix_' . $code ];
+
+			if ( ! empty( $_POST[ 'display_name_' . $code ] ) ) {
+				$lang_pref->display_name = $_POST[ 'display_name_' . $code ];
+			} else {
+				$lang_pref->display_name = $lang->name;
+			}
+
+			if ( ! empty( $_POST[ 'url_prefix_' . $code ] ) ) {
+				$lang_pref->url_prefix = $_POST[ 'url_prefix_' . $code ];
+			} else {
+				$lang_pref->url_prefix = $lang->url_prefix;
+			}
+
 			// Check we don't have more than one language using the same url prefix
 			if ( array_key_exists( $lang_pref->url_prefix, $url_prefixes ) ) {
 				$lang_1 = $this->format_code_lang( $code );
@@ -351,8 +379,11 @@ class Babble_Languages extends Babble_Plugin {
 		if ( ! $this->errors ) {
 			$langs = $this->merge_lang_sets( $this->available_langs, $this->lang_prefs );
 			$active_langs = array();
-			foreach ( (array) @ $_POST[ 'active_langs' ] as $code )
-				$active_langs[ $langs[ $code ]->url_prefix ] = $code;
+			if ( ! empty( $_POST[ 'active_langs' ] ) && is_array( $_POST[ 'active_langs' ] ) ) {
+				foreach ( $_POST[ 'active_langs' ] as $code ) {
+					$active_langs[ $langs[ $code ]->url_prefix ] = $code;
+				}
+			}
 			if ( count( $active_langs ) < 2 ) {
 				$this->set_admin_error( __( 'You must set at least two languages as active.', 'babble' ) );
 			} else {
@@ -365,8 +396,11 @@ class Babble_Languages extends Babble_Plugin {
 				$this->set_admin_error( __( 'You must set at least your default language as public.', 'babble' ) );
 			} else {
 				$public_langs = (array) $_POST[ 'public_langs' ];
-				if ( ! in_array( @ $_POST[ 'default_lang' ], $public_langs ) )
+				if ( empty( $_POST[ 'default_lang' ] ) ) {
+					$this->set_admin_error( __( 'You must choose a default language.', 'babble' ) );
+				} else if ( ! in_array( $_POST[ 'default_lang' ], $public_langs ) ) {
 					$this->set_admin_error( __( 'You must set your default language as public.', 'babble' ) );
+				}
 			}
 		}
 		// Finish up, redirecting if we're all OK
@@ -375,7 +409,7 @@ class Babble_Languages extends Babble_Plugin {
 			$this->update_option( 'public_langs', $public_langs );
 			
 			// First the default language
-			$default_lang = @ $_POST[ 'default_lang' ];
+			$default_lang = $_POST[ 'default_lang' ];
 			$this->update_option( 'default_lang', $default_lang );
 			// Now the prefs
 			$this->update_option( 'lang_prefs', $lang_prefs );
