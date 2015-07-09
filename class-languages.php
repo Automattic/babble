@@ -446,7 +446,7 @@ class Babble_Languages extends Babble_Plugin {
 				'name' => $this->format_code_lang( $prefix ),
 				'code' => $lang_code,
 				'url_prefix' => $prefix,
-				'text_direction' => $this->is_rtl( $lang_code ),
+				'text_direction' => ( self::is_rtl( $lang_code ) ? 'rtl' : 'ltr' ),
 			);
 			// Cast to an object, in case we want to start using actual classes
 			// at some point in the future.
@@ -465,21 +465,13 @@ class Babble_Languages extends Babble_Plugin {
 	}
 	
 	/**
-	 * Parse (DON'T require or include) the [lang_code].php locale file in the languages 
-	 * directory to work if the specified language is right to left. (We can't include or 
-	 * require because it may contain function names which clash with other locale files.)
+	 * Is the given language a right-to-left language?
 	 *
-	 * @param string $lang The language code to retrieve RTL info for
+	 * @param string $lang_code The language code to retrieve RTL info for
 	 * @return bool True if the language is RTL
 	 **/
-	protected function is_rtl( $lang ) {
-		$locale_file = WP_LANG_DIR . "/$lang.php";
-		if ( ( 0 === validate_file( $lang ) ) && is_readable( $locale_file ) ) {
-			$locale_file_code = file_get_contents( $locale_file );
-			// Regex to find something looking like: $text_direction = 'rtl';
-			return ( (bool) preg_match( '/\$text_direction\s?=\s?[\'|"]rtl[\'|"]\s?;/i', $locale_file_code ) ) ? 'rtl' : 'ltr';
-		}
-		return 'ltr';
+	public static function is_rtl( $lang_code ) {
+		return in_array( $lang_code, self::$rtl_languages, true );
 	}
 	
 	/**
