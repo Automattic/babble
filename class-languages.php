@@ -67,6 +67,43 @@ class Babble_Languages extends Babble_Plugin {
 	protected $errors;
 	
 	/**
+	 * Array of language codes where the language writes right-to-left.
+	 *
+	 * Based primarily on GlotPress' list of locales and Wikipedia's article on RTL:
+	 * 
+	 * @link https://glotpress.trac.wordpress.org/browser/trunk/locales/locales.php
+	 * @link https://en.wikipedia.org/wiki/Right-to-left
+	 * 
+	 * @var array
+	 */
+	protected static $rtl_languages = array(
+		'ar',      // Arabic / العربية
+		'arc',     // Aramaic
+		'arq',     // Algerian Arabic / الدارجة الجزايرية
+		'azb',     // South Azerbaijani / گؤنئی آذربایجان
+		'az_TR',   // Azerbaijani (Turkey) / Azərbaycan Türkcəsi
+		'bcc',     // Balochi Southern / بلوچی مکرانی
+		'bqi',     // Bakthiari / بختياري
+		'ckb',     // Sorani Kurdish / کوردی
+		'dv',      // Dhivehi
+		'fa',      // Persian / فارسی
+		'fa_IR',   // Persian / فارسی
+		'fa_AF',   // Persian (Afghanistan) / (افغانستان) فارسی
+		'glk',     // Gilaki / گیلکی
+		'ha',      // Hausa / هَوُسَ
+		'haz',     // Hazaragi / هزاره گی
+		'he',      // Hebrew / עִבְרִית
+		'he_IL',   // Hebrew / עִבְרִית
+		'mzn',     // Mazanderani / مازِرونی
+		'pnb',     // Western Punjabi / پنجابی
+		'ps',      // Pashto / پښتو
+		'sd',      // Sindhi / سنڌي
+		'ug',      // Uyghur / ئۇيغۇرچە
+		'ur',      // Urdu / اردو
+		'yi',      // Yiddish / ייִדיש'
+	);
+
+	/**
 	 * Setup any add_action or add_filter calls. Initiate properties.
 	 *
 	 * @return void
@@ -443,7 +480,7 @@ class Babble_Languages extends Babble_Plugin {
 				'name' => $this->format_code_lang( $prefix ),
 				'code' => $lang_code,
 				'url_prefix' => $prefix,
-				'text_direction' => $this->is_rtl( $lang_code ),
+				'text_direction' => ( self::is_rtl( $lang_code ) ? 'rtl' : 'ltr' ),
 			);
 			// Cast to an object, in case we want to start using actual classes
 			// at some point in the future.
@@ -462,21 +499,13 @@ class Babble_Languages extends Babble_Plugin {
 	}
 	
 	/**
-	 * Parse (DON'T require or include) the [lang_code].php locale file in the languages 
-	 * directory to work if the specified language is right to left. (We can't include or 
-	 * require because it may contain function names which clash with other locale files.)
+	 * Is the given language a right-to-left language?
 	 *
-	 * @param string $lang The language code to retrieve RTL info for
+	 * @param string $lang_code The language code to retrieve RTL info for
 	 * @return bool True if the language is RTL
 	 **/
-	protected function is_rtl( $lang ) {
-		$locale_file = WP_LANG_DIR . "/$lang.php";
-		if ( ( 0 === validate_file( $lang ) ) && is_readable( $locale_file ) ) {
-			$locale_file_code = file_get_contents( $locale_file );
-			// Regex to find something looking like: $text_direction = 'rtl';
-			return ( (bool) preg_match( '/\$text_direction\s?=\s?[\'|"]rtl[\'|"]\s?;/i', $locale_file_code ) ) ? 'rtl' : 'ltr';
-		}
-		return 'ltr';
+	public static function is_rtl( $lang_code ) {
+		return in_array( $lang_code, self::$rtl_languages, true );
 	}
 	
 	/**
