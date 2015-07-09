@@ -679,16 +679,24 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_term_translations( $term, $taxonomy ) {
 		$term = get_term( $term, $taxonomy );
 
-		$langs = bbl_get_active_langs();
-		$translations = array();
-		foreach ( $langs as $lang ) {
-			$translations[ $lang->code ] = false;
-		}
+		$group    = "bbl_{$taxonomy}_term_translation_ids";
+		$term_ids = wp_cache_get( $term->term_id, $group );
 
-		$transid = $this->get_transid( $term->term_id );
-		// I thought the fracking bug where the get_objects_in_term function returned integers
-		// as strings was fixed. Seems not. See #17646 for details. Argh.
-		$term_ids = array_map( 'absint', get_objects_in_term( $transid, 'term_translation' ) );
+		if ( false === $term_ids ) {
+
+			$langs = bbl_get_active_langs();
+			$translations = array();
+			foreach ( $langs as $lang ) {
+				$translations[ $lang->code ] = false;
+			}
+
+			$transid = $this->get_transid( $term->term_id );
+
+			$term_ids = array_map( 'absint', get_objects_in_term( $transid, 'term_translation' ) );
+
+			wp_cache_set( $term->term_id, $term_ids, $group );
+
+		}
 
 		// We're dealing with terms across multiple taxonomies
 		$base_taxonomy = isset( $this->taxonomies[ $taxonomy ] ) ? $this->taxonomies[ $taxonomy ] : $taxonomy ;
