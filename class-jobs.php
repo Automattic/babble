@@ -7,7 +7,7 @@
  * @since 1.4
  */
 class Babble_Jobs extends Babble_Plugin {
-	
+
 	/**
 	 * A version number used for cachebusting, rewrite rule
 	 * flushing, etc.
@@ -22,37 +22,37 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @var boolean
 	 **/
 	protected $no_recursion;
-	
+
 	public function __construct() {
 		$this->setup( 'babble-job', 'plugin' );
-		
-		$this->add_action( 'add_meta_boxes' );
-		$this->add_action( 'add_meta_boxes_bbl_job', null, 999 );
-		$this->add_action( 'admin_init' );
-		$this->add_action( 'admin_menu' );
-		$this->add_action( 'babble_create_empty_translation', 'create_empty_translation' );
-		$this->add_action( 'bbl_translation_post_meta_boxes', null, 10, 3 );
-		$this->add_action( 'bbl_translation_submit_meta_boxes', null, 10, 2 );
-		$this->add_action( 'bbl_translation_terms_meta_boxes', null, 10, 2 );
-		$this->add_action( 'bbl_translation_meta_meta_boxes', null, 10, 2 );
-		$this->add_action( 'edit_form_after_title' );
-		$this->add_action( 'init', 'init_early', 0 );
-		$this->add_action( 'load-post.php', 'load_post_edit' );
-		$this->add_action( 'manage_bbl_job_posts_custom_column', 'action_column', null, 2 );
-		$this->add_action( 'pre_get_posts' );
-		$this->add_action( 'save_post', 'save_job', null, 2 );
-		$this->add_action( 'save_post', null, null, 2 );
-		$this->add_action( 'wp_before_admin_bar_render' );
 
-		$this->add_filter( 'admin_title', null, null, 2 );
-		$this->add_filter( 'bbl_translated_post_type', null, null, 2 );
-		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
-		$this->add_filter( 'get_edit_post_link', null, null, 3 );
-		$this->add_filter( 'manage_bbl_job_posts_columns', 'filter_columns' );
-		$this->add_filter( 'post_updated_messages' );
-		$this->add_filter( 'query_vars' );
-		$this->add_filter( 'user_has_cap', null, null, 3 );
-		$this->add_filter( 'wp_insert_post_empty_content', null, null, 2 );
+		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+		add_action( 'add_meta_boxes_bbl_job', array( $this, 'add_meta_boxes_bbl_job' ), 999 );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'babble_create_empty_translation', array( $this, 'create_empty_translation' ) );
+		add_action( 'bbl_translation_post_meta_boxes', array( $this, 'bbl_translation_post_meta_boxes' ), 10, 3 );
+		add_action( 'bbl_translation_submit_meta_boxes', array( $this, 'bbl_translation_submit_meta_boxes' ), 10, 2 );
+		add_action( 'bbl_translation_terms_meta_boxes', array( $this, 'bbl_translation_terms_meta_boxes' ), 10, 2 );
+		add_action( 'bbl_translation_meta_meta_boxes', array( $this, 'bbl_translation_meta_meta_boxes' ), 10, 2 );
+		add_action( 'edit_form_after_title', array( $this, 'edit_form_after_title' ) );
+		add_action( 'init', array( $this, 'init_early' ), 0 );
+		add_action( 'load-post.php', array( $this, 'load_post_edit' ) );
+		add_action( 'manage_bbl_job_posts_custom_column', array( $this, 'action_column' ), 10, 2 );
+		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
+		add_action( 'save_post', array( $this, 'save_job' ), 10, 2 );
+		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
+		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ) );
+
+		add_filter( 'admin_title', array( $this, 'admin_title' ), 10, 2 );
+		add_filter( 'bbl_translated_post_type', array( $this, 'bbl_translated_post_type' ), 10, 2 );
+		add_filter( 'bbl_translated_taxonomy', array( $this, 'bbl_translated_taxonomy' ), 10, 2 );
+		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
+		add_filter( 'manage_bbl_job_posts_columns', array( $this, 'filter_columns' ) );
+		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
+		add_filter( 'query_vars', array( $this, 'query_vars' ) );
+		add_filter( 'user_has_cap', array( $this, 'user_has_cap' ), 10, 3 );
+		add_filter( 'wp_insert_post_empty_content', array( $this, 'wp_insert_post_empty_content' ), 10, 2 );
 
 		$this->version = 1.1;
 	}
@@ -128,14 +128,14 @@ class Babble_Jobs extends Babble_Plugin {
 
 	/**
 	 * Hooks the WP action load-post.php to detect people
-	 * trying to edit translated posts, and instead kick 
+	 * trying to edit translated posts, and instead kick
 	 * redirect them to an existing translation job or
 	 * create a translation job and direct them to that.
 	 *
 	 * @TODO this should be in the post-public class
-	 * 
+	 *
 	 * @action load-post.php
-	 * 
+	 *
 	 * @return void
 	 **/
 	public function load_post_edit() {
@@ -496,7 +496,7 @@ class Babble_Jobs extends Babble_Plugin {
 	/**
 	 * undocumented function
 	 *
-	 * @param  
+	 * @param
 	 * @return void
 	 **/
 	public function add_meta_boxes( $post_type ) {
@@ -936,7 +936,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * by lang code.
 	 *
 	 * @param WP_Post|int $post A WP Post object or a post ID
-	 * @return array An array of WP Translation Job Post objects 
+	 * @return array An array of WP Translation Job Post objects
 	 */
 	public function get_incomplete_post_jobs( $post ) {
 		$post = get_post( $post );
@@ -948,7 +948,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * by lang code.
 	 *
 	 * @param WP_Post|int $post A WP Post object or a post ID
-	 * @return array An array of WP Translation Job Post objects 
+	 * @return array An array of WP Translation Job Post objects
 	 */
 	public function get_completed_post_jobs( $post ) {
 		$post = get_post( $post );
@@ -960,7 +960,7 @@ class Babble_Jobs extends Babble_Plugin {
 	 * by lang code.
 	 *
 	 * @param object $term A WP Term object or a term ID
-	 * @return array An array of WP Translation Job Post objects 
+	 * @return array An array of WP Translation Job Post objects
 	 */
 	public function get_term_jobs( $term, $taxonomy ) {
 		$term = get_term( $term, $taxonomy );
