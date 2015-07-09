@@ -550,12 +550,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! $subs_index )
 			return $posts;
 
-		$subs_posts = get_posts( array( 'include' => array_values( $subs_index ), 'post_status' => 'publish' ) );
-		// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
 		// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered
 		foreach ( $posts as & $post ) {
 			// @TODO why does this only override the title/excerpt/content? Why not override the post object entirely?
-			// @FIXME: I'm assuming this get_post call is cached, which it seems to be
 			if( isset( $subs_index[ $post->ID ] ) ) {
 				$default_post = get_post( $subs_index[ $post->ID ] );
 				if ( empty( $post->post_title ) )
