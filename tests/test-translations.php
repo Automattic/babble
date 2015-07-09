@@ -36,4 +36,40 @@ class Test_Translations extends Babble_UnitTestCase {
 
 	}
 
+	public function test_term_translations() {
+
+		$this->assertSame( 'en_US', get_locale() );
+
+		$en = $this->factory->term->create_and_get( array(
+			'taxonomy' => 'category',
+			'name'     => 'hello',
+		) );
+		$uk = $this->create_term_translation( $en, 'en_GB' );
+		$fr = $this->create_term_translation( $en, 'fr_FR' );
+
+		$terms = get_terms( 'category', array(
+			'hide_empty' => false,
+		) );
+		$term = get_term( $en->term_id, 'category' );
+
+		// Ensure translations are correctly fetched
+		$translations = bbl_get_term_translations( $en->term_id, $en->taxonomy );
+
+		$this->assertEquals( array(
+			'en_US' => get_term( $en->term_id, $en->taxonomy ),
+			'en_GB' => get_term( $uk->term_id, $uk->taxonomy ),
+			'fr_FR' => get_term( $fr->term_id, $fr->taxonomy ),
+		), $translations );
+
+		// Test it again to ensure translation caching is correct
+		$translations = bbl_get_term_translations( $en->term_id, $en->taxonomy );
+
+		$this->assertEquals( array(
+			'en_US' => get_term( $en->term_id, $en->taxonomy ),
+			'en_GB' => get_term( $uk->term_id, $uk->taxonomy ),
+			'fr_FR' => get_term( $fr->term_id, $fr->taxonomy ),
+		), $translations );
+
+	}
+
 }

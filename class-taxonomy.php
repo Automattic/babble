@@ -707,7 +707,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// translation group.
 		$terms = array();
 		foreach ( $existing_terms as $t ) {
-			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = $t;
+			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = get_term( $t, $t->taxonomy );
 		}
 		return $terms;
 	}
