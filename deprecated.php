@@ -31,7 +31,7 @@ $bbl_translating = true;
 /**
  * Start doing translation.
  *
- * @return void 
+ * @return void
  **/
 function bbl_start_translating() {
 	global $bbl_translating;
@@ -42,18 +42,18 @@ function bbl_start_translating() {
 /**
  * Stop doing any translation.
  *
- * @return void 
+ * @return void
  **/
 function bbl_stop_translating() {
 	global $bbl_translating;
-	_doing_it_wrong( __FUNCTION__, __( 'Instead of calling this function, you should pass a `bbl_translate` argument to `get_posts()` with a value of boolean false.', 'babble' ), 1.4 );
+	_doing_it_wrong( __FUNCTION__, esc_html__( 'Instead of calling this function, you should pass a `bbl_translate` argument to `get_posts()` with a value of boolean false.', 'babble' ), 1.4 );
 	$bbl_translating = false;
 }
 
 /**
  * Should we be doing any translation.
  *
- * @return boolean True for yes 
+ * @return boolean True for yes
  **/
 function bbl_translating() {
 	global $bbl_translating;

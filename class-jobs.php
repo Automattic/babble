@@ -879,13 +879,13 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( !empty( $trans ) ) {
 
 			if ( !empty( $completed_jobs ) and $capable ) {
-				?><h4><?php _e( 'Complete:', 'babble' ); ?></h4><?php
+				?><h4><?php esc_html_e( 'Complete:', 'babble' ); ?></h4><?php
 			}
 
 			foreach ( $completed_jobs as $lang_code => $job ) {
 				$lang = bbl_get_lang( $lang_code );
 				?>
-				<p><?php printf( '%s: <a href="%s">%s</a>', $lang->display_name, get_edit_post_link( $job->ID ), __( 'View', 'babble' ) ); ?>
+				<p><?php printf( '%s: <a href="%s">%s</a>', esc_html( $lang->display_name ), esc_url( get_edit_post_link( $job->ID ) ), esc_html__( 'View', 'babble' ) ); ?>
 				<?php
 			}
 
@@ -893,12 +893,12 @@ class Babble_Jobs extends Babble_Plugin {
 
 		if ( !empty( $incomplete_jobs ) and $capable ) {
 
-			?><h4><?php _e( 'Pending:', 'babble' ); ?></h4><?php
+			?><h4><?php esc_html_e( 'Pending:', 'babble' ); ?></h4><?php
 			foreach ( $incomplete_jobs as $job ) {
 				$lang = $this->get_job_language( $job );
 				$status = get_post_status_object( $job->post_status );
 				?>
-				<p><?php printf( '%s (%s)', $lang->display_name, $status->label ); ?>
+				<p><?php printf( '%s (%s)', esc_html( $lang->display_name ), esc_html( $status->label ) ); ?>
 				<?php
 			}
 
@@ -907,7 +907,7 @@ class Babble_Jobs extends Babble_Plugin {
 				'bbl_job_post' => "{$post->post_type}|{$post->ID}",
 			);
 			?>
-			<p><a href="<?php echo add_query_arg( $args, admin_url( 'edit.php' ) ); ?>"><?php _e( 'View pending translation jobs &raquo;', 'babble' ); ?></a></p>
+			<p><a href="<?php echo esc_url( add_query_arg( $args, admin_url( 'edit.php' ) ) ); ?>"><?php esc_html_e( 'View pending translation jobs &raquo;', 'babble' ); ?></a></p>
 			<?php
 
 		} else if ( $capable ) {
@@ -915,13 +915,13 @@ class Babble_Jobs extends Babble_Plugin {
 			wp_nonce_field( "bbl_ready_for_translation-{$post->ID}", '_bbl_ready_for_translation' );
 
 			?>
-			<p><label><input type="checkbox" name="babble_ready_for_translation" value="<?php echo absint( $post->ID ); ?>" /> <?php _e( 'Ready for translation', 'babble' ); ?></label></p>
+			<p><label><input type="checkbox" name="babble_ready_for_translation" value="<?php echo absint( $post->ID ); ?>" /> <?php esc_html_e( 'Ready for translation', 'babble' ); ?></label></p>
 			<?php
 
 		} else {
 
 			?>
-			<p><?php _ex( 'None', 'No translations', 'babble' ); ?></p>
+			<p><?php esc_html_e( _x( 'None', 'No translations', 'babble' ) ); ?></p>
 			<?php
 
 		}

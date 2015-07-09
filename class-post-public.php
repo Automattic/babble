@@ -224,7 +224,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( !bbl_is_translated_post_type( $screen->post_type ) )
 			return;
 
-		wp_die( __( 'You can only create content in your site\'s default language. Please consult your editorial team.', 'babble' ), '', array( 'back_link' => true ) );
+		wp_die( esc_html__( 'You can only create content in your site\'s default language. Please consult your editorial team.', 'babble' ), '', array( 'back_link' => true ) );
 	}
 
 	/**
@@ -307,7 +307,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
 
 			if ( strlen( $new_post_type ) > 20 ) {
-				trigger_error( sprintf( __( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
+				trigger_error( sprintf( esc_html__( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
 					esc_html( $post_type ),
 					20
 				) );
@@ -992,7 +992,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$default_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
 		if ( ! $default_post ) {
-			echo '<em style="color: #bc0b0b">' . __( 'No link', 'babble' ) . '</em>';
+			echo '<em style="color: #bc0b0b">' . esc_html__( 'No link', 'babble' ) . '</em>';
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
@@ -1000,9 +1000,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_switch_to_lang( bbl_get_default_lang_code() );
 		$view_link = get_permalink( $default_post->ID );
 		bbl_restore_lang();
-		$edit_title = esc_attr( sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		echo "<a href='$view_link' title='$view_title'>" . __( 'View', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'Edit', 'babble' ) . "</a>";
+		$edit_title = sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) );
+		$view_title = sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) );
+		echo "<a href='" . esc_url( $view_link ) . "' title='" . esc_attr( $view_title ) . "'>" . esc_html__( 'View', 'babble' ) . "</a> | <a href='" . esc_url( $edit_link ) . "' title='" . esc_attr( $edit_title ) . "'>" . esc_html__( 'Edit', 'babble' ) . "</a>";
 	}
 
 	// PUBLIC METHODS
