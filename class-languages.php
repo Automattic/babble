@@ -67,6 +67,43 @@ class Babble_Languages extends Babble_Plugin {
 	protected $errors;
 	
 	/**
+	 * Array of language codes where the language writes right-to-left.
+	 *
+	 * Based primarily on GlotPress' list of locales and Wikipedia's article on RTL:
+	 * 
+	 * @link https://glotpress.trac.wordpress.org/browser/trunk/locales/locales.php
+	 * @link https://en.wikipedia.org/wiki/Right-to-left
+	 * 
+	 * @var array
+	 */
+	protected static $rtl_languages = array(
+		'ar',      // Arabic / العربية
+		'arc',     // Aramaic
+		'arq',     // Algerian Arabic / الدارجة الجزايرية
+		'azb',     // South Azerbaijani / گؤنئی آذربایجان
+		'az_TR',   // Azerbaijani (Turkey) / Azərbaycan Türkcəsi
+		'bcc',     // Balochi Southern / بلوچی مکرانی
+		'bqi',     // Bakthiari / بختياري
+		'ckb',     // Sorani Kurdish / کوردی
+		'dv',      // Dhivehi
+		'fa',      // Persian / فارسی
+		'fa_IR',   // Persian / فارسی
+		'fa_AF',   // Persian (Afghanistan) / (افغانستان) فارسی
+		'glk',     // Gilaki / گیلکی
+		'ha',      // Hausa / هَوُسَ
+		'haz',     // Hazaragi / هزاره گی
+		'he',      // Hebrew / עִבְרִית
+		'he_IL',   // Hebrew / עִבְרִית
+		'mzn',     // Mazanderani / مازِرونی
+		'pnb',     // Western Punjabi / پنجابی
+		'ps',      // Pashto / پښتو
+		'sd',      // Sindhi / سنڌي
+		'ug',      // Uyghur / ئۇيغۇرچە
+		'ur',      // Urdu / اردو
+		'yi',      // Yiddish / ייִדיש'
+	);
+
+	/**
 	 * Setup any add_action or add_filter calls. Initiate properties.
 	 *
 	 * @return void
