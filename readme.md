@@ -1,9 +1,9 @@
 # Babble
 
 * Tags: translations, translation, multilingual, i18n, l10n, localisation
-* Requires at least: 3.5.1
-* Tested up to: 4.1.1
-* Stable tag: 1.5
+* Requires at least: 4.0.0
+* Tested up to: 4.2.1
+* Stable tag: 1.5.1
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -56,7 +56,17 @@ _View the jobs in the translation queue_
 ![Add the translation on the translation editor](screenshot-3.png "Add the translation on the translation editor")     
 _Add the translation on the translation editor_
 
+## Contributing and Testing ##
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for information on contributing.
+
+Please see [the tests readme](tests/README.md) for information on running the unit test suite.
+
 ## Changelog
+
+### 1.5.1
+
+* Fix for not syncing when updating post meta (#261)
 
 ### 1.5
 

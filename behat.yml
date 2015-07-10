@@ -1,25 +1,41 @@
-# behat.yml
 default:
-    paths:
-        features: features
-        bootstrap: %behat.paths.features%/bootstrap
-    extensions:
-        Behat\MinkExtension\Extension:
-            base_url: http://local.wordpress.dev
-            files_path: '%behat.paths.features%/files/'
-            goutte:
-              guzzle_parameters:
-                             curl.options:
-                                CURLOPT_SSL_VERIFYPEER: false
-                                CURLOPT_CERTINFO: false
-                                CURLOPT_TIMEOUT: 120
-                             ssl.certificate_authority: false
-            selenium2: ~
-
-phantomjs:
-  filters:
-   tags: '@phantomjs'
+  suites:
+    default:
+      contexts:
+        - BabbleContext
   extensions:
-        Behat\MinkExtension\Extension:
-            goutte: ~
-            selenium2: ~
+    Johnbillion\WordPressExtension:
+      path: '%paths.base%/vendor/wordpress'
+      connection:
+        db: 'wordpress_test'
+        username: 'root'
+        password: ''
+      symlink:
+        from: '%paths.base%'
+        to: '%paths.base%/vendor/wordpress/wp-content/plugins/babble'
+    Behat\MinkExtension:
+      base_url:    'http://localhost:8000'
+      sessions:
+        default:
+          goutte: ~
+
+travis:
+  suites:
+    default:
+      contexts:
+        - BabbleContext
+  extensions:
+    Johnbillion\WordPressExtension:
+      path: '%paths.base%/vendor/wordpress'
+      connection:
+        db: 'wordpress_test'
+        username: 'root'
+        password: ''
+      symlink:
+        from: '%paths.base%'
+        to: '%paths.base%/vendor/wordpress/wp-content/plugins/babble'
+    Behat\MinkExtension:
+      base_url:    'http://localhost:8000'
+      sessions:
+        default:
+          goutte: ~

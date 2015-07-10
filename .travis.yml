@@ -1,48 +1,37 @@
 language: php
 
+notifications:
+    on_success: never
+    on_failure: change
+
 php:
-  - 5.4
+    - 5.6
+    - 5.3
+    - 5.2
+    - hhvm
 
 env:
-    - WP_VERSION=stable WP_MULTISITE=0
+    # latest stable:
+    - WP_VERSION=4.2 WP_MULTISITE=0
+    - WP_VERSION=4.2 WP_MULTISITE=1
+    # previous stable:
+    - WP_VERSION=4.1 WP_MULTISITE=0
+    - WP_VERSION=4.1 WP_MULTISITE=1
+    # earliest supported:
+    - WP_VERSION=4.0 WP_MULTISITE=0
+    - WP_VERSION=4.0 WP_MULTISITE=1
 
-addons:
-  hosts:
-    - local.wordpress.dev
-
-before_install:
-  - sudo apt-get update > /dev/null
-  # These variables have to be set here, so they can be used by
-  # prepare.sh as well as the commands in the script block below
-  - export WORDPRESS_SITE_DIR="$(dirname $TRAVIS_BUILD_DIR)/wordpress/"
-  - export WORDPRESS_TEST_SUBJECT=$(basename $TRAVIS_BUILD_DIR)
-  - export WP_CLI="${TRAVIS_BUILD_DIR}/vendor/bin/wp"
-  - export WORDPRESS_FAKE_MAIL_DIR="$(dirname $TRAVIS_BUILD_DIR)/fake-mail/"
-  - echo $WORDPRESS_FAKE_MAIL_DIR
-  - ./ci/prepare.sh
+matrix:
+    allow_failures:
+        # allow failures on PHP 7 for now:
+        - php: 5.6
 
 install:
-
+    - bash bin/install.sh
 
 before_script:
+    - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION 
 
 script:
-  # Create display.
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - sleep 3 # give xvfb some time to start
-
-  # Run selenium 2.45.
-  - wget http://selenium-release.storage.googleapis.com/2.45/selenium-server-standalone-2.45.0.jar
-  - java -jar selenium-server-standalone-2.45.0.jar -p 4444 > ~/selenium.log 2>&1 &
-  - sleep 10 # Give Selenium some time to get going
-
-
-  # Run behat tests.
-  - ${WORDPRESS_SITE_DIR}/wp-content/plugins/${WORDPRESS_TEST_SUBJECT}/vendor/bin/behat -c $WORDPRESS_SITE_DIR/wp-content/plugins/${WORDPRESS_TEST_SUBJECT}/behat.yml
-
-  # Print log ~/phantomjs.log
-#  - cat ~/phantomjs.log
-
-  # Print log ~/selenium.log
-#  - cat ~/selenium.log
+    - phpunit
+    - bash bin/script.sh
