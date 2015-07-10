@@ -49,7 +49,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		add_action( 'init',                             array( $this, 'init_early' ), 0 );
 		add_action( 'parse_request',                    array( $this, 'parse_request' ) );
 		add_action( 'registered_taxonomy',              array( $this, 'registered_taxonomy' ), 10, 3 );
-		add_action( 'save_post',                        array( $this, 'save_post' ), 10, 2 );
 		add_action( 'set_object_terms',                 array( $this, 'set_object_terms' ), 10, 5 );
 		add_filter( 'get_terms',                        array( $this, 'get_terms' ) );
 		add_filter( 'term_link',                        array( $this, 'term_link' ), 10, 3 );
@@ -261,18 +260,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		}
 
 		$this->no_recursion = false;
-	}
-
-	/**
-	 * Hooks the WP save_post action to resync data
-	 * when requested.
-	 *
-	 * @param int $post_id The ID of the WP post
-	 * @param object $post The WP Post object 
-	 * @return void
-	 **/
-	public function save_post( $post_id, $post ) {
-		$this->maybe_resync_terms( $post_id, $post );
 	}
 
 	/**

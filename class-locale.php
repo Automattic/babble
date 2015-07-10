@@ -235,19 +235,31 @@ class Babble_Locale {
 			$this->set_content_lang( $lang );
 		}
 
+		$active_langs         = bbl_get_active_langs();
+		$active_lang_codes    = wp_list_pluck( $active_langs, 'code' );
+		$active_lang_prefixes = wp_list_pluck( $active_langs, 'url_prefix' );
+
 		if ( is_admin() ) {
-			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 			if ( isset( $_POST[ 'interface_lang' ] ) ) {
-				$this->set_interface_lang( $_POST[ 'interface_lang' ] );
+				$lang = $_POST[ 'interface_lang' ];
+				if ( ! in_array( $lang, $active_lang_codes, true ) ) {
+					$lang = bbl_get_default_lang_code();
+				}
+				$this->set_interface_lang( $lang );
 			}
-			// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
 			if ( isset( $_GET[ 'lang' ] ) ) {
-				$this->set_content_lang( $_GET[ 'lang' ] );
+				$lang = $_GET[ 'lang' ];
+				if ( ! in_array( $lang, $active_lang_codes, true ) ) {
+					$lang = bbl_get_default_lang_code();
+				}
+				$this->set_content_lang( $lang );
 			}
 		} else { // Front end
-			// @FIXME: Should probably check the available languages here
-			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
-				$this->set_content_lang_from_prefix( $matches[ 0 ] );
+			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) ) {
+				if ( in_array( $matches[ 0 ], $active_lang_prefixes, true ) ) {
+					$this->set_content_lang_from_prefix( $matches[ 0 ] );
+				}
+			}
 		}
 
 		if ( ! isset( $this->content_lang ) || ! $this->content_lang )
