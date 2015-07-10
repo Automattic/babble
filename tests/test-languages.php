@@ -8,7 +8,7 @@ class Test_Languages extends Babble_UnitTestCase {
 		parent::setUp();
 	}
 
-	public function test_post_translations() {
+	public function test_is_rtl() {
 
 		$this->assertFalse( Babble_Languages::is_rtl( 'en_US' ) );
 		$this->assertFalse( Babble_Languages::is_rtl( 'fr_FR' ) );
