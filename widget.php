@@ -51,14 +51,14 @@ class Babble_Widget extends WP_Widget {
 						ability to create one; so here's a link
 						to allow him/her to do so
 					*/
-					echo '<option ' . $selected . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . __('Add') . ']</option>';
+					echo '<option ' . esc_attr( $selected ) . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . esc_html__('Add') . ']</option>';
 				}
 				elseif ( $item[ 'href'] ) {
 					/*
 						Means there is a translation of this page
 						into the language in question
 					*/
-					echo '<option ' . $selected . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . '</option>';
+					echo '<option ' . esc_attr( $selected ) . 'class="' . esc_attr( $item[ 'class' ] ) . '" value="' . esc_url( $item[ 'href' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . '</option>';
 				}
 				elseif ( 'on' === $instance['show_if_unavailable'] ) {
 					/*
@@ -87,7 +87,7 @@ class Babble_Widget extends WP_Widget {
 						ability to create one; so here's a link
 						to allow him/her to do so
 					*/
-					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . __( 'Add', 'babble' ) . ']</a></li>';
+					echo '<li><a href="' . esc_url( $item[ 'href' ] ) . '" class="' . esc_attr( $item[ 'class' ] ) . '">' . esc_html( $item[ 'lang' ]->display_name ) . ' [' . esc_html__( 'Add', 'babble' ) . ']</a></li>';
 				}
 				elseif ( $item[ 'href'] ) {
 					/*
@@ -135,21 +135,21 @@ class Babble_Widget extends WP_Widget {
 
 		?>
 		<p>
-			<?php _e('Show as:','babble'); ?>
-			<select id="<?php echo $this->get_field_id('show_as'); ?>" name="<?php echo $this->get_field_name('show_as'); ?>">
-				<option value="dropdown" <?php selected( $instance['show_as'],'dropdown' ); ?>><?php _e('Dropdown','babble'); ?></option>
-				<option value="list" <?php selected( $instance['show_as'],'list' ); ?>><?php _e('List','babble'); ?></option>
+			<?php esc_html_e( 'Show as:', 'babble' ); ?>
+			<select id="<?php echo esc_attr( $this->get_field_id( 'show_as' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name('show_as') ); ?>">
+				<option value="dropdown" <?php selected( $instance['show_as'],'dropdown' ); ?>><?php esc_html_e( 'Dropdown', 'babble' ); ?></option>
+				<option value="list" <?php selected( $instance['show_as'],'list' ); ?>><?php esc_html_e( 'List', 'babble' ); ?></option>
 			</select>
 		</p>
 		<p>
-			<input id="<?php echo $this->get_field_id('show_if_unavailable'); ?>" name="<?php echo $this->get_field_name('show_if_unavailable'); ?>" type="checkbox" <?php checked( 'on', $instance['show_if_unavailable'] ); ?> />
-			<label for="<?php echo $this->get_field_id('show_if_unavailable'); ?>"><?php _e('Show all languages in widget, even if there is no translation', 'babble'); ?></label>
+			<input id="<?php echo esc_attr( $this->get_field_id( 'show_if_unavailable' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_if_unavailable' ) ); ?>" type="checkbox" <?php checked( 'on', $instance['show_if_unavailable'] ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_if_unavailable' ) ); ?>"><?php esc_html_e( 'Show all languages in widget, even if there is no translation', 'babble' ); ?></label>
 		</p>
 		<p class="description">
-			<?php _e("Don't worry: if there's no equivalent page, the link won't be clickable.","babble"); ?>
+			<?php esc_html_e( "Don't worry: if there's no equivalent page, the link won't be clickable.", 'babble' ); ?>
 		</p>
 		<p class="description">
-			<?php _e("Links allowing logged-in administrators to add translations will always be shown.","babble"); ?>
+			<?php esc_html_e( 'Links allowing logged-in administrators to add translations will always be shown.', 'babble' ); ?>
 		</p>
 
 		<?php

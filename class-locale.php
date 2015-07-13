@@ -81,7 +81,7 @@ class Babble_Locale {
 		add_filter( 'body_class',                      array( $this, 'body_class' ) );
 		add_filter( 'locale',                          array( $this, 'set_locale' ) );
 		add_filter( 'mod_rewrite_rules',               array( $this, 'mod_rewrite_rules' ) );
-		add_filter( 'post_class',                      array( $this, 'post_class' ), null, 3 );
+		add_filter( 'post_class',                      array( $this, 'post_class' ), 10, 3 );
 		add_filter( 'rewrite_rules_array',             array( $this, 'filter_rewrite_rules_array' ), 999 );
 		add_filter( 'query_vars',                      array( $this, 'query_vars' ) );
 	}

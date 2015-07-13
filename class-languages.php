@@ -110,9 +110,9 @@ class Babble_Languages extends Babble_Plugin {
 	 **/
 	public function __construct() {
 		$this->setup( 'babble-languages', 'plugin' );
-		$this->add_action( 'admin_menu', 'admin_menu' );
-		$this->add_action( 'admin_notices', 'admin_notices' );
-		$this->add_action( 'load-settings_page_babble_languages', 'load_options' );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		add_action( 'load-settings_page_babble_languages', array( $this, 'load_options' ) );
 
 
 		$this->initiate();
@@ -151,7 +151,7 @@ class Babble_Languages extends Babble_Plugin {
 		if ( get_current_screen()->id == 'settings_page_babble_languages' )
 			return;
 		if ( ! $this->get_option( 'active_langs', false ) || ! $this->get_option( 'default_lang', false ) ) {
-			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble setup:</strong> Please visit the <a href="%s">Available Languages settings</a> and setup your available languages and the default language.', 'babble' ), admin_url( 'options-general.php?page=babble_languages' ) ) );
+			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble setup:</strong> Please visit the <a href="%s">Available Languages settings</a> and setup your available languages and the default language.', 'babble' ), esc_url( admin_url( 'options-general.php?page=babble_languages' ) ) ) );
 		}
 	}
 
