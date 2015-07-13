@@ -96,7 +96,7 @@ class Babble_Switcher_Menu {
 			$this->jobs         = bbl_get_incomplete_post_jobs( get_option( 'page_for_posts' ) );
 		} else if ( ( !is_admin() and ( is_tax() || is_category() ) ) || $editing_term ) {
 			if ( isset( $_REQUEST[ 'tag_ID' ] ) )
-				$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
+				$term = get_term( absint( $_REQUEST[ 'tag_ID' ] ), $this->screen->taxonomy );
 			else
 				$term = get_queried_object();
 			$this->translations = bbl_get_term_translations( $term->term_id, $term->taxonomy );
@@ -217,6 +217,9 @@ class Babble_Switcher_Menu {
 			$title = sprintf( __( 'Create for %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
+		}
+		if ( is_wp_error( $href ) ) {
+			return;
 		}
 		$href = apply_filters( 'bbl_switch_admin_term_link', $href, $lang, $this->translations );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
@@ -496,6 +499,9 @@ class Babble_Switcher_Menu {
 			$title = sprintf( __( 'Create for %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-add';
 			$classes[] = 'bbl-add-term';
+		}
+		if ( is_wp_error( $href ) ) {
+			return;
 		}
 		$href = apply_filters( 'bbl_switch_taxonomy_archive_link', $href, $lang, $this->translations );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";

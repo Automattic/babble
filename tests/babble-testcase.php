@@ -10,11 +10,57 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 		$wp_rewrite->init();
 		$wp_rewrite->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
+		$this->assertNotEmpty( $wp_rewrite->wp_rewrite_rules() );
+
+		create_initial_post_types();
+		create_initial_taxonomies();
+
 		// Force the install/upgrade routines for each Babble class to run (ugh)
 		remove_action( 'admin_init', '_maybe_update_core' );
 		remove_action( 'admin_init', '_maybe_update_plugins' );
 		remove_action( 'admin_init', '_maybe_update_themes' );
 		do_action( 'admin_init' );
+
+	}
+
+	function tearDown() {
+		parent::tearDown();
+
+		// reset language QVs so there's no pollution across tests:
+		$this->go_to( get_option( 'home' ) . '/en/' );
+	}
+
+	public function go_to( $url ) {
+		global $locale, $bbl_locale;
+		$locale = null;
+		$bbl_locale->content_lang = null;
+		$bbl_locale->interface_lang = null;
+
+		// ugh
+		remove_filter( 'home_url', array( $bbl_locale, 'home_url' ), null, 2 );
+
+		return parent::go_to( $url );
+	}
+
+	protected function create_post_translation( WP_Post $origin, $lang_code ) {
+		global $bbl_post_public;
+
+		$post = $bbl_post_public->initialise_translation( $origin, $lang_code );
+		$post->post_status = 'publish';
+		$post->post_title  = rand_str();
+		$post->post_name   = rand_str();
+		wp_update_post( $post );
+
+		return $post;
+
+	}
+
+	protected function create_term_translation( $origin, $lang_code ) {
+		global $bbl_taxonomies;
+
+		$term = $bbl_taxonomies->initialise_translation( $origin, $origin->taxonomy, $lang_code );
+
+		return $term;
 
 	}
 

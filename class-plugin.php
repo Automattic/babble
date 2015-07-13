@@ -96,34 +96,20 @@ class Babble_Plugin {
 	protected $type;
 
 	/**
-	 * Note the name of the function to call when the theme is activated.
-	 *
-	 * @var string
-	 **/
-	protected $theme_activation_function;
-
-	/**
 	 * Initiate!
 	 *
 	 * @return void
 	 * @author Simon Wheatley
 	 **/
-	public function setup( $name = '', $type = null ) {
-		if ( ! $name )
-			throw new exception( "Please pass the name parameter into the setup method." );
+	public function setup( $name, $type = null ) {
 		$this->name = $name;
 
 		// Attempt to handle a Windows
 		$ds = ( defined( 'DIRECTORY_SEPARATOR' ) ) ? DIRECTORY_SEPARATOR : '\\';
 		$file = str_replace( $ds, '/', __FILE__ );
 		$plugins_dir = str_replace( $ds, '/', dirname( __FILE__ ) );
-		// Setup the dir and url for this plugin/theme
-		if ( 'theme' == $type ) {
-			// This is a theme
-			$this->type = 'theme';
-			$this->dir = get_stylesheet_directory();
-			$this->url = get_stylesheet_directory_uri();
-		} elseif ( stripos( $file, $plugins_dir ) !== false || 'plugin' == $type ) {
+		// Setup the dir and url for this plugin
+		if ( stripos( $file, $plugins_dir ) !== false || 'plugin' == $type ) {
 			// This is a plugin
 			$this->type = 'plugin';
 
@@ -228,27 +214,7 @@ class Babble_Plugin {
 	function register_activation ( $pluginfile = __FILE__, $function = '' ) {
 		if ( $this->type == 'plugin' ) {
 			add_action ('activate_'.basename (dirname ($pluginfile)).'/'.basename ($pluginfile), array ($this, $function == '' ? 'activate' : $function));
-		} elseif ( $this->type == 'theme' ) {
-			$this->theme_activation_function = ( $function ) ? $function : 'activate';
-			add_action ('load-themes.php', array ( $this, 'theme_activation' ) );
 		}
-	}
-
-	/**
-	 * Hack to catch theme activation. We hook the load-themes.php action, look for the
-	 * "activated" GET param and make a big fat assumption if we find it.
-	 *
-	 * @return void
-	 * @author Simon Wheatley
-	 **/
-	public function theme_activation() {
-		$activated = (bool) @ $_GET[ 'activated' ];
-		if ( ! $activated )
-			return;
-		if ( ! $this->theme_activation_function )
-			return;
-		// Looks like the theme might just have been activated, call the registered function
-		$this->{$this->theme_activation_function}();
 	}
 
 	/**

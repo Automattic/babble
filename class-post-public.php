@@ -198,7 +198,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->set_transid( $new_post, $transid );
 
 		// Copy all the metadata across
-		$this->sync_post_meta( $new_post->ID );
+		$this->sync_post_meta( $new_post->ID, $origin_post );
 
 		// Copy the various core post properties across
 		$this->sync_properties( $origin_post->ID, $new_post->ID );
@@ -541,7 +541,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$subs_index = array();
 		foreach ( $posts as & $post ) {
 			if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
-				if ( $default_post = bbl_get_default_lang_post( $post->ID ) )
+				if ( $default_post = $this->get_default_lang_post( $post->ID ) )
 					$subs_index[ $post->ID ] = $default_post->ID;
 			}
 			if ( ! $this->get_transid( $post ) && bbl_get_default_lang_code() == bbl_get_post_lang_code( $post ) )
@@ -550,12 +550,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! $subs_index )
 			return $posts;
 
-		$subs_posts = get_posts( array( 'include' => array_values( $subs_index ), 'post_status' => 'publish' ) );
-		// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
 		// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered
 		foreach ( $posts as & $post ) {
 			// @TODO why does this only override the title/excerpt/content? Why not override the post object entirely?
-			// @FIXME: I'm assuming this get_post call is cached, which it seems to be
 			if( isset( $subs_index[ $post->ID ] ) ) {
 				$default_post = get_post( $subs_index[ $post->ID ] );
 				if ( empty( $post->post_title ) )
@@ -780,6 +777,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		}
 		wp_cache_delete( $transid, 'bbl_post_translations' );
+		wp_cache_delete( $transid, 'bbl_post_translation_ids' );
 	}
 
 	/**
@@ -1186,7 +1184,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function get_default_lang_post( $post ) {
 		$post = get_post( $post );
-		$translations = bbl_get_post_translations( $post->ID );
+		$translations = $this->get_post_translations( $post->ID );
 		if ( isset( $translations[ bbl_get_default_lang_code() ] ) )
 			return $translations[ bbl_get_default_lang_code() ];
 		return false;
@@ -1205,8 +1203,10 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
 
-		if ( $translations = wp_cache_get( $transid, 'bbl_post_translations' ) ) {
-			return $translations;
+		$translations = wp_cache_get( $transid, 'bbl_post_translation_ids' );
+
+		if ( false !== $translations ) {
+			return array_map( 'get_post', $translations );
 		}
 
 		# @TODO A transid should never be a wp_error. Check and fix.
@@ -1215,28 +1215,14 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
 
-		// Work out all the translated equivalent post types
-		$post_types = array();
-		$langs = bbl_get_active_langs();
-		foreach ( $langs as $lang )
-			$post_types[] = bbl_get_post_type_in_lang( $post->post_type, $lang->code );
-
-		// Get all the translations in one cached DB query
-		$args = array(
-			// We want a clean listing, without any particular language
-			'bbl_translate' => false,
-			'include' => $post_ids,
-			'post_type' => $post_types,
-			'post_status' => array( 'publish', 'pending', 'draft', 'future' ),
-		);
-		$posts = get_posts( $args );
 		$translations = array();
-		foreach ( $posts as $post )
-			$translations[ $this->get_post_lang_code( $post ) ] = $post;
+		$post_ids = array_filter( $post_ids );
+		foreach ( $post_ids as $post_id )
+			$translations[ $this->get_post_lang_code( $post_id ) ] = $post_id;
 
-		wp_cache_add( $transid, $translations, 'bbl_post_translations' );
+		wp_cache_set( $transid, $translations, 'bbl_post_translation_ids' );
 
-		return $translations;
+		return array_map( 'get_post', $translations );
 	}
 
 	/**
@@ -1405,10 +1391,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Resync all (synced) post meta data from the post in
 	 * the default language to this post.
 	 *
-	 * @param $int The post ID to sync TO
+	 * @param int         $post_id     The post ID to sync TO.
+	 * @param int|WP_Post $origin_post The post ID or object to sync FROM.
 	 * @return void
 	 **/
-	function sync_post_meta( $post_id ) {
+	function sync_post_meta( $post_id, $origin_post = null ) {
 		if ( $this->no_meta_recursion )
 			return;
 		$this->no_meta_recursion = 'updated_post_meta';
@@ -1425,7 +1412,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// Now add meta in again from the origin post
-		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		if ( $origin_post ) {
+			$origin_post = get_post( $origin_post );
+		} else {
+			$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		}
 
 		$metas = get_post_meta( $origin_post->ID );
 		if ( ! $metas )
@@ -1482,7 +1473,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return false;
 		}
 
-		wp_cache_add( $post->ID, $transid, 'bbl_post_transids' );
+		wp_cache_set( $post->ID, $transid, 'bbl_post_transids' );
 
 		return $transid;
 	}
@@ -1510,6 +1501,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			}
 			// Delete anything in there currently
 			wp_cache_delete( $transid, 'bbl_post_translations' );
+			wp_cache_delete( $transid, 'bbl_post_translation_ids' );
 		}
 		$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
 		if ( is_wp_error( $result ) ) {
