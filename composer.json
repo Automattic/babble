@@ -26,6 +26,9 @@
         "wp-cli/wp-cli": "*"
     },
     "minimum-stability": "dev",
+    "config": {
+        "bin-dir": "bin/"
+    },
     "extra": {
         "wordpress-install-dir": "vendor/wordpress"
     }
