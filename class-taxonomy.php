@@ -50,6 +50,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		add_action( 'parse_request',                    array( $this, 'parse_request' ) );
 		add_action( 'registered_taxonomy',              array( $this, 'registered_taxonomy' ), 10, 3 );
 		add_action( 'set_object_terms',                 array( $this, 'set_object_terms' ), 10, 5 );
+		add_action( 'clean_term_cache',                 array( $this, 'clean_term_cache' ), 10, 2 );
 		add_filter( 'get_terms',                        array( $this, 'get_terms' ) );
 		add_filter( 'term_link',                        array( $this, 'term_link' ), 10, 3 );
 		add_filter( 'bbl_translated_taxonomy',          array( $this, 'bbl_translated_taxonomy'), 10, 2 );
@@ -608,6 +609,30 @@ class Babble_Taxonomies extends Babble_Plugin {
 		return $template;
 	}
 	
+	/**
+	 * Hooks the WP clean_term_cache action to clear the Babble term translation and transid caches.
+	 *
+	 * @param array  $term_ids Array of term IDs whose cache has been cleaned.
+	 * @param string $taxonomy The taxonomy name.
+	 **/
+	public function clean_term_cache( array $term_ids, $taxonomy ) {
+
+		$group = 'bbl_term_translation_ids';
+
+		foreach ( $term_ids as $term_id ) {
+
+			$term_id = absint( $term_id );
+
+			if ( $transid = $this->get_transid( $term_id, false ) ) {
+				wp_cache_delete( $transid, $group );
+			}
+
+			wp_cache_delete( $term_id, 'bbl_term_transids' );
+			wp_cache_delete( $term_id, $group );
+		}
+
+	}
+
 	// CALLBACKS
 	// =========
 	
