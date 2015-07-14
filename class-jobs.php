@@ -675,13 +675,15 @@ class Babble_Jobs extends Babble_Plugin {
 
 				$meta_data = stripslashes_deep( $_POST['bbl_translation']['meta'] );
 
-				foreach ( $meta_data as $meta_key => $meta_value ) {
+				foreach ( $objects['meta'] as $meta_key => $meta_field ) {
 
-					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $meta_value );
+					$value = wp_kses_post( $meta_data[ $meta_key ] );
+
+					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $value );
 
 					if ( 'complete' == $job->post_status ) {
 						if ( current_user_can( 'publish_post', $job->ID ) ) {
-							update_post_meta( $trans->ID, $meta_key, $meta_value );
+							update_post_meta( $trans->ID, $meta_key, $value );
 						}
 					}
 
