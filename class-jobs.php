@@ -594,6 +594,8 @@ class Babble_Jobs extends Babble_Plugin {
 		else
 			$lang_code = reset( $language )->name;
 
+		$objects = $this->get_job_objects( $job );
+
 		if ( $origin_post_nonce and wp_verify_nonce( $origin_post_nonce, "bbl_translation_origin_post_{$job->ID}") ) {
 			if ( $origin_post = get_post( absint( $_POST['bbl_origin_post'] ) ) ) {
 				add_post_meta( $job->ID, 'bbl_job_post', "{$origin_post->post_type}|{$origin_post->ID}", true );
@@ -627,7 +629,7 @@ class Babble_Jobs extends Babble_Plugin {
 			list( $post_type, $post_id ) = explode( '|', $post_info );
 			$post = get_post( $post_id );
 
-			update_post_meta( $job->ID, "bbl_post_{$post_id}", $post_data );
+			update_post_meta( $job->ID, "bbl_post_{$post_id}", sanitize_post( $post_data, 'db' ) );
 
 			if ( 'pending' == $job->post_status ) {
 
