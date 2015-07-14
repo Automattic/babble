@@ -50,6 +50,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		add_action( 'parse_request',                    array( $this, 'parse_request' ) );
 		add_action( 'registered_taxonomy',              array( $this, 'registered_taxonomy' ), 10, 3 );
 		add_action( 'set_object_terms',                 array( $this, 'set_object_terms' ), 10, 5 );
+		add_action( 'clean_term_cache',                 array( $this, 'clean_term_cache' ), 10, 2 );
 		add_filter( 'get_terms',                        array( $this, 'get_terms' ) );
 		add_filter( 'term_link',                        array( $this, 'term_link' ), 10, 3 );
 		add_filter( 'bbl_translated_taxonomy',          array( $this, 'bbl_translated_taxonomy'), 10, 2 );
@@ -608,6 +609,30 @@ class Babble_Taxonomies extends Babble_Plugin {
 		return $template;
 	}
 	
+	/**
+	 * Hooks the WP clean_term_cache action to clear the Babble term translation and transid caches.
+	 *
+	 * @param array  $term_ids Array of term IDs whose cache has been cleaned.
+	 * @param string $taxonomy The taxonomy name.
+	 **/
+	public function clean_term_cache( array $term_ids, $taxonomy ) {
+
+		$group = 'bbl_term_translation_ids';
+
+		foreach ( $term_ids as $term_id ) {
+
+			$term_id = absint( $term_id );
+
+			if ( $transid = $this->get_transid( $term_id, false ) ) {
+				wp_cache_delete( $transid, $group );
+			}
+
+			wp_cache_delete( $term_id, 'bbl_term_transids' );
+			wp_cache_delete( $term_id, $group );
+		}
+
+	}
+
 	// CALLBACKS
 	// =========
 	
@@ -666,16 +691,23 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_term_translations( $term, $taxonomy ) {
 		$term = get_term( $term, $taxonomy );
 
-		$langs = bbl_get_active_langs();
-		$translations = array();
-		foreach ( $langs as $lang ) {
-			$translations[ $lang->code ] = false;
-		}
+		$transid  = $this->get_transid( $term->term_id );
+		$group    = 'bbl_term_translation_ids';
+		$term_ids = wp_cache_get( $transid, $group );
 
-		$transid = $this->get_transid( $term->term_id );
-		// I thought the fracking bug where the get_objects_in_term function returned integers
-		// as strings was fixed. Seems not. See #17646 for details. Argh.
-		$term_ids = array_map( 'absint', get_objects_in_term( $transid, 'term_translation' ) );
+		if ( false === $term_ids ) {
+
+			$langs = bbl_get_active_langs();
+			$translations = array();
+			foreach ( $langs as $lang ) {
+				$translations[ $lang->code ] = false;
+			}
+
+			$term_ids = array_map( 'absint', get_objects_in_term( $transid, 'term_translation' ) );
+
+			wp_cache_set( $transid, $term_ids, $group );
+
+		}
 
 		// We're dealing with terms across multiple taxonomies
 		$base_taxonomy = isset( $this->taxonomies[ $taxonomy ] ) ? $this->taxonomies[ $taxonomy ] : $taxonomy ;
@@ -694,7 +726,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// translation group.
 		$terms = array();
 		foreach ( $existing_terms as $t ) {
-			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = $t;
+			$terms[ $this->get_taxonomy_lang_code( $t->taxonomy ) ] = get_term( $t, $t->taxonomy );
 		}
 		return $terms;
 	}
@@ -911,7 +943,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @param int $target_term_id The term ID to find the translation group for 
 	 * @return int The transID the target term belongs to
 	 **/
-	public function get_transid( $target_term_id ) {
+	public function get_transid( $target_term_id, $create = true ) {
 		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) ) {
 			return $transid;
 		}
@@ -924,8 +956,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// "There can be only one" (so we'll just drop the others)
 		if ( isset( $transids[ 0 ] ) ) {
 			$transid = $transids[ 0 ];
-		} else {
+		} else if ( $create ) {
 			$transid = $this->set_transid( $target_term_id );
+		} else {
+			return false;
 		}
 
 		wp_cache_set( $target_term_id, $transid, 'bbl_term_transids' );
