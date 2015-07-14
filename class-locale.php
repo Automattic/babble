@@ -81,7 +81,7 @@ class Babble_Locale {
 		add_filter( 'body_class',                      array( $this, 'body_class' ) );
 		add_filter( 'locale',                          array( $this, 'set_locale' ) );
 		add_filter( 'mod_rewrite_rules',               array( $this, 'mod_rewrite_rules' ) );
-		add_filter( 'post_class',                      array( $this, 'post_class' ), null, 3 );
+		add_filter( 'post_class',                      array( $this, 'post_class' ), 10, 3 );
 		add_filter( 'rewrite_rules_array',             array( $this, 'filter_rewrite_rules_array' ), 999 );
 		add_filter( 'query_vars',                      array( $this, 'query_vars' ) );
 	}
@@ -89,11 +89,8 @@ class Babble_Locale {
 	public function plugins_loaded() {
 		global $wpdb;
 
-		# @TODO this exposes the $wpdb prefix. We should set the cookie path to the site path instead
-		# (example.com/site or site.example.com) so the cookie is only set for the current site on a multisite install
-		# @TODO actually, both of these should be user preferences, not cookies.
-		$this->content_lang_cookie   = $wpdb->prefix . '_bbl_content_lang_' . COOKIEHASH;
-		$this->interface_lang_cookie = $wpdb->prefix . '_bbl_interface_lang_' . COOKIEHASH;
+		$this->content_lang_cookie   = 'wp-bbl_content_lang_' . COOKIEHASH;
+		$this->interface_lang_cookie = 'wp-bbl_interface_lang_' . COOKIEHASH;
 	}
 
 	/**
@@ -238,19 +235,31 @@ class Babble_Locale {
 			$this->set_content_lang( $lang );
 		}
 
+		$active_langs         = bbl_get_active_langs();
+		$active_lang_codes    = wp_list_pluck( $active_langs, 'code' );
+		$active_lang_prefixes = wp_list_pluck( $active_langs, 'url_prefix' );
+
 		if ( is_admin() ) {
-			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 			if ( isset( $_POST[ 'interface_lang' ] ) ) {
-				$this->set_interface_lang( $_POST[ 'interface_lang' ] );
+				$lang = $_POST[ 'interface_lang' ];
+				if ( ! in_array( $lang, $active_lang_codes, true ) ) {
+					$lang = bbl_get_default_lang_code();
+				}
+				$this->set_interface_lang( $lang );
 			}
-			// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
 			if ( isset( $_GET[ 'lang' ] ) ) {
-				$this->set_content_lang( $_GET[ 'lang' ] );
+				$lang = $_GET[ 'lang' ];
+				if ( ! in_array( $lang, $active_lang_codes, true ) ) {
+					$lang = bbl_get_default_lang_code();
+				}
+				$this->set_content_lang( $lang );
 			}
 		} else { // Front end
-			// @FIXME: Should probably check the available languages here
-			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
-				$this->set_content_lang_from_prefix( $matches[ 0 ] );
+			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) ) {
+				if ( in_array( $matches[ 0 ], $active_lang_prefixes, true ) ) {
+					$this->set_content_lang_from_prefix( $matches[ 0 ] );
+				}
+			}
 		}
 
 		if ( ! isset( $this->content_lang ) || ! $this->content_lang )
@@ -515,56 +524,28 @@ class Babble_Locale {
 	}
 
 	/**
-	 * Get the request string for the request, using code copied 
-	 * straight from WP->parse_request.
+	 * Get the request string for the request.
 	 *
 	 * @return string The request
 	 **/
 	protected function get_request_string() {
 		global $wp_rewrite;
-		// @FIXME: Copying a huge hunk of code from WP->parse_request here, feels ugly.
-		// START: Huge hunk of WP->parse_request
-		if ( isset($_SERVER['PATH_INFO']) )
-			$pathinfo = $_SERVER['PATH_INFO'];
-		else
-			$pathinfo = '';
-		$pathinfo_array = explode('?', $pathinfo);
-		$pathinfo = str_replace("%", "%25", $pathinfo_array[0]);
-		$req_uri = $_SERVER['REQUEST_URI'];
-		$req_uri_array = explode('?', $req_uri);
-		$req_uri = $req_uri_array[0];
-		$self = $_SERVER['PHP_SELF'];
-		$home_path = parse_url( get_option( 'home' ) );
-		if ( isset($home_path['path']) )
-			$home_path = $home_path['path'];
-		else
-			$home_path = '';
-		$home_path = trim($home_path, '/');
 
-		// Trim path info from the end and the leading home path from the
-		// front.  For path info requests, this leaves us with the requesting
-		// filename, if any.  For 404 requests, this leaves us with the
-		// requested permalink.
-		$req_uri = str_replace($pathinfo, '', $req_uri);
-		$req_uri = trim($req_uri, '/');
-		$req_uri = preg_replace("|^$home_path|", '', $req_uri);
-		$req_uri = trim($req_uri, '/');
-		$pathinfo = trim($pathinfo, '/');
-		$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
-		$pathinfo = trim($pathinfo, '/');
+		list( $req_uri ) = explode( '?', $_SERVER['REQUEST_URI'] );
+		$home_path       = trim( parse_url( get_option( 'home' ), PHP_URL_PATH ), '/' );
+		$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
 
-		// The requested permalink is in $pathinfo for path info requests and
-		//  $req_uri for other requests.
-		if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
-			$request = $pathinfo;
-		} else {
-			// If the request uri is the index, blank it out so that we don't try to match it against a rule.
-			if ( is_object( $wp_rewrite ) && $req_uri == $wp_rewrite->index )
-				$req_uri = '';
-			$request = $req_uri;
+		// Trim path info from the end and the leading home path from the front.
+		$req_uri = trim( $req_uri, '/' );
+		$req_uri = preg_replace( $home_path_regex, '', $req_uri );
+		$req_uri = trim( $req_uri, '/' );
+
+		// If the request uri is the index, blank it out so that we don't try to match it against a rule.
+		if ( is_object( $wp_rewrite ) && $req_uri === $wp_rewrite->index ) {
+			$req_uri = '';
 		}
-		// END: Huge hunk of WP->parse_request
-		return $request;
+
+		return $req_uri;
 	}
 
 	/**
@@ -572,12 +553,15 @@ class Babble_Locale {
 	 * as we cannot get userdata at the set_locale action, which is where 
 	 * we need to read the user's language.
 	 *
+	 * In addition, we can't use WordPress' user settings because these are stored
+	 * on a per-network basis, not on a per-blog basis.
+	 *
 	 * @return void
 	 **/
 	protected function maybe_set_cookie_content_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
 		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : false )
-			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
 	}
 
 	/**
@@ -585,12 +569,29 @@ class Babble_Locale {
 	 * as we cannot get userdata at the set_locale action, which is where 
 	 * we need to read the user's language.
 	 *
+	 * In addition, we can't use WordPress' user settings because these are stored
+	 * on a per-network basis, not on a per-blog basis.
+	 *
 	 * @return void
 	 **/
 	protected function maybe_set_cookie_interface_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 		if ( $requested_lang = ( isset( $_POST[ 'interface_lang' ] ) ) ? $_POST[ 'interface_lang' ] : false )
-			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
+	}
+
+	/**
+	 * Return the cookie path for this blog. Babble stores some cookies on a per-blog basis, so their path needs to be
+	 * set specific to the blog. 
+	 *
+	 * @return string The cookie path for the current blog.
+	 */
+	public static function get_cookie_path() {
+		if ( is_multisite() ) {
+			return get_blog_details()->path;
+		} else {
+			return COOKIEPATH;
+		}
 	}
 
 	/**

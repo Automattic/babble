@@ -66,7 +66,7 @@ function bbl_get_current_lang_code() {
  * Given a lang object or lang code, this checks whether the
  * language is public or not.
  *
- * @param string $lang_code A language code
+ * @param string|object $lang_code A language code or a language object
  * @return boolean True if public
  * @access public
  **/
@@ -136,7 +136,7 @@ function bbl_get_term_jobs( $term, $taxonomy ) {
  * @param int|object $default_term The term in the default language to create a new translation for, either WP Post object or post ID
  * @param string $lang The language code
  * @param string $taxonomy The taxonomy
- * @return string The admin URL to create the new translation
+ * @return string|WP_Error The admin URL to create the new translation, a `WP_Error` object on failure
  * @access public
  **/
 function bbl_get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
