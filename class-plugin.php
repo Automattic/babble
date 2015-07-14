@@ -96,34 +96,20 @@ class Babble_Plugin {
 	protected $type;
 
 	/**
-	 * Note the name of the function to call when the theme is activated.
-	 *
-	 * @var string
-	 **/
-	protected $theme_activation_function;
-
-	/**
 	 * Initiate!
 	 *
 	 * @return void
 	 * @author Simon Wheatley
 	 **/
-	public function setup( $name = '', $type = null ) {
-		if ( ! $name )
-			throw new exception( "Please pass the name parameter into the setup method." );
+	public function setup( $name, $type = null ) {
 		$this->name = $name;
 
 		// Attempt to handle a Windows
 		$ds = ( defined( 'DIRECTORY_SEPARATOR' ) ) ? DIRECTORY_SEPARATOR : '\\';
 		$file = str_replace( $ds, '/', __FILE__ );
 		$plugins_dir = str_replace( $ds, '/', dirname( __FILE__ ) );
-		// Setup the dir and url for this plugin/theme
-		if ( 'theme' == $type ) {
-			// This is a theme
-			$this->type = 'theme';
-			$this->dir = get_stylesheet_directory();
-			$this->url = get_stylesheet_directory_uri();
-		} elseif ( stripos( $file, $plugins_dir ) !== false || 'plugin' == $type ) {
+		// Setup the dir and url for this plugin
+		if ( stripos( $file, $plugins_dir ) !== false || 'plugin' == $type ) {
 			// This is a plugin
 			$this->type = 'plugin';
 
@@ -148,10 +134,10 @@ class Babble_Plugin {
 
 		if ( is_admin() ) {
 			// Admin notices
-			$this->add_action( 'admin_notices', '_admin_notices' );
+			add_action( 'admin_notices', array( $this, '_admin_notices' ) );
 		}
 
-		$this->add_action( 'init', 'load_locale' );
+		add_action( 'init', array( $this, 'load_locale' ) );
 	}
 
 	/**
@@ -171,53 +157,6 @@ class Babble_Plugin {
 	}
 
 	/**
-	 * Register a WordPress action and map it back to the calling object
-	 *
-	 * @param string $action Name of the action
-	 * @param string $function Function name (optional)
-	 * @param int $priority WordPress priority (optional)
-	 * @param int $accepted_args Number of arguments the function accepts (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function add_action ($action, $function = '', $priority = 10, $accepted_args = 1) {
-		if ( $priority === null )
-			$priority = 10;
-		add_action ($action, array ($this, $function == '' ? $action : $function), $priority, $accepted_args);
-	}
-
-
-	/**
-	 * Register a WordPress filter and map it back to the calling object
-	 *
-	 * @param string $action Name of the action
-	 * @param string $function Function name (optional)
-	 * @param int $priority WordPress priority (optional)
-	 * @param int $accepted_args Number of arguments the function accepts (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function add_filter ($filter, $function = '', $priority = 10, $accepted_args = 1) {
-		add_filter ($filter, array ($this, $function == '' ? $filter : $function), $priority, $accepted_args);
-	}
-
-
-	/**
-	 * De-register a WordPress filter and map it back to the calling object
-	 *
-	 * @param string $action Name of the action
-	 * @param string $function Function name (optional)
-	 * @param int $priority WordPress priority (optional)
-	 * @param int $accepted_args Number of arguments the function accepts (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function remove_filter ($filter, $function = '', $priority = 10, $accepted_args = 1) {
-		remove_filter ($filter, array ($this, $function == '' ? $filter : $function), $priority, $accepted_args);
-	}
-
-
-	/**
 	 * Special activation function that takes into account the plugin directory
 	 *
 	 * @param string $pluginfile The plugin file location (i.e. __FILE__)
@@ -228,27 +167,7 @@ class Babble_Plugin {
 	function register_activation ( $pluginfile = __FILE__, $function = '' ) {
 		if ( $this->type == 'plugin' ) {
 			add_action ('activate_'.basename (dirname ($pluginfile)).'/'.basename ($pluginfile), array ($this, $function == '' ? 'activate' : $function));
-		} elseif ( $this->type == 'theme' ) {
-			$this->theme_activation_function = ( $function ) ? $function : 'activate';
-			add_action ('load-themes.php', array ( $this, 'theme_activation' ) );
 		}
-	}
-
-	/**
-	 * Hack to catch theme activation. We hook the load-themes.php action, look for the
-	 * "activated" GET param and make a big fat assumption if we find it.
-	 *
-	 * @return void
-	 * @author Simon Wheatley
-	 **/
-	public function theme_activation() {
-		$activated = (bool) @ $_GET[ 'activated' ];
-		if ( ! $activated )
-			return;
-		if ( ! $this->theme_activation_function )
-			return;
-		// Looks like the theme might just have been activated, call the registered function
-		$this->{$this->theme_activation_function}();
 	}
 
 	/**
@@ -303,7 +222,7 @@ class Babble_Plugin {
 		} else {
 			$msg = sprintf( __( "This plugin admin template could not be found: %s" ), $this->dir( "templates-admin/$template_file" ) );
 			bbl_log( "Plugin template error: $msg", true );
-			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
+			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>" . esc_html( $msg ) . "</p>";
 		}
 	}
 
@@ -371,7 +290,7 @@ class Babble_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	protected function render_admin_notice( $notice ) {
-		echo "<div class='updated'><p>$notice</p></div>";
+		echo "<div class='updated'><p>" . esc_html( $notice ) . "</p></div>";
 	}
 
 	/**
@@ -382,7 +301,7 @@ class Babble_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	protected function render_admin_error( $error ) {
-		echo "<div class='error'><p>$error</p></div>";
+		echo "<div class='error'><p>" . esc_html( $error ) . "</p></div>";
 	}
 
 	/**
@@ -441,7 +360,7 @@ class Babble_Plugin {
 		// Oh dear. We can't find the template.
 		$msg = sprintf( __( "This plugin template could not be found, perhaps you need to hook `sil_plugins_dir` and `sil_plugins_url`: %s" ), $this->dir( "templates/$template_file" ) );
 		bbl_log( "Template error: $msg", true );
-		echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
+		echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>" . esc_html( $msg ) . "</p>";
 	}
 
 	/**

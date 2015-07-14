@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Class for providing the switch/create links for the current 
+ * Class for providing the switch/create links for the current
  * content items. Works in the admin or public areas of the site.
- * 
+ *
  * Used by the admin bar class, for example.
  *
  * @package Babble
  * @since 0.2
  */
 class Babble_Switcher_Menu {
-	
+
 	/**
 	 * The translations for the current content item.
 	 *
@@ -19,20 +19,20 @@ class Babble_Switcher_Menu {
 	protected $translations;
 
 	/**
-	 * A multi-dimensional array of the links for the current 
+	 * A multi-dimensional array of the links for the current
 	 * translation structure.
 	 *
 	 * @var array
 	 **/
 	protected $links;
-	
+
 	/**
 	 * The WP Screen object
 	 *
 	 * @var object
 	 **/
 	protected $screen;
-	
+
 	// PUBLIC METHODS
 	// ==============
 
@@ -41,7 +41,7 @@ class Babble_Switcher_Menu {
 	 * in this translation group. Each element in the array
 	 * looks like:
 	 * array (
-	 * 		
+	 *
 	 * )
 	 *
 	 * @param string $id_prefix A prefix to the ID for each item
@@ -52,7 +52,7 @@ class Babble_Switcher_Menu {
 		return $this->links;
 	}
 
-	
+
 	// PRIVATE/PROTECTED METHODS
 	// =========================
 
@@ -64,7 +64,7 @@ class Babble_Switcher_Menu {
 	protected function populate_links() {
 		if ( is_array( $this->links ) && ! empty( $this->links ) )
 			return; // Already done
-		
+
 		$this->links = array();
 
 		// @FIXME: Not sure this is the best way to specify languages
@@ -96,7 +96,7 @@ class Babble_Switcher_Menu {
 			$this->jobs         = bbl_get_incomplete_post_jobs( get_option( 'page_for_posts' ) );
 		} else if ( ( !is_admin() and ( is_tax() || is_category() ) ) || $editing_term ) {
 			if ( isset( $_REQUEST[ 'tag_ID' ] ) )
-				$term = get_term( (int) @ $_REQUEST[ 'tag_ID' ], $this->screen->taxonomy );
+				$term = get_term( absint( $_REQUEST[ 'tag_ID' ] ), $this->screen->taxonomy );
 			else
 				$term = get_queried_object();
 			$this->translations = bbl_get_term_translations( $term->term_id, $term->taxonomy );
@@ -119,22 +119,22 @@ class Babble_Switcher_Menu {
 				}
 				continue;
 			}
-			
-			if ( 
+
+			if (
 				is_singular() || is_single() ||
 				( 'page' == get_option( 'show_on_front' ) && is_home() )
 			) {	// Single posts, pages, blog homepage
 				$this->add_post_link( $alt_lang );
 				continue;
 			}
-			
+
 			// Don't add a switcher link if the language is not public and
-			// the user cannot edit any posts (as a rough guide to whether 
+			// the user cannot edit any posts (as a rough guide to whether
 			// they are more than just a subscriber).
 			// @TODO this cap check should move into each add_*_link() method:
 			if ( ! bbl_is_public_lang( $alt_lang->code ) && ! current_user_can( 'edit_posts' ) )
 				continue;
-			
+
 			if ( is_front_page() ) { 				// Language homepage
 				// is_front_page works for language homepages, phew
 				$this->add_front_page_link( $alt_lang );
@@ -197,10 +197,10 @@ class Babble_Switcher_Menu {
 	protected function add_admin_term_link( $lang ) {
 		$classes = array();
 		if ( isset( $this->translations[ $lang->code ]->term_id ) ) { // Translation exists
-			$args = array( 
-				'lang' => $lang->code, 
-				'taxonomy' => $this->translations[ $lang->code ]->taxonomy, 
-				'tag_ID' => $this->translations[ $lang->code ]->term_id 
+			$args = array(
+				'lang' => $lang->code,
+				'taxonomy' => $this->translations[ $lang->code ]->taxonomy,
+				'tag_ID' => $this->translations[ $lang->code ]->term_id
 			);
 			$href = add_query_arg( $args );
 			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
@@ -247,8 +247,8 @@ class Babble_Switcher_Menu {
 	 **/
 	protected function add_admin_list_terms_link( $lang ) {
 		$classes = array();
-		$args = array( 
-			'lang' => $lang->code, 
+		$args = array(
+			'lang' => $lang->code,
 			'taxonomy' => bbl_get_taxonomy_in_lang( $this->screen->taxonomy, $lang->code ),
 		);
 		$href = add_query_arg( $args );
@@ -330,8 +330,8 @@ class Babble_Switcher_Menu {
 	 **/
 	protected function add_admin_list_posts_link( $lang ) {
 		$classes = array();
-		$args = array( 
-			'lang' => $lang->code, 
+		$args = array(
+			'lang' => $lang->code,
 			'post_type' => bbl_get_post_type_in_lang( $this->screen->post_type, $lang->code ),
 		);
 		$href = add_query_arg( $args );
@@ -366,9 +366,9 @@ class Babble_Switcher_Menu {
 		if ( isset( $this->translations[ $lang->code ] ) ) { // Translation exists
 			// Don't add this link if the user cannot edit THIS post and
 			// the language is not public.
-			if ( 
-				! bbl_is_public_lang( $lang->code ) && 
-				! current_user_can( 'edit_post', $this->translations[ $lang->code ]->ID ) 
+			if (
+				! bbl_is_public_lang( $lang->code ) &&
+				! current_user_can( 'edit_post', $this->translations[ $lang->code ]->ID )
 			) {
 				return;
 			}
@@ -550,7 +550,7 @@ class Babble_Switcher_Menu {
 			'lang' => $lang,
 		);
 	}
-	
+
 }
 
 global $bbl_switcher_menu;

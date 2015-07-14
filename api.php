@@ -66,7 +66,7 @@ function bbl_get_current_lang_code() {
  * Given a lang object or lang code, this checks whether the
  * language is public or not.
  *
- * @param string $lang_code A language code
+ * @param string|object $lang_code A language code or a language object
  * @return boolean True if public
  * @access public
  **/
