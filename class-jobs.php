@@ -696,11 +696,14 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( $edit_terms_nonce and wp_verify_nonce( $edit_terms_nonce, "bbl_translation_edit_terms_{$job->ID}") ) {
 
 			$terms_data = stripslashes_deep( $_POST['bbl_translation']['terms'] );
-			$terms      = get_post_meta( $job->ID, 'bbl_job_term', false );
+			$job_terms  = $objects['terms'];
+
+			foreach ( $job_terms as $taxo => $terms ) {
 
 			foreach ( $terms as $term_info ) {
 
-				list( $taxo, $term_id ) = explode( '|', $term_info );
+				$term_id = $term_info->term_id;
+
 				$term = get_term( $term_id, $taxo );
 				$terms_data[$term_id]['slug'] = sanitize_title( $terms_data[$term_id]['slug'] );
 
@@ -717,12 +720,14 @@ class Babble_Jobs extends Babble_Plugin {
 					$terms_data[$term->term_id]['term_id'] = $trans->term_id;
 
 					$args = array(
-						'name' => $terms_data[$term->term_id]['name'],
+						'name' => wp_kses_post( $terms_data[$term->term_id]['name'] ),
 						'slug' => '',
 					);
 					wp_update_term( absint( $trans->term_id ), $trans->taxonomy, $args );
 
 				}
+
+			}
 
 			}
 
