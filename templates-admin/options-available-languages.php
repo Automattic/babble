@@ -28,7 +28,7 @@
 	</select>
 </p>
 
-<table class="wp-list-table widefat fixed babble_languages" cellspacing="0">
+<table class="wp-list-table widefat fixed babble_languages striped" cellspacing="0">
 	<thead>
 	<tr>
 		<th scope="col" id="language" class="manage-column column-language"><?php esc_html_e( 'Language', 'babble' ); ?></th>
@@ -59,14 +59,16 @@
 				<?php echo esc_html( $lang->name ); ?>
 			</th>
 			<td class="manage-column column-active">
-				<label for="enable_<?php echo esc_attr( $lang->code ); ?>" title="<?php echo esc_attr( sprintf( __( 'Enable "%s" on this site', 'babble' ), $lang->name ) ); ?>">
-					<input type="checkbox" name="active_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="enable_<?php echo esc_attr( $lang->code ); ?>" <?php checked( $lang->active ); ?>>
+				<label class="screen-reader-text" for="enable_<?php echo esc_attr( $lang->code ); ?>">
+					<?php echo esc_html( sprintf( __( 'Enable "%s" on this site', 'babble' ), $lang->name ) ); ?>
 				</label>
+				<input type="checkbox" name="active_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="enable_<?php echo esc_attr( $lang->code ); ?>" <?php checked( $lang->active ); ?>>
 			</td>
 			<td class="manage-column column-public">
-				<label for="public_<?php echo esc_attr( $lang->code ); ?>" title="<?php echo esc_attr( sprintf( __( 'Show "%s" on this site', 'babble' ), $lang->name ) ); ?>">
-					<input type="checkbox" name="public_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="public_<?php echo esc_attr( $lang->code ); ?>" <?php checked( in_array( $lang->code, $this->public_langs ) ); ?>>
+				<label class="screen-reader-text" for="public_<?php echo esc_attr( $lang->code ); ?>">
+					<?php echo esc_html( sprintf( __( 'Show "%s" on this site', 'babble' ), $lang->name ) ); ?>
 				</label>
+				<input type="checkbox" name="public_langs[]" value="<?php echo esc_attr( $lang->code ); ?>" id="public_<?php echo esc_attr( $lang->code ); ?>" <?php checked( in_array( $lang->code, $this->public_langs ) ); ?>>
 			</td>
 			<td class="manage-column column-language-code">
 				<?php echo esc_html( $lang->code ); ?>
