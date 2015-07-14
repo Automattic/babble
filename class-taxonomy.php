@@ -666,8 +666,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 	public function get_term_translations( $term, $taxonomy ) {
 		$term = get_term( $term, $taxonomy );
 
-		$group    = "bbl_{$taxonomy}_term_translation_ids";
-		$term_ids = wp_cache_get( $term->term_id, $group );
+		$transid  = $this->get_transid( $term->term_id );
+		$group    = 'bbl_term_translation_ids';
+		$term_ids = wp_cache_get( $transid, $group );
 
 		if ( false === $term_ids ) {
 
@@ -677,11 +678,9 @@ class Babble_Taxonomies extends Babble_Plugin {
 				$translations[ $lang->code ] = false;
 			}
 
-			$transid = $this->get_transid( $term->term_id );
-
 			$term_ids = array_map( 'absint', get_objects_in_term( $transid, 'term_translation' ) );
 
-			wp_cache_set( $term->term_id, $term_ids, $group );
+			wp_cache_set( $transid, $term_ids, $group );
 
 		}
 
@@ -919,7 +918,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @param int $target_term_id The term ID to find the translation group for 
 	 * @return int The transID the target term belongs to
 	 **/
-	public function get_transid( $target_term_id ) {
+	public function get_transid( $target_term_id, $create = true ) {
 		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) ) {
 			return $transid;
 		}
@@ -932,8 +931,10 @@ class Babble_Taxonomies extends Babble_Plugin {
 		// "There can be only one" (so we'll just drop the others)
 		if ( isset( $transids[ 0 ] ) ) {
 			$transid = $transids[ 0 ];
-		} else {
+		} else if ( $create ) {
 			$transid = $this->set_transid( $target_term_id );
+		} else {
+			return false;
 		}
 
 		wp_cache_set( $target_term_id, $transid, 'bbl_term_transids' );
