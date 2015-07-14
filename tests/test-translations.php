@@ -51,6 +51,20 @@ class Test_Translations extends Babble_UnitTestCase {
 			'ar'    => get_post( $ar->ID ),
 		), $translations );
 
+		// Delete a translation
+		$deleted = wp_delete_post( $uk->ID, true );
+		// https://core.trac.wordpress.org/ticket/32991
+		$this->assertNotEmpty( $deleted );
+
+		// Ensure translations are correctly updated
+		$translations = bbl_get_post_translations( $en->ID );
+
+		$this->assertEquals( array(
+			'en_US' => get_post( $en->ID ),
+			'fr_FR' => get_post( $fr->ID ),
+			'ar'    => get_post( $ar->ID ),
+		), $translations );
+
 	}
 
 	public function test_term_translations() {
@@ -101,6 +115,19 @@ class Test_Translations extends Babble_UnitTestCase {
 			'en_US' => get_term( $en->term_id, $en->taxonomy ),
 			'en_GB' => get_term( $uk->term_id, $uk->taxonomy ),
 			'fr_FR' => get_term( $fr->term_id, $fr->taxonomy ),
+			'ar'    => get_term( $ar->term_id, $ar->taxonomy ),
+		), $translations );
+
+		// Delete a translation
+		$deleted = wp_delete_term( $fr->term_id, $fr->taxonomy );
+		$this->assertTrue( $deleted );
+
+		// Ensure translations are correctly updated
+		$translations = bbl_get_term_translations( $en->term_id, $en->taxonomy );
+
+		$this->assertEquals( array(
+			'en_US' => get_term( $en->term_id, $en->taxonomy ),
+			'en_GB' => get_term( $uk->term_id, $uk->taxonomy ),
 			'ar'    => get_term( $ar->term_id, $ar->taxonomy ),
 		), $translations );
 
