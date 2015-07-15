@@ -361,9 +361,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				continue;
 			}
 			if ( isset( $this->taxonomies[ $term->taxonomy ] ) ) {
-				if ( ! $this->get_transid( $term->term_id ) ) {
-					throw new exception( "ERROR: Translated term ID $term->term_id does not have a transid" );
-				} else {
+				if ( $this->get_transid( $term->term_id ) ) {
 					continue;
 				}
 			}
@@ -941,15 +939,15 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * belongs to.
 	 *
 	 * @param int $target_term_id The term ID to find the translation group for 
-	 * @return int The transID the target term belongs to
+	 * @return int|false The transID the target term belongs to, boolean false on failure
 	 **/
 	public function get_transid( $target_term_id, $create = true ) {
-		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) ) {
-			return $transid;
+		if ( ! $target_term_id ) {
+			return false;
 		}
 
-		if ( ! $target_term_id ) {
-			throw new exception( "Please specify a target term_id" );
+		if ( $transid = wp_cache_get( $target_term_id, 'bbl_term_transids' ) ) {
+			return $transid;
 		}
 
 		$transids = wp_get_object_terms( $target_term_id, 'term_translation', array( 'fields' => 'ids' ) );
@@ -973,11 +971,11 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 *
 	 * @param int $target_term_id The term ID to set the translation group for
 	 * @param int $translation_group_id The ID of the translation group to add this 
-	 * @return int The transID the target term belongs to
+	 * @return int|false The transID the target term belongs to, false on failure
 	 **/
 	public function set_transid( $target_term_id, $transid = null ) {
 		if ( ! $target_term_id ) {
-			throw new exception( "Please specify a target term_id" );
+			return false;
 		}
 
 		if ( ! $transid ) {
@@ -998,61 +996,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 		wp_cache_delete( $target_term_id, 'bbl_term_transids' );
 		
 		return $transid;
-	}
-
-	/**
-	 * Checks for the relevant POSTed field, then 
-	 * resyncs the terms.
-	 *
-	 * @param int $post_id The ID of the WP post
-	 * @param object $post The WP Post object 
-	 * @return void
-	 **/
-	protected function maybe_resync_terms( $post_id, $post ) {
-		// Check that the fields were included on the screen, we
-		// can do this by checking for the presence of the nonce.
-		$nonce = isset( $_POST[ '_bbl_metabox_resync' ] ) ? $_POST[ '_bbl_metabox_resync' ] : false;
-		
-		
-		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) ) {
-			return;
-		}
-		
-		if ( ! $nonce ) {
-			return;
-		}
-			
-		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
-		if ( $posted_id != $post_id ) {
-			return;
-		}
-		// While we're at it, let's check the nonce
-		check_admin_referer( "bbl_resync_translation-$post_id", '_bbl_metabox_resync' );
-		
-		if ( $this->no_recursion ) {
-			return;
-		}
-		$this->no_recursion = true;
-
-		$taxonomies = get_object_taxonomies( $post->post_type );
-		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
-
-		// First dissociate all the terms from synced taxonomies from this post
-		wp_delete_object_term_relationships( $post_id, $taxonomies );
-
-		// Now associate terms from synced taxonomies in from the origin post
-		foreach ( $taxonomies as $taxonomy ) {
-			$origin_taxonomy = $taxonomy;
-			if ( $this->is_taxonomy_translated( $taxonomy ) ) {
-				$origin_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, bbl_get_default_lang_code() );
-			}
-			$term_ids = wp_get_object_terms( $origin_post->ID, $origin_taxonomy, array( 'fields' => 'ids' ) );
-			$term_ids = array_map( 'absint', $term_ids );
-			$result = wp_set_object_terms( $post_id, $term_ids, $taxonomy );
-			if ( is_wp_error( $result, true ) ) {
-				throw new exception( "Problem syncing terms: " . print_r( $terms, true ), " Error: " . print_r( $result, true ) );
-			}
-		}
 	}
 
 }
