@@ -750,7 +750,7 @@ class Babble_Jobs extends Babble_Plugin {
 		/**
 		 * Fires when post ready for transaltion
 		 */
-		do_action( 'babble_post_ready_for_translation', $post_id, $post, $jobs );
+		do_action( 'bbl_post_ready_for_translation', $post_id, $post, $jobs );
 	}
 
 	/**
