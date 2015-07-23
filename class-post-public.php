@@ -32,18 +32,18 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected $post_types;
 
 	/**
-	 * A structure describing the languages served by various post types.
+	 * A structure describing the locales correlating to post types.
+	 *
+	 * @var array
+	 **/
+	protected $post_type_map;
+
+	/**
+	 * A structure describing the shadow post types that correspond to a given language and post type.
 	 *
 	 * @var array
 	 **/
 	protected $lang_map;
-
-	/**
-	 * Another structure describing the languages served by various post types.
-	 *
-	 * @var array
-	 **/
-	protected $lang_map2;
 
 	/**
 	 * A version number to use for cache busting, database updates, etc
@@ -81,36 +81,36 @@ class Babble_Post_Public extends Babble_Plugin {
 	public function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
 
-		$this->add_action( 'added_post_meta', null, null, 4 );
-		$this->add_action( 'admin_init' );
-		$this->add_action( 'clean_post_cache' );
-		$this->add_action( 'body_class', null, null, 2 );
-		$this->add_action( 'before_delete_post', 'clean_post_cache' );
-		$this->add_action( 'deleted_post', 'clean_post_cache' );
-		$this->add_action( 'deleted_post_meta', null, null, 4 );
-		$this->add_action( 'load-post-new.php', 'load_post_new' );
-		$this->add_action( 'manage_pages_custom_column', 'manage_posts_custom_column', null, 2 );
-		$this->add_action( 'manage_posts_custom_column', 'manage_posts_custom_column', null, 2 );
-		$this->add_action( 'parse_request' );
-		$this->add_action( 'post_updated' );
-		$this->add_action( 'pre_get_posts', null, 11 );
-		$this->add_action( 'registered_post_type', null, null, 2 );
-		$this->add_action( 'transition_post_status', null, null, 3 );
-		$this->add_action( 'updated_post_meta', null, null, 4 );
-		$this->add_action( 'wp_before_admin_bar_render' );
-		$this->add_filter( 'add_menu_classes' );
-		$this->add_filter( 'add_post_metadata', null, null, 5 );
-		$this->add_filter( 'bbl_sync_meta_key', 'sync_meta_key', null, 2 );
-		$this->add_filter( 'manage_posts_columns', 'manage_posts_columns', null, 2 );
-		$this->add_filter( 'page_link', null, null, 2 );
-		$this->add_filter( 'post_link', 'post_type_link', null, 3 );
-		$this->add_filter( 'post_type_archive_link', null, null, 2 );
-		$this->add_filter( 'post_type_link', null, null, 3 );
-		$this->add_filter( 'get_sample_permalink', null, null, 5 );
-		$this->add_filter( 'single_template' );
-		$this->add_filter( 'the_posts', null, null, 2 );
-		$this->add_filter( 'bbl_translated_taxonomy', null, null, 2 );
-		$this->add_filter( 'admin_body_class' );
+		add_action( 'added_post_meta', array( $this, 'added_post_meta' ), 10, 4 );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'clean_post_cache', array( $this, 'clean_post_cache' ) );
+		add_action( 'body_class', array( $this, 'body_class' ), 10, 2 );
+		add_action( 'before_delete_post', array( $this, 'clean_post_cache' ) );
+		add_action( 'deleted_post', array( $this, 'clean_post_cache' ) );
+		add_action( 'deleted_post_meta', array( $this, 'deleted_post_meta' ), 10, 4 );
+		add_action( 'load-post-new.php', array( $this, 'load_post_new' ) );
+		add_action( 'manage_pages_custom_column', array( $this, 'manage_posts_custom_column' ), 10, 2 );
+		add_action( 'manage_posts_custom_column', array( $this, 'manage_posts_custom_column' ), 10, 2 );
+		add_action( 'parse_request', array( $this, 'parse_request' ) );
+		add_action( 'post_updated', array( $this, 'post_updated' ) );
+		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ), 11 );
+		add_action( 'registered_post_type', array( $this, 'registered_post_type' ), 10, 2 );
+		add_action( 'transition_post_status', array( $this, 'transition_post_status' ), 10, 3 );
+		add_action( 'updated_post_meta', array( $this, 'updated_post_meta' ), 10, 4 );
+		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ) );
+		add_filter( 'add_menu_classes', array( $this, 'add_menu_classes' ) );
+		add_filter( 'add_post_metadata', array( $this, 'add_post_metadata' ), 10, 5 );
+		add_filter( 'bbl_sync_meta_key', array( $this, 'sync_meta_key' ), 10, 2 );
+		add_filter( 'manage_posts_columns', array( $this, 'manage_posts_columns' ), 10, 2 );
+		add_filter( 'page_link', array( $this, 'page_link' ), 10, 2 );
+		add_filter( 'post_link', array( $this, 'post_type_link' ), 10, 3 );
+		add_filter( 'post_type_archive_link', array( $this, 'post_type_archive_link' ), 10, 2 );
+		add_filter( 'post_type_link', array( $this, 'post_type_link' ), 10, 3 );
+		add_filter( 'get_sample_permalink', array( $this, 'get_sample_permalink' ), 10, 5 );
+		add_filter( 'single_template', array( $this, 'single_template' ) );
+		add_filter( 'the_posts', array( $this, 'the_posts' ), 10, 2 );
+		add_filter( 'bbl_translated_taxonomy', array( $this, 'bbl_translated_taxonomy' ), 10, 2 );
+		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 		$this->initiate();
 	}
@@ -120,7 +120,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function initiate() {
-		$this->lang_map = array();
+		$this->post_type_map = array();
 		$this->post_types = array();
 		$this->slugs_and_vars = array();
 		$this->no_meta_recursion = false;
@@ -198,7 +198,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$this->set_transid( $new_post, $transid );
 
 		// Copy all the metadata across
-		$this->sync_post_meta( $new_post->ID );
+		$this->sync_post_meta( $new_post->ID, $origin_post );
 
 		// Copy the various core post properties across
 		$this->sync_properties( $origin_post->ID, $new_post->ID );
@@ -224,7 +224,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( !bbl_is_translated_post_type( $screen->post_type ) )
 			return;
 
-		wp_die( __( 'You can only create content in your site\'s default language. Please consult your editorial team.', 'babble' ), '', array( 'back_link' => true ) );
+		wp_die( esc_html__( 'You can only create content in your site\'s default language. Please consult your editorial team.', 'babble' ), '', array( 'back_link' => true ) );
 	}
 
 	/**
@@ -307,7 +307,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
 
 			if ( strlen( $new_post_type ) > 20 ) {
-				trigger_error( sprintf( __( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
+				trigger_error( sprintf( esc_html__( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
 					esc_html( $post_type ),
 					20
 				) );
@@ -333,15 +333,14 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			$result = register_post_type( $new_post_type, $new_args );
 			if ( is_wp_error( $result ) ) {
-				error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
+				bbl_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ), true );
 			} else {
 				$this->post_types[ $new_post_type ] = $post_type;
-				$this->lang_map[ $new_post_type ] = $lang->code;
+				$this->post_type_map[ $new_post_type ] = $lang->code;
 
-				// @TODO: Refactor the $this::lang_map array so we can use this new structure instead
-				if ( ! isset( $this->lang_map2[ $lang->code ] ) || ! is_array( $this->lang_map2[ $lang->code ] ) )
-					$this->lang_map2[ $lang->code ] = array();
-				$this->lang_map2[ $lang->code ][ $post_type ] = $new_post_type;
+				if ( ! isset( $this->lang_map[ $lang->code ] ) || ! is_array( $this->lang_map[ $lang->code ] ) )
+					$this->lang_map[ $lang->code ] = array();
+				$this->lang_map[ $lang->code ][ $post_type ] = $new_post_type;
 
 				// This will not work until init has run at the early priority used
 				// to register the post_translation taxonomy. However we catch all the
@@ -541,7 +540,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		$subs_index = array();
 		foreach ( $posts as & $post ) {
 			if ( empty( $post->post_title ) || empty( $post->post_excerpt ) || empty( $post->post_content ) ) {
-				if ( $default_post = bbl_get_default_lang_post( $post->ID ) )
+				if ( $default_post = $this->get_default_lang_post( $post->ID ) )
 					$subs_index[ $post->ID ] = $default_post->ID;
 			}
 			if ( ! $this->get_transid( $post ) && bbl_get_default_lang_code() == bbl_get_post_lang_code( $post ) )
@@ -550,12 +549,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! $subs_index )
 			return $posts;
 
-		$subs_posts = get_posts( array( 'include' => array_values( $subs_index ), 'post_status' => 'publish' ) );
-		// @FIXME: Check the above get_posts call results are cached somewhere… I think they are
 		// @FIXME: Alternative approach: hook on save_post to save the current value to the translation, BUT content could get out of date – in post_content_filtered
 		foreach ( $posts as & $post ) {
 			// @TODO why does this only override the title/excerpt/content? Why not override the post object entirely?
-			// @FIXME: I'm assuming this get_post call is cached, which it seems to be
 			if( isset( $subs_index[ $post->ID ] ) ) {
 				$default_post = get_post( $subs_index[ $post->ID ] );
 				if ( empty( $post->post_title ) )
@@ -780,6 +776,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		}
 		wp_cache_delete( $transid, 'bbl_post_translations' );
+		wp_cache_delete( $transid, 'bbl_post_translation_ids' );
 	}
 
 	/**
@@ -991,7 +988,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return;
 		$default_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
 		if ( ! $default_post ) {
-			echo '<em style="color: #bc0b0b">' . __( 'No link', 'babble' ) . '</em>';
+			echo '<em style="color: #bc0b0b">' . esc_html__( 'No link', 'babble' ) . '</em>';
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
@@ -999,9 +996,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		bbl_switch_to_lang( bbl_get_default_lang_code() );
 		$view_link = get_permalink( $default_post->ID );
 		bbl_restore_lang();
-		$edit_title = esc_attr( sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		$view_title = esc_attr( sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) ) );
-		echo "<a href='$view_link' title='$view_title'>" . __( 'View', 'babble' ) . "</a> | <a href='$edit_link' title='$edit_title'>" . __( 'Edit', 'babble' ) . "</a>";
+		$edit_title = sprintf( __( 'Edit the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) );
+		$view_title = sprintf( __( 'View the originating post: “%s”', 'babble' ), get_the_title( $default_post->ID ) );
+		echo "<a href='" . esc_url( $view_link ) . "' title='" . esc_attr( $view_title ) . "'>" . esc_html__( 'View', 'babble' ) . "</a> | <a href='" . esc_url( $edit_link ) . "' title='" . esc_attr( $edit_title ) . "'>" . esc_html__( 'Edit', 'babble' ) . "</a>";
 	}
 
 	// PUBLIC METHODS
@@ -1152,8 +1149,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post = get_post( $post );
 		if ( ! $post )
 			return new WP_Error( 'bbl_invalid_post', __( 'Invalid Post passed to get_post_lang_code', 'babble' ) );
-		if ( isset( $this->lang_map[ $post->post_type ] ) )
-			return $this->lang_map[ $post->post_type ];
+		if ( isset( $this->post_type_map[ $post->post_type ] ) ) {
+			return $this->post_type_map[ $post->post_type ];
+		}
 		return bbl_get_default_lang_code();
 	}
 
@@ -1186,7 +1184,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	public function get_default_lang_post( $post ) {
 		$post = get_post( $post );
-		$translations = bbl_get_post_translations( $post->ID );
+		$translations = $this->get_post_translations( $post->ID );
 		if ( isset( $translations[ bbl_get_default_lang_code() ] ) )
 			return $translations[ bbl_get_default_lang_code() ];
 		return false;
@@ -1205,37 +1203,26 @@ class Babble_Post_Public extends Babble_Plugin {
 		// @FIXME: Is it worth caching here, or can we just rely on the caching in get_objects_in_term and get_posts?
 		$transid = $this->get_transid( $post );
 
-		if ( $translations = wp_cache_get( $transid, 'bbl_post_translations' ) ) {
-			return $translations;
+		$translations = wp_cache_get( $transid, 'bbl_post_translation_ids' );
+
+		if ( false !== $translations ) {
+			return array_map( 'get_post', $translations );
 		}
 
 		# @TODO A transid should never be a wp_error. Check and fix.
-		if ( is_wp_error( $transid ) )
-			error_log( "Error getting transid: " . print_r( $transid, true ) );
+		if ( is_wp_error( $transid ) ) {
+			bbl_log( "Error getting transid: " . print_r( $transid, true ), true );
+		}
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
 
-		// Work out all the translated equivalent post types
-		$post_types = array();
-		$langs = bbl_get_active_langs();
-		foreach ( $langs as $lang )
-			$post_types[] = bbl_get_post_type_in_lang( $post->post_type, $lang->code );
-
-		// Get all the translations in one cached DB query
-		$args = array(
-			// We want a clean listing, without any particular language
-			'bbl_translate' => false,
-			'include' => $post_ids,
-			'post_type' => $post_types,
-			'post_status' => array( 'publish', 'pending', 'draft', 'future' ),
-		);
-		$posts = get_posts( $args );
 		$translations = array();
-		foreach ( $posts as $post )
-			$translations[ $this->get_post_lang_code( $post ) ] = $post;
+		$post_ids = array_filter( $post_ids );
+		foreach ( $post_ids as $post_id )
+			$translations[ $this->get_post_lang_code( $post_id ) ] = $post_id;
 
-		wp_cache_add( $transid, $translations, 'bbl_post_translations' );
+		wp_cache_set( $transid, $translations, 'bbl_post_translation_ids' );
 
-		return $translations;
+		return array_map( 'get_post', $translations );
 	}
 
 	/**
@@ -1267,7 +1254,7 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns the equivalent post_type in the specified language.
 	 *
 	 * @param string $post_type A post_type to return in a given language
-	 * @param string $lang_code The language code for the required language 
+	 * @param string $lang_code The language code for the required language
 	 * @return string The equivalent post_type name, or given post_type if it doesn't exist
 	 **/
 	public function get_post_type_in_lang( $post_type, $lang_code ) {
@@ -1283,11 +1270,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// Return the original post type if we couldn't find it in our array
-		if ( ! isset( $this->lang_map2[ $lang_code ][ $base_post_type ] ) ) {
+		if ( ! isset( $this->lang_map[ $lang_code ][ $base_post_type ] ) ) {
 			return $post_type;
 		}
 
-		return $this->lang_map2[ $lang_code ][ $base_post_type ];
+		return $this->lang_map[ $lang_code ][ $base_post_type ];
 	}
 
 	/**
@@ -1301,8 +1288,8 @@ class Babble_Post_Public extends Babble_Plugin {
 		$post_types = array();
 		$langs = bbl_get_active_langs();
 		foreach ( $langs as $lang ) {
-			if ( isset( $this->lang_map2[ $lang->code ][ $base_post_type ] ) )
-				$post_types[] = $this->lang_map2[ $lang->code ][ $base_post_type ];
+			if ( isset( $this->lang_map[ $lang->code ][ $base_post_type ] ) )
+				$post_types[] = $this->lang_map[ $lang->code ][ $base_post_type ];
 		}
 		return $post_types;
 	}
@@ -1404,10 +1391,11 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Resync all (synced) post meta data from the post in
 	 * the default language to this post.
 	 *
-	 * @param $int The post ID to sync TO
+	 * @param int         $post_id     The post ID to sync TO.
+	 * @param int|WP_Post $origin_post The post ID or object to sync FROM.
 	 * @return void
 	 **/
-	function sync_post_meta( $post_id ) {
+	function sync_post_meta( $post_id, $origin_post = null ) {
 		if ( $this->no_meta_recursion )
 			return;
 		$this->no_meta_recursion = 'updated_post_meta';
@@ -1424,7 +1412,11 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		// Now add meta in again from the origin post
-		$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		if ( $origin_post ) {
+			$origin_post = get_post( $origin_post );
+		} else {
+			$origin_post = bbl_get_post_in_lang( $post_id, bbl_get_default_lang_code() );
+		}
 
 		$metas = get_post_meta( $origin_post->ID );
 		if ( ! $metas )
@@ -1458,8 +1450,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	function get_transid( $post, $create = true ) {
 		$post = get_post( $post );
 
-		if ( ! $post->ID )
+		if ( ! $post ) {
 			return false;
+		}
 
 		if ( $transid = wp_cache_get( $post->ID, 'bbl_post_transids' ) ) {
 			return $transid;
@@ -1480,7 +1473,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			return false;
 		}
 
-		wp_cache_add( $post->ID, $transid, 'bbl_post_transids' );
+		wp_cache_set( $post->ID, $transid, 'bbl_post_transids' );
 
 		return $transid;
 	}
@@ -1501,16 +1494,19 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! $transid ) {
 			$transid_name = 'post_transid_' . uniqid();
 			$result = wp_insert_term( $transid_name, 'post_translation', array() );
-			if ( is_wp_error( $result ) )
-				error_log( "Problem creating a new Post TransID: " . print_r( $result, true ) );
-			else
-				$transid = $result[ 'term_id' ];
+			if ( is_wp_error( $result ) ) {
+				bbl_log( "Problem creating a new Post TransID: " . print_r( $result, true ), true );
+			} else {
+				$transid = $result['term_id'];
+			}
 			// Delete anything in there currently
 			wp_cache_delete( $transid, 'bbl_post_translations' );
+			wp_cache_delete( $transid, 'bbl_post_translation_ids' );
 		}
 		$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
-		if ( is_wp_error( $result ) )
-			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+		if ( is_wp_error( $result ) ) {
+			bbl_log( "Problem associating TransID with new posts: " . print_r( $result, true ), true );
+		}
 
 		$this->clean_post_cache( $post->ID );
 
@@ -1620,25 +1616,25 @@ class Babble_Post_Public extends Babble_Plugin {
 			$time_diff = time() - $start_time;
 			// Check the lock is less than 30 mins old, and if it is, bail
 			if ( $time_diff < ( 60 * 30 ) ) {
-				error_log( "Babble Post Public: Existing update routine has been running for less than 30 minutes" );
+				bbl_log( "Babble Post Public: Existing update routine has been running for less than 30 minutes", true );
 				return;
 			}
-			error_log( "Babble Post Public: Update routine is running, but older than 30 minutes; going ahead regardless" );
+			bbl_log( "Babble Post Public: Update routine is running, but older than 30 minutes; going ahead regardless", true );
 		} else {
 			add_option( "{$option_name}_running", time(), null, 'no' );
 		}
 
 		if ( $version < 9 ) {
-			error_log( "Babble Post Public: Start pruning metadata" );
+			bbl_log( "Babble Post Public: Start pruning metadata", true );
 			$this->prune_post_meta();
-			error_log( "Babble Post Public: Remove excess post meta" );
+			bbl_log( "Babble Post Public: Remove excess post meta", true );
 		}
 
 		// N.B. Remember to increment $this->version above when you add a new IF
 
 		update_option( $option_name, $this->version );
 		delete_option( "{$option_name}_running", true, null, 'no' );
-		error_log( "Babble Post Public: Done upgrade, now at version " . $this->version );
+		bbl_log( "Babble Post Public: Done upgrade, now at version " . $this->version, true );
 	}
 
 	/**
