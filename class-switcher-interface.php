@@ -7,14 +7,14 @@
  * @since 1.4
  */
 class Babble_Switcher_Interface extends Babble_Plugin {
-	
+
 	// PUBLIC METHODS
 	// ==============
-	
+
 	public function __construct() {
 		$this->setup( 'babble-switcher-interface', 'plugin' );
 
-		$this->add_action( 'personal_options' );
+		add_action( 'personal_options', array( $this, 'personal_options' ) );
 	}
 
 	public function personal_options( WP_User $user ) {

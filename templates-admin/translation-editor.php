@@ -72,9 +72,6 @@
 						<?php wp_editor( $original->post_content, 'original_post_content', array(
 							'textarea_name' => 'bbl_original[post][post_content]',
 							'media_buttons' => false,
-							'quicktags'     => array(
-								'buttons' => true,
-							),
 							'tinymce'       => array(
 								'readonly' => 1,
 							),
@@ -111,6 +108,25 @@
 			foreach ( $items['terms'] as $taxo => $terms )
 				do_meta_boxes( 'bbl_translation_editor_terms', $taxo, compact( 'taxo', 'terms' ) );
 
+			?>
+		</div>
+
+	<?php } ?>
+
+	<?php if ( isset( $items['meta'] ) ) { ?>
+
+		<?php
+
+		wp_nonce_field( "bbl_translation_edit_meta_{$job->ID}", '_bbl_translation_edit_meta' );
+
+		do_action( 'bbl_translation_meta_meta_boxes', 'bbl_translation_editor_meta', $items['meta'] );
+
+		?>
+		<div class="bbl-translation-item bbl-translation-item-meta">
+			<?php
+			foreach ( $items['meta'] as $meta_key => $meta ) {
+				do_meta_boxes( 'bbl_translation_editor_meta', $meta_key, compact( 'meta_key', 'meta' ) );
+			}
 			?>
 		</div>
 

@@ -73,6 +73,11 @@ body.bbl-post-type-bbl_job #poststuff #post-body {
 	margin: 0;
 }
 
+#bbl-translation-editor .bbl-translation-original .quicktags-toolbar input,
+#bbl-translation-editor .bbl-translation-original .mce-btn-group {
+	visibility: hidden;
+}
+
 #bbl-translation-editor .bbl-translation-original-post_title {
 	font-size: 1.7em;
 	line-height: 115%;
