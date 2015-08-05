@@ -21,14 +21,14 @@ class Babble_Locale {
 	 *
 	 * @var string
 	 **/
-	protected $content_lang;
+	public $content_lang;
 
 	/**
 	 * The interface language for the current request.
 	 *
 	 * @var string
 	 **/
-	protected $interface_lang;
+	public $interface_lang;
 
 	/**
 	 * The locale for the current request.
@@ -81,19 +81,16 @@ class Babble_Locale {
 		add_filter( 'body_class',                      array( $this, 'body_class' ) );
 		add_filter( 'locale',                          array( $this, 'set_locale' ) );
 		add_filter( 'mod_rewrite_rules',               array( $this, 'mod_rewrite_rules' ) );
-		add_filter( 'post_class',                      array( $this, 'post_class' ), null, 3 );
-		add_filter( 'pre_update_option_rewrite_rules', array( $this, 'internal_rewrite_rules_filter' ) );
+		add_filter( 'post_class',                      array( $this, 'post_class' ), 10, 3 );
+		add_filter( 'rewrite_rules_array',             array( $this, 'filter_rewrite_rules_array' ), 999 );
 		add_filter( 'query_vars',                      array( $this, 'query_vars' ) );
 	}
 
 	public function plugins_loaded() {
 		global $wpdb;
 
-		# @TODO this exposes the $wpdb prefix. We should set the cookie path to the site path instead
-		# (example.com/site or site.example.com) so the cookie is only set for the current site on a multisite install
-		# @TODO actually, both of these should be user preferences, not cookies.
-		$this->content_lang_cookie   = $wpdb->prefix . '_bbl_content_lang_' . COOKIEHASH;
-		$this->interface_lang_cookie = $wpdb->prefix . '_bbl_interface_lang_' . COOKIEHASH;
+		$this->content_lang_cookie   = 'wp-bbl_content_lang_' . COOKIEHASH;
+		$this->interface_lang_cookie = 'wp-bbl_interface_lang_' . COOKIEHASH;
 	}
 
 	/**
@@ -142,15 +139,15 @@ class Babble_Locale {
 	}
 	
 	/**
-	 * Hooks the WP pre_update_option_rewrite_rules filter to add 
+	 * Hooks the WP `rewrite_rules_array` filter to add 
 	 * a prefix to the URL to pick up the virtual sub-dir specifying
 	 * the language. The redirect portion can and should remain perfectly
 	 * ignorant of it though, as we change it in parse_request.
 	 * 
-	 * @param array $langs The language codes
-	 * @return array An array of language codes utilised for this site. 
+	 * @param  array $rules The rewrite rules.
+	 * @return array        The updated rewrite rules with language prefixes.
 	 **/
-	public function internal_rewrite_rules_filter( $rules ){
+	public function filter_rewrite_rules_array( array $rules ){
 		global $wp_rewrite;
 
 		// Some rules need to be at the root of the site, without a
@@ -161,6 +158,8 @@ class Babble_Locale {
 			'humans\.txt$',
 			'robots\.txt$',
 		) );
+
+		$new_rules = array();
 
 	    foreach( (array) $rules as $regex => $query ) {
 			if ( in_array( $regex, $non_translated_rewrite_rules ) ) {
@@ -236,19 +235,31 @@ class Babble_Locale {
 			$this->set_content_lang( $lang );
 		}
 
+		$active_langs         = bbl_get_active_langs();
+		$active_lang_codes    = wp_list_pluck( $active_langs, 'code' );
+		$active_lang_prefixes = wp_list_pluck( $active_langs, 'url_prefix' );
+
 		if ( is_admin() ) {
-			// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 			if ( isset( $_POST[ 'interface_lang' ] ) ) {
-				$this->set_interface_lang( $_POST[ 'interface_lang' ] );
+				$lang = $_POST[ 'interface_lang' ];
+				if ( ! in_array( $lang, $active_lang_codes, true ) ) {
+					$lang = bbl_get_default_lang_code();
+				}
+				$this->set_interface_lang( $lang );
 			}
-			// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
 			if ( isset( $_GET[ 'lang' ] ) ) {
-				$this->set_content_lang( $_GET[ 'lang' ] );
+				$lang = $_GET[ 'lang' ];
+				if ( ! in_array( $lang, $active_lang_codes, true ) ) {
+					$lang = bbl_get_default_lang_code();
+				}
+				$this->set_content_lang( $lang );
 			}
 		} else { // Front end
-			// @FIXME: Should probably check the available languages here
-			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) )
-				$this->set_content_lang_from_prefix( $matches[ 0 ] );
+			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) ) {
+				if ( in_array( $matches[ 0 ], $active_lang_prefixes, true ) ) {
+					$this->set_content_lang_from_prefix( $matches[ 0 ] );
+				}
+			}
 		}
 
 		if ( ! isset( $this->content_lang ) || ! $this->content_lang )
@@ -274,10 +285,19 @@ class Babble_Locale {
 		// If this is the site root, redirect to default language homepage 
 		if ( ! $wp->request ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
-			wp_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
+			wp_safe_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
 			exit;
 		}
 		// Otherwise, simply set the lang for this request
+
+		if ( ! isset( $this->content_lang ) ) {
+			if ( preg_match( $this->lang_regex, $this->get_request_string(), $matches ) ) {
+				$this->set_content_lang_from_prefix( $matches[ 0 ] );
+			} else {
+				$this->set_content_lang_from_prefix( bbl_get_default_lang_url_prefix() );
+			}
+		}
+
 		$wp->query_vars[ 'lang' ] = $this->content_lang;
 		$wp->query_vars[ 'lang_url_prefix' ] = $this->url_prefix;
 	}
@@ -358,7 +378,7 @@ class Babble_Locale {
 		$post = get_post( $post_id );
 		$post_lang_code = bbl_get_post_lang_code( $post );
 		$lang = bbl_get_lang( $post_lang_code );
-		if ( get_post_meta( $post->ID, '_bbl_default_text_direction', true ) ) {
+		if ( self::use_default_text_direction( $post ) ) {
 			$default_lang = bbl_get_default_lang();
 			$classes[] = 'bbl-post-' . $default_lang->text_direction;
 		} else {
@@ -375,6 +395,21 @@ class Babble_Locale {
 
 	// Public Methods
 	// --------------
+
+	/**
+	 * Return whether the post should use the default language's text direction or not.
+	 *
+	 * @param  WP_Post $post The post object.
+	 * @return bool          True if the post should use the default language text direction. False if not.
+	 */
+	public static function use_default_text_direction( WP_Post $post ) {
+		if ( get_post_meta( $post->ID, '_bbl_default_text_direction', true ) ) {
+			return true;
+		} else if ( empty( $post->post_content ) ) {
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Get the current (content) lang for this class, which is also the
@@ -411,15 +446,25 @@ class Babble_Locale {
 	 * Set the current (content) lang for this class, and in Query Vars.
 	 *
 	 * @param string $lang The language code to switch to 
-	 * @return void
+	 * @return bool Whether the switch was successful
 	 **/
 	public function switch_to_lang( $lang ) {
 		// @FIXME: Need to validate language here
-		if ( ! is_array( $this->lang_stack ) )
+
+		$stacked = $this->content_lang;
+		$set     = $this->set_content_lang( $lang );
+
+		if ( ! $set ) {
+			return false;
+		}
+
+		if ( ! is_array( $this->lang_stack ) ) {
 			$this->lang_stack = array();
-		$this->lang_stack[] = $this->content_lang;
-		$this->set_content_lang( $lang );
+		}
+		$this->lang_stack[] = $stacked;
+		
 		set_query_var( 'lang', $this->content_lang );
+		return true;
 	}
 	
 	/**
@@ -439,16 +484,19 @@ class Babble_Locale {
 	 * Set the content language code and URL prefix for any 
 	 * subsequent requests.
 	 *
-	 * @FIXME: Currently we don't check that the language is valid
-	 *
 	 * @param string $code A language code
 	 * @return void
 	 **/
 	protected function set_content_lang( $code ) {
 		global $bbl_languages;
 		// Set the content language in the application
+		$url_prefix = $bbl_languages->get_url_prefix_from_code( $code );
+		if ( ! $url_prefix ) {
+			return false;
+		}
 		$this->content_lang = $code;
-		$this->url_prefix = $bbl_languages->get_url_prefix_from_code( $this->content_lang );
+		$this->url_prefix   = $url_prefix;
+		return true;
 	}
 
 	/**
@@ -476,59 +524,28 @@ class Babble_Locale {
 	}
 
 	/**
-	 * Get the request string for the request, using code copied 
-	 * straight from WP->parse_request.
+	 * Get the request string for the request.
 	 *
 	 * @return string The request
 	 **/
 	protected function get_request_string() {
 		global $wp_rewrite;
-		// @FIXME: Copying a huge hunk of code from WP->parse_request here, feels ugly.
-		// START: Huge hunk of WP->parse_request
-		if ( isset($_SERVER['PATH_INFO']) )
-			$pathinfo = $_SERVER['PATH_INFO'];
-		else
-			$pathinfo = '';
-		$pathinfo_array = explode('?', $pathinfo);
-		$pathinfo = str_replace("%", "%25", $pathinfo_array[0]);
-		$req_uri = $_SERVER['REQUEST_URI'];
-		$req_uri_array = explode('?', $req_uri);
-		$req_uri = $req_uri_array[0];
-		$self = $_SERVER['PHP_SELF'];
-		$home_path = parse_url(home_url());
-		if ( isset($home_path['path']) )
-			$home_path = $home_path['path'];
-		else
-			$home_path = '';
-		$home_path = trim($home_path, '/');
 
-		// Trim path info from the end and the leading home path from the
-		// front.  For path info requests, this leaves us with the requesting
-		// filename, if any.  For 404 requests, this leaves us with the
-		// requested permalink.
-		$req_uri = str_replace($pathinfo, '', $req_uri);
-		$req_uri = trim($req_uri, '/');
-		$req_uri = preg_replace("|^$home_path|", '', $req_uri);
-		$req_uri = trim($req_uri, '/');
-		$pathinfo = trim($pathinfo, '/');
-		$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
-		$pathinfo = trim($pathinfo, '/');
-		$self = trim($self, '/');
-		$self = preg_replace("|^$home_path|", '', $self);
-		$self = trim($self, '/');
+		list( $req_uri ) = explode( '?', $_SERVER['REQUEST_URI'] );
+		$home_path       = trim( parse_url( get_option( 'home' ), PHP_URL_PATH ), '/' );
+		$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
 
-		// The requested permalink is in $pathinfo for path info requests and
-		//  $req_uri for other requests.
-		if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
-			$request = $pathinfo;
-		} else {
-			// If the request uri is the index, blank it out so that we don't try to match it against a rule.
-			if ( is_object( $wp_rewrite ) && $req_uri == $wp_rewrite->index )
-				$req_uri = '';
-			$request = $req_uri;
+		// Trim path info from the end and the leading home path from the front.
+		$req_uri = trim( $req_uri, '/' );
+		$req_uri = preg_replace( $home_path_regex, '', $req_uri );
+		$req_uri = trim( $req_uri, '/' );
+
+		// If the request uri is the index, blank it out so that we don't try to match it against a rule.
+		if ( is_object( $wp_rewrite ) && $req_uri === $wp_rewrite->index ) {
+			$req_uri = '';
 		}
-		// END: Huge hunk of WP->parse_request
-		return $request;
+
+		return $req_uri;
 	}
 
 	/**
@@ -536,12 +553,15 @@ class Babble_Locale {
 	 * as we cannot get userdata at the set_locale action, which is where 
 	 * we need to read the user's language.
 	 *
+	 * In addition, we can't use WordPress' user settings because these are stored
+	 * on a per-network basis, not on a per-blog basis.
+	 *
 	 * @return void
 	 **/
 	protected function maybe_set_cookie_content_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
 		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : false )
-			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
 	}
 
 	/**
@@ -549,12 +569,29 @@ class Babble_Locale {
 	 * as we cannot get userdata at the set_locale action, which is where 
 	 * we need to read the user's language.
 	 *
+	 * In addition, we can't use WordPress' user settings because these are stored
+	 * on a per-network basis, not on a per-blog basis.
+	 *
 	 * @return void
 	 **/
 	protected function maybe_set_cookie_interface_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
 		if ( $requested_lang = ( isset( $_POST[ 'interface_lang' ] ) ) ? $_POST[ 'interface_lang' ] : false )
-			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
+	}
+
+	/**
+	 * Return the cookie path for this blog. Babble stores some cookies on a per-blog basis, so their path needs to be
+	 * set specific to the blog. 
+	 *
+	 * @return string The cookie path for the current blog.
+	 */
+	public static function get_cookie_path() {
+		if ( is_multisite() ) {
+			return get_blog_details()->path;
+		} else {
+			return COOKIEPATH;
+		}
 	}
 
 	/**
@@ -594,11 +631,11 @@ class Babble_Locale {
 			return;
 
 		if ( $version < 1 ) {
-			error_log( "Babble Locale: Flushing rewrite rules" );
+			bbl_log( "Babble Locale: Flushing rewrite rules", true );
 			flush_rewrite_rules();
 		}
 
-		error_log( "Babble Locale: Done updates" );
+		bbl_log( "Babble Locale: Done updates", true );
 		update_option( $option_name, $this->version );
 	}
 
