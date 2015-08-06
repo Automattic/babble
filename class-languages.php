@@ -386,13 +386,13 @@ class Babble_Languages extends Babble_Plugin {
 			$lang_pref = new stdClass;
 
 			if ( ! empty( $_POST[ 'display_name_' . $code ] ) ) {
-				$lang_pref->display_name = $_POST[ 'display_name_' . $code ];
+				$lang_pref->display_name = wp_strip_all_tags( wp_unslash( $_POST[ 'display_name_' . $code ] ) );
 			} else {
 				$lang_pref->display_name = $lang->name;
 			}
 
 			if ( ! empty( $_POST[ 'url_prefix_' . $code ] ) ) {
-				$lang_pref->url_prefix = $_POST[ 'url_prefix_' . $code ];
+				$lang_pref->url_prefix = wp_strip_all_tags( wp_unslash( $_POST[ 'url_prefix_' . $code ] ) );
 			} else {
 				$lang_pref->url_prefix = $lang->url_prefix;
 			}
@@ -418,7 +418,9 @@ class Babble_Languages extends Babble_Plugin {
 			$active_langs = array();
 			if ( ! empty( $_POST[ 'active_langs' ] ) && is_array( $_POST[ 'active_langs' ] ) ) {
 				foreach ( $_POST[ 'active_langs' ] as $code ) {
-					$active_langs[ $langs[ $code ]->url_prefix ] = $code;
+					if ( isset( $this->available_langs[ $code ] ) ) {
+						$active_langs[ $langs[ $code ]->url_prefix ] = $code;
+					}
 				}
 			}
 			if ( count( $active_langs ) < 2 ) {
@@ -429,10 +431,16 @@ class Babble_Languages extends Babble_Plugin {
 				$this->langs = $langs;
 				$this->update_option( 'langs', $this->langs );
 			}
-			if ( ! isset( $_POST[ 'public_langs' ] ) ) {
+			if ( empty( $_POST[ 'public_langs' ] ) || ! is_array( $_POST[ 'public_langs' ] ) ) {
 				$this->set_admin_error( __( 'You must set at least your default language as public.', 'babble' ) );
 			} else {
-				$public_langs = (array) $_POST[ 'public_langs' ];
+				$public_langs = array();
+				foreach ( $_POST[ 'public_langs' ] as $code ) {
+					if ( isset( $this->available_langs[ $code ] ) ) {
+						$public_langs[] = $code;
+					}
+				}
+
 				if ( empty( $_POST[ 'default_lang' ] ) ) {
 					$this->set_admin_error( __( 'You must choose a default language.', 'babble' ) );
 				} else if ( ! in_array( $_POST[ 'default_lang' ], $public_langs ) ) {
