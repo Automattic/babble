@@ -38,7 +38,6 @@ class Test_Templates extends Babble_UnitTestCase {
 		$this->assertTrue( is_front_page() );
 
 		global $template;
-		var_dump( $template );
 
 		$this->go_to( get_option( 'home' ) . '/zz/' );
 		$this->assertFalse( is_front_page() );
