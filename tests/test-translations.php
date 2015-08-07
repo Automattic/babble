@@ -139,7 +139,7 @@ class Test_Translations extends Babble_UnitTestCase {
 		$en = $this->factory->post->create_and_get();
 		$fr = bbl_get_post_in_lang( $en->ID, 'fr_FR', true );
 
-		// @FIXME: These tests fail due to the interaction of Babble_Post_Public::get_post_in_lang and Babble_Jobs::create_empty_translation
+		// @FIXME: These tests fail due to the interaction of Babble_Post_Public::get_post_in_lang and Babble_Jobs::create_empty_translations
 		$this->assertSame( $en->post_title,   $fr->post_title );
 		$this->assertSame( $en->post_content, $fr->post_content );
 
