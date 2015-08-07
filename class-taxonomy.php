@@ -164,9 +164,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 				$new_args[ 'query_var' ] = $new_args[ 'rewrite' ][ 'slug' ] = $this->get_slug_in_lang( $slug, $lang->code );
 			}
 
-			// @FIXME: Note currently we are in danger of a taxonomy name being longer than 32 chars
-			// Perhaps we need to create some kind of map like (taxonomy) + (lang) => (shadow translated taxonomy)
-			$new_taxonomy = strtolower( "{$taxonomy}_{$lang->code}" );
+			$new_taxonomy = self::generate_shadow_taxonomy_name( $taxonomy, $lang->code );
 
 			$this->taxonomies[ $new_taxonomy ] = $taxonomy;
 			if ( ! isset( $this->lang_map[ $lang->code ] ) || ! is_array( $this->lang_map[ $lang->code ] ) )
@@ -180,6 +178,19 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 		$this->no_recursion = false;
 	}
+
+	public static function generate_shadow_taxonomy_name( $taxonomy, $lang_code ) {
+
+		$name = strtolower( "{$taxonomy}_{$lang_code}" );
+
+		if ( strlen( $name ) > 32 ) {
+			$name = hash( 'crc32b', $name );
+		}
+
+		return $name;
+
+	}
+
 
 	public function ignored_taxonomies() {
 		return array( 'post_translation', 'term_translation' );
@@ -864,7 +875,7 @@ class Babble_Taxonomies extends Babble_Plugin {
 
 	public function initialise_translation( $origin_term, $taxonomy, $lang_code ) {
 
-		$new_taxonomy = $this->get_slug_in_lang( $taxonomy, $lang_code );
+		$new_taxonomy = self::generate_shadow_taxonomy_name( $taxonomy, $lang_code );
 
 		$transid = $this->get_transid( $origin_term->term_id );
 
