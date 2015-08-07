@@ -299,19 +299,7 @@ class Babble_Post_Public extends Babble_Plugin {
 		foreach ( $langs as $lang ) {
 			$new_args = $args;
 
-
-			// @FIXME: We are in danger of a post_type name being longer than 20 chars
-			// I would prefer to keep the post_type human readable, as human devs and sysadmins always
-			// end up needing to read this kind of thing.
-			// @FIXME: Should I be sanitising these values?
-			$new_post_type = strtolower( "{$post_type}_{$lang->code}" );
-
-			if ( strlen( $new_post_type ) > 20 ) {
-				trigger_error( sprintf( esc_html__( 'Warning: The translated name for the post type %s is longer than %d characters. This *will* cause problems.', 'babble' ),
-					esc_html( $post_type ),
-					20
-				) );
-			}
+			$new_post_type = self::generate_shadow_post_type_name( $post_type, $lang->code );
 
 			if ( false !== $args[ 'rewrite' ] ) {
 				if ( ! is_array( $new_args[ 'rewrite' ] ) )
@@ -360,6 +348,18 @@ class Babble_Post_Public extends Babble_Plugin {
 		do_action( 'bbl_registered_shadow_post_types', $post_type );
 
 		$this->no_recursion = false;
+	}
+
+	public static function generate_shadow_post_type_name( $post_type, $lang_code ) {
+
+		$name = strtolower( "{$post_type}_{$lang_code}" );
+
+		if ( strlen( $name ) > 20 ) {
+			$name = hash( 'crc32b', $name );
+		}
+
+		return $name;
+
 	}
 
 	/**

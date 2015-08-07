@@ -596,6 +596,8 @@ class Babble_Jobs extends Babble_Plugin {
 		else
 			$lang_code = reset( $language )->name;
 
+		$objects = $this->get_job_objects( $job );
+
 		if ( $origin_post_nonce and wp_verify_nonce( $origin_post_nonce, "bbl_translation_origin_post_{$job->ID}") ) {
 			if ( $origin_post = get_post( absint( $_POST['bbl_origin_post'] ) ) ) {
 				add_post_meta( $job->ID, 'bbl_job_post', "{$origin_post->post_type}|{$origin_post->ID}", true );
@@ -629,7 +631,7 @@ class Babble_Jobs extends Babble_Plugin {
 			list( $post_type, $post_id ) = explode( '|', $post_info );
 			$post = get_post( $post_id );
 
-			update_post_meta( $job->ID, "bbl_post_{$post_id}", $post_data );
+			update_post_meta( $job->ID, "bbl_post_{$post_id}", sanitize_post( $post_data, 'db' ) );
 
 			if ( 'pending' == $job->post_status ) {
 
@@ -675,13 +677,15 @@ class Babble_Jobs extends Babble_Plugin {
 
 				$meta_data = stripslashes_deep( $_POST['bbl_translation']['meta'] );
 
-				foreach ( $meta_data as $meta_key => $meta_value ) {
+				foreach ( $objects['meta'] as $meta_key => $meta_field ) {
 
-					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $meta_value );
+					$value = wp_kses_post( $meta_data[ $meta_key ] );
+
+					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $value );
 
 					if ( 'complete' == $job->post_status ) {
 						if ( current_user_can( 'publish_post', $job->ID ) ) {
-							update_post_meta( $trans->ID, $meta_key, $meta_value );
+							update_post_meta( $trans->ID, $meta_key, $value );
 						}
 					}
 
@@ -694,11 +698,14 @@ class Babble_Jobs extends Babble_Plugin {
 		if ( $edit_terms_nonce and wp_verify_nonce( $edit_terms_nonce, "bbl_translation_edit_terms_{$job->ID}") ) {
 
 			$terms_data = stripslashes_deep( $_POST['bbl_translation']['terms'] );
-			$terms      = get_post_meta( $job->ID, 'bbl_job_term', false );
+			$job_terms  = $objects['terms'];
+
+			foreach ( $job_terms as $taxo => $terms ) {
 
 			foreach ( $terms as $term_info ) {
 
-				list( $taxo, $term_id ) = explode( '|', $term_info );
+				$term_id = $term_info->term_id;
+
 				$term = get_term( $term_id, $taxo );
 				$terms_data[$term_id]['slug'] = sanitize_title( $terms_data[$term_id]['slug'] );
 
@@ -715,12 +722,14 @@ class Babble_Jobs extends Babble_Plugin {
 					$terms_data[$term->term_id]['term_id'] = $trans->term_id;
 
 					$args = array(
-						'name' => $terms_data[$term->term_id]['name'],
+						'name' => wp_kses_post( $terms_data[$term->term_id]['name'] ),
 						'slug' => '',
 					);
 					wp_update_term( absint( $trans->term_id ), $trans->taxonomy, $args );
 
 				}
+
+			}
 
 			}
 
