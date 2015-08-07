@@ -981,27 +981,72 @@ class Babble_Jobs extends Babble_Plugin {
 	 */
 	public function get_object_jobs( $id, $type, $name, $statuses = array( 'new', 'in-progress', 'complete' ) ) {
 
-		$jobs = get_posts( array(
-			'bbl_translate'  => false,
-			'post_type'      => 'bbl_job',
-			'post_status'    => $statuses,
-			'meta_key'       => "bbl_job_{$type}",
-			'meta_value'     => "{$name}|{$id}",
-			'posts_per_page' => -1,
-		) );
+		$cache_key  = "{$id}|{$type}|{$name}";
+
+		$jobs = wp_cache_get( $cache_key, 'bbl_object_jobs' );
+
+		if ( false === $jobs ) {
+			$jobs = get_posts( array(
+				'bbl_translate'  => false,
+				'post_type'      => 'bbl_job',
+				'post_status'    => 'any',
+				'meta_key'       => "bbl_job_{$type}",
+				'meta_value'     => "{$name}|{$id}",
+				'posts_per_page' => -1,
+				'post_status'    => 'any',
+			) );
+
+			wp_cache_set( $cache_key, $jobs, 'bbl_object_jobs' );
+		}
 
 		if ( empty( $jobs ) )
 			return array();
 
+		$jobs = array_map( 'get_post', $jobs );
 		$return = array();
 
 		foreach ( $jobs as $job ) {
+
+			// Filter out any jobs not in the requested status.
+			if ( ! in_array( get_post_status( $job ), $statuses ) ) {
+				continue;
+			}
+
 			if ( $lang = $this->get_job_language( $job ) )
 				$return[$lang->code] = $job;
 		}
 
 		return $return;
 
+	}
+
+	/**
+	 * Clean the caches for an object's jobs.
+	 *
+	 * @param int The ID of the object (eg. post ID or term ID)
+	 * @param string $type Either 'term' or 'post'
+	 * @param string $name The post type name or the term's taxonomy name
+	 */
+	public function clean_object_jobs_cache( $id, $type, $name ) {
+
+		wp_cache_delete( "{$id}|{$type}|{$name}", 'bbl_object_jobs' );
+	}
+
+	/**
+	 * Clean a post's jobs cache when a job is deleted.
+	 *
+	 * Hooks in on before_delete_post
+	 *
+	 * @param int $post_id
+	 */
+	public function clean_post_jobs_cache_on_delete_job( $post_id ) {
+
+		if ( get_post_type( $post_id ) !== 'bbl_job' ) {
+			return;
+		}
+
+		$objects = $this->get_job_objects( $post_id );
+		$this->clean_object_jobs_cache( $objects['post']->ID, 'post', $objects['post']->post_type );
 	}
 
 	public function get_job_language( $job ) {
@@ -1164,6 +1209,8 @@ class Babble_Jobs extends Babble_Plugin {
 			}
 
 		}
+
+		$this->clean_object_jobs_cache( $post->ID, 'post', $post->post_type );
 
 		return $jobs;
 	}
