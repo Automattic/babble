@@ -43,6 +43,3 @@ class Babble_Admin_bar extends Babble_Plugin {
 	}
 
 }
-
-global $bbl_admin_bar;
-$bbl_admin_bar = new Babble_Admin_bar();

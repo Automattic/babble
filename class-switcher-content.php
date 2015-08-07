@@ -421,7 +421,7 @@ class Babble_Switcher_Menu {
 	 * @return void
 	 **/
 	protected function add_front_page_link( $lang ) {
-		global $bbl_locale;
+		$bbl_locale = Babble::get( 'locale' );
 		$classes = array();
 		remove_filter( 'home_url', array( $bbl_locale, 'home_url'), null, 2 );
 		$href = home_url( "$lang->url_prefix/" );
@@ -552,6 +552,3 @@ class Babble_Switcher_Menu {
 	}
 
 }
-
-global $bbl_switcher_menu;
-$bbl_switcher_menu = new Babble_Switcher_Menu();

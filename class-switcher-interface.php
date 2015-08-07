@@ -30,6 +30,3 @@ class Babble_Switcher_Interface extends Babble_Plugin {
 	}
 
 }
-
-global $bbl_switcher_interface;
-$bbl_switcher_interface = new Babble_Switcher_Interface;

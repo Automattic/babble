@@ -158,8 +158,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			return;
 		}
 
-		global $bbl_post_public;
-		$bbl_post_public->set_transid( $post, $transid );
+		Babble::get( 'post_public' )->set_transid( $post, $transid );
 	}
 
 	/**

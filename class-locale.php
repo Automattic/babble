@@ -488,9 +488,8 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	protected function set_content_lang( $code ) {
-		global $bbl_languages;
 		// Set the content language in the application
-		$url_prefix = $bbl_languages->get_url_prefix_from_code( $code );
+		$url_prefix = Babble::get( 'languages' )->get_url_prefix_from_code( $code );
 		if ( ! $url_prefix ) {
 			return false;
 		}
@@ -519,7 +518,6 @@ class Babble_Locale {
 	 * @return void
 	 **/
 	protected function set_content_lang_from_prefix( $url_prefix ) {
-		global $bbl_languages;
 		$this->set_content_lang( bbl_get_lang_from_prefix( $url_prefix ) );
 	}
 
@@ -640,6 +638,3 @@ class Babble_Locale {
 	}
 
 }
-
-global $bbl_locale;
-$bbl_locale = new Babble_Locale();
