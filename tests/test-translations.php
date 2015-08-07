@@ -133,4 +133,16 @@ class Test_Translations extends Babble_UnitTestCase {
 
 	}
 
+	public function test_canonical_content_fallback() {
+		$this->assertSame( 'en_US', get_locale() );
+
+		$en = $this->factory->post->create_and_get();
+		$fr = bbl_get_post_in_lang( $en->ID, 'fr_FR', true );
+
+		// @FIXME: These tests fail due to the interaction of Babble_Post_Public::get_post_in_lang and Babble_Jobs::create_empty_translation
+		$this->assertSame( $en->post_title,   $fr->post_title );
+		$this->assertSame( $en->post_content, $fr->post_content );
+
+	}
+
 }
