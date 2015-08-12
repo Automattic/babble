@@ -7,7 +7,7 @@ class Test_Jobs extends Babble_UnitTestCase {
 		parent::setUp();
 	}
 	public function test_create_post_jobs() {
-		global $bbl_jobs;
+		$bbl_jobs = Babble::get( 'jobs' );
 		$post_id = $this->factory->post->create();
 
 		$jobs = $bbl_jobs->create_post_jobs( $post_id, array( 'fr_FR' ) );
@@ -20,7 +20,7 @@ class Test_Jobs extends Babble_UnitTestCase {
 
 	public function test_get_object_jobs_returns_none() {
 
-		global $bbl_jobs;
+		$bbl_jobs = Babble::get( 'jobs' );
 		$post_id = $this->factory->post->create();
 		$jobs = $bbl_jobs->get_object_jobs( $post_id, 'post', 'post', array( 'new' ) );
 
@@ -29,7 +29,7 @@ class Test_Jobs extends Babble_UnitTestCase {
 
 	public function test_get_object_jobs_new() {
 
-		global $bbl_jobs;
+		$bbl_jobs = Babble::get( 'jobs' );
 		$post_id = $this->factory->post->create();
 		$jobs    = $bbl_jobs->create_post_jobs( $post_id, array( 'fr_FR' ) );
 		$job_id  = $jobs[0];
@@ -47,7 +47,7 @@ class Test_Jobs extends Babble_UnitTestCase {
 	}
 
 	public function test_get_object_jobs_after_deleting_job() {
-		global $bbl_jobs;
+		$bbl_jobs = Babble::get( 'jobs' );
 		$post_id = $this->factory->post->create();
 		$jobs    = $bbl_jobs->create_post_jobs( $post_id, array( 'fr_FR' ) );
 		$job_id  = $jobs[0];
@@ -66,7 +66,7 @@ class Test_Jobs extends Babble_UnitTestCase {
 	}
 
 	public function test_get_object_jobs_after_creating_job() {
-		global $bbl_jobs;
+		$bbl_jobs = Babble::get( 'jobs' );
 		$post_id = $this->factory->post->create();
 		$jobs    = $bbl_jobs->create_post_jobs( $post_id, array( 'fr_FR' ) );
 		$job_id  = $jobs[0];
