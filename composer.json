@@ -14,5 +14,22 @@
     },
     "require": {
         "composer/installers": "~1.0"
+    },
+    "require-dev": {
+    	"behat/behat": "~3.0",
+        "behat/mink-extension": "~2.0",
+        "behat/mink-goutte-driver": "~1.1",
+        "behat/mink-selenium2-driver": "*",
+        "johnbillion/wordpress-behat-extension": "0.1.2",
+        "johnpbloch/wordpress": ">=4.2.0@stable",
+        "phpunit/phpunit": ">=3.7@stable",
+        "wp-cli/wp-cli": "*"
+    },
+    "minimum-stability": "dev",
+    "config": {
+        "bin-dir": "bin/"
+    },
+    "extra": {
+        "wordpress-install-dir": "vendor/wordpress"
     }
 }

@@ -22,9 +22,18 @@ env:
     - WP_VERSION=4.0 WP_MULTISITE=0
     - WP_VERSION=4.0 WP_MULTISITE=1
 
+matrix:
+    allow_failures:
+        # allow failures on PHP 7 for now:
+        - php: 5.6
+
+install:
+    - bash bin/install.sh
+
 before_script:
     - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
 script:
     - if [[ "$WP_VERSION" == "latest" ]]; then if find . -not \( -path ./vendor -prune \) -not \( -path ./features -prune \) -name "*.php" -exec php -l {} \; | grep "^[Parse error|Fatal error]"; then exit 1; fi; fi;
     - phpunit
+    - bash bin/script.sh

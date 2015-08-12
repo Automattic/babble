@@ -78,6 +78,14 @@ class Babble_Post_Public extends Babble_Plugin {
 	 **/
 	protected $unique_meta_keys;
 
+	/**
+	 * The ID of the translation representing a static
+	 * front page for the current locale.
+	 *
+	 * @var int
+	 **/
+	protected $translated_front_page_id = 0;
+
 	public function __construct() {
 		$this->setup( 'babble-post-public', 'plugin' );
 
@@ -1001,6 +1009,20 @@ class Babble_Post_Public extends Babble_Plugin {
 		echo "<a href='" . esc_url( $view_link ) . "' title='" . esc_attr( $view_title ) . "'>" . esc_html__( 'View', 'babble' ) . "</a> | <a href='" . esc_url( $edit_link ) . "' title='" . esc_attr( $edit_title ) . "'>" . esc_html__( 'Edit', 'babble' ) . "</a>";
 	}
 
+	/**
+	 * Hooks the pre_option_page_on_front dynamic filter to return
+	 * the value of the
+	 *
+	 * @param bool|int $value This parameter is not used
+	 * @return int The ID of the page on front, even if it's a translated page
+	 */
+	public function filter_pre_option_page_on_front( $value ) {
+		if ( $this->translated_front_page_id ) {
+			return $this->translated_front_page_id;
+		}
+		return $value;
+	}
+
 	// PUBLIC METHODS
 	// ==============
 
@@ -1048,7 +1070,12 @@ class Babble_Post_Public extends Babble_Plugin {
 			// @FIXME: Cater for front pages which don't list the posts
 			if ( 'page' == get_option('show_on_front') && $page_on_front = get_option('page_on_front') ) {
 				// @TODO: Get translated page ID
-				$query_vars[ 'p' ] = $this->get_post_in_lang( $page_on_front, bbl_get_current_lang_code() )->ID;
+
+				// @FIXME: This is a rather hacky approach to fixing the is_front_page function for translated front pages
+				$this->translated_front_page_id = $this->get_post_in_lang( $page_on_front, bbl_get_current_lang_code() )->ID;
+				add_filter( 'pre_option_page_on_front', array( $this, 'filter_pre_option_page_on_front' ) );
+
+				$query_vars[ 'page_id' ] = $this->get_post_in_lang( $page_on_front, bbl_get_current_lang_code() )->ID;
 				$query_vars[ 'post_type' ] = $this->get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
 				return $query_vars;
 			}
