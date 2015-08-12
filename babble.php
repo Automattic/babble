@@ -109,39 +109,3 @@ Babble::set( 'switcher_menu',      new Babble_Switcher_Menu );
 Babble::set( 'switcher_interface', new Babble_Switcher_Interface );
 Babble::set( 'admin_bar',          new Babble_Admin_bar );
 Babble::set( 'translator',         new Babble_Translator );
-
-
-// Globals
-
-global $bbl_log;
-$bbl_log = Babble::get( 'log' );
-
-global $bbl_jobs;
-$bbl_jobs = Babble::get( 'jobs' );
-
-global $bbl_languages;
-$bbl_languages = Babble::get( 'languages' );
-
-global $bbl_locale;
-$bbl_locale = Babble::get( 'locale' );
-
-global $bbl_post_public;
-$bbl_post_public = Babble::get( 'post_public' );
-
-global $bbl_comment;
-$bbl_comment = Babble::get( 'comment' );
-
-global $bbl_taxonomies;
-$bbl_taxonomies = Babble::get( 'taxonomies' );
-
-global $bbl_switcher_menu;
-$bbl_switcher_menu = Babble::get( 'switcher_menu' );
-
-global $bbl_switcher_interface;
-$bbl_switcher_interface = Babble::get( 'switcher_interface' );
-
-global $bbl_admin_bar;
-$bbl_admin_bar = Babble::get( 'admin_bar' );
-
-global $bbl_translator;
-$bbl_translator = Babble::get( 'translator' );
