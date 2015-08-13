@@ -6,11 +6,9 @@
  * @package Babble
  * @since 0.1
  */
-class Babble_Comment extends Babble_Plugin {
+class Babble_Comment {
 
 	public function __construct() {
-		$this->setup( 'babble-comment', 'plugin' );
-
 		add_filter( 'comments_template_args', array( $this, 'comments_template_args' ) );
 		add_filter( 'preprocess_comment', array( $this, 'preprocess_comment' ) );
 		add_filter( 'get_comments_number', array( $this, 'get_comments_number' ), 10, 2 );

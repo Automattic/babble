@@ -6,7 +6,7 @@
  * @package Babble
  * @since Alpha 1.2
  */
-class Babble_Taxonomies extends Babble_Plugin {
+class Babble_Taxonomies {
 	
 	/**
 	 * A simple flag to stop infinite recursion in various places.
@@ -43,7 +43,6 @@ class Babble_Taxonomies extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function __construct() {
-		$this->setup( 'babble-taxonomy', 'plugin' );
 		add_action( 'bbl_created_new_shadow_post',      array( $this, 'created_new_shadow_post' ), 10, 2 );
 		add_action( 'bbl_registered_shadow_post_types', array( $this, 'registered_shadow_post_types' ) );
 		add_action( 'init',                             array( $this, 'init_early' ), 0 );

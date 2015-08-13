@@ -96,6 +96,11 @@ final class Babble {
 
 }
 
+function babble_init() {
+	load_plugin_textdomain( 'babble', false, dirname( plugin_basename( __FILE__ ) ) . '/locale' );
+}
+add_action( 'init', 'babble_init' );
+
 // Registry
 
 Babble::set( 'log',                new Babble_Log );

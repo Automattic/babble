@@ -125,7 +125,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			return;
 		if ( $default_lang_post = bbl_get_post_in_lang( $post, bbl_get_default_lang_code() ) )
 			return;
-		$this->add_meta_box( 'bbl_reconnect', 'Reconnect Translation', 'metabox_reconnect', $post->post_type, 'side' );
+		add_meta_box( 'bbl_reconnect', 'Reconnect Translation', array( $this, 'metabox_reconnect' ), $post->post_type, 'side' );
 	}
 
 	/**
