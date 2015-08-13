@@ -172,13 +172,13 @@ class Babble_Plugin {
 		$errors = $this->get_option( 'admin_errors' );
 		if ( $errors ) {
 			foreach ( $errors as $error ) {
-				$this->render_admin_error( $error );
+				self::render_admin_error( $error );
 				$this->delete_option( 'admin_errors' );
 			}
 		}
 		if ( $notices ) {
 			foreach ( $notices as $notice ) {
-				$this->render_admin_notice( $notice );
+				self::render_admin_notice( $notice );
 				$this->delete_option( 'admin_notices' );
 			}
 		}
@@ -191,7 +191,7 @@ class Babble_Plugin {
 	 * @return void
 	 * @author Simon Wheatley
 	 **/
-	protected function render_admin_notice( $notice ) {
+	protected static function render_admin_notice( $notice ) {
 		echo "<div class='updated'><p>" . esc_html( $notice ) . "</p></div>";
 	}
 
@@ -202,7 +202,7 @@ class Babble_Plugin {
 	 * @return void
 	 * @author Simon Wheatley
 	 **/
-	protected function render_admin_error( $error ) {
+	protected static function render_admin_error( $error ) {
 		echo "<div class='error'><p>" . esc_html( $error ) . "</p></div>";
 	}
 
