@@ -137,72 +137,6 @@ class Babble_Plugin {
 			add_action( 'admin_notices', array( $this, '_admin_notices' ) );
 		}
 
-		add_action( 'init', array( $this, 'load_locale' ) );
-	}
-
-	/**
-	 * Hook called to change the locale directory.
-	 *
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function load_locale() {
-		// Here we manually fudge the plugin locale as WP doesnt allow many options
-		$locale = get_locale();
-		if( empty( $locale ) )
-			$locale = 'en_US';
-
-		$mofile = $this->dir( "/locale/$locale.mo" );
-		load_textdomain( $this->name, $mofile );
-	}
-
-	/**
-	 * Special activation function that takes into account the plugin directory
-	 *
-	 * @param string $pluginfile The plugin file location (i.e. __FILE__)
-	 * @param string $function Optional function name, or default to 'activate'
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function register_activation ( $pluginfile = __FILE__, $function = '' ) {
-		if ( $this->type == 'plugin' ) {
-			add_action ('activate_'.basename (dirname ($pluginfile)).'/'.basename ($pluginfile), array ($this, $function == '' ? 'activate' : $function));
-		}
-	}
-
-	/**
-	 * Special deactivation function that takes into account the plugin directory
-	 *
-	 * @param string $pluginfile The plugin file location (i.e. __FILE__)
-	 * @param string $function Optional function name, or default to 'deactivate'
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function register_deactivation ($pluginfile, $function = '') {
-		add_action ('deactivate_'.basename (dirname ($pluginfile)).'/'.basename ($pluginfile), array ($this, $function == '' ? 'deactivate' : $function));
-	}
-
-	/**
-	 * Renders a template, looking first for the template file in the theme directory
-	 * and afterwards in this plugin's /theme/ directory.
-	 *
-	 * @return void
-	 * @author Simon Wheatley
-	 **/
-	protected function render( $template_file, $vars = null ) {
-		// Maybe override the template with our own file
-		$template_file = $this->locate_template( $template_file );
-		// Ensure we have the same vars as regular WP templates
-		global $posts, $post, $wp_did_header, $wp_did_template_redirect, $wp_query, $wp_rewrite, $wpdb, $wp_version, $wp, $id, $comment, $user_ID;
-
-		if ( is_array($wp_query->query_vars) )
-			extract($wp_query->query_vars, EXTR_SKIP);
-
-		// Plus our specific template vars
-		if ( is_array( $vars ) )
-			extract( $vars );
-
-		require( $template_file );
 	}
 
 	/**
@@ -224,38 +158,6 @@ class Babble_Plugin {
 			bbl_log( "Plugin template error: $msg", true );
 			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>" . esc_html( $msg ) . "</p>";
 		}
-	}
-
-	/**
-	 * Returns a section of user display code, returning the rendered markup.
-	 *
-	 * @param string $ug_name Name of the admin file (without extension)
-	 * @param string $array Array of variable name=>value that is available to the display code (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	protected function capture( $template_file, $vars = null ) {
-		ob_start();
-		$this->render( $template_file, $vars );
-		$output = ob_get_contents();
-		ob_end_clean();
-		return $output;
-	}
-
-	/**
-	 * Returns a section of user display code, returning the rendered markup.
-	 *
-	 * @param string $ug_name Name of the admin file (without extension)
-	 * @param string $array Array of variable name=>value that is available to the display code (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	protected function capture_admin( $template_file, $vars = null ) {
-		ob_start();
-		$this->render_admin( $template_file, $vars );
-		$output = ob_get_contents();
-		ob_end_clean();
-		return $output;
 	}
 
 	/**
@@ -331,72 +233,6 @@ class Babble_Plugin {
 	}
 
 	/**
-	 * Takes a filename and attempts to find that in the designated plugin templates
-	 * folder in the theme (defaults to main theme directory, but uses a custom filter
-	 * to allow theme devs to specify a sub-folder for all plugin template files using
-	 * this system).
-	 *
-	 * Searches in the STYLESHEETPATH before TEMPLATEPATH to cope with themes which
-	 * inherit from a parent theme by just overloading one file.
-	 *
-	 * @param string $template_file A template filename to search for
-	 * @return string The path to the template file to use
-	 * @author Simon Wheatley
-	 **/
-	protected function locate_template( $template_file ) {
-		$located = '';
-		$sub_dir = apply_filters( 'sw_plugin_tpl_dir', '' );
-		if ( $sub_dir )
-			$sub_dir = trailingslashit( $sub_dir );
-		// If there's a tpl in a (child theme or theme with no child)
-		if ( file_exists( STYLESHEETPATH . "/$sub_dir" . $template_file ) )
-			return STYLESHEETPATH . "/$sub_dir" . $template_file;
-		// If there's a tpl in the parent of the current child theme
-		else if ( file_exists( TEMPLATEPATH . "/$sub_dir" . $template_file ) )
-			return TEMPLATEPATH . "/$sub_dir" . $template_file;
-		// Fall back on the bundled plugin template (N.B. no filtered subfolder involved)
-		else if ( file_exists( $this->dir( "templates/$template_file" ) ) )
-			return $this->dir( "templates/$template_file" );
-		// Oh dear. We can't find the template.
-		$msg = sprintf( __( "This plugin template could not be found, perhaps you need to hook `sil_plugins_dir` and `sil_plugins_url`: %s" ), $this->dir( "templates/$template_file" ) );
-		bbl_log( "Template error: $msg", true );
-		echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>" . esc_html( $msg ) . "</p>";
-	}
-
-	/**
-	 * Register a WordPress meta box
-	 *
-	 * @param string $id ID for the box, also used as a function name if none is given
-	 * @param string $title Title for the box
-	 * @param int $page The type of edit page on which to show the box (post, page, link).
-	 * @param string $function Function name (optional)
-	 * @param string $context e.g. 'advanced' or 'core' (optional)
-	 * @param int $priority Priority, rough effect on the ordering (optional)
-	 * @param mixed $args Some arguments to pass to the callback function as part of a larger object (optional)
-	 * @return void
-	 * @author © John Godley
-	 **/
-	function add_meta_box( $id, $title, $function = '', $page, $context = 'advanced', $priority = 'default', $args = null )
-	{
-		require_once( ABSPATH . 'wp-admin/includes/template.php' );
-		add_meta_box( $id, $title, array( $this, $function == '' ? $id : $function ), $page, $context, $priority, $args );
-	}
-
-	/**
-	 * Add hook for shortcode tag.
-	 *
-	 * There can only be one hook for each shortcode. Which means that if another
-	 * plugin has a similar shortcode, it will override yours or yours will override
-	 * theirs depending on which order the plugins are included and/or ran.
-	 *
-	 * @param string $tag Shortcode tag to be searched in post content.
-	 * @param callable $func Hook to run when shortcode is found.
-	 */
-	protected function add_shortcode( $tag, $function = null ) {
-		add_shortcode( $tag, array( $this, $function == '' ? $tag : $function ) );
-	}
-
-	/**
 	 * Returns the filesystem path for a file/dir within this plugin.
 	 *
 	 * @param $path string The path within this plugin, e.g. '/js/clever-fx.js'
@@ -416,26 +252,6 @@ class Babble_Plugin {
 	 **/
 	protected function url( $path ) {
 		return esc_url( trailingslashit( $this->url ) . trim( $path, '/' ) );
-	}
-
-	/**
-	 * Gets the value of an option named as per this plugin.
-	 *
-	 * @return mixed Whatever
-	 * @author Simon Wheatley
-	 **/
-	protected function get_all_options() {
-		return get_option( $this->name );
-	}
-
-	/**
-	 * Sets the value of an option named as per this plugin.
-	 *
-	 * @return mixed Whatever
-	 * @author Simon Wheatley
-	 **/
-	protected function update_all_options( $value ) {
-		return update_option( $this->name, $value );
 	}
 
 	/**
@@ -479,45 +295,5 @@ class Babble_Plugin {
 			unset( $option[ $key ] );
 		return update_option( $this->name, $option );
 	}
-
-	/**
-	 * Echoes out some JSON indicating that stuff has gone wrong.
-	 *
-	 * @param string $msg The error message
-	 * @return void
-	 * @author Simon Wheatley
-	 **/
-	protected function ajax_die( $msg ) {
-		$data = array( 'msg' => $msg, 'success' => false );
-		echo json_encode( $data );
-		// N.B. No 500 header
-		exit;
-	}
-
-	/**
-	 * Truncates a string in a human friendly way.
-	 *
-	 * @param string $str The string to truncate
-	 * @param int $num_words The number of words to truncate to
-	 * @return string The truncated string
-	 * @author Simon Wheatley
-	 **/
-	protected function truncate( $str, $num_words )
-	{
-		$str = strip_tags( $str );
-		$words = explode(' ', $str );
-		if ( count( $words ) > $num_words) {
-			$k = $num_words;
-			$use_dotdotdot = 1;
-		} else {
-			$k = count( $words );
-			$use_dotdotdot = 0;
-		}
-		$words  = array_slice( $words, 0, $k );
-		$excerpt = trim( join( ' ', $words ) );
-		$excerpt .= ($use_dotdotdot) ? '…' : '';
-		return $excerpt;
-	}
-
 
 } // END Babble_Plugin class
