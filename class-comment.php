@@ -7,13 +7,13 @@
  * @since 0.1
  */
 class Babble_Comment extends Babble_Plugin {
-	
+
 	public function __construct() {
 		$this->setup( 'babble-comment', 'plugin' );
 
-		$this->add_filter( 'comments_template_args' );
-		$this->add_filter( 'preprocess_comment' );
-		$this->add_filter( 'get_comments_number', null, null, 2 );
+		add_filter( 'comments_template_args', array( $this, 'comments_template_args' ) );
+		add_filter( 'preprocess_comment', array( $this, 'preprocess_comment' ) );
+		add_filter( 'get_comments_number', array( $this, 'get_comments_number' ), 10, 2 );
 	}
 
 	/**
@@ -22,8 +22,8 @@ class Babble_Comment extends Babble_Plugin {
 	 * in order to ensure we get the comments from all the
 	 * translated posts in this translation group.
 	 *
-	 * @param array $args The args for WP_Comment_Query in comments_template 
-	 * @return array The args for WP_Comment_Query in comments_template 
+	 * @param array $args The args for WP_Comment_Query in comments_template
+	 * @return array The args for WP_Comment_Query in comments_template
 	 **/
 	public function comments_template_args( $args ) {
 		if ( isset( $args[ 'post_id' ] ) && ! empty( $args[ 'post_id' ] ) ) {
@@ -40,10 +40,10 @@ class Babble_Comment extends Babble_Plugin {
 	/**
 	 * Hooks the WP preprocess_comment filter to ensure that when someone
 	 * replies to a comment which has been included in a merged comment
-	 * stream on a post in a different language, the reply is assigned 
+	 * stream on a post in a different language, the reply is assigned
 	 * language post of the parent comment.
 	 *
-	 * @param array $comment_data The comment data  
+	 * @param array $comment_data The comment data
 	 * @return void
 	 **/
 	public function preprocess_comment( $comment_data ) {
@@ -56,11 +56,11 @@ class Babble_Comment extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP get_comments_number filter to get the number of comments 
+	 * Hooks the WP get_comments_number filter to get the number of comments
 	 * across all posts in the translation group.
 	 *
 	 * @param int $count The number of comments on the single translation
-	 * @param int $post_id The post ID of the single translation 
+	 * @param int $post_id The post ID of the single translation
 	 * @return int The count of all comments on published posts in this translation group
 	 **/
 	public function get_comments_number( $count, $post_id ) {
@@ -74,11 +74,11 @@ class Babble_Comment extends Babble_Plugin {
 		}
 		return $count;
 	}
-	
+
 	// PUBLIC METHODS
 	// ==============
 
-	
+
 	// PRIVATE/PROTECTED METHODS
 	// =========================
 
@@ -86,5 +86,3 @@ class Babble_Comment extends Babble_Plugin {
 
 global $bbl_comment;
 $bbl_comment = new Babble_Comment();
-
-?>

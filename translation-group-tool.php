@@ -7,7 +7,7 @@ Version: 0.1
 Author: Simon Wheatley
 Author URI: http://simonwheatley.co.uk/wordpress/
 */
- 
+
 /*  Copyright 2012 Simon Wheatley
 
 This program is free software; you can redistribute it and/or modify
@@ -30,12 +30,12 @@ require_once 'class-plugin.php';
 
 /**
  * Handles the display and functionality of the translation group tool.
- * 
+ *
  * @package BabbleTranslationGroupTool
  * @author Simon Wheatley
  **/
 class BabbleTranslationGroupTool extends Babble_Plugin {
-	
+
 
 	/**
 	 * Initiate!
@@ -45,18 +45,18 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 **/
 	function __construct() {
 		$this->setup( 'babble-tgt', 'plugin' );
-		$this->add_action( 'admin_menu' );
-		$this->add_action( 'load-post-new.php', 'load_post' );
-		$this->add_action( 'load-post.php', 'load_post' );
-		$this->add_action( 'load-tools_page_btgt', 'load_tools_page' );
-		$this->add_action( 'save_post', null, null, 2 );
-		$this->add_filter( 'bbl_metaboxes_for_translators', 'metaboxes_for_translators' );
-		$this->add_filter( 'bbl_pre_sync_properties', 'pre_sync_properties', null, 2 );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'load-post-new.php', array( $this, 'load_post' ) );
+		add_action( 'load-post.php', array( $this, 'load_post' ) );
+		add_action( 'load-tools_page_btgt', array( $this, 'load_tools_page' ) );
+		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
+		add_filter( 'bbl_metaboxes_for_translators', array( $this, 'metaboxes_for_translators' ) );
+		add_filter( 'bbl_pre_sync_properties', array( $this, 'pre_sync_properties' ), 10, 2 );
 	}
-	
+
 	// HOOKS AND ALL THAT
 	// ==================
-	
+
 	/**
 	 * Hooks the WP admin_menu action to add a menu to
 	 * the Tools section.
@@ -76,7 +76,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	public function load_tools_page() {
 		if ( ! $action = ( isset( $_GET[ 'btgt_action' ] ) ) ? $_GET[ 'btgt_action' ] : false )
 			return;
-		
+
 		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? $_GET[ 'obj_id' ] : false;
 		$wp_nonce = ( isset( $_GET[ '_wpnonce' ] ) ) ? $_GET[ '_wpnonce' ] : false;
 		switch ( $action ) {
@@ -103,12 +103,12 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		);
 		$url = add_query_arg( $args, admin_url( 'tools.php' ) );
 		$url .= '#' . $_GET[ 'anchor' ];
-		wp_redirect( $url );
+		wp_safe_redirect( $url );
 	}
 
 	/**
-	 * Hooks the various dynamic actions fired when the edit post and 
-	 * edit new post screens are loaded. Determines if the post to be 
+	 * Hooks the various dynamic actions fired when the edit post and
+	 * edit new post screens are loaded. Determines if the post to be
 	 * edited has become disconnected from it's translation group,
 	 * and shows the Reconnect metabox if it has.
 	 *
@@ -129,25 +129,25 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	}
 
 	/**
-	 * Hooks the WP save_post action 
+	 * Hooks the WP save_post action
 	 *
-	 * @param int $post_id The ID of the post being saved 
+	 * @param int $post_id The ID of the post being saved
 	 * @param object $post The WordPress post object being saved
 	 * @return void
 	 **/
 	function save_post( $post_id, $post ) {
 		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) )
 			return;
-		
+
 		if ( ! isset( $_POST[ '_bbl_reconnect_nonce' ] ) )
 			return;
-			
+
 		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
 		if ( $posted_id != $post_id )
 			return;
 		// While we're at it, let's check the nonce
 		check_admin_referer( "bbl_reconnect_translation_$post_id", '_bbl_reconnect_nonce' );
-			
+
 		// Check the user has set a transid
 		if ( ! $transid = isset( $_POST[ 'bbl_transid' ] ) ? (int) $_POST[ 'bbl_transid' ] : false )
 			return;
@@ -157,7 +157,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			$this->set_admin_error( __( 'The TransID you want to reconnect this content to does not exist. Please check the Translation Group information and try again.', 'babble' ) );
 			return;
 		}
-		
+
 		global $bbl_post_public;
 		$bbl_post_public->set_transid( $post, $transid );
 	}
@@ -181,18 +181,18 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			$referer = $_SERVER[ 'HTTP_REFERER' ];
 			$lang = bbl_get_current_lang_code();
 			$origin_lang = bbl_get_post_lang_code( $origin_id );
-			error_log( "Babble: $user->user_login has changed {$postdata[ 'ID' ]} parent from $current_post->post_parent ($current_post->post_type) to {$postdata[ 'post_parent' ]}. \tOrigin: $origin_id. Origin lang: $origin_lang. IP $remote_ip. User lang: $lang. Referer $referer." );
+			bbl_log( "Babble: $user->user_login has changed {$postdata[ 'ID' ]} parent from $current_post->post_parent ($current_post->post_type) to {$postdata[ 'post_parent' ]}. \tOrigin: $origin_id. Origin lang: $origin_lang. IP $remote_ip. User lang: $lang. Referer $referer.", true );
 		}
 		return $postdata;
 	}
 
 	/**
-	 * Hooks the Babble bbl_metaboxes_for_translators filter to 
+	 * Hooks the Babble bbl_metaboxes_for_translators filter to
 	 * add the bbl_reconnect metabox to the list of boxes allowed
 	 * on translator screens.
 	 *
-	 * @param array $boxes The array of box names which are allowed 
-	 * @return array The array of box names which are allowed 
+	 * @param array $boxes The array of box names which are allowed
+	 * @return array The array of box names which are allowed
 	 **/
 	function metaboxes_for_translators( $boxes ) {
 		$boxes[] = 'bbl_reconnect';
@@ -201,9 +201,9 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 
 	// CALLBACKS
 	// =========
-	
+
 	/**
-	 * The callback function which provides HTML for the Babble 
+	 * The callback function which provides HTML for the Babble
 	 * Translation Reconnection metabox, which allows an admin
 	 * to reconnect a post to the equivalent post in the
 	 * default language.
@@ -246,10 +246,10 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return string A Nonced action URL
 	 **/
 	protected function get_action_link( $obj_id, $action, $anchor = null ) {
-		$args = array( 
+		$args = array(
 			'btgt_action' => $action,
 			'obj_id' => $obj_id,
-			'lang' => bbl_get_default_lang_code(), 
+			'lang' => bbl_get_default_lang_code(),
 		);
 		if ( ! is_null( $anchor ) )
 			$args[ 'anchor' ] = $anchor;
@@ -257,8 +257,6 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	}
 
 
-} // END BabbleTranslationGroupTool class 
+} // END BabbleTranslationGroupTool class
 
 $bbl_translation_group_tool = new BabbleTranslationGroupTool();
-
-?>
