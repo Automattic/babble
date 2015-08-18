@@ -1,5 +1,5 @@
 language: php
-sudo: false # Use modern Travis builds – http://docs.travis-ci.com/user/migrating-from-legacy/
+sudo: true # Use modern Travis builds – http://docs.travis-ci.com/user/migrating-from-legacy/
 
 notifications:
     on_success: never
