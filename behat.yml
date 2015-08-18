@@ -14,7 +14,7 @@ default:
         from: '%paths.base%'
         to: '%paths.base%/vendor/wordpress/wp-content/plugins/babble'
     Behat\MinkExtension:
-      base_url:    'http://localhost:8000'
+      base_url:    'http://localhost'
       sessions:
         default:
           goutte: ~
@@ -35,7 +35,7 @@ travis:
         from: '%paths.base%'
         to: '%paths.base%/vendor/wordpress/wp-content/plugins/babble'
     Behat\MinkExtension:
-      base_url:    'http://localhost:8000'
+      base_url:    'http://localhost'
       sessions:
         default:
           goutte: ~
