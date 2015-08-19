@@ -9,7 +9,7 @@ ver=${phpv[1]}
 
 if [ "$(version "$ver")" -gt "$(version "5.4")" ]; then
 
-	sudo php -S 127.0.0.1:80 -t vendor/wordpress -d disable_functions=mail &
+	sudo php -S localhost:80 -t vendor/wordpress -d disable_functions=mail &
 	./bin/behat --profile=travis
 
 fi
