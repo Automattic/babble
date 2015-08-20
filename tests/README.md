@@ -25,7 +25,7 @@ First, edit `behat.yml` and change the database connection `db`, `username`, and
 
 Start PHP's built-in web server by executing the following:
 
-    sudo php -S localhost:80 -t vendor/wordpress -d disable_functions=mail &
+    sudo php -S localhost:8000 -t vendor/wordpress -d disable_functions=mail &
 
 To run the tests, execute the following:
 
