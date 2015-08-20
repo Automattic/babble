@@ -677,6 +677,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 				foreach ( $objects['meta'] as $meta_key => $meta_field ) {
 
+					$value = $meta_data[ $meta_key ];
+
 					$value = $meta_field->update( $value, $job );
 
 					// If the Babble_Meta_Field object update mathod as returned
@@ -684,7 +686,7 @@ class Babble_Jobs extends Babble_Plugin {
 					// wp_kses to it
 					// @TODO: Perhaps there's some kind of wp_kses_deep we can use? Would that cause issues with some field/data types? 
 					if ( is_string( $value ) ) {
-					$value = wp_kses_post( $meta_data[ $meta_key ] );
+						$value = wp_kses_post( $value );
 					}
 
 					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $value );
