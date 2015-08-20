@@ -677,6 +677,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 				foreach ( $objects['meta'] as $meta_key => $meta_field ) {
 
+					$value = $meta_field->update( $value, $job );
+
 					$value = wp_kses_post( $meta_data[ $meta_key ] );
 
 					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $value );
