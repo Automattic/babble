@@ -679,7 +679,13 @@ class Babble_Jobs extends Babble_Plugin {
 
 					$value = $meta_field->update( $value, $job );
 
+					// If the Babble_Meta_Field object update mathod as returned
+					// something that is not a string, it will break if we apply
+					// wp_kses to it
+					// @TODO: Perhaps there's some kind of wp_kses_deep we can use? Would that cause issues with some field/data types? 
+					if ( is_string( $value ) ) {
 					$value = wp_kses_post( $meta_data[ $meta_key ] );
+					}
 
 					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $value );
 
