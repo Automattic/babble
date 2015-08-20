@@ -6,7 +6,7 @@
  * @since 1.4
  */
 class Babble_Translator extends Babble_Plugin {
-    
+
 	/**
 	 * A version number used for cachebusting, rewrite rule
 	 * flushing, etc.
@@ -14,17 +14,17 @@ class Babble_Translator extends Babble_Plugin {
 	 * @var float
 	 **/
 	protected $version;
-	
+
     public function __construct() {
         $this->setup( 'babble-translator', 'plugin' );
-        
-        $this->add_action( 'admin_init', 'maybe_upgrade' );
+
+        add_action( 'admin_init', array( $this, 'maybe_upgrade' ) );
 
 		$this->version = 1;
     }
 
 	/**
-	 * Called by admin_init, this method ensures we are all up to date and 
+	 * Called by admin_init, this method ensures we are all up to date and
 	 * so on.
 	 *
 	 * @return void
