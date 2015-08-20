@@ -7,6 +7,7 @@ notifications:
 
 php:
     - 5.6
+    - 5.4
     - 5.3
     - 5.2
     - hhvm
@@ -24,7 +25,7 @@ env:
 
 matrix:
     allow_failures:
-        # allow failures on PHP 7 for now:
+        # allow failures on PHP 5.6 for now:
         - php: 5.6
 
 install:
