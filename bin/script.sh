@@ -1,15 +1,10 @@
 #!/usr/bin/env bash
 
-function version {
-	echo "$@" | gawk -F. '{ printf("%03d%03d%03d\n", $1,$2,$3); }';
-}
-
-phpv=(`php -v`)
-ver=${phpv[1]}
-
-if [ "$(version "$ver")" -gt "$(version "5.4")" ]; then
-
-	php -S localhost:8000 -t vendor/wordpress -d disable_functions=mail &
-	./bin/behat --profile=travis
-
-fi
+php -v
+which php
+echo $PATH
+ls -la
+php -S localhost:8000 -t vendor/wordpress -d disable_functions=mail &
+sleep 2
+curl -v localhost:8000
+./bin/behat --profile=travis

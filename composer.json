@@ -9,6 +9,12 @@
             "email": "hello@codeforthepeople.com"
         }
     ],
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/humanmade/Goutte.git"
+		}
+	],
     "require-dev" : {
         "phpunit/phpunit": ">=3.7@stable"
     },
@@ -20,7 +26,7 @@
         "behat/mink-extension": "~2.0",
         "behat/mink-goutte-driver": "~1.1",
         "behat/mink-selenium2-driver": "*",
-        "johnbillion/wordpress-behat-extension": "0.1.2",
+        "johnbillion/wordpress-behat-extension": ">=0.1.3",
         "johnpbloch/wordpress": ">=4.2.0@stable",
         "phpunit/phpunit": ">=3.7@stable",
         "wp-cli/wp-cli": "*"
