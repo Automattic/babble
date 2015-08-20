@@ -37,4 +37,4 @@ before_script:
 script:
     - if [[ "$WP_VERSION" == "latest" ]]; then if find . -not \( -path ./vendor -prune \) -not \( -path ./features -prune \) -name "*.php" -exec php -l {} \; | grep "^[Parse error|Fatal error]"; then exit 1; fi; fi;
     - phpunit
-    - bash bin/script.sh
+    - sudo bash bin/script.sh
