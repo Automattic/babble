@@ -6,6 +6,7 @@ function version {
 
 phpv=(`php -v`)
 ver=${phpv[1]}
+echo $(version "$ver")
 
 if [ "$(version "$ver")" -gt "$(version "5.4")" ]; then
 
