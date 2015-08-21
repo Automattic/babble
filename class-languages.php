@@ -529,7 +529,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @param string $lang_short The language short code, e.g. 'en' (not 'en_GB')
 	 * @return string The language name, e.g. 'English'
 	 **/
-	protected function format_code_lang( $code ) {
+	public function format_code_lang( $code ) {
 		$code = strtolower( substr( $code, 0, 2 ) );
 		$lang_codes = array(
 			'aa' => 'Afar', 'ab' => 'Abkhazian', 'af' => 'Afrikaans', 'ak' => 'Akan', 'sq' => 'Albanian', 'am' => 'Amharic', 'ar' => 'Arabic', 'an' => 'Aragonese', 'hy' => 'Armenian', 'as' => 'Assamese', 'av' => 'Avaric', 'ae' => 'Avestan', 'ay' => 'Aymara', 'az' => 'Azerbaijani', 'ba' => 'Bashkir', 'bm' => 'Bambara', 'eu' => 'Basque', 'be' => 'Belarusian', 'bn' => 'Bengali',
