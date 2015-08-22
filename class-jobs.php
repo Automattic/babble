@@ -40,7 +40,7 @@ class Babble_Jobs extends Babble_Plugin {
 		add_action( 'manage_bbl_job_posts_custom_column', array( $this, 'action_column' ), 10, 2 );
 		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
 		add_action( 'save_post', array( $this, 'save_job' ), 10, 2 );
-		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
+		add_action( 'save_post', array( $this, 'save_post' ), 9999, 2 );
 		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ) );
 
 		add_filter( 'admin_title', array( $this, 'admin_title' ), 10, 2 );
