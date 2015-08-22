@@ -29,7 +29,7 @@ class Babble_Jobs extends Babble_Plugin {
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'add_meta_boxes_bbl_job', array( $this, 'add_meta_boxes_bbl_job' ), 999 );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
-		add_action( 'babble_create_empty_translation', array( $this, 'create_empty_translation' ) );
+		add_action( 'bbl_cron_create_empty_translations', array( $this, 'create_empty_translations' ) );
 		add_action( 'bbl_translation_post_meta_boxes', array( $this, 'bbl_translation_post_meta_boxes' ), 10, 3 );
 		add_action( 'bbl_translation_submit_meta_boxes', array( $this, 'bbl_translation_submit_meta_boxes' ), 10, 2 );
 		add_action( 'bbl_translation_terms_meta_boxes', array( $this, 'bbl_translation_terms_meta_boxes' ), 10, 2 );
@@ -1126,11 +1126,11 @@ class Babble_Jobs extends Babble_Plugin {
 	}
 
 	/**
-	 * Create empty translations of a post for all languages. Called via WP-Cron on the `babble_create_empty_translation` hook.
+	 * Create empty translations of a post for all languages. Called via WP-Cron on the `bbl_cron_create_empty_translations` hook.
 	 *
 	 * @param  array  $args Args array containing a `post_id` element.
 	 */
-	public function create_empty_translation( array $args ) {
+	public function create_empty_translations( array $args ) {
 		global $bbl_post_public;
 
 		if ( !$post = get_post( $args['post_id'] ) ) {
@@ -1175,9 +1175,9 @@ class Babble_Jobs extends Babble_Plugin {
 			if ( bbl_get_default_lang_code() == $lang_code )
 				continue;
 
-			if ( apply_filters( 'bbl_create_empty_translation', false, $post ) ) {
+			if ( apply_filters( 'bbl_trigger_create_empty_translations', false, $post ) ) {
 
-				wp_schedule_single_event( time(), 'babble_create_empty_translation', array(
+				wp_schedule_single_event( time(), 'bbl_cron_create_empty_translations', array(
 					array(
 						'post_id' => $post->ID,
 					)

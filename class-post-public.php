@@ -1325,6 +1325,9 @@ class Babble_Post_Public extends Babble_Plugin {
 	 * Returns the post in a particular language, or the fallback content
 	 * if there's no post available.
 	 *
+	 * @FIXME: Currently this function is broken by Babble_Jobs::create_empty_translations
+	 * See: test_canonical_content_fallback
+	 *
 	 * @param int|WP_Post $post Either a WP Post object, or a post ID
 	 * @param string $lang_code The language code for the required language
 	 * @param boolean $fallback If true: if a post is not available, fallback to the default language content (defaults to true)
