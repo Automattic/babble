@@ -283,7 +283,7 @@ class Babble_Locale {
 	 **/
 	public function parse_request_early( WP $wp ) {
 		// If this is the site root, redirect to default language homepage 
-		if ( ! $wp->request ) {
+		if ( ! $wp->request && ! is_admin() ) {
 			remove_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 			wp_safe_redirect( home_url( bbl_get_default_lang_url_prefix() ) );
 			exit;
