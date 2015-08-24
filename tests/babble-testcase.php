@@ -31,7 +31,9 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 	}
 
 	public function go_to( $url ) {
-		global $locale, $bbl_locale;
+		global $locale;
+
+		$bbl_locale = Babble::get( 'locale' );
 		$locale = null;
 		$bbl_locale->content_lang = null;
 		$bbl_locale->interface_lang = null;
@@ -43,9 +45,8 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 	}
 
 	protected function create_post_translation( WP_Post $origin, $lang_code ) {
-		global $bbl_post_public;
 
-		$post = $bbl_post_public->initialise_translation( $origin, $lang_code );
+		$post = Babble::get( 'post_public' )->initialise_translation( $origin, $lang_code );
 		$post->post_status = 'publish';
 		$post->post_title  = rand_str();
 		$post->post_name   = rand_str();
@@ -56,16 +57,14 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 	}
 
 	protected function create_term_translation( $origin, $lang_code ) {
-		global $bbl_taxonomies;
 
-		$term = $bbl_taxonomies->initialise_translation( $origin, $origin->taxonomy, $lang_code );
+		$term = Babble::get( 'taxonomies' )->initialise_translation( $origin, $origin->taxonomy, $lang_code );
 
 		return $term;
 
 	}
 
 	protected function install_languages() {
-		global $bbl_languages;
 
 		if ( file_exists( $file = ABSPATH . 'wp-admin/includes/translation-install.php' ) ) {
 			require_once $file;
@@ -133,7 +132,7 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 
 		update_option( 'babble-languages', $option );
 
-		$bbl_languages->initiate();
+		Babble::get( 'languages' )->initiate();
 
 	}
 

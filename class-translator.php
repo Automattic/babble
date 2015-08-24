@@ -61,6 +61,3 @@ class Babble_Translator extends Babble_Plugin {
 	}
 
 }
-
-global $bbl_translator;
-$bbl_translator = new Babble_translator();

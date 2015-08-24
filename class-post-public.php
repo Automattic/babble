@@ -1687,6 +1687,3 @@ class Babble_Post_Public extends Babble_Plugin {
 
 
 }
-
-global $bbl_post_public;
-$bbl_post_public = new Babble_Post_Public();

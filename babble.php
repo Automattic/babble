@@ -74,3 +74,38 @@ require_once 'class-admin-bar.php';
 require_once 'class-translator.php';
 
 require_once 'miscellaneous.php';
+
+final class Babble {
+
+	private static $registry = array();
+
+	private function __construct() {
+	}
+
+	public static function set( $name, $instance ) {
+		self::$registry[ $name ] = $instance;
+	}
+
+	public static function get( $name ) {
+		if ( array_key_exists( $name, self::$registry ) ) {
+			return self::$registry[ $name ];
+		} else {
+			return null;
+		}
+	}
+
+}
+
+// Registry
+
+Babble::set( 'log',                new Babble_Log );
+Babble::set( 'jobs',               new Babble_Jobs );
+Babble::set( 'languages',          new Babble_Languages );
+Babble::set( 'locale',             new Babble_Locale );
+Babble::set( 'post_public',        new Babble_Post_Public );
+Babble::set( 'comment',            new Babble_Comment );
+Babble::set( 'taxonomies',         new Babble_Taxonomies );
+Babble::set( 'switcher_menu',      new Babble_Switcher_Menu );
+Babble::set( 'switcher_interface', new Babble_Switcher_Interface );
+Babble::set( 'admin_bar',          new Babble_Admin_bar );
+Babble::set( 'translator',         new Babble_Translator );

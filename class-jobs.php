@@ -569,7 +569,8 @@ class Babble_Jobs extends Babble_Plugin {
 
 	public function save_job( $job_id, WP_Post $job ) {
 
-		global $bbl_post_public, $bbl_taxonomies;
+		$bbl_post_public = Babble::get( 'post_public' );
+		$bbl_taxonomies = Babble::get( 'taxonomies' );
 
 		if ( $this->no_recursion )
 			return;
@@ -1131,11 +1132,11 @@ class Babble_Jobs extends Babble_Plugin {
 	 * @param  array  $args Args array containing a `post_id` element.
 	 */
 	public function create_empty_translation( array $args ) {
-		global $bbl_post_public;
-
 		if ( !$post = get_post( $args['post_id'] ) ) {
 			return;
 		}
+
+		$bbl_post_public = Babble::get( 'post_public' );
 
 		foreach ( bbl_get_active_langs() as $lang ) {
 
@@ -1286,6 +1287,3 @@ class Babble_Jobs extends Babble_Plugin {
 	}
 
 }
-
-global $bbl_jobs;
-$bbl_jobs = new Babble_Jobs();

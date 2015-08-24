@@ -35,8 +35,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * @access public
  **/
 function bbl_get_current_content_lang_code() {
-	global $bbl_locale;
-	return $bbl_locale->get_content_lang();
+	return Babble::get( 'locale' )->get_content_lang();
 }
 
 /**
@@ -48,8 +47,7 @@ function bbl_get_current_content_lang_code() {
  * @access public
  **/
 function bbl_get_current_interface_lang_code() {
-	global $bbl_locale;
-	return $bbl_locale->get_interface_lang();
+	return Babble::get( 'locale' )->get_interface_lang();
 }
 
 /**
@@ -71,8 +69,7 @@ function bbl_get_current_lang_code() {
  * @access public
  **/
 function bbl_is_public_lang( $lang_code ) {
-	global $bbl_languages;
-	return $bbl_languages->is_public_lang( $lang_code );
+	return Babble::get( 'languages' )->is_public_lang( $lang_code );
 }
 
 /**
@@ -85,8 +82,7 @@ function bbl_is_public_lang( $lang_code ) {
  * @return bool Whether the switch was successful
  **/
 function bbl_switch_to_lang( $lang ) {
-	global $bbl_locale;
-	return $bbl_locale->switch_to_lang( $lang );
+	return Babble::get( 'locale' )->switch_to_lang( $lang );
 }
 
 /**
@@ -98,8 +94,7 @@ function bbl_switch_to_lang( $lang ) {
  * @return void
  **/
 function bbl_restore_lang() {
-	global $bbl_locale;
-	$bbl_locale->restore_lang();
+	Babble::get( 'locale' )->restore_lang();
 }
 
 /**
@@ -112,8 +107,7 @@ function bbl_restore_lang() {
  * @access public
  **/
 function bbl_get_term_translations( $term, $taxonomy ) {
-	global $bbl_taxonomies;
-	return $bbl_taxonomies->get_term_translations( $term, $taxonomy );
+	return Babble::get( 'taxonomies' )->get_term_translations( $term, $taxonomy );
 }
 
 /**
@@ -125,8 +119,7 @@ function bbl_get_term_translations( $term, $taxonomy ) {
  * @access public
  **/
 function bbl_get_term_jobs( $term, $taxonomy ) {
-	global $bbl_jobs;
-	return $bbl_jobs->get_term_jobs( $term, $taxonomy );
+	return Babble::get( 'jobs' )->get_term_jobs( $term, $taxonomy );
 }
 
 /**
@@ -140,8 +133,7 @@ function bbl_get_term_jobs( $term, $taxonomy ) {
  * @access public
  **/
 function bbl_get_new_term_translation_url( $default_term, $lang, $taxonomy = null ) {
-	global $bbl_taxonomies;
-	return $bbl_taxonomies->get_new_term_translation_url( $default_term, $lang, $taxonomy );
+	return Babble::get( 'taxonomies' )->get_new_term_translation_url( $default_term, $lang, $taxonomy );
 }
 
 /**
@@ -151,8 +143,7 @@ function bbl_get_new_term_translation_url( $default_term, $lang, $taxonomy = nul
  * @return string The lang code
  **/
 function bbl_get_taxonomy_lang_code( $taxonomy ) {
-	global $bbl_taxonomies;
-	return $bbl_taxonomies->get_taxonomy_lang_code( $taxonomy );
+	return Babble::get( 'taxonomies' )->get_taxonomy_lang_code( $taxonomy );
 }
 
 /**
@@ -163,8 +154,7 @@ function bbl_get_taxonomy_lang_code( $taxonomy ) {
  * @return string The name of the base taxonomy
  **/
 function bbl_get_base_taxonomy( $taxonomy ) {
-	global $bbl_taxonomies;
-	return $bbl_taxonomies->get_base_taxonomy( $taxonomy );
+	return Babble::get( 'taxonomies' )->get_base_taxonomy( $taxonomy );
 }
 
 /**
@@ -175,8 +165,7 @@ function bbl_get_base_taxonomy( $taxonomy ) {
  * @return string The taxonomy name
  **/
 function bbl_get_taxonomy_in_lang( $taxonomy, $lang_code = null ) {
-	global $bbl_taxonomies;
-	return $bbl_taxonomies->get_taxonomy_in_lang( $taxonomy, $lang_code );
+	return Babble::get( 'taxonomies' )->get_taxonomy_in_lang( $taxonomy, $lang_code );
 }
 
 /**
@@ -207,8 +196,7 @@ function bbl_is_translated_post_type( $post_type ) {
  * @return string A translated slug
  **/
 function bbl_get_taxonomy_slug_in_lang( $slug, $lang_code = null ) {
-	global $bbl_taxonomies;
-	return $bbl_taxonomies->get_slug_in_lang( $slug, $lang_code );
+	return Babble::get( 'taxonomies' )->get_slug_in_lang( $slug, $lang_code );
 }
 
 /**
@@ -221,8 +209,7 @@ function bbl_get_taxonomy_slug_in_lang( $slug, $lang_code = null ) {
  * @access public
  **/
 function bbl_get_post_translations( $post ) {
-	global $bbl_post_public;
-	return $bbl_post_public->get_post_translations( $post );
+	return Babble::get( 'post_public' )->get_post_translations( $post );
 }
 
 /**
@@ -234,8 +221,7 @@ function bbl_get_post_translations( $post ) {
  * @access public
  **/
 function bbl_get_incomplete_post_jobs( $post ) {
-	global $bbl_jobs;
-	return $bbl_jobs->get_incomplete_post_jobs( $post );
+	return Babble::get( 'jobs' )->get_incomplete_post_jobs( $post );
 }
 
 /**
@@ -247,8 +233,7 @@ function bbl_get_incomplete_post_jobs( $post ) {
  * @access public
  **/
 function bbl_get_default_lang_post( $post ) {
-	global $bbl_post_public;
-	return $bbl_post_public->get_default_lang_post( $post );
+	return Babble::get( 'post_public' )->get_default_lang_post( $post );
 }
 
 /**
@@ -259,8 +244,7 @@ function bbl_get_default_lang_post( $post ) {
  * @access public
  **/
 function bbl_get_post_lang_code( $post ) {
-	global $bbl_post_public;
-	return $bbl_post_public->get_post_lang_code( $post );
+	return Babble::get( 'post_public' )->get_post_lang_code( $post );
 }
 
 /**
@@ -273,8 +257,7 @@ function bbl_get_post_lang_code( $post ) {
  * @access public
  **/
 function bbl_get_new_post_translation_url( $default_post, $lang ) {
-	global $bbl_post_public;
-	return $bbl_post_public->get_new_post_translation_url( $default_post, $lang );
+	return Babble::get( 'post_public' )->get_new_post_translation_url( $default_post, $lang );
 }
 
 /**
@@ -286,10 +269,9 @@ function bbl_get_new_post_translation_url( $default_post, $lang ) {
  * @return string A post type name, e.g. "page" or "post"
  **/
 function bbl_get_post_type_in_lang( $original_post_type, $lang_code = null ) {
-	global $bbl_post_public;
 	if ( is_null( $lang_code ) )
 		$lang_code = bbl_get_current_lang_code();
-	return $bbl_post_public->get_post_type_in_lang( $original_post_type, $lang_code );
+	return Babble::get( 'post_public' )->get_post_type_in_lang( $original_post_type, $lang_code );
 }
 
 add_filter( 'bbl_get_content_post_type', 'bbl_get_post_type_in_lang' );
@@ -329,8 +311,7 @@ function bbl_is_page( $page = '' ) {
  * @return object|boolean The WP Post object, or if $fallback was false and no post then returns false
  **/
 function bbl_get_post_in_lang( $post, $lang_code, $fallback = true ) {
-	global $bbl_post_public;
-	return $bbl_post_public->get_post_in_lang( $post, $lang_code, $fallback );
+	return Babble::get( 'post_public' )->get_post_in_lang( $post, $lang_code, $fallback );
 }
 
 /**
@@ -343,8 +324,7 @@ function bbl_get_post_in_lang( $post, $lang_code, $fallback = true ) {
  * @return object|boolean The term object, or if $fallback was false and no term then returns false
  **/
 function bbl_get_term_in_lang( $term, $taxonomy, $lang_code, $fallback = true ) {
-	global $bbl_taxonomies;
-	return $bbl_taxonomies->get_term_in_lang( $term, $taxonomy, $lang_code, $fallback );
+	return Babble::get( 'taxonomies' )->get_term_in_lang( $term, $taxonomy, $lang_code, $fallback );
 }
 
 /**
@@ -355,9 +335,8 @@ function bbl_get_term_in_lang( $term, $taxonomy, $lang_code, $fallback = true ) 
  * @return string A translated slug
  **/
 function bbl_get_post_type_slug_in_lang( $slug, $lang_code = null ) {
-	global $bbl_post_public;
 	$lang = bbl_get_lang( $lang_code );
-	return $bbl_post_public->get_slug_in_lang( $slug, $lang );
+	return Babble::get( 'post_public' )->get_slug_in_lang( $slug, $lang );
 }
 
 /**
@@ -451,8 +430,7 @@ function bbl_get_post_type_archive_link_in_lang( $post_type, $lang_code = null )
  * @return string The name of the base post type
  **/
 function bbl_get_base_post_type( $post_type ) {
-	global $bbl_post_public;
-	return $bbl_post_public->get_base_post_type( $post_type );
+	return Babble::get( 'post_public' )->get_base_post_type( $post_type );
 }
 
 /**
@@ -461,8 +439,7 @@ function bbl_get_base_post_type( $post_type ) {
  * @return array An array of post_type objects
  **/
 function bbl_get_base_post_types() {
-	global $bbl_post_public;
-	return $bbl_post_public->get_base_post_types();
+	return Babble::get( 'post_public' )->get_base_post_types();
 }
 
 /**
@@ -473,8 +450,7 @@ function bbl_get_base_post_types() {
  * @return array The names of all the related shadow post types
  **/
 function bbl_get_shadow_post_types( $base_post_type ) {
-	global $bbl_post_public;
-	return $bbl_post_public->get_shadow_post_types( $base_post_type );
+	return Babble::get( 'post_public' )->get_shadow_post_types( $base_post_type );
 }
 
 /**
@@ -493,8 +469,7 @@ function bbl_get_shadow_post_types( $base_post_type ) {
  * @return array An array of Babble language objects
  **/
 function bbl_get_active_langs() {
-	global $bbl_languages;
-	return $bbl_languages->get_active_langs();
+	return Babble::get( 'languages' )->get_active_langs();
 }
 
 /**
@@ -504,8 +479,7 @@ function bbl_get_active_langs() {
  * @return object|boolean A Babble language object
  **/
 function bbl_get_lang( $lang_code ) {
-	global $bbl_languages;
-	return $bbl_languages->get_lang( $lang_code );
+	return Babble::get( 'languages' )->get_lang( $lang_code );
 }
 
 /**
@@ -517,8 +491,7 @@ function bbl_get_lang( $lang_code ) {
  * @return object A Babble language object
  **/
 function bbl_get_current_lang() {
-	global $bbl_languages;
-	return $bbl_languages->get_current_lang();
+	return Babble::get( 'languages' )->get_current_lang();
 }
 
 /**
@@ -527,8 +500,7 @@ function bbl_get_current_lang() {
  * @return string A language code, e.g. "he_IL"
  **/
 function bbl_get_default_lang_code() {
-	global $bbl_languages;
-	return $bbl_languages->get_default_lang_code();
+	return Babble::get( 'languages' )->get_default_lang_code();
 }
 
 /**
@@ -537,8 +509,7 @@ function bbl_get_default_lang_code() {
  * @return object A language object
  **/
 function bbl_get_default_lang() {
-	global $bbl_languages;
-	return $bbl_languages->get_default_lang();
+	return Babble::get( 'languages' )->get_default_lang();
 }
 
 /**
@@ -568,7 +539,7 @@ function bbl_is_default_lang( $lang_code = null ) {
  * @return string The language URL prefix set by the admin, e.g. "de"
  **/
 function bbl_get_default_lang_url_prefix() {
-	global $bbl_languages;
+	$bbl_languages = Babble::get( 'languages' );
 	$code = $bbl_languages->get_default_lang_code();
 	return $bbl_languages->get_url_prefix_from_code( $code );
 }
@@ -580,8 +551,7 @@ function bbl_get_default_lang_url_prefix() {
  * @return string The language code, or false
  **/
 function bbl_get_lang_from_prefix( $url_prefix ) {
-	global $bbl_languages;
-	return $bbl_languages->get_code_from_url_prefix( $url_prefix );
+	return Babble::get( 'languages' )->get_code_from_url_prefix( $url_prefix );
 }
 
 /**
@@ -591,8 +561,7 @@ function bbl_get_lang_from_prefix( $url_prefix ) {
  * @return string The language URL prefix set by the admin, e.g. "de"
  **/
 function bbl_get_prefix_from_lang_code( $lang_code ) {
-	global $bbl_languages;
-	return $bbl_languages->get_url_prefix_from_code( $lang_code );
+	return Babble::get( 'languages' )->get_url_prefix_from_code( $lang_code );
 }
 
 /**
@@ -602,8 +571,7 @@ function bbl_get_prefix_from_lang_code( $lang_code ) {
  * @return array An array of admin menu nodes
  **/
 function bbl_get_switcher_links( $id_prefix = '' ) {
-	global $bbl_switcher_menu;
-	return $bbl_switcher_menu->get_switcher_links( $id_prefix );
+	return Babble::get( 'switcher_menu' )->get_switcher_links( $id_prefix );
 }
 
 /**
@@ -612,8 +580,7 @@ function bbl_get_switcher_links( $id_prefix = '' ) {
  * @return void
  **/
 function bbl_start_logging() {
-	global $bbl_log;
-	$bbl_log->logging = true;
+	Babble::get( 'log' )->logging = true;
 }
 
 /**
@@ -622,8 +589,7 @@ function bbl_start_logging() {
  * @return void
  **/
 function bbl_stop_logging() {
-	global $bbl_log;
-	$bbl_log->logging = false;
+	Babble::get( 'log' )->logging = false;
 }
 
 /**
@@ -634,7 +600,7 @@ function bbl_stop_logging() {
  * @return void
  **/
 function bbl_log( $msg, $force = false ) {
-	global $bbl_log;
+	$bbl_log = Babble::get( 'log' );
 	if ( $bbl_log || $force ) {
 		$bbl_log->log( $msg );
 	}
@@ -646,6 +612,5 @@ function bbl_log( $msg, $force = false ) {
  * @return boolean True for yes, natch
  **/
 function bbl_is_logging() {
-	global $bbl_log;
-	return $bbl_log->logging;
+	return Babble::get( 'log' )->logging;
 }

@@ -288,8 +288,7 @@ class Babble_Languages extends Babble_Plugin {
 	 * @return object|boolean A Babble language object
 	 **/
 	public function get_current_lang() {
-		global $bbl_locale;
-		return $this->get_lang( $bbl_locale->get_lang() );
+		return $this->get_lang( Babble::get( 'locale' )->get_lang() );
 	}
 
 	/**
@@ -582,6 +581,3 @@ class Babble_Languages extends Babble_Plugin {
 		$this->public_langs = array( $locale );
 	}
 }
-
-global $bbl_languages;
-$bbl_languages = new Babble_Languages();
