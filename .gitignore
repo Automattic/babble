@@ -4,3 +4,4 @@ composer.lock
 .idea
 vendor
 composer.lock
+bin
