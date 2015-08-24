@@ -6,10 +6,9 @@
  * @package Babble
  * @since 0.2
  */
-class Babble_Admin_bar extends Babble_Plugin {
+class Babble_Admin_bar {
 
 	function __construct() {
-		$this->setup( 'babble-switcher-menu', 'plugin' );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 100 );
 	}
 

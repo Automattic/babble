@@ -6,7 +6,7 @@
  * @package Babble
  * @since 0.1
  */
-class Babble_Post_Public extends Babble_Plugin {
+class Babble_Post_Public {
 
 	/**
 	 * A simple flag to stop infinite recursion when syncing
@@ -87,8 +87,6 @@ class Babble_Post_Public extends Babble_Plugin {
 	protected $translated_front_page_id = 0;
 
 	public function __construct() {
-		$this->setup( 'babble-post-public', 'plugin' );
-
 		add_action( 'added_post_meta', array( $this, 'added_post_meta' ), 10, 4 );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'clean_post_cache', array( $this, 'clean_post_cache' ) );
@@ -175,7 +173,7 @@ class Babble_Post_Public extends Babble_Plugin {
 			'is_default_lang' => (bool) ( bbl_get_current_lang_code() == bbl_get_default_lang_code() ),
 			'is_bbl_post_type' => (bool) ( 0 === strpos( $post_type, 'bbl_' ) ),
 		);
-		wp_enqueue_script( 'post-public-admin', $this->url( 'js/post-public-admin.js' ), array( 'jquery' ), filemtime( $this->dir( 'js/post-public-admin.js' ) ) );
+		wp_enqueue_script( 'post-public-admin', plugins_url( 'js/post-public-admin.js', __FILE__ ), array( 'jquery' ), filemtime( plugin_dir_path( __FILE__ ) . '/js/post-public-admin.js' ) );
 		wp_localize_script( 'post-public-admin', 'bbl_post_public', $data );
 	}
 
