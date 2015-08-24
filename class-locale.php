@@ -305,11 +305,14 @@ class Babble_Locale {
 	/**
 	 * Hooks the WP query_vars filter to add the home_url filter.
 	 *
+	 * We also add the home_url filter at the start of the request
+	 * so the correct URL is set for all subsequent permalink / URL building
+	 * based off the current lagnuage.
+	 *
 	 * @param array $query_vars An array of the public query vars 
 	 * @return array An array of the public query vars
 	 **/
 	public function query_vars( array $query_vars ) {
-		# @TODO why is this here?
 		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 		return array_merge( $query_vars, array( 'lang', 'lang_url_prefix' ) );
 	}
@@ -318,10 +321,12 @@ class Babble_Locale {
 	 * Hooks the WP pre_comment_on_post action to add the 
 	 * home_url filter.
 	 *
+	 * When a user comments on a post, they should be redirected to
+	 * the language that their comment is in.
+	 *
 	 * @return void
 	 **/
 	public function pre_comment_on_post() {
-		# @TODO why is this here?
 		add_filter( 'home_url', array( $this, 'home_url' ), null, 2 );
 	}
 
