@@ -9,12 +9,6 @@
             "email": "hello@codeforthepeople.com"
         }
     ],
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/humanmade/Goutte.git"
-		}
-	],
     "require": {
         "composer/installers": "~1.0"
     },
