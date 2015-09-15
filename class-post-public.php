@@ -1066,7 +1066,7 @@ class Babble_Post_Public {
 			unset( $query_vars[ 'error' ] );
 
 			// @FIXME: Cater for front pages which don't list the posts
-			if ( 'page' == get_option('show_on_front') && $page_on_front = get_option('page_on_front') ) {
+			if ( ! isset( $query_vars['s'] ) && 'page' == get_option( 'show_on_front' ) && $page_on_front = get_option( 'page_on_front' ) ) {
 				// @TODO: Get translated page ID
 
 				// @FIXME: This is a rather hacky approach to fixing the is_front_page function for translated front pages
