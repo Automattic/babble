@@ -14,4 +14,5 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 require $_tests_dir . '/includes/bootstrap.php';
 
+require dirname( __FILE__ ) . '/babble-compat.php';
 require dirname( __FILE__ ) . '/babble-testcase.php';
