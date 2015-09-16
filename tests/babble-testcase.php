@@ -145,4 +145,20 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * This resets post types as though they were created
+	 * in the context of the locale specified. This allows
+	 * us to switch locale context during a test and not
+	 * have the
+	 *
+	 * @param string $locale A locale string
+	 */
+	protected function set_post_types_to_locale( $locale ) {
+		$ptos = get_post_types( array( 'public' => true ) );
+		foreach ( $ptos as $post_type => $object ) {
+			$post_type_obj = get_post_type_object( $post_type );
+			$post_type_obj->exclude_from_search = ( bbl_get_post_type_lang_code( $post_type ) != $locale );
+		}
+	}
+
 }
