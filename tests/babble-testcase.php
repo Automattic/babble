@@ -44,12 +44,21 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 		return parent::go_to( $url );
 	}
 
-	protected function create_post_translation( WP_Post $origin, $lang_code ) {
+	protected function create_post_translation( WP_Post $origin, $lang_code, $args = array() ) {
+
+		$default_args = array(
+			'post_title'   => false,
+			'post_name'    => false,
+			'post_content' => false,
+			'post_status'  => false,
+		);
+		$args = wp_parse_args( $args, $default_args );
 
 		$post = Babble::get( 'post_public' )->initialise_translation( $origin, $lang_code );
-		$post->post_status = 'publish';
-		$post->post_title  = rand_str();
-		$post->post_name   = rand_str();
+		$post->post_status  = ( false === $args['post_status'] ) ?  'publish'  : $args['post_status'];
+		$post->post_title   = ( false === $args['post_title'] ) ?   rand_str() : $args['post_title'];
+		$post->post_name    = ( false === $args['post_name'] ) ?    rand_str() : $args['post_name'];
+		$post->post_content = ( false === $args['post_content'] ) ? rand_str() : $args['post_content'];
 		wp_update_post( $post );
 
 		return $post;
