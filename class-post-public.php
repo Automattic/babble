@@ -1044,6 +1044,8 @@ class Babble_Post_Public {
 	 * Takes a set of query vars and amends them to show the content
 	 * in the current language.
 	 *
+	 * @TODO This method is getting really hairy and complex, and could do with refactoring
+	 *
 	 * @param array $query_vars A set of WordPress query vars (sometimes called query arguments)
 	 * @param string|boolean $request If this is called on the parse_request hook, $request contains the root relative URL
 	 * @return array $query_vars A set of WordPress query vars
