@@ -16,11 +16,11 @@ env:
     - WP_VERSION=latest WP_MULTISITE=0
     - WP_VERSION=latest WP_MULTISITE=1
     # previous stable:
-    - WP_VERSION=4.2 WP_MULTISITE=0
-    - WP_VERSION=4.2 WP_MULTISITE=1
+    - WP_VERSION=4.2.5 WP_MULTISITE=0
+    - WP_VERSION=4.2.5 WP_MULTISITE=1
     # earliest supported:
-    - WP_VERSION=4.0 WP_MULTISITE=0
-    - WP_VERSION=4.0 WP_MULTISITE=1
+    - WP_VERSION=4.0.8 WP_MULTISITE=0
+    - WP_VERSION=4.0.8 WP_MULTISITE=1
 
 install:
     - bash bin/install.sh
