@@ -1056,8 +1056,9 @@ class Babble_Post_Public {
 		$query_vars[ 'bbl_original_query' ] = $query_vars;
 
 		// We've done this already (avoid re-translating the vars)
-		if ( isset( $query_vars[ 'bbl_done_translation' ] ) && $query_vars[ 'bbl_done_translation' ] )
+		if ( isset( $query_vars[ 'bbl_done_translation' ] ) && $query_vars[ 'bbl_done_translation' ] ) {
 			return $query_vars;
+		}
 		$query_vars[ 'bbl_done_translation' ] = true;
 
 		$lang_url_prefix = isset( $query_vars[ 'lang_url_prefix' ] ) ? $query_vars[ 'lang_url_prefix' ] : get_query_var( 'lang_url_prefix' );
