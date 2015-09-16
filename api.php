@@ -254,6 +254,17 @@ function bbl_get_post_lang_code( $post ) {
 }
 
 /**
+ * Return the language code for the language a given post type represents
+ *
+ * @param string $post_type A post type name
+ * @return string A language code
+ * @access public
+ **/
+function bbl_get_post_type_lang_code( $post_type ) {
+	return Babble::get( 'post_public' )->get_post_type_lang_code( $post_type );
+}
+
+/**
  * Return the admin URL to create a new translation for a post in a
  * particular language.
  *

@@ -1183,6 +1183,20 @@ class Babble_Post_Public {
 	}
 
 	/**
+	 * Return the language code for the language a given post type represents
+	 *
+	 * @param string $post_type A post type name
+	 * @return string A language code
+	 * @access public
+	 **/
+	public function get_post_type_lang_code( $post_type ) {
+		if ( isset( $this->post_type_map[ $post_type ] ) ) {
+			return $this->post_type_map[ $post_type ];
+		}
+		return bbl_get_default_lang_code();
+	}
+
+	/**
 	 * Return the admin URL to create a new translation for a post in a
 	 * particular language.
 	 *
