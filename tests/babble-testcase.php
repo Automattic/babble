@@ -28,6 +28,9 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 
 		// reset language QVs so there's no pollution across tests:
 		$this->go_to( get_option( 'home' ) . '/en/' );
+
+		// reset all post types to the canonical language for the site
+		$this->set_post_types_to_locale( 'en_US' );
 	}
 
 	public function go_to( $url ) {
