@@ -52,6 +52,41 @@ class Test_Babble_Search extends Babble_UnitTestCase {
 
 	}
 
+	public function test_static_front_page() {
+
+		$this->tearDown();
+
+		$en_fp = $this->factory->post->create_and_get( array( 'post_type' => 'page', 'post_title' => 'Front Page' ) );
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $en_fp->ID );
+		$uk_fp = $this->create_post_translation( $en_fp, 'en_GB' );
+		$fr_fp = $this->create_post_translation( $en_fp, 'fr_FR' );
+
+		$posts = $this->create_test_posts();
+
+		// We shouldn't need to test all search scenarios in the context
+		// of a static front page
+
+		// UBIQUITOUS_WORD should be present in both US English posts
+		$this->go_to( '/en/?s=UBIQUITOUS_WORD' );
+		$matching_post_ids = wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' );
+		$expected_post_ids = wp_list_pluck( array( $posts['en1'], $posts['en2'] ), 'ID' );
+		$this->assertEqualSets( $expected_post_ids, $matching_post_ids );
+
+		// UNIQUE_WORD_2 should only be in the second US English post
+		$this->go_to( '/en/?s=UNIQUE_WORD_2_EN_US' );
+		$matching_post_ids = wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' );
+		$expected_post_ids = wp_list_pluck( array( $posts['en2'] ), 'ID' );
+		$this->assertEqualSets( $expected_post_ids, $matching_post_ids );
+
+		$this->set_post_types_to_locale( 'fr_FR' );
+
+		// UNIQUE_WORD_2_FR_FR should only be in the second French post
+		$this->go_to( '/fr/?s=UNIQUE_WORD_2_FR_FR' );
+		$matching_post_ids = wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' );
+		$expected_post_ids = wp_list_pluck( array( $posts['fr2'] ), 'ID' );
+		$this->assertEqualSets( $expected_post_ids, $matching_post_ids );
+	}
 
 	protected function create_test_posts() {
 
