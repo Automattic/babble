@@ -10,6 +10,7 @@ class Test_Babble_Search extends Babble_UnitTestCase {
 
 	public function test_search() {
 
+		$this->tearDown();
 
 		$posts = $this->create_test_posts();
 
