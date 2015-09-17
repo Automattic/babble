@@ -11,8 +11,6 @@ class Test_Babble_Search extends Babble_UnitTestCase {
 	public function test_search() {
 		global $wp;
 
-		$this->factory;
-		$this->factory->post;
 
 		$args = array( 'post_content' => '1 in US English  UBIQUITOUS_WORD UNIQUE_WORD_1_EN_US and some more words which I do no care a jot about and will not search for.' );
 		$en1 = $this->factory->post->create_and_get( $args );
