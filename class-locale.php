@@ -111,7 +111,7 @@ class Babble_Locale {
 	 **/
 	public function admin_notices() {
 		if ( ! get_option( 'permalink_structure' ) ) {
-			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble problem:</strong> Fancy permalinks are disabled. <a href="%s">Please enable them</a> in order to have language prefixed URLs work correctly.', 'babble' ), admin_url( '/options-permalink.php' ) ) );
+			echo wp_kses_post( sprintf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble problem:</strong> Fancy permalinks are disabled. <a href="%s">Please enable them</a> in order to have language prefixed URLs work correctly.', 'babble' ), esc_url( admin_url( '/options-permalink.php' ) ) ) ) );
 		}
 	}
 
