@@ -561,7 +561,7 @@ class Babble_Locale {
 	 **/
 	protected function maybe_set_cookie_content_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
-		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : false )
+		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? sanitize_text_field( $_GET[ 'lang' ] ) : false )
 			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
 	}
 
@@ -577,7 +577,7 @@ class Babble_Locale {
 	 **/
 	protected function maybe_set_cookie_interface_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
-		if ( $requested_lang = ( isset( $_POST[ 'interface_lang' ] ) ) ? $_POST[ 'interface_lang' ] : false )
+		if ( $requested_lang = ( isset( $_POST[ 'interface_lang' ] ) ) ? sanitize_text_field( $_POST[ 'interface_lang' ] ) : false )
 			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
 	}
 
