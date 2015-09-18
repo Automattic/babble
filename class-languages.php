@@ -385,7 +385,7 @@ class Babble_Languages extends Babble_Plugin {
 			$lang_pref = new stdClass;
 
 			if ( ! empty( $_POST[ 'display_name_' . $code ] ) ) {
-				$lang_pref->display_name = wp_strip_all_tags( wp_unslash( $_POST[ 'display_name_' . $code ] ) );
+				$lang_pref->display_name = wp_strip_all_tags( wp_unslash( sanitize_text_field( $_POST[ 'display_name_' . $code ] ) ) );
 			} else {
 				$lang_pref->display_name = $lang->name;
 			}
