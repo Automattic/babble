@@ -87,8 +87,6 @@ class Babble_Locale {
 	}
 
 	public function plugins_loaded() {
-		global $wpdb;
-
 		$this->content_lang_cookie   = 'wp-bbl_content_lang_' . COOKIEHASH;
 		$this->interface_lang_cookie = 'wp-bbl_interface_lang_' . COOKIEHASH;
 	}
@@ -626,7 +624,6 @@ class Babble_Locale {
 	 * @author Simon Wheatley
 	 **/
 	protected function maybe_update() {
-		global $wpdb;
 		$option_name = 'bbl-locale-version';
 		$version = get_option( $option_name, 0 );
 

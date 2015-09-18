@@ -1630,7 +1630,6 @@ class Babble_Post_Public {
 	 * @return void
 	 **/
 	protected function maybe_upgrade() {
-		global $wpdb;
 		$option_name = 'bbl_post_public_version';
 		$version = get_option( $option_name, 0 );
 
