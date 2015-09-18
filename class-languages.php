@@ -391,7 +391,7 @@ class Babble_Languages extends Babble_Plugin {
 			}
 
 			if ( ! empty( $_POST[ 'url_prefix_' . $code ] ) ) {
-				$lang_pref->url_prefix = wp_strip_all_tags( wp_unslash( $_POST[ 'url_prefix_' . $code ] ) );
+				$lang_pref->url_prefix = rawurlencode( wp_strip_all_tags( wp_unslash( sanitize_text_field( $_POST[ 'url_prefix_' . $code ] ) ) ) );
 			} else {
 				$lang_pref->url_prefix = $lang->url_prefix;
 			}
