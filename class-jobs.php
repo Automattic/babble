@@ -186,7 +186,9 @@ class Babble_Jobs extends Babble_Plugin {
 			if ( 'add' == $screen->action ) {
 				if ( isset( $_GET['lang'] ) ) {
 					$lang = bbl_get_lang( $_GET['lang'] );
-					$admin_title = sprintf( $pto->labels->add_item_context, $lang->display_name );
+					if ( false === empty( $lang ) && true === is_object( $lang ) ) {
+						$admin_title = sprintf( $pto->labels->add_item_context, $lang->display_name );
+					}
 				}
 			} else {
 				$lang = $this->get_job_language( $job );
