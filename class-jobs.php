@@ -281,7 +281,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 				foreach ( get_post_types( array( 'show_ui' => true ), 'objects' ) as $pto ) {
 					// Don't check the capability we already checked.
-					if ( $args[0] == $pto->cap->edit_posts ) {
+					if ( $args[0] === $pto->cap->edit_posts ) {
 						continue;
 					}
 
