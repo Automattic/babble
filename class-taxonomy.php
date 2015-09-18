@@ -781,6 +781,7 @@ class Babble_Taxonomies {
 			'lang'            => $lang_code,
 			'post_type'       => 'bbl_job',
 		);
+		$args = array_map( 'rawurlencode', $args );
 		$url = add_query_arg( $args, $url );
 		return $url;
 	}
