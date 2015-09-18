@@ -154,9 +154,9 @@ class Babble_Plugin {
 		if ( file_exists( $this->dir( "templates-admin/" . sanitize_file_name( $template_file ) ) ) ) {
 			require( $this->dir( "templates-admin/" . sanitize_file_name( $template_file ) ) );
 		} else {
-			$msg = sprintf( __( "This plugin admin template could not be found: %s" ), $this->dir( "templates-admin/" . sanitize_file_name( $template_file ) ) );
-			bbl_log( "Plugin template error: $msg", true );
-			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>" . esc_html( $msg ) . "</p>";
+			$msg = __( "This plugin admin template could not be found: %s" );
+			bbl_log( "Plugin template error: " . sprintf( $msg, $this->dir( "templates-admin/" . sanitize_file_name( $template_file ) ) ), true );
+			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>" . esc_html( sprintf( $msg, "templates-admin/" . sanitize_file_name( $template_file ) ) ) . "</p>";
 		}
 	}
 
