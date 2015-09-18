@@ -177,11 +177,11 @@ function bbl_comments_template( $file = '/comments.php', $separate_comments = fa
 	if ( !defined('COMMENTS_TEMPLATE') || !COMMENTS_TEMPLATE)
 		define('COMMENTS_TEMPLATE', true);
 
-	$include = apply_filters('comments_template', get_stylesheet_directory() . $file );
+	$include = apply_filters('comments_template', trailingslashit( get_stylesheet_directory() ) . sanitize_file_name( $file ) );
 	if ( file_exists( $include ) )
 		require $include;
-	elseif ( file_exists( get_template_directory() . $file ) )
-		require get_template_directory() .  $file;
+	elseif ( file_exists( trailingslashit( get_template_directory() ) . sanitize_file_name( $file ) ) )
+		require trailingslashit( get_template_directory() ) .  sanitize_file_name( $file );
 	else // Backward compat code will be removed in a future release
 		require ABSPATH . WPINC . '/theme-compat/comments.php';
 }
