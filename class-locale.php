@@ -359,13 +359,13 @@ class Babble_Locale {
 	 **/
 	public function body_class( array $classes ) {
 		$lang = bbl_get_current_lang();
-		$classes[] = 'bbl-' . $lang->text_direction;
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->text_direction );
 		# @TODO I don't think this class should be included:
-		$classes[] = 'bbl-' . sanitize_title( $lang->name );
-		$classes[] = 'bbl-' . sanitize_title( $lang->url_prefix );
-		$classes[] = 'bbl-' . sanitize_title( $lang->code );
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->name );
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->url_prefix );
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->code );
 		# @TODO I don't think this class should be included:
-		$classes[] = 'bbl-' . sanitize_title( $lang->display_name );
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->display_name );
 		return $classes;
 	}
 
@@ -383,16 +383,16 @@ class Babble_Locale {
 		$lang = bbl_get_lang( $post_lang_code );
 		if ( self::use_default_text_direction( $post ) ) {
 			$default_lang = bbl_get_default_lang();
-			$classes[] = 'bbl-post-' . $default_lang->text_direction;
+			$classes[] = 'bbl-post-' . sanitize_html_class( $default_lang->text_direction );
 		} else {
-			$classes[] = 'bbl-post-' . $lang->text_direction;
+			$classes[] = 'bbl-post-' . sanitize_html_class( $lang->text_direction );
 		}
 		# @TODO I don't think this class should be included:
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->name );
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->url_prefix );
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->code );
+		$classes[] = 'bbl-post-' . sanitize_html_class( $lang->name );
+		$classes[] = 'bbl-post-' . sanitize_html_class( $lang->url_prefix );
+		$classes[] = 'bbl-post-' . sanitize_html_class( $lang->code );
 		# @TODO I don't think this class should be included:
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->display_name );
+		$classes[] = 'bbl-post-' . sanitize_html_class( $lang->display_name );
 		return $classes;
 	}
 
