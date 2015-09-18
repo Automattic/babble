@@ -998,7 +998,9 @@ class Babble_Post_Public {
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
-		$edit_link = add_query_arg( array( 'lang' => bbl_get_default_lang_code() ), $edit_link );
+		$args = array( 'lang' => bbl_get_default_lang_code() );
+		$args = array_map( 'rawurlencode', $args );
+		$edit_link = add_query_arg( $args, $edit_link );
 		bbl_switch_to_lang( bbl_get_default_lang_code() );
 		$view_link = get_permalink( $default_post->ID );
 		bbl_restore_lang();
@@ -1196,6 +1198,7 @@ class Babble_Post_Public {
 			'lang'            => $lang_code,
 			'post_type'       => 'bbl_job',
 		);
+		$args = array_map( 'rawurlencode', $args );
 		$url = add_query_arg( $args, $url );
 		return $url;
 	}
