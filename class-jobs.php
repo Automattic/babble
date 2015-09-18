@@ -391,9 +391,11 @@ class Babble_Jobs extends Babble_Plugin {
 			} else if ( isset( $_GET['bbl_origin_term'] ) and isset( $_GET['bbl_origin_taxonomy'] ) ) {
 
 				$term = get_term( $_GET['bbl_origin_term'], $_GET['bbl_origin_taxonomy'] );
-				$objects['terms'][$term->taxonomy][$term->term_id] = $term;
-				$vars['origin_term']     = $term->term_id;
-				$vars['origin_taxonomy'] = $term->taxonomy;
+				if ( false === is_wp_error( $term ) ) {
+					$objects['terms'][ $term->taxonomy ][ $term->term_id ] = $term;
+					$vars['origin_term']                                   = $term->term_id;
+					$vars['origin_taxonomy']                               = $term->taxonomy;
+				}
 
 			}
 
