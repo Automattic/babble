@@ -453,8 +453,8 @@ class Babble_Languages extends Babble_Plugin {
 			$this->update_option( 'public_langs', $public_langs );
 			
 			// First the default language
-			$default_lang = $_POST[ 'default_lang' ];
-			$this->update_option( 'default_lang', $default_lang );
+			$default_lang = sanitize_text_field( $_POST[ 'default_lang' ] );
+			$this->update_option( 'default_lang', rawurlencode( $default_lang ) );
 			// Now the prefs
 			$this->update_option( 'lang_prefs', $lang_prefs );
 			// Now set a reassuring message and redirect back to the clean settings page
