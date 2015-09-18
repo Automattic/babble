@@ -85,9 +85,9 @@
 			</td>
 			<td class="manage-column column-text_direction">
 				<?php if ( 'ltr' == $lang->text_direction ) : ?>
-					<?php _e( '<strong>Left</strong> to right', 'babble' ); ?>
+					<?php echo wp_kses( __( '<strong>Left</strong> to right', 'babble' ), array( 'strong' => true ) ); ?>
 				<?php else : ?>
-					<?php _e( '<strong>Right</strong> to left', 'babble' ); ?>
+					<?php echo wp_kses( __( '<strong>Right</strong> to left', 'babble' ), array( 'strong' => true ) ); ?>
 				<?php endif; ?>
 			</td>
 		</tr>
