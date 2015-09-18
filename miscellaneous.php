@@ -48,8 +48,8 @@ function bbl_load_content_textdomain() {
 function bbl_admin_init() {
 	global $pagenow;
 
-	$taxonomy = isset( $_GET[ 'taxonomy' ] ) ? $_GET[ 'taxonomy' ] : false;
-	$post_type = isset( $_GET[ 'post_type' ] ) ? $_GET[ 'post_type' ] : false;
+	$taxonomy = isset( $_GET[ 'taxonomy' ] ) ? sanitize_text_field( $_GET[ 'taxonomy' ] ) : false;
+	$post_type = isset( $_GET[ 'post_type' ] ) ? sanitize_text_field( $_GET[ 'post_type' ] ) : false;
 
 	// Deal with the special URL case of the listing screens for vanilla posts
 	if ( ! $post_type && 'edit.php' == $pagenow )
