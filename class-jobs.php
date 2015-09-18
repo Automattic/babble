@@ -720,6 +720,9 @@ class Babble_Jobs extends Babble_Plugin {
 				$term_id = $term_info->term_id;
 
 				$term = get_term( $term_id, $taxo );
+				if ( true === is_wp_error( $term ) ) {
+					continue;
+				}
 				$terms_data[$term_id]['slug'] = sanitize_title( $terms_data[$term_id]['slug'] );
 
 				update_post_meta( $job->ID, "bbl_term_{$term_id}", $terms_data[$term_id] );
