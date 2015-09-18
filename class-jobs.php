@@ -369,7 +369,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 		if ( ( 'add' == $screen->action ) and isset( $_GET['lang'] ) ) {
 
-			$vars['lang_code'] = stripslashes( $_GET['lang'] );
+			$vars['lang_code'] = stripslashes( sanitize_text_field( $_GET['lang'] ) );
 
 			if ( isset( $_GET['bbl_origin_post'] ) ) {
 
