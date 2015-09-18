@@ -163,7 +163,7 @@ class Babble_Switcher_Menu {
 	 **/
 	protected function add_admin_generic_link( $lang ) {
 		$classes = array();
-		$href = add_query_arg( array( 'lang' => $lang->code ) );
+		$href = add_query_arg( array( 'lang' => rawurlencode( $lang->code ) ) );
 		$href = apply_filters( 'bbl_switch_admin_generic_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 		$classes[] = "bbl-lang-$lang->code bbl-lang-$lang->url_prefix";
@@ -202,6 +202,7 @@ class Babble_Switcher_Menu {
 				'taxonomy' => $this->translations[ $lang->code ]->taxonomy,
 				'tag_ID' => $this->translations[ $lang->code ]->term_id
 			);
+			$args = array_map( 'rawurlencode', $args );
 			$href = add_query_arg( $args );
 			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing-edit';
@@ -251,6 +252,7 @@ class Babble_Switcher_Menu {
 			'lang' => $lang->code,
 			'taxonomy' => bbl_get_taxonomy_in_lang( $this->screen->taxonomy, $lang->code ),
 		);
+		$args = array_map( 'rawurlencode', $args );
 		$href = add_query_arg( $args );
 		$href = apply_filters( 'bbl_switch_admin_list_terms_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
@@ -281,13 +283,23 @@ class Babble_Switcher_Menu {
 	protected function add_admin_post_link( $lang ) {
 		$classes = array();
 		if ( isset( $this->translations[ $lang->code ]->ID ) ) { // Translation exists
-			$href = add_query_arg( array( 'lang' => $lang->code, 'post' => $this->translations[ $lang->code ]->ID ) );
+			$args =  array(
+				'lang' => $lang->code,
+				'post' => $this->translations[ $lang->code ]->ID
+			);
+			$args = array_map( 'rawurlencode', $args );
+			$href = add_query_arg( $args );
 			$href = remove_query_arg( 'message', $href );
 			$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
 			$classes[] = 'bbl-existing-edit';
 			$classes[] = 'bbl-existing-edit-post';
 		} else if ( isset( $this->jobs[ $lang->code ]->ID ) ) { // Translation job exists
-			$href = add_query_arg( array( 'lang' => $lang->code, 'post' => $this->jobs[ $lang->code ]->ID ) );
+			$args = array(
+				'lang' => $lang->code,
+				'post' => $this->jobs[ $lang->code ]->ID
+			);
+			$args = array_map( 'rawurlencode', $args );
+			$href = add_query_arg( $args );
 			$href = remove_query_arg( 'message', $href );
 			$title = sprintf( _x( '%s: %s', 'Translation job status and language (example: In Progress: French)', 'babble' ), get_post_status_object( $this->jobs[ $lang->code ]->post_status )->label, $lang->display_name );
 			$classes[] = 'bbl-job-edit';
@@ -334,6 +346,7 @@ class Babble_Switcher_Menu {
 			'lang' => $lang->code,
 			'post_type' => bbl_get_post_type_in_lang( $this->screen->post_type, $lang->code ),
 		);
+		$args = array_map( 'rawurlencode', $args );
 		$href = add_query_arg( $args );
 		$href = apply_filters( 'bbl_switch_admin_list_posts_link', $href, $lang );
 		$title = sprintf( __( 'Switch to %s', 'babble' ), $lang->display_name );
