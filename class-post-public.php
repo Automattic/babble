@@ -158,7 +158,7 @@ class Babble_Post_Public {
 		$this->maybe_upgrade();
 		$post_type = false;
 		if ( isset( $_GET[ 'post_type' ] ) ) {
-			$post_type = sanitize_texf_field( $_GET[ 'post_type' ] );
+			$post_type = sanitize_text_field( $_GET[ 'post_type' ] );
 		} else if ( isset( $_GET[ 'post' ] ) ) {
 			$post = (int) $_GET[ 'post' ];
 			$post = get_post( $post );
