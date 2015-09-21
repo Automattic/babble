@@ -12,15 +12,11 @@ php:
 #    - hhvm
 
 env:
-    # latest stable:
-    - WP_VERSION=latest WP_MULTISITE=0
-    - WP_VERSION=latest WP_MULTISITE=1
-    # previous stable:
-    - WP_VERSION=4.2.5 WP_MULTISITE=0
-    - WP_VERSION=4.2.5 WP_MULTISITE=1
-    # earliest supported:
-    - WP_VERSION=4.0.8 WP_MULTISITE=0
-    - WP_VERSION=4.0.8 WP_MULTISITE=1
+    matrix:
+        - WP_VERSION=latest # latest, obvs
+        - WP_VERSION=4.2.5  # penultimate version
+        - WP_VERSION=4.0.8  # earliest supported version
+        - WP_MULTISITE=0
 
 install:
     - bash bin/install.sh
