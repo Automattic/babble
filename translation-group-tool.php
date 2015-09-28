@@ -101,6 +101,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			'page' => 'btgt',
 			'lang' => bbl_get_default_lang_code(),
 		);
+		$args = array_map( 'rawurlencode', $args );
 		$url = add_query_arg( $args, admin_url( 'tools.php' ) );
 		$url .= '#' . $_GET[ 'anchor' ];
 		wp_safe_redirect( $url );
