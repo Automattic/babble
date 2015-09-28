@@ -145,7 +145,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			return;
 		}
 
-		if ( ! isset( $_POST[ '_bbl_reconnect_nonce' ] ) {
+		if ( ! isset( $_POST[ '_bbl_reconnect_nonce' ] ) ) {
 			return;
 		}
 
