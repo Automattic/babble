@@ -116,7 +116,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function load_post() {
-		if ( ! $post_id = isset( $_GET[ 'post' ] ) ? $_GET[ 'post' ] : false )
+		if ( ! $post_id = isset( $_GET[ 'post' ] ) ? absint( $_GET[ 'post' ] ) : false )
 			return;
 		$post = get_post( $post_id );
 		if ( ! in_array( $post->post_status, array( 'draft', 'pending', 'publish' ) ) )
@@ -142,7 +142,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		if ( ! isset( $_POST[ '_bbl_reconnect_nonce' ] ) )
 			return;
 
-		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
+		$posted_id = isset( $_POST[ 'post_ID' ] ) ? absint( $_POST[ 'post_ID' ] ) : 0;
 		if ( $posted_id != $post_id )
 			return;
 		// While we're at it, let's check the nonce
