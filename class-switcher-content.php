@@ -95,8 +95,8 @@ class Babble_Switcher_Menu {
 			$this->translations = bbl_get_post_translations( get_option( 'page_for_posts' ) );
 			$this->jobs         = bbl_get_incomplete_post_jobs( get_option( 'page_for_posts' ) );
 		} else if ( ( !is_admin() and ( is_tax() || is_category() ) ) || $editing_term ) {
-			if ( isset( $_REQUEST[ 'tag_ID' ] ) )
-				$term = get_term( absint( $_REQUEST[ 'tag_ID' ] ), $this->screen->taxonomy );
+			if ( isset( $_GET[ 'tag_ID' ] ) )
+				$term = get_term( absint( $_GET[ 'tag_ID' ] ), $this->screen->taxonomy );
 			else
 				$term = get_queried_object();
 			$this->translations = bbl_get_term_translations( $term->term_id, $term->taxonomy );
