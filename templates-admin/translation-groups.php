@@ -78,7 +78,7 @@
 						$posts = array();
 						foreach ( $post_ids as $post_id )
 							$posts[] = get_post( $post_id );
-						usort( $posts, array( 'SortPosts', 'post_type_descending' ) );
+						usort( $posts, array( 'Babble_SortPosts', 'post_type_descending' ) );
 						if ( $posts ) :
 					?>
 					<?php foreach ( $posts as $post ) : if ( ! in_array( $post->post_status, $selected_stati ) ) continue; ?>
