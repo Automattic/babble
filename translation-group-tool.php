@@ -77,7 +77,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		if ( ! $action = ( isset( $_GET[ 'btgt_action' ] ) ) ? sanitize_text_field( $_GET[ 'btgt_action' ] ) : false )
 			return;
 
-		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? intval( $_GET[ 'obj_id' ] ) : false;
+		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? absint( $_GET[ 'obj_id' ] ) : false;
 		$wp_nonce = ( isset( $_GET[ '_wpnonce' ] ) ) ? sanitize_text_field( $_GET[ '_wpnonce' ] ) : false;
 		switch ( $action ) {
 			case 'delete_from_groups':
