@@ -173,7 +173,6 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 **/
 	public function pre_sync_properties( $postdata, $origin_id ) {
 		$current_post = get_post( $postdata[ 'ID' ] );
-		$origin_post = get_post( $origin_id );
 		if ( $current_post->post_parent != $postdata[ 'post_parent' ] ) {
 			$user = wp_get_current_user();
 			$remote_ip = $_SERVER[ 'REMOTE_ADDR' ];
