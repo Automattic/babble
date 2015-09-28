@@ -74,11 +74,11 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function load_tools_page() {
-		if ( ! $action = ( isset( $_GET[ 'btgt_action' ] ) ) ? $_GET[ 'btgt_action' ] : false )
+		if ( ! $action = ( isset( $_GET[ 'btgt_action' ] ) ) ? sanitize_text_field( $_GET[ 'btgt_action' ] ) : false )
 			return;
 
-		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? $_GET[ 'obj_id' ] : false;
-		$wp_nonce = ( isset( $_GET[ '_wpnonce' ] ) ) ? $_GET[ '_wpnonce' ] : false;
+		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? intval( $_GET[ 'obj_id' ] ) : false;
+		$wp_nonce = ( isset( $_GET[ '_wpnonce' ] ) ) ? sanitize_text_field( $_GET[ '_wpnonce' ] ) : false;
 		switch ( $action ) {
 			case 'delete_from_groups':
 				if ( ! wp_verify_nonce( $wp_nonce, "btgt_delete_from_groups_$obj_id" ) ) {
