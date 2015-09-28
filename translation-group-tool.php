@@ -80,12 +80,12 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 
 		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? absint( $_GET[ 'obj_id' ] ) : false;
 		$wp_nonce = ( isset( $_GET[ '_wpnonce' ] ) ) ? sanitize_text_field( $_GET[ '_wpnonce' ] ) : false;
+		if ( ! $wp_nonce || ! wp_verify_nonce( $wp_nonce, "btgt_{$action}_$obj_id" ) ) {
+			$this->set_admin_error( 'Sorry, went wrong. Please try again.' );
+			return;
+		}
 		switch ( $action ) {
 			case 'delete_from_groups':
-				if ( ! wp_verify_nonce( $wp_nonce, "btgt_delete_from_groups_$obj_id" ) ) {
-					$this->set_admin_error( 'Sorry, went wrong. Please try again.' );
-					return;
-				}
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
 				$this->set_admin_notice( "Deleted term relationships for $obj_id" );
 				break;
