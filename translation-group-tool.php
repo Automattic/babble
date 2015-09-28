@@ -251,6 +251,7 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		);
 		if ( ! is_null( $anchor ) )
 			$args[ 'anchor' ] = $anchor;
+		$args = array_map( 'rawurlencode', $args );
 		return wp_nonce_url( add_query_arg( $args ), "btgt_{$action}_$obj_id" );
 	}
 
