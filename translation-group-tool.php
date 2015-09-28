@@ -86,14 +86,26 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 		}
 		switch ( $action ) {
 			case 'delete_from_groups':
+				if ( ! current_user_can( 'manage_options' ) ) {
+					$this->set_admin_error( "You are not allowed to delete term relation ships for $obj_id." );
+					return;
+				}
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
 				$this->set_admin_notice( "Deleted term relationships for $obj_id" );
 				break;
 			case 'delete_post':
+				if ( ! current_user_can( 'delete_post', $obj_id ) ) {
+					$this->set_admin_error( 'You are not allowed to move this post to the trash.' );
+					return;
+				}
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
 				wp_delete_post( $obj_id, true );
 				break;
 			case 'trash_post':
+				if ( ! current_user_can( 'delete_post', $obj_id ) ) {
+					$this->set_admin_error( 'You are not allowed to move this post to the trash.' );
+					return;
+				}
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
 				wp_trash_post( $obj_id );
 				break;
