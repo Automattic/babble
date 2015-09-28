@@ -116,7 +116,6 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function load_post() {
-		$screen = get_current_screen();
 		if ( ! $post_id = isset( $_GET[ 'post' ] ) ? $_GET[ 'post' ] : false )
 			return;
 		$post = get_post( $post_id );
