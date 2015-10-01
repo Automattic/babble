@@ -53,7 +53,7 @@ class Test_Babble_Search extends Babble_UnitTestCase {
 
 	}
 
-	public function test_static_front_page() {
+	public function test_static_front_page_search() {
 
 		$this->tearDown();
 		$this->setUp();
