@@ -11,6 +11,7 @@ class Test_Babble_Search extends Babble_UnitTestCase {
 	public function test_search() {
 
 		$this->tearDown();
+		$this->setUp();
 
 		$posts = $this->create_test_posts();
 
@@ -55,6 +56,7 @@ class Test_Babble_Search extends Babble_UnitTestCase {
 	public function test_static_front_page() {
 
 		$this->tearDown();
+		$this->setUp();
 
 		$en_fp = $this->factory->post->create_and_get( array( 'post_type' => 'page', 'post_title' => 'Front Page' ) );
 		update_option( 'show_on_front', 'page' );
