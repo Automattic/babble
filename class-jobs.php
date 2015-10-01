@@ -680,14 +680,16 @@ class Babble_Jobs extends Babble_Plugin {
 
 				$meta_data = stripslashes_deep( $_POST['bbl_translation']['meta'] );
 				if ( true === is_array( $meta_data ) ) {
-					$meta_data = array_map( 'sanitize_text_field', $meta_data );
+					$meta_data = $this->array_map_deep( 'wp_kses_post', $meta_data );
 				} else {
 					$meta_data = sanitize_text_field( $meta_data );
 				}
 
 				foreach ( $objects['meta'] as $meta_key => $meta_field ) {
 
-					$value = wp_kses_post( $meta_data[ $meta_key ] );
+					$value = apply_filters( 'bbl_meta_before_save', $meta_data[ $meta_key ], $job, $meta_key, $meta_field, $meta_data );
+
+					$value = $this->array_map_deep( 'wp_kses_post', $value );
 
 					update_post_meta( $job->ID, "bbl_meta_{$meta_key}", $value );
 
@@ -751,6 +753,20 @@ class Babble_Jobs extends Babble_Plugin {
 
 		}
 
+	}
+
+	private function array_map_deep($callback, $array) {
+		$new = array();
+		if( is_array($array) ) foreach ($array as $key => $val) {
+			if (is_array($val)) {
+				$new[$key] = $this->array_map_deep($callback, $val );
+			} else {
+				$new[$key] = call_user_func($callback, $val);
+			}
+		} else {
+			$new = call_user_func( $callback, $array );
+		}
+		return $new;
 	}
 
 	public function save_post( $post_id, WP_Post $post ) {
