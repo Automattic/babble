@@ -1044,6 +1044,8 @@ class Babble_Post_Public {
 	 * Takes a set of query vars and amends them to show the content
 	 * in the current language.
 	 *
+	 * @TODO This method is getting really hairy and complex, and could do with refactoring
+	 *
 	 * @param array $query_vars A set of WordPress query vars (sometimes called query arguments)
 	 * @param string|boolean $request If this is called on the parse_request hook, $request contains the root relative URL
 	 * @return array $query_vars A set of WordPress query vars
@@ -1054,8 +1056,9 @@ class Babble_Post_Public {
 		$query_vars[ 'bbl_original_query' ] = $query_vars;
 
 		// We've done this already (avoid re-translating the vars)
-		if ( isset( $query_vars[ 'bbl_done_translation' ] ) && $query_vars[ 'bbl_done_translation' ] )
+		if ( isset( $query_vars[ 'bbl_done_translation' ] ) && $query_vars[ 'bbl_done_translation' ] ) {
 			return $query_vars;
+		}
 		$query_vars[ 'bbl_done_translation' ] = true;
 
 		$lang_url_prefix = isset( $query_vars[ 'lang_url_prefix' ] ) ? $query_vars[ 'lang_url_prefix' ] : get_query_var( 'lang_url_prefix' );
@@ -1066,7 +1069,7 @@ class Babble_Post_Public {
 			unset( $query_vars[ 'error' ] );
 
 			// @FIXME: Cater for front pages which don't list the posts
-			if ( 'page' == get_option('show_on_front') && $page_on_front = get_option('page_on_front') ) {
+			if ( ! isset( $query_vars['s'] ) && 'page' == get_option( 'show_on_front' ) && $page_on_front = get_option( 'page_on_front' ) ) {
 				// @TODO: Get translated page ID
 
 				// @FIXME: This is a rather hacky approach to fixing the is_front_page function for translated front pages
@@ -1176,6 +1179,20 @@ class Babble_Post_Public {
 			return new WP_Error( 'bbl_invalid_post', __( 'Invalid Post passed to get_post_lang_code', 'babble' ) );
 		if ( isset( $this->post_type_map[ $post->post_type ] ) ) {
 			return $this->post_type_map[ $post->post_type ];
+		}
+		return bbl_get_default_lang_code();
+	}
+
+	/**
+	 * Return the language code for the language a given post type represents
+	 *
+	 * @param string $post_type A post type name
+	 * @return string A language code
+	 * @access public
+	 **/
+	public function get_post_type_lang_code( $post_type ) {
+		if ( isset( $this->post_type_map[ $post_type ] ) ) {
+			return $this->post_type_map[ $post_type ];
 		}
 		return bbl_get_default_lang_code();
 	}

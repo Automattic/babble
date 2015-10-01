@@ -28,6 +28,9 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 
 		// reset language QVs so there's no pollution across tests:
 		$this->go_to( get_option( 'home' ) . '/en/' );
+
+		// reset all post types to the canonical language for the site
+		$this->set_post_types_to_locale( 'en_US' );
 	}
 
 	public function go_to( $url ) {
@@ -44,12 +47,21 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 		return parent::go_to( $url );
 	}
 
-	protected function create_post_translation( WP_Post $origin, $lang_code ) {
+	protected function create_post_translation( WP_Post $origin, $lang_code, $args = array() ) {
+
+		$default_args = array(
+			'post_title'   => false,
+			'post_name'    => false,
+			'post_content' => false,
+			'post_status'  => false,
+		);
+		$args = wp_parse_args( $args, $default_args );
 
 		$post = Babble::get( 'post_public' )->initialise_translation( $origin, $lang_code );
-		$post->post_status = 'publish';
-		$post->post_title  = rand_str();
-		$post->post_name   = rand_str();
+		$post->post_status  = ( false === $args['post_status'] ) ?  'publish'  : $args['post_status'];
+		$post->post_title   = ( false === $args['post_title'] ) ?   rand_str() : $args['post_title'];
+		$post->post_name    = ( false === $args['post_name'] ) ?    rand_str() : $args['post_name'];
+		$post->post_content = ( false === $args['post_content'] ) ? rand_str() : $args['post_content'];
 		wp_update_post( $post );
 
 		return $post;
@@ -134,6 +146,22 @@ class Babble_UnitTestCase extends WP_UnitTestCase {
 
 		Babble::get( 'languages' )->initiate();
 
+	}
+
+	/**
+	 * This resets post types as though they were created
+	 * in the context of the locale specified. This allows
+	 * us to switch locale context during a test and not
+	 * have the
+	 *
+	 * @param string $locale A locale string
+	 */
+	protected function set_post_types_to_locale( $locale ) {
+		$ptos = get_post_types( array( 'public' => true ) );
+		foreach ( $ptos as $post_type => $object ) {
+			$post_type_obj = get_post_type_object( $post_type );
+			$post_type_obj->exclude_from_search = ( bbl_get_post_type_lang_code( $post_type ) != $locale );
+		}
 	}
 
 }

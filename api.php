@@ -75,6 +75,9 @@ function bbl_is_public_lang( $lang_code ) {
 /**
  * Set the current (content) lang.
  *
+ * Note that switching language does not affect what post
+ * types are included/excluded from search.
+ *
  * @uses Babble_Locale::switch_to_lang to do the actual work
  * @see switch_to_blog for similarities
  *
@@ -87,6 +90,9 @@ function bbl_switch_to_lang( $lang ) {
 
 /**
  * Restore the previous lang.
+ *
+ * Note that switching language does not affect what post
+ * types are included/excluded from search.
  *
  * @uses Babble_Locale::restore_lang to do the actual work
  * @see restore_current_blog for similarities
@@ -245,6 +251,17 @@ function bbl_get_default_lang_post( $post ) {
  **/
 function bbl_get_post_lang_code( $post ) {
 	return Babble::get( 'post_public' )->get_post_lang_code( $post );
+}
+
+/**
+ * Return the language code for the language a given post type represents
+ *
+ * @param string $post_type A post type name
+ * @return string A language code
+ * @access public
+ **/
+function bbl_get_post_type_lang_code( $post_type ) {
+	return Babble::get( 'post_public' )->get_post_type_lang_code( $post_type );
 }
 
 /**
