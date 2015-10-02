@@ -709,7 +709,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 			$terms_data = stripslashes_deep( $_POST['bbl_translation']['terms'] );
 			if ( true === is_array( $terms_data ) ) {
-				$terms_data = array_map( 'sanitize_text_field', $terms_data );
+				$terms_data = $this->array_map_deep( 'sanitize_text_field', $terms_data );
 			} else {
 				$terms_data = sanitize_text_field( $terms_data );
 			}
@@ -755,18 +755,11 @@ class Babble_Jobs extends Babble_Plugin {
 
 	}
 
-	private function array_map_deep($callback, $array) {
-		$new = array();
-		if( is_array($array) ) foreach ($array as $key => $val) {
-			if (is_array($val)) {
-				$new[$key] = $this->array_map_deep($callback, $val );
-			} else {
-				$new[$key] = call_user_func($callback, $val);
-			}
-		} else {
-			$new = call_user_func( $callback, $array );
-		}
-		return $new;
+	private function array_map_deep( $callback, $array ) {
+		array_walk_recursive($array, function(&$v) use ($callback) {
+			$v = $callback($v);
+		});
+		return $array;
 	}
 
 	public function save_post( $post_id, WP_Post $post ) {
