@@ -755,7 +755,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 	}
 
-	private function array_map_deep( $callback, $array ) {
+	public function array_map_deep( $callback, $array ) {
 		array_walk_recursive($array, function(&$v) use ($callback) {
 			$v = $callback($v);
 		});
