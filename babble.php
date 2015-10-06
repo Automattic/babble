@@ -53,27 +53,29 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * @copyright Copyright (c) Simon Wheatley & Code For The People Ltd (except where noted)
  */
 
-require_once 'class-babble-log.php';
+define( 'BABBLE_PLUGIN_DIR', dirname(__FILE__) );
 
-require_once 'api.php';
-require_once 'deprecated.php';
-require_once 'widget.php';
+require_once BABBLE_PLUGIN_DIR . '/class-babble-log.php';
 
-require_once 'class-plugin.php';
+require_once BABBLE_PLUGIN_DIR . '/api.php';
+require_once BABBLE_PLUGIN_DIR . '/deprecated.php';
+require_once BABBLE_PLUGIN_DIR . '/widget.php';
 
-require_once 'class-jobs.php';
-require_once 'class-meta.php';
-require_once 'class-languages.php';
-require_once 'class-locale.php';
-require_once 'class-post-public.php';
-require_once 'class-comment.php';
-require_once 'class-taxonomy.php';
-require_once 'class-switcher-content.php';
-require_once 'class-switcher-interface.php';
-require_once 'class-admin-bar.php';
-require_once 'class-translator.php';
+require_once BABBLE_PLUGIN_DIR . '/class-plugin.php';
 
-require_once 'miscellaneous.php';
+require_once BABBLE_PLUGIN_DIR . '/class-jobs.php';
+require_once BABBLE_PLUGIN_DIR . '/class-meta.php';
+require_once BABBLE_PLUGIN_DIR . '/class-languages.php';
+require_once BABBLE_PLUGIN_DIR . '/class-locale.php';
+require_once BABBLE_PLUGIN_DIR . '/class-post-public.php';
+require_once BABBLE_PLUGIN_DIR . '/class-comment.php';
+require_once BABBLE_PLUGIN_DIR . '/class-taxonomy.php';
+require_once BABBLE_PLUGIN_DIR . '/class-switcher-content.php';
+require_once BABBLE_PLUGIN_DIR . '/class-switcher-interface.php';
+require_once BABBLE_PLUGIN_DIR . '/class-admin-bar.php';
+require_once BABBLE_PLUGIN_DIR . '/class-translator.php';
+
+require_once BABBLE_PLUGIN_DIR . '/miscellaneous.php';
 
 final class Babble {
 
