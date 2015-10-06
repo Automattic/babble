@@ -74,25 +74,38 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function load_tools_page() {
-		if ( ! $action = ( isset( $_GET[ 'btgt_action' ] ) ) ? $_GET[ 'btgt_action' ] : false )
+		if ( ! $action = ( isset( $_GET[ 'btgt_action' ] ) ) ? sanitize_text_field( $_GET[ 'btgt_action' ] ) : false ) {
 			return;
+		}
 
-		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? $_GET[ 'obj_id' ] : false;
-		$wp_nonce = ( isset( $_GET[ '_wpnonce' ] ) ) ? $_GET[ '_wpnonce' ] : false;
+		$obj_id = ( isset( $_GET[ 'obj_id' ] ) ) ? absint( $_GET[ 'obj_id' ] ) : false;
+		$wp_nonce = ( isset( $_GET[ '_wpnonce' ] ) ) ? sanitize_text_field( $_GET[ '_wpnonce' ] ) : false;
+		if ( ! $wp_nonce || ! wp_verify_nonce( $wp_nonce, "btgt_{$action}_$obj_id" ) ) {
+			$this->set_admin_error( 'Sorry, went wrong. Please try again.' );
+			return;
+		}
 		switch ( $action ) {
 			case 'delete_from_groups':
-				if ( ! wp_verify_nonce( $wp_nonce, "btgt_delete_from_groups_$obj_id" ) ) {
-					$this->set_admin_error( 'Sorry, went wrong. Please try again.' );
+				if ( ! current_user_can( 'manage_options' ) ) {
+					$this->set_admin_error( "You are not allowed to delete term relation ships for $obj_id." );
 					return;
 				}
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
 				$this->set_admin_notice( "Deleted term relationships for $obj_id" );
 				break;
 			case 'delete_post':
+				if ( ! current_user_can( 'delete_post', $obj_id ) ) {
+					$this->set_admin_error( 'You are not allowed to move this post to the trash.' );
+					return;
+				}
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
 				wp_delete_post( $obj_id, true );
 				break;
 			case 'trash_post':
+				if ( ! current_user_can( 'delete_post', $obj_id ) ) {
+					$this->set_admin_error( 'You are not allowed to move this post to the trash.' );
+					return;
+				}
 				wp_delete_object_term_relationships( $obj_id, 'post_translation' );
 				wp_trash_post( $obj_id );
 				break;
@@ -101,8 +114,9 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			'page' => 'btgt',
 			'lang' => bbl_get_default_lang_code(),
 		);
+		$args = array_map( 'rawurlencode', $args );
 		$url = add_query_arg( $args, admin_url( 'tools.php' ) );
-		$url .= '#' . $_GET[ 'anchor' ];
+		$url .= '#' . rawurlencode( $_GET[ 'anchor' ] );
 		wp_safe_redirect( $url );
 	}
 
@@ -115,16 +129,19 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return void
 	 **/
 	public function load_post() {
-		$screen = get_current_screen();
-		if ( ! $post_id = isset( $_GET[ 'post' ] ) ? $_GET[ 'post' ] : false )
+		if ( ! $post_id = isset( $_GET[ 'post' ] ) ? absint( $_GET[ 'post' ] ) : false ) {
 			return;
+		}
 		$post = get_post( $post_id );
-		if ( ! in_array( $post->post_status, array( 'draft', 'pending', 'publish' ) ) )
+		if ( ! in_array( $post->post_status, array( 'draft', 'pending', 'publish' ) ) ) {
 			return;
-		if ( bbl_get_post_lang_code( $post ) == bbl_get_default_lang_code() )
+		}
+		if ( bbl_get_post_lang_code( $post ) == bbl_get_default_lang_code() ) {
 			return;
-		if ( $default_lang_post = bbl_get_post_in_lang( $post, bbl_get_default_lang_code() ) )
+		}
+		if ( $default_lang_post = bbl_get_post_in_lang( $post, bbl_get_default_lang_code() ) ) {
 			return;
+		}
 		add_meta_box( 'bbl_reconnect', 'Reconnect Translation', array( $this, 'metabox_reconnect' ), $post->post_type, 'side' );
 	}
 
@@ -136,21 +153,25 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 * @return void
 	 **/
 	function save_post( $post_id, $post ) {
-		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) )
+		if ( ! in_array( $post->post_status, array( 'draft', 'publish' ) ) ) {
 			return;
+		}
 
-		if ( ! isset( $_POST[ '_bbl_reconnect_nonce' ] ) )
+		if ( ! isset( $_POST[ '_bbl_reconnect_nonce' ] ) ) {
 			return;
+		}
 
-		$posted_id = isset( $_POST[ 'post_ID' ] ) ? $_POST[ 'post_ID' ] : 0;
-		if ( $posted_id != $post_id )
+		$posted_id = isset( $_POST[ 'post_ID' ] ) ? absint( $_POST[ 'post_ID' ] ) : 0;
+		if ( $posted_id != $post_id ) {
 			return;
+		}
 		// While we're at it, let's check the nonce
 		check_admin_referer( "bbl_reconnect_translation_$post_id", '_bbl_reconnect_nonce' );
 
 		// Check the user has set a transid
-		if ( ! $transid = isset( $_POST[ 'bbl_transid' ] ) ? (int) $_POST[ 'bbl_transid' ] : false )
+		if ( ! $transid = isset( $_POST[ 'bbl_transid' ] ) ? (int) $_POST[ 'bbl_transid' ] : false ) {
 			return;
+		}
 
 		// Check the transid the user has set actually exists
 		if ( ! term_exists( $transid, 'post_translation' ) ) {
@@ -173,7 +194,6 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 	 **/
 	public function pre_sync_properties( $postdata, $origin_id ) {
 		$current_post = get_post( $postdata[ 'ID' ] );
-		$origin_post = get_post( $origin_id );
 		if ( $current_post->post_parent != $postdata[ 'post_parent' ] ) {
 			$user = wp_get_current_user();
 			$remote_ip = $_SERVER[ 'REMOTE_ADDR' ];
@@ -250,8 +270,10 @@ class BabbleTranslationGroupTool extends Babble_Plugin {
 			'obj_id' => $obj_id,
 			'lang' => bbl_get_default_lang_code(),
 		);
-		if ( ! is_null( $anchor ) )
-			$args[ 'anchor' ] = $anchor;
+		if ( ! is_null( $anchor ) ) {
+			$args['anchor'] = $anchor;
+		}
+		$args = array_map( 'rawurlencode', $args );
 		return wp_nonce_url( add_query_arg( $args ), "btgt_{$action}_$obj_id" );
 	}
 

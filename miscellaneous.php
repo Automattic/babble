@@ -48,8 +48,8 @@ function bbl_load_content_textdomain() {
 function bbl_admin_init() {
 	global $pagenow;
 
-	$taxonomy = isset( $_GET[ 'taxonomy' ] ) ? $_GET[ 'taxonomy' ] : false;
-	$post_type = isset( $_GET[ 'post_type' ] ) ? $_GET[ 'post_type' ] : false;
+	$taxonomy = isset( $_GET[ 'taxonomy' ] ) ? sanitize_text_field( $_GET[ 'taxonomy' ] ) : false;
+	$post_type = isset( $_GET[ 'post_type' ] ) ? sanitize_text_field( $_GET[ 'post_type' ] ) : false;
 
 	// Deal with the special URL case of the listing screens for vanilla posts
 	if ( ! $post_type && 'edit.php' == $pagenow )
@@ -60,7 +60,7 @@ function bbl_admin_init() {
 	if ( $taxonomy ) {
 		$new_taxonomy = bbl_get_taxonomy_in_lang( $taxonomy, $cur_lang_code );
 		if ( $taxonomy != $new_taxonomy ) {
-			$url = add_query_arg( array( 'taxonomy' => $new_taxonomy ) );
+			$url = add_query_arg( array( 'taxonomy' => rawurlencode( $new_taxonomy ) ) );
 			wp_safe_redirect( $url );
 			exit;
 		}
@@ -68,7 +68,7 @@ function bbl_admin_init() {
 	if ( $post_type ) {
 		$new_post_type = bbl_get_post_type_in_lang( $post_type, $cur_lang_code );
 		if ( $post_type != $new_post_type ) {
-			$url = add_query_arg( array( 'post_type' => $new_post_type ) );
+			$url = add_query_arg( array( 'post_type' => rawurlencode( $new_post_type ) ) );
 			wp_safe_redirect( $url );
 			exit;
 		}
@@ -177,11 +177,11 @@ function bbl_comments_template( $file = '/comments.php', $separate_comments = fa
 	if ( !defined('COMMENTS_TEMPLATE') || !COMMENTS_TEMPLATE)
 		define('COMMENTS_TEMPLATE', true);
 
-	$include = apply_filters('comments_template', STYLESHEETPATH . $file );
+	$include = apply_filters('comments_template', trailingslashit( get_stylesheet_directory() ) . sanitize_file_name( $file ) );
 	if ( file_exists( $include ) )
 		require $include;
-	elseif ( file_exists( TEMPLATEPATH . $file ) )
-		require TEMPLATEPATH .  $file;
+	elseif ( file_exists( trailingslashit( get_template_directory() ) . sanitize_file_name( $file ) ) )
+		require trailingslashit( get_template_directory() ) .  sanitize_file_name( $file );
 	else // Backward compat code will be removed in a future release
 		require ABSPATH . WPINC . '/theme-compat/comments.php';
 }

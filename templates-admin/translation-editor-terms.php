@@ -9,7 +9,7 @@
 
 		<div class="bbl-translation-section">
 
-			<h4><?php _e( 'Name', 'babble' ); ?></h4>
+			<h4><?php esc_html_e( 'Name', 'babble' ); ?></h4>
 			<div class="bbl-translation-property bbl-translation-property-term_name">
 				<input type="text" class="regular-text" name="bbl_translation[terms][<?php echo esc_attr( $original->term_id ); ?>][name]" value="<?php echo esc_attr( $translation->name ); ?>">
 			</div>

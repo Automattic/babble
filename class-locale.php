@@ -87,8 +87,6 @@ class Babble_Locale {
 	}
 
 	public function plugins_loaded() {
-		global $wpdb;
-
 		$this->content_lang_cookie   = 'wp-bbl_content_lang_' . COOKIEHASH;
 		$this->interface_lang_cookie = 'wp-bbl_interface_lang_' . COOKIEHASH;
 	}
@@ -113,7 +111,7 @@ class Babble_Locale {
 	 **/
 	public function admin_notices() {
 		if ( ! get_option( 'permalink_structure' ) ) {
-			printf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble problem:</strong> Fancy permalinks are disabled. <a href="%s">Please enable them</a> in order to have language prefixed URLs work correctly.', 'babble' ), admin_url( '/options-permalink.php' ) ) );
+			echo wp_kses_post( sprintf( '<div class="error"><p>%s</p></div>', sprintf( __( '<strong>Babble problem:</strong> Fancy permalinks are disabled. <a href="%s">Please enable them</a> in order to have language prefixed URLs work correctly.', 'babble' ), esc_url( admin_url( '/options-permalink.php' ) ) ) ) );
 		}
 	}
 
@@ -361,13 +359,13 @@ class Babble_Locale {
 	 **/
 	public function body_class( array $classes ) {
 		$lang = bbl_get_current_lang();
-		$classes[] = 'bbl-' . $lang->text_direction;
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->text_direction );
 		# @TODO I don't think this class should be included:
-		$classes[] = 'bbl-' . sanitize_title( $lang->name );
-		$classes[] = 'bbl-' . sanitize_title( $lang->url_prefix );
-		$classes[] = 'bbl-' . sanitize_title( $lang->code );
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->name );
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->url_prefix );
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->code );
 		# @TODO I don't think this class should be included:
-		$classes[] = 'bbl-' . sanitize_title( $lang->display_name );
+		$classes[] = 'bbl-' . sanitize_html_class( $lang->display_name );
 		return $classes;
 	}
 
@@ -385,16 +383,16 @@ class Babble_Locale {
 		$lang = bbl_get_lang( $post_lang_code );
 		if ( self::use_default_text_direction( $post ) ) {
 			$default_lang = bbl_get_default_lang();
-			$classes[] = 'bbl-post-' . $default_lang->text_direction;
+			$classes[] = 'bbl-post-' . sanitize_html_class( $default_lang->text_direction );
 		} else {
-			$classes[] = 'bbl-post-' . $lang->text_direction;
+			$classes[] = 'bbl-post-' . sanitize_html_class( $lang->text_direction );
 		}
 		# @TODO I don't think this class should be included:
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->name );
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->url_prefix );
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->code );
+		$classes[] = 'bbl-post-' . sanitize_html_class( $lang->name );
+		$classes[] = 'bbl-post-' . sanitize_html_class( $lang->url_prefix );
+		$classes[] = 'bbl-post-' . sanitize_html_class( $lang->code );
 		# @TODO I don't think this class should be included:
-		$classes[] = 'bbl-post-' . sanitize_title( $lang->display_name );
+		$classes[] = 'bbl-post-' . sanitize_html_class( $lang->display_name );
 		return $classes;
 	}
 
@@ -563,7 +561,7 @@ class Babble_Locale {
 	 **/
 	protected function maybe_set_cookie_content_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's content language for them
-		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? $_GET[ 'lang' ] : false )
+		if ( $requested_lang = ( isset( $_GET[ 'lang' ] ) ) ? sanitize_text_field( $_GET[ 'lang' ] ) : false )
 			setcookie( $this->content_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
 	}
 
@@ -579,7 +577,7 @@ class Babble_Locale {
 	 **/
 	protected function maybe_set_cookie_interface_lang() {
 		// @FIXME: At this point a mischievous XSS "attack" could set a user's admin area language for them
-		if ( $requested_lang = ( isset( $_POST[ 'interface_lang' ] ) ) ? $_POST[ 'interface_lang' ] : false )
+		if ( $requested_lang = ( isset( $_POST[ 'interface_lang' ] ) ) ? sanitize_text_field( $_POST[ 'interface_lang' ] ) : false )
 			setcookie( $this->interface_lang_cookie, $requested_lang, time() + 31536000, self::get_cookie_path(), COOKIE_DOMAIN);
 	}
 
@@ -626,7 +624,6 @@ class Babble_Locale {
 	 * @author Simon Wheatley
 	 **/
 	protected function maybe_update() {
-		global $wpdb;
 		$option_name = 'bbl-locale-version';
 		$version = get_option( $option_name, 0 );
 

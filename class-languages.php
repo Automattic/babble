@@ -385,13 +385,13 @@ class Babble_Languages extends Babble_Plugin {
 			$lang_pref = new stdClass;
 
 			if ( ! empty( $_POST[ 'display_name_' . $code ] ) ) {
-				$lang_pref->display_name = wp_strip_all_tags( wp_unslash( $_POST[ 'display_name_' . $code ] ) );
+				$lang_pref->display_name = wp_strip_all_tags( wp_unslash( sanitize_text_field( $_POST[ 'display_name_' . $code ] ) ) );
 			} else {
 				$lang_pref->display_name = $lang->name;
 			}
 
 			if ( ! empty( $_POST[ 'url_prefix_' . $code ] ) ) {
-				$lang_pref->url_prefix = wp_strip_all_tags( wp_unslash( $_POST[ 'url_prefix_' . $code ] ) );
+				$lang_pref->url_prefix = rawurlencode( wp_strip_all_tags( wp_unslash( sanitize_text_field( $_POST[ 'url_prefix_' . $code ] ) ) ) );
 			} else {
 				$lang_pref->url_prefix = $lang->url_prefix;
 			}
@@ -453,8 +453,8 @@ class Babble_Languages extends Babble_Plugin {
 			$this->update_option( 'public_langs', $public_langs );
 			
 			// First the default language
-			$default_lang = $_POST[ 'default_lang' ];
-			$this->update_option( 'default_lang', $default_lang );
+			$default_lang = sanitize_text_field( $_POST[ 'default_lang' ] );
+			$this->update_option( 'default_lang', rawurlencode( $default_lang ) );
 			// Now the prefs
 			$this->update_option( 'lang_prefs', $lang_prefs );
 			// Now set a reassuring message and redirect back to the clean settings page

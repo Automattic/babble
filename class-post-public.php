@@ -158,7 +158,7 @@ class Babble_Post_Public {
 		$this->maybe_upgrade();
 		$post_type = false;
 		if ( isset( $_GET[ 'post_type' ] ) ) {
-			$post_type = $_GET[ 'post_type' ];
+			$post_type = sanitize_text_field( $_GET[ 'post_type' ] );
 		} else if ( isset( $_GET[ 'post' ] ) ) {
 			$post = (int) $_GET[ 'post' ];
 			$post = get_post( $post );
@@ -998,7 +998,9 @@ class Babble_Post_Public {
 			return;
 		}
 		$edit_link = get_edit_post_link( $default_post->ID );
-		$edit_link = add_query_arg( array( 'lang' => bbl_get_default_lang_code() ), $edit_link );
+		$args = array( 'lang' => bbl_get_default_lang_code() );
+		$args = array_map( 'rawurlencode', $args );
+		$edit_link = add_query_arg( $args, $edit_link );
 		bbl_switch_to_lang( bbl_get_default_lang_code() );
 		$view_link = get_permalink( $default_post->ID );
 		bbl_restore_lang();
@@ -1213,6 +1215,7 @@ class Babble_Post_Public {
 			'lang'            => $lang_code,
 			'post_type'       => 'bbl_job',
 		);
+		$args = array_map( 'rawurlencode', $args );
 		$url = add_query_arg( $args, $url );
 		return $url;
 	}
@@ -1647,7 +1650,6 @@ class Babble_Post_Public {
 	 * @return void
 	 **/
 	protected function maybe_upgrade() {
-		global $wpdb;
 		$option_name = 'bbl_post_public_version';
 		$version = get_option( $option_name, 0 );
 
