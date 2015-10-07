@@ -707,7 +707,7 @@ class Babble_Jobs extends Babble_Plugin {
 
 			$terms_data = stripslashes_deep( $_POST['bbl_translation']['terms'] );
 			if ( true === is_array( $terms_data ) ) {
-				array_walk_recursive( $terms_data, 'sanitize_text_field_by_reference' );
+				array_walk_recursive( $terms_data, array( $this, 'sanitize_text_field_by_reference' ) );
 			} else {
 				$terms_data = sanitize_text_field( $terms_data );
 			}
