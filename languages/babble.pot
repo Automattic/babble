@@ -1,0 +1,542 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: Babble: Publish Prior to Translation\n"
+"POT-Creation-Date: 2015-10-08 16:14+0200\n"
+"PO-Revision-Date: 2015-10-08 16:04+0200\n"
+"Last-Translator: fxbenard | FxB <fx@fxbenard.com>\n"
+"Language-Team: fxbenard | FxB <fx@fxbenard.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.5\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: translation-show-pre-translation.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: class-jobs.php:109 class-jobs.php:110
+msgid "Translation job updated."
+msgstr ""
+
+#: class-jobs.php:111
+msgid "Translation job submitted."
+msgstr ""
+
+#: class-jobs.php:112
+msgid "Translation job draft updated."
+msgstr ""
+
+#: class-jobs.php:503
+msgctxt "Translations meta box title"
+msgid "Translations"
+msgstr ""
+
+#: class-jobs.php:511
+msgid "Excerpt"
+msgstr ""
+
+#: class-jobs.php:538
+msgid "Save Translation"
+msgstr ""
+
+#: class-jobs.php:794
+msgctxt "translation jobs general name"
+msgid "Translation Jobs"
+msgstr ""
+
+#: class-jobs.php:795
+msgctxt "translation jobs singular name"
+msgid "Translation Job"
+msgstr ""
+
+#: class-jobs.php:796
+msgctxt "translation jobs menu name"
+msgid "Translations"
+msgstr ""
+
+#: class-jobs.php:797
+msgctxt "translation job"
+msgid "Add New"
+msgstr ""
+
+#: class-jobs.php:798
+msgctxt "translation job"
+msgid "Create New Job"
+msgstr ""
+
+#: class-jobs.php:799
+#, php-format
+msgctxt "translation job; e.g. \"Add Translation Job (French)\""
+msgid "Add Translation Job (%s)"
+msgstr ""
+
+#: class-jobs.php:800
+msgctxt "translation job"
+msgid "Edit Translation"
+msgstr ""
+
+#: class-jobs.php:801
+#, php-format
+msgctxt "translation job; e.g. \"Edit Translation (French)\""
+msgid "Edit Translation (%s)"
+msgstr ""
+
+#: class-jobs.php:802
+msgctxt "translation job"
+msgid "New Job"
+msgstr ""
+
+#: class-jobs.php:803
+msgctxt "translation job"
+msgid "View Job"
+msgstr ""
+
+#: class-jobs.php:804
+msgctxt "translation job"
+msgid "Search Jobs"
+msgstr ""
+
+#: class-jobs.php:805
+msgctxt "translation job"
+msgid "No translation jobs found."
+msgstr ""
+
+#: class-jobs.php:806
+msgctxt "translation job"
+msgid "No translation jobs found in Trash."
+msgstr ""
+
+#: class-jobs.php:807
+msgctxt "translation job"
+msgid "All Translation Jobs"
+msgstr ""
+
+#: class-jobs.php:824
+msgid "New"
+msgstr ""
+
+#: class-jobs.php:828
+#, php-format
+msgid "New <span class=\"count\">(%s)</span>"
+msgid_plural "New <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: class-jobs.php:832
+msgid "In Progress"
+msgstr ""
+
+#: class-jobs.php:836
+#, php-format
+msgid "In Progress <span class=\"count\">(%s)</span>"
+msgid_plural "In Progress <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: class-jobs.php:840
+msgid "Complete"
+msgstr ""
+
+#: class-jobs.php:844
+#, php-format
+msgid "Complete <span class=\"count\">(%s)</span>"
+msgid_plural "Complete <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: class-jobs.php:863 templates-admin/options-available-languages.php:34
+#: templates-admin/options-available-languages.php:45
+msgid "Language"
+msgstr ""
+
+#: class-jobs.php:864
+msgid "Items"
+msgstr ""
+
+#: class-jobs.php:865
+msgid "Status"
+msgstr ""
+
+#: class-jobs.php:911
+msgid "Complete:"
+msgstr ""
+
+#: class-jobs.php:917 class-post-public.php:1009
+msgid "View"
+msgstr ""
+
+#: class-jobs.php:925
+msgid "Pending:"
+msgstr ""
+
+#: class-jobs.php:939
+msgid "View pending translation jobs &raquo;"
+msgstr ""
+
+#: class-jobs.php:947
+msgid "Ready for translation"
+msgstr ""
+
+#: class-jobs.php:953
+msgctxt "No translations"
+msgid "None"
+msgstr ""
+
+#: class-languages.php:154
+#, php-format
+msgid ""
+"<strong>Babble setup:</strong> Please visit the <a href=\"%s\">Available "
+"Languages settings</a> and setup your available languages and the default "
+"language."
+msgstr ""
+
+#: class-languages.php:164 templates-admin/options-available-languages.php:11
+msgid "Available Languages"
+msgstr ""
+
+#: class-languages.php:403
+#, php-format
+msgid ""
+"The languages \"%1$s\" and \"%2$s\" are using the same URL Prefix. Each URL "
+"prefix should be unique."
+msgstr ""
+
+#: class-languages.php:426
+msgid "You must set at least two languages as active."
+msgstr ""
+
+#: class-languages.php:434
+msgid "You must set at least your default language as public."
+msgstr ""
+
+#: class-languages.php:444
+msgid "You must choose a default language."
+msgstr ""
+
+#: class-languages.php:446
+msgid "You must set your default language as public."
+msgstr ""
+
+#: class-languages.php:461
+msgid "Your language settings have been saved."
+msgstr ""
+
+#: class-locale.php:114
+#, php-format
+msgid ""
+"<strong>Babble problem:</strong> Fancy permalinks are disabled. <a href=\"%s"
+"\">Please enable them</a> in order to have language prefixed URLs work "
+"correctly."
+msgstr ""
+
+#: class-plugin.php:157
+#, php-format
+msgid "This plugin admin template could not be found: %s"
+msgstr ""
+
+#: class-post-public.php:233
+msgid ""
+"You can only create content in your site's default language. Please consult "
+"your editorial team."
+msgstr ""
+
+#: class-post-public.php:981
+msgid "Translation of"
+msgstr ""
+
+#: class-post-public.php:997
+msgid "No link"
+msgstr ""
+
+#: class-post-public.php:1007
+#, php-format
+msgid "Edit the originating post: “%s”"
+msgstr ""
+
+#: class-post-public.php:1008
+#, php-format
+msgid "View the originating post: “%s”"
+msgstr ""
+
+#: class-post-public.php:1009
+msgid "Edit"
+msgstr ""
+
+#: class-post-public.php:1181
+msgid "Invalid Post passed to get_post_lang_code"
+msgstr ""
+
+#: class-switcher-content.php:168 class-switcher-content.php:208
+#: class-switcher-content.php:260 class-switcher-content.php:296
+#: class-switcher-content.php:356 class-switcher-content.php:397
+#: class-switcher-content.php:449 class-switcher-content.php:479
+#: class-switcher-content.php:513 class-switcher-content.php:558
+#, php-format
+msgid "Switch to %s"
+msgstr ""
+
+#: class-switcher-content.php:213 class-switcher-content.php:307
+#, php-format
+msgctxt "Translation job status and language (example: In Progress: French)"
+msgid "%s: %s"
+msgstr ""
+
+#: class-switcher-content.php:219 class-switcher-content.php:314
+#: class-switcher-content.php:404 class-switcher-content.php:520
+#, php-format
+msgid "Create for %s"
+msgstr ""
+
+#: class-switcher-content.php:414
+#, php-format
+msgid "This content is unavailable in %s"
+msgstr ""
+
+#: class-taxonomy.php:77
+msgid "Term Translation ID"
+msgstr ""
+
+#: class-taxonomy.php:311
+msgid "Empty Term"
+msgstr ""
+
+#: class-translator.php:34
+msgctxt "Translator role"
+msgid "Translator"
+msgstr ""
+
+#: deprecated.php:49
+msgid ""
+"Instead of calling this function, you should pass a `bbl_translate` argument "
+"to `get_posts()` with a value of boolean false."
+msgstr ""
+
+#: templates-admin/options-available-languages.php:20
+msgid ""
+"Please select the languages you wish to translate this site into. You should "
+"select at least two, and select \"Save Changes\" below the languages table."
+msgstr ""
+
+#: templates-admin/options-available-languages.php:23
+msgid "Default Language:"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:35
+#: templates-admin/options-available-languages.php:46
+msgid "Active"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:36
+#: templates-admin/options-available-languages.php:47
+msgid "Public"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:37
+#: templates-admin/options-available-languages.php:48
+msgid "Code"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:38
+#: templates-admin/options-available-languages.php:49
+msgid "Display Name"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:39
+#: templates-admin/options-available-languages.php:50
+msgid "URL Prefix"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:40
+#: templates-admin/options-available-languages.php:51
+msgid "Text Direction"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:62
+#, php-format
+msgid "Enable \"%s\" on this site"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:67
+#, php-format
+msgid "Show \"%s\" on this site"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:76
+#, php-format
+msgid "Display name for \"%s\""
+msgstr ""
+
+#: templates-admin/options-available-languages.php:82
+#, php-format
+msgid "URL prefix for \"%s\""
+msgstr ""
+
+#: templates-admin/options-available-languages.php:88
+msgid "<strong>Left</strong> to right"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:90
+msgid "<strong>Right</strong> to left"
+msgstr ""
+
+#: templates-admin/options-available-languages.php:98
+msgid "Save Changes"
+msgstr ""
+
+#: templates-admin/switcher-interface.php:2
+msgid "Interface Language"
+msgstr ""
+
+#: templates-admin/translation-editor-terms.php:12
+msgid "Name"
+msgstr ""
+
+#: templates-admin/translation-editor-terms.php:25
+msgid "Slug (optional)"
+msgstr ""
+
+#: templates-admin/translation-editor-terms.php:39
+msgid "Description"
+msgstr ""
+
+#: templates-admin/translation-editor.php:35
+msgid "Enter title here"
+msgstr ""
+
+#: templates-admin/translation-editor.php:48
+#, php-format
+msgid "Enter the %s slug here"
+msgstr ""
+
+#: templates-admin/translation-editor.php:142
+msgid "Update"
+msgstr ""
+
+#: templates-admin/translation-groups.php:33
+msgid "Show only the following statuses:"
+msgstr ""
+
+#: templates-admin/translation-groups.php:43
+msgid "public"
+msgstr ""
+
+#: templates-admin/translation-groups.php:43
+msgid "hidden"
+msgstr ""
+
+#: templates-admin/translation-groups.php:45
+msgid "Filter"
+msgstr ""
+
+#: translation-fields.php:35
+msgctxt "WordPress SEO plugin meta field"
+msgid "SEO Title"
+msgstr ""
+
+#: translation-fields.php:36
+msgctxt "WordPress SEO plugin meta field"
+msgid "Meta Description"
+msgstr ""
+
+#: translation-fields.php:39
+msgid "Facebook"
+msgstr ""
+
+#: translation-fields.php:40
+msgid "Twitter"
+msgstr ""
+
+#: translation-fields.php:41
+msgid "Google+"
+msgstr ""
+
+#: translation-fields.php:47
+#, php-format
+msgid "%s Title"
+msgstr ""
+
+#: translation-fields.php:48
+#, php-format
+msgid "%s Description"
+msgstr ""
+
+#: translation-group-tool.php:67
+msgid "Translation Groups"
+msgstr ""
+
+#: translation-group-tool.php:178
+msgid ""
+"The TransID you want to reconnect this content to does not exist. Please "
+"check the Translation Group information and try again."
+msgstr ""
+
+#: widget.php:18
+msgid "Language Switcher"
+msgstr ""
+
+#: widget.php:19
+msgid "Displays a list of links to translations / equivalent pages."
+msgstr ""
+
+#: widget.php:31
+msgid "Languages"
+msgstr ""
+
+#: widget.php:54 widget.php:90
+msgid "Add"
+msgstr ""
+
+#: widget.php:138
+msgid "Show as:"
+msgstr ""
+
+#: widget.php:140
+msgid "Dropdown"
+msgstr ""
+
+#: widget.php:141
+msgid "List"
+msgstr ""
+
+#: widget.php:146
+msgid "Show all languages in widget, even if there is no translation"
+msgstr ""
+
+#: widget.php:149
+msgid ""
+"Don't worry: if there's no equivalent page, the link won't be clickable."
+msgstr ""
+
+#: widget.php:152
+msgid ""
+"Links allowing logged-in administrators to add translations will always be "
+"shown."
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Babble: Publish Prior to Translation"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://babbleplugin.com/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"When a post is queued for translation, immediately show the default language "
+"content while awaiting translation"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Automattic"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://automattic.com/"
+msgstr ""
