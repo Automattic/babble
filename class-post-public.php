@@ -333,7 +333,7 @@ class Babble_Post_Public extends Babble_Plugin {
 
 			$result = register_post_type( $new_post_type, $new_args );
 			if ( is_wp_error( $result ) ) {
-				error_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ) );
+				bbl_log( "Error creating shadow post_type for $new_post_type: " . print_r( $result, true ), true );
 			} else {
 				$this->post_types[ $new_post_type ] = $post_type;
 				$this->lang_map[ $new_post_type ] = $lang->code;
@@ -1210,8 +1210,9 @@ class Babble_Post_Public extends Babble_Plugin {
 		}
 
 		# @TODO A transid should never be a wp_error. Check and fix.
-		if ( is_wp_error( $transid ) )
-			error_log( "Error getting transid: " . print_r( $transid, true ) );
+		if ( is_wp_error( $transid ) ) {
+			bbl_log( "Error getting transid: " . print_r( $transid, true ), true );
+		}
 		$post_ids = get_objects_in_term( $transid, 'post_translation' );
 
 		// Work out all the translated equivalent post types
@@ -1501,16 +1502,18 @@ class Babble_Post_Public extends Babble_Plugin {
 		if ( ! $transid ) {
 			$transid_name = 'post_transid_' . uniqid();
 			$result = wp_insert_term( $transid_name, 'post_translation', array() );
-			if ( is_wp_error( $result ) )
-				error_log( "Problem creating a new Post TransID: " . print_r( $result, true ) );
-			else
-				$transid = $result[ 'term_id' ];
+			if ( is_wp_error( $result ) ) {
+				bbl_log( "Problem creating a new Post TransID: " . print_r( $result, true ), true );
+			} else {
+				$transid = $result['term_id'];
+			}
 			// Delete anything in there currently
 			wp_cache_delete( $transid, 'bbl_post_translations' );
 		}
 		$result = wp_set_object_terms( $post->ID, $transid, 'post_translation' );
-		if ( is_wp_error( $result ) )
-			error_log( "Problem associating TransID with new posts: " . print_r( $result, true ) );
+		if ( is_wp_error( $result ) ) {
+			bbl_log( "Problem associating TransID with new posts: " . print_r( $result, true ), true );
+		}
 
 		$this->clean_post_cache( $post->ID );
 
@@ -1620,25 +1623,25 @@ class Babble_Post_Public extends Babble_Plugin {
 			$time_diff = time() - $start_time;
 			// Check the lock is less than 30 mins old, and if it is, bail
 			if ( $time_diff < ( 60 * 30 ) ) {
-				error_log( "Babble Post Public: Existing update routine has been running for less than 30 minutes" );
+				bbl_log( "Babble Post Public: Existing update routine has been running for less than 30 minutes", true );
 				return;
 			}
-			error_log( "Babble Post Public: Update routine is running, but older than 30 minutes; going ahead regardless" );
+			bbl_log( "Babble Post Public: Update routine is running, but older than 30 minutes; going ahead regardless", true );
 		} else {
 			add_option( "{$option_name}_running", time(), null, 'no' );
 		}
 
 		if ( $version < 9 ) {
-			error_log( "Babble Post Public: Start pruning metadata" );
+			bbl_log( "Babble Post Public: Start pruning metadata", true );
 			$this->prune_post_meta();
-			error_log( "Babble Post Public: Remove excess post meta" );
+			bbl_log( "Babble Post Public: Remove excess post meta", true );
 		}
 
 		// N.B. Remember to increment $this->version above when you add a new IF
 
 		update_option( $option_name, $this->version );
 		delete_option( "{$option_name}_running", true, null, 'no' );
-		error_log( "Babble Post Public: Done upgrade, now at version " . $this->version );
+		bbl_log( "Babble Post Public: Done upgrade, now at version " . $this->version, true );
 	}
 
 	/**
